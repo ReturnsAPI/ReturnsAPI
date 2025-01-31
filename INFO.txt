@@ -1,0 +1,2 @@
+These examples serve as the syntax to structure the API around, as well as acting as unit tests for it.
+There should be several examples per class of varying complexity, so that we cover a large variety of use cases.
