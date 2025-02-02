@@ -1,14 +1,5 @@
--- see function recalculate_stats below for explanation
 
-local __instance_mt = {
-	__index = function(self, field)
-		return gm.variable_instance_get(self.value, field)
-	end,
-	__newindex = function(self, field, value)
-		gm.variable_instance_set(self.value, field, value)
-	end,
-}
-local __struct_mt = {
+local __mt = {
 	__index = function(self, field)
 		return gm.variable_struct_get(self.value, field)
 	end,
@@ -17,11 +8,8 @@ local __struct_mt = {
 	end,
 }
 
-local function instance_wrap(inst)
-	return setmetatable({value = inst}, __instance_mt)
-end
-local function struct_wrap(struct)
-	return setmetatable({value = struct}, __struct_mt)
+local function wrap(struct)
+	return setmetatable({value = struct}, __mt)
 end
 
 -- helpful constants
@@ -396,6 +384,7 @@ function recalculate_stats(actor)
 
 	-- pHmax_raw is used by artifact of spirit to remember the raw value -- it calculates pHmax from this value
 	stats.pHmax_raw = math.max(0, stats.pHmax)
+	stats.pHmax = stats.pHmax_raw
 	if gm.array_get(gm.array_get(ARTIFACT, ARTIFACT_ID.spirit), CLASS_ARTIFACT.is_active) then
 		stats.pHmax = stats.pHmax_raw * 1 + math.max(0,(2*(1-(actor.hp/actor.maxhp))))
 	end
@@ -431,8 +420,8 @@ function recalculate_stats(actor)
 	local _equipment_cdr_old = actor.equipment_cdr
 
 	stats.equipment_cdr = 1 - 1
-				    * math.exp(0.75, gm.array_get(_item_stack, ITEM_ID.rapid_mitosis ))
-				    * math.exp(0.95, gm.array_get(_item_stack, ITEM_ID.small_enigma ))
+				    * math.pow(0.75, gm.array_get(_item_stack, ITEM_ID.rapid_mitosis ))
+				    * math.pow(0.95, gm.array_get(_item_stack, ITEM_ID.small_enigma ))
 
 	local _alarm_0 = gm.call("alarm_get", actor.value, actor.value, 0)
 	if (_is_player and _alarm_0 ~= -1 and stats.equipment_cdr ~= _equipment_cdr_old) then
@@ -444,7 +433,7 @@ function recalculate_stats(actor)
 	stats.pAccel = stats.pAccel / (0.9 + stats.pHmax * 0.05)
 	stats.pFriction = actor.pAccel_base * (2.5 + stats.pHmax) / 2
 	if gm.array_get(_item_stack, ITEM_ID.rusty_jetpack) > 0 then
-		stats.pGravity2 = math.min(stats.pGravity2, gm.lerp(stats.pGravity2, 0.1, 1 - math.exp(0.9, gm.array_get(_item_stack, ITEM_ID.rusty_jetpack ))))
+		stats.pGravity2 = math.min(stats.pGravity2, gm.lerp(stats.pGravity2, 0.1, 1 - math.pow(0.9, gm.array_get(_item_stack, ITEM_ID.rusty_jetpack ))))
 		stats.pVmax = stats.pVmax + gm.log2(gm.array_get(_item_stack, ITEM_ID.rusty_jetpack ) + 1) * 1.2
 	end
 
@@ -460,7 +449,7 @@ function recalculate_stats(actor)
 	for i=0, 3 do
 		-- ActorSkillSlot.skill_recalculate_stats calls active_skill.skill_recalculate_stats internally
 		-- it also gets automatically called when the active ActorSkill changes, so it needs independent handling
-		local slot = struct_wrap(gm.array_get(actor.skills, i))
+		local slot = wrap(gm.array_get(actor.skills, i))
 		slot.skill_recalculate_stats(slot.value, slot.value)
 	end
 
@@ -480,14 +469,14 @@ function recalculate_stats(actor)
 end
 
 gm.pre_script_hook(gm.constants.recalculate_stats, function(self, other, result, args)
-	recalculate_stats(instance_wrap(self))
+	recalculate_stats(wrap(self))
 	return false
 end)
 
 local ActorSkill_recalculate_stats = gm.constants.anon_ActorSkill_gml_GlobalScript_scr_actor_skills_83921016_ActorSkill_gml_GlobalScript_scr_actor_skills
 
 gm.post_script_hook(ActorSkill_recalculate_stats, function(self, other, result, args)
-	local actor_skill = struct_wrap(self)
+	local actor_skill = wrap(self)
 
 	-- TODO
 end)
