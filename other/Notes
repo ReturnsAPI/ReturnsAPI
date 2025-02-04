@@ -1,1 +1,2 @@
 - Use debug.getlocal on arg1 of each method; if it's "namespace", then bind the mod namespace in a closure
+    - Also check last arg; if that is "namespace", then allow specifying ns optionally
