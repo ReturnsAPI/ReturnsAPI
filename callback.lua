@@ -3,6 +3,8 @@
 Callback = {}
 
 local callback_bank = {}    -- All Callback.onWhatever tables are proxies; actual functions stored in here
+local id_counter = 0
+local id_lookup = {}
 
 local callback_list = {
     "onLoad", "postLoad", "onStep", "preStep", "postStep",
@@ -39,20 +41,24 @@ for i, v in ipairs(callback_list) do
     local t = {}
     setmetatable(t, metatable_callback)
     Callback[v] = ReadOnly.new(t)
-    callback_bank[Callback[v]] = {
-        id_counter = 0,
-        id_lookup = {},
-        fn_tables = {}
-    }
+    callback_bank[Callback[v]] = {}
 end
 
 
 
 -- ========== Static Methods ==========
 
-Callback.get_type_name = function(id)
-    if id < 0 or id >= #callback_list then log.error("Invalid Callback numID", 2) end
-    return callback_list[id + 1]
+Callback.get_type_name = function(cbid)
+    if cbid < 0 or cbid >= #callback_list then log.error("Invalid Callback numID", 2) end
+    return callback_list[cbid + 1]
+end
+
+
+Callback.remove = function(id)
+    local t = id_lookup[id]
+    if not t then return end
+    id_lookup[id] = nil
+    table.remove(callback_bank[t[1]], t[2])
 end
 
 
@@ -63,29 +69,17 @@ metatable_callback = {
     __index = {
 
         add = function(self, fn)
-            local cbank = callback_bank[self]
-            cbank.id_counter = cbank.id_counter + 1
+            id_counter = id_counter + 1
 
             local t = {
                 -- id          = cbank.id_counter,
                 namespace   = "TODO",
                 fn          = fn
             }
-            cbank.id_lookup[cbank.id_counter] = t
-            table.insert(cbank.fn_tables, t)
+            id_lookup[id_counter] = {self, t}
+            table.insert(callback_bank[self], t)
 
-            return cbank.id_counter
-        end,
-
-
-        remove = function(self, id)
-            local cbank = callback_bank[self]
-
-            local t = cbank.id_lookup[id]
-            cbank.id_lookup[id] = nil
-            table.remove(cbank.fn_tables, t)
-
-            return t.fn
+            return id_counter
         end
 
     },
@@ -104,7 +98,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         local name = callback_list[cbid + 1]
         local cbank = callback_bank[Callback[name]]
 
-        for _, fn_table in pairs(cbank.fn_tables) do
+        for _, fn_table in pairs(cbank) do
             fn_table.fn()   -- fill with wrapped args
         end
     end
