@@ -10,7 +10,7 @@ envy = mods["MGReturns-ENVY"]
 class_refs = {}
 local dirs = path.get_directories(_ENV["!plugins_mod_folder_path"].."/core")
 for _, dir in ipairs(dirs) do
-    local files = path.get_files(_ENV["!plugins_mod_folder_path"].."/core/"..dir)
+    local files = path.get_files(dir)
     for _, file in ipairs(files) do
         name = path.filename(file):sub(1, -5)
         class_refs[name] = require(file)
