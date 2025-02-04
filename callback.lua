@@ -118,10 +118,9 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
     if cbid < #callback_list then
         local name = callback_list[cbid + 1]
         local cbank = callback_bank[Callback[name]]
-    end
 
     -- Content specific callbacks (e.g., Item on_acquired)
-    if Callback[cbid] then
+    elseif Callback[cbid] then
         cbank = callback_bank[Callback[cbid]]
     end
         
