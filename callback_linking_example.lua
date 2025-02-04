@@ -14,5 +14,12 @@
                 fn(cb_args)
             end
         end)
+    end,
+
+
+    onAcquired = function(self, fn)
+        -- item:onAcquired calls Callback[self.on_acquired]:add
+
+        return Callback[self.on_acquired]:add(fn)
     end
 }

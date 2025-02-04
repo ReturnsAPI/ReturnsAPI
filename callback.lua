@@ -39,7 +39,7 @@ Callback.TYPE = ReadOnly.new(TYPE)
 
 for i, v in ipairs(callback_list) do
     local t = {}
-    setmetatable(t, metatable_callback)
+    setmetatable(t, metatable_callback_type)
     Callback[v] = ReadOnly.new(t)
     callback_bank[Callback[v]] = {}
 end
@@ -65,7 +65,25 @@ end
 
 -- ========== Metatables ==========
 
-metatable_callback = {
+setmetatable(Callback, {
+    __index = function(t, k)
+        if type(k) == "number" then     -- Item on_acquired, etc.
+            local t = {}
+            setmetatable(t, metatable_callback_type)
+            Callback[k] = ReadOnly.new(t)
+            callback_bank[Callback[k]] = {}
+            return
+        end
+
+        log.error("Invalid Callback type", 2)
+    end,
+
+
+    __metatable = "Callback"
+})
+
+
+metatable_callback_type = {
     __index = {
 
         add = function(self, fn)
@@ -85,7 +103,7 @@ metatable_callback = {
     },
 
 
-    __metatable = "Callback"
+    __metatable = "CallbackType"
 }
 
 
@@ -94,10 +112,20 @@ metatable_callback = {
 
 gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
     local cbid = args[1].value
+    local cbank = nil
+
+    -- Standard callbacks
     if cbid < #callback_list then
         local name = callback_list[cbid + 1]
         local cbank = callback_bank[Callback[name]]
+    end
 
+    -- Content specific callbacks (e.g., Item on_acquired)
+    if Callback[cbid] then
+        cbank = callback_bank[Callback[cbid]]
+    end
+        
+    if cbank then
         for _, fn_table in pairs(cbank) do
             fn_table.fn()   -- fill with wrapped args
         end

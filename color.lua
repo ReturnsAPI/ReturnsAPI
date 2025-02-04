@@ -164,7 +164,7 @@ end
 -- ========== Metatables ==========
 
 setmetatable(Color, {
-    __call = function(table, hex)
+    __call = function(t, hex)
         return Color.from_hex(hex)
     end,
 
