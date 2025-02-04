@@ -41,12 +41,7 @@ end
 
 
 Callback.add = function(namespace, callback, fn)
-    -- Bank keys are numerical to be consistent with
-    -- custom callbacks e.g., Item on_acquired
-    -- E.g., k == "onStep"  ->  k = 2
-    callback = Callback.TYPE[k] or callback
-
-    -- Throw error if not standard callback name or numerical ID
+    -- Throw error if not numerical ID
     if type(callback) ~= "number" then
         log.error("Invalid Callback type", 2)
     end
