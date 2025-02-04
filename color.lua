@@ -174,4 +174,4 @@ setmetatable(Color, {
 
 
 
-return ReadOnly.new(Color)
+return Color

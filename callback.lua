@@ -112,4 +112,4 @@ end)
 
 
 
-return ReadOnly.new(Callback)
+return Callback
