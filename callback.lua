@@ -48,6 +48,15 @@ end
 
 
 
+-- ========== Static Methods ==========
+
+Callback.get_type_name = function(id)
+    if id < 0 or id >= #callback_list then log.error("Invalid Callback numID", 2) end
+    return callback_list[id + 1]
+end
+
+
+
 -- ========== Metatables ==========
 
 metatable_callback = {
