@@ -100,8 +100,8 @@ end
 -- ========== Hooks ==========
 
 gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
-    local cbid = args[1].value
-    local cbank = callback_bank[cbid]
+    local callback = args[1].value
+    local cbank = callback_bank[callback]
 
     if cbank then
         for _, fn_t in ipairs(cbank) do
