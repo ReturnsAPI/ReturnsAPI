@@ -35,11 +35,11 @@ Callback.TYPE = ReadOnly.new(TYPE)
 -- Populate Callbacks with every
 -- type having its own table
 
-for k, _ in ipairs(Callback.TYPE) do
+for i, v in ipairs(callback_list) do
     local t = {}
     setmetatable(t, metatable_callback)
-    Callback[k] = ReadOnly.new(t)
-    callback_bank[Callback[k]] = {
+    Callback[v] = ReadOnly.new(t)
+    callback_bank[Callback[v]] = {
         id_counter = 0,
         id_lookup = {},
         fn_tables = {}
