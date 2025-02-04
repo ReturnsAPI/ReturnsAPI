@@ -31,11 +31,11 @@ local metatable_readonly = {
     __metatable = "ReadOnly"
 }
 
-local new = function(t)
-    local readonly = {}
-    originals[readonly] = t or {}
-    setmetatable(readonly, metatable_readonly)
-    return readonly
-end
-
-ReadOnly = new({new = new})
+ReadOnly = {
+    new = function(t)
+        local readonly = {}
+        originals[readonly] = t or {}
+        setmetatable(readonly, metatable_readonly)
+        return readonly
+    end
+}
