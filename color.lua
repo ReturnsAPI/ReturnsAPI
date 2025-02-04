@@ -61,7 +61,7 @@ end
 
 
 
--- ========== Static Methods  ==========
+-- ========== Static Methods ==========
 
 -- from rgb [0-255] to gamemaker
 Color.from_rgb = function(r,g,b)
@@ -161,7 +161,7 @@ end
 
 
 
--- ========== Metatable ==========
+-- ========== Metatables ==========
 
 setmetatable(Color, {
     __call = function(table, hex)
