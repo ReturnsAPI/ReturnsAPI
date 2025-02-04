@@ -174,4 +174,4 @@ setmetatable(Color, {
 
 
 
-return Proxy.new(Color)
+return ReadOnly.new(Color)

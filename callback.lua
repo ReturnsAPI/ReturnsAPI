@@ -26,7 +26,7 @@ for i, v in ipairs(callback_list) do
     TYPE[v] = i - 1
 end
 
-Callback.TYPE = Proxy.new(TYPE)
+Callback.TYPE = ReadOnly.new(TYPE)
 
 
 
@@ -38,7 +38,7 @@ Callback.TYPE = Proxy.new(TYPE)
 for k, _ in ipairs(Callback.TYPE) do
     local t = {}
     setmetatable(t, metatable_callback)
-    Callback[k] = Proxy.new(t)
+    Callback[k] = ReadOnly.new(t)
     callback_bank[Callback[k]] = {
         id_counter = 0,
         id_lookup = {},
@@ -103,4 +103,4 @@ end)
 
 
 
-return Proxy.new(Callback)
+return ReadOnly.new(Callback)

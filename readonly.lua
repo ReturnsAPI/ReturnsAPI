@@ -1,13 +1,13 @@
--- Proxy
+-- ReadOnly
 
 -- This version has no support for read-only *keys*
 -- since that has significantly increased performance cost
 
--- Additionally, Proxy.new should be called to *finalize* the lock
+-- Additionally, ReadOnly.new should be called to *finalize* the lock
 
 local originals = setmetatable({}, {__mode = "k"})
 
-local metatable_proxy = {
+local metatable_readonly = {
     __index = function(t, k)
         return originals[t][k]
     end,
@@ -28,14 +28,14 @@ local metatable_proxy = {
     --     return next, originals[t], nil
     -- end,
 
-    __metatable = "Proxy"
+    __metatable = "ReadOnly"
 }
 
 local new = function(t)
-    local proxy = {}
-    originals[proxy] = t or {}
-    setmetatable(proxy, metatable_proxy)
-    return proxy
+    local readonly = {}
+    originals[readonly] = t or {}
+    setmetatable(readonly, metatable_readonly)
+    return readonly
 end
 
-Proxy = new({new = new})
+ReadOnly = new({new = new})
