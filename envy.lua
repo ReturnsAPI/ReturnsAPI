@@ -17,8 +17,8 @@ function public.setup(env)
             if type(v) == "function" then
                 -- local nparams = debug.getinfo(v).nparams
                 if debug.getlocal(v, 1) == "namespace" then
-                    copy[k] = function(namespace, ...)
-                        v(namespace, ...)
+                    copy[k] = function(...)
+                        return v(namespace, ...)
                     end
                 end
             end
