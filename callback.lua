@@ -2,7 +2,7 @@
 
 Callback = {}
 
-local callback_bank = {}    -- All Callback.onWhatever tables are proxies; actual functions stored in here
+local callback_bank = {}
 local id_counter = 0
 local id_lookup = {}
 
@@ -32,22 +32,6 @@ Callback.TYPE = ReadOnly.new(TYPE)
 
 
 
--- ========== Internal ==========
-
--- Populate Callbacks with every
--- type having its own table
-
--- * This has been moved to __index
-
--- for i, v in ipairs(callback_list) do
---     local t = {}
---     setmetatable(t, metatable_callback_type)
---     Callback[v] = ReadOnly.new(t)
---     callback_bank[Callback[v]] = {}
--- end
-
-
-
 -- ========== Static Methods ==========
 
 Callback.get_type_name = function(cbid)
@@ -56,63 +40,65 @@ Callback.get_type_name = function(cbid)
 end
 
 
-Callback.remove = function(id)
-    local t = id_lookup[id]
-    if not t then return end
-    id_lookup[id] = nil
-    table.remove(callback_bank[t[1]], t[2])
+Callback.add = function(namespace, callback, fn)
+    -- Bank keys are numerical to be consistent with
+    -- custom callbacks e.g., Item on_acquired
+    -- E.g., k == "onStep"  ->  k = 2
+    callback = Callback.TYPE[k] or callback
+
+    -- Throw error if not standard callback name or numerical ID
+    if type(callback) ~= "number" then
+        log.error("Invalid Callback type", 2)
+    end
+
+    -- Create callback_bank subtable if it does not exist
+    if not callback_bank[callback] then
+        callback_bank[callback] = {}
+    end
+
+    -- Add to subtable
+    id_counter = id_counter + 1
+
+    local fn_t = {
+        id          = id_counter,
+        namespace   = namespace,
+        fn          = fn
+    }
+    local lookup_t = {callback, fn_t}
+    id_lookup[id_counter] = lookup_t
+    table.insert(callback_bank[callback], fn_t)
+
+    return id_counter
 end
 
 
+Callback.remove = function(id)
+    local lookup_t = id_lookup[id]
+    if not lookup_t then return end
+    id_lookup[id] = nil
 
--- ========== Metatables ==========
-
-setmetatable(Callback, {
-    __index = function(t, k)
-        k = Callback.TYPE[k] or k       -- Standard callbacks
-                                        -- E.g., k == "onStep"  ->  k = 2
-
-        if Callback[k] then return Callback[k] end
-
-        if type(k) == "number" then     -- Bank keys are numerical to be consistent with
-                                        -- custom callbacks e.g., Item on_acquired
-            local t = {}
-            setmetatable(t, metatable_callback_type)
-            Callback[k] = ReadOnly.new(t)
-            callback_bank[Callback[k]] = {}
-            return
+    local cbank = callback_bank[lookup_t[1]]
+    for i, v in ipairs(cbank) do
+        if v == lookup_t[2] then
+            table.remove(cbank, i)
+            break
         end
-
-        log.error("Invalid Callback type", 2)
-    end,
-
-
-    __metatable = "Callback"
-})
+    end
+end
 
 
-metatable_callback_type = {
-    __index = {
-
-        add = function(self, fn)
-            id_counter = id_counter + 1
-
-            local t = {
-                -- id          = cbank.id_counter,
-                namespace   = "TODO",
-                fn          = fn
-            }
-            id_lookup[id_counter] = {self, t}
-            table.insert(callback_bank[self], t)
-
-            return id_counter
+-- Placeholder position
+local clear_all = function(namespace)
+    for callback, cbank in pairs(callback_bank) do
+        for i = #cbank, 1, -1 do
+            local fn_t = cbank[i]
+            if fn_t.namespace == namespace then
+                id_lookup[fn_t.id] = nil
+                table.remove(cbank, i)
+            end
         end
-
-    },
-
-
-    __metatable = "CallbackType"
-}
+    end
+end
 
 
 
@@ -120,11 +106,11 @@ metatable_callback_type = {
 
 gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
     local cbid = args[1].value
-    local cbank = callback_bank[Callback[cbid]]
+    local cbank = callback_bank[cbid]
 
     if cbank then
-        for _, fn_table in pairs(cbank) do
-            fn_table.fn()   -- fill with wrapped args
+        for _, fn_t in ipairs(cbank) do
+            fn_t.fn()   -- fill with wrapped args
         end
     end
 end)

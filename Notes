@@ -1,0 +1,1 @@
+- Use debug.getlocal on arg1 of each method; if it's "namespace", then bind the mod namespace in a closure

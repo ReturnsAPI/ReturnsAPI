@@ -1,8 +1,9 @@
 -- Item
 
--- Linking to central callback system example:
+-- Linking to central callback system examples:
 
--- metatable_item __index
+
+-- Colon syntax : metatable_item __index
 {
     onHitProc = function(self, fn)
         -- item:onHitProc calls Callback.onHitProc:add
@@ -21,5 +22,26 @@
         -- item:onAcquired calls Callback[self.on_acquired]:add
 
         return Callback[self.on_acquired]:add(fn)
+    end
+}
+
+
+-- .add : metatable_item __index
+{
+    onHitProc = function(self, fn)
+        -- item:onHitProc calls Callback.add(Callback.TYPE.onHitProc, ...)
+
+        return Callback.add(Callback.TYPE.onHitProc, function(cb_args)
+            if actor:item_count(self.value) > 0 then
+                fn(cb_args)
+            end
+        end)
+    end,
+
+
+    onAcquired = function(self, fn)
+        -- item:onAcquired calls Callback.add(self.on_acquired, ...)
+
+        return Callback.add(self.on_acquired, fn)
     end
 }
