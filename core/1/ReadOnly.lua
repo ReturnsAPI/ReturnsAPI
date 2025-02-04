@@ -39,3 +39,5 @@ ReadOnly = {
         return readonly
     end
 }
+
+return ReadOnly
