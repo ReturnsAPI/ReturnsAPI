@@ -91,7 +91,7 @@ metatable_callback = {
 
 gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
     local cbid = args[1].value
-    if cbid <= 42 then
+    if cbid < #callback_list then
         local name = callback_list[cbid + 1]
         local cbank = callback_bank[Callback[name]]
 
