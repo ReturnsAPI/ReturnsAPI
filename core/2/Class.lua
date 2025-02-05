@@ -105,13 +105,13 @@ end
 -- DEBUG
 Class.debug_force_repopulate = function()
     -- Populate find table
-    for _, class_gm in ipairs(class_rapi_to_gm) do
+    for _, class_gm in pairs(class_rapi_to_gm) do
         Class_find_repopulate(class_gm)
     end
     allow_find_repopulate = true
 
     -- Populate class_wrappers
-    for class_rapi, class_gm in ipairs(class_rapi_to_gm) do
+    for class_rapi, class_gm in pairs(class_rapi_to_gm) do
         class_wrappers[class_rapi:upper()] = Array.wrap(gm.variable_global_get(class_gm))
     end
 end
