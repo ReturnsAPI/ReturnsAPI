@@ -133,4 +133,17 @@ metatable_instance = {
 
 
 
+-- ========== Hooks ==========
+
+gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+    -- On room change, remove non-existent instances from instance_data
+    for k, v in pairs(instance_data) do
+        if gm.instance_exists(k) == 0 then
+            instance_data[k] = nil
+        end
+    end
+end)
+
+
+
 return Instance
