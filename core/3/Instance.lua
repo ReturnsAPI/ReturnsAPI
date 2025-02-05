@@ -48,6 +48,7 @@ methods_instance = {
 
 metatable_instance = {
     __index = function(t, k)
+        -- Get wrapped value
         if k == "value" then return Proxy.get(t) end
 
         -- Methods
