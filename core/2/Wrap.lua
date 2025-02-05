@@ -15,10 +15,9 @@ Wrap.wrap = function(value)
     end
 
     -- Instance
-    -- TODO
-    -- if Instance.is(value) then
-    --     return Instance.wrap(value)
-    -- end
+    if select(2, type(value)) == "sol.CInstance*" then
+        return Instance_wrap_internal(value)
+    end
 
     return value
 end
