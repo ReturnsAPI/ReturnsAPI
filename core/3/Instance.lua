@@ -17,6 +17,7 @@ Instance.wrap = function(instance, instance_type)
 end
 
 -- For internal use; skips type checks if valid instance is guaranteed
+-- Additionally, can specify metatable to use instead of having to check
 Instance_wrap_internal = function(instance, mt)
     local id = instance.id
     if wrapper_cache[id] then return wrapper_cache[id] end
