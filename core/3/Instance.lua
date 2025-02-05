@@ -146,8 +146,19 @@ gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
 end)
 gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
     -- Remove `instance_data` on non-player kill
-    if self.object_index ~= gm.constants.oP then
-        instance_data[self.id] = nil
+    local actor = args[1].value
+    if actor.object_index ~= gm.constants.oP then
+        instance_data[actor.id] = nil
+    end
+end)
+
+
+gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
+    -- Move `instance_data` to new instance
+    local id = args[1].value.id
+    if instance_data[id] then
+        instance_data[args[2].value.id] = instance_data[id]
+        instance_data[id] = nil
     end
 end)
 
