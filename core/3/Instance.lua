@@ -11,7 +11,8 @@ local wrapper_cache = {}
 
 Instance.wrap = function(instance)
     instance = Wrap.unwrap(instance)
-    if wrapper_cache[instance.id] then return wrapper_cache[instance.id] end
+    local id = instance.id
+    if wrapper_cache[id] then return wrapper_cache[id] end
 
     local mt = metatable_instance
     if gm.object_is_ancestor(instance.object_index, gm.constants.pActor) == 1 then
@@ -19,18 +20,19 @@ Instance.wrap = function(instance)
     end
 
     local wrapper = Proxy.new(instance, mt)
-    wrapper_cache[instance.id] = wrapper
+    wrapper_cache[id] = wrapper
     return wrapper
 end
 
 
 Instance.get_data = function(namespace, instance, subtable)
     instance = Wrap.unwrap(instance)
+    local id = instance.id
     subtable = subtable or "__main"
-    if not instance_data[instance.id] then instance_data[instance.id] = {} end
-    if not instance_data[instance.id][namespace] then instance_data[instance.id][namespace] = {} end
-    if not instance_data[instance.id][namespace][subtable] then instance_data[instance.id][namespace][subtable] = {} end
-    return instance_data[instance.id][namespace][subtable]
+    if not instance_data[id] then instance_data[id] = {} end
+    if not instance_data[id][namespace] then instance_data[id][namespace] = {} end
+    if not instance_data[id][namespace][subtable] then instance_data[id][namespace][subtable] = {} end
+    return instance_data[id][namespace][subtable]
 end
 
 
