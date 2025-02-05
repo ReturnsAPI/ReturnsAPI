@@ -114,7 +114,7 @@ methods_array = {
 -- ========== Metatables ==========
 
 metatable_array_class = {
-    __call = function(value, arg2)
+    __call = function(t, value, arg2)
         -- Wrap
         if select(2, type(value)) == "sol.RefDynamicArrayOfRValue*" then
             return Proxy.new(value, metatable_array)
@@ -123,7 +123,7 @@ metatable_array_class = {
         -- Create array from table
         if type(value) == "table" then
             local array = gm.array_create(0)
-            for _, v in ipairs(arg1) do
+            for _, v in ipairs(value) do
                 gm.array_push(array, Wrap.unwrap(v))
             end
             return Proxy.new(array, metatable_array)

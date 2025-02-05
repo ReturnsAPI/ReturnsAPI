@@ -100,7 +100,7 @@ methods_list = {
 -- ========== Metatables ==========
 
 metatable_list_class = {
-    __call = function(value, arg2)
+    __call = function(t, value, arg2)
         -- Create list from table
         if type(value) == "table" then
             local list = gm.ds_list_create()
