@@ -3,13 +3,24 @@
 Instance = {}
 
 local instance_data = {}
+local wrapper_cache = {}
 
 
 
 -- ========== Static Methods ==========
 
 Instance.wrap = function(instance)
-    return Proxy.new(Wrap.unwrap(instance), metatable_instance)
+    instance = Wrap.unwrap(instance)
+    if wrapper_cache[instance.id] then return wrapper_cache[instance.id] end
+
+    local mt = metatable_instance
+    if gm.object_is_ancestor(instance.object_index, gm.constants.pActor) == 1 then
+        mt = metatable_actor
+    end
+
+    local wrapper = Proxy.new(instance, mt)
+    wrapper_cache[instance.id] = wrapper
+    return wrapper
 end
 
 
@@ -44,6 +55,13 @@ methods_instance = {
         if not self:exists() then return false end
         return self.value == Wrap.unwrap(other)
     end,
+
+
+    is_colliding = function(self, object, x, y)
+        if not self:exists() then return false end
+        object = Wrap.unwrap(object)
+        return self.value:place_meeting(x or self.x, y or self.y, object) == 1.0
+    end
 
 }
 
