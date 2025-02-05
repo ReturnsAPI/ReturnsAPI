@@ -82,8 +82,7 @@ Callback.remove = function(id)
 end
 
 
--- Placeholder position
-local clear_all = function(namespace)
+Callback.remove_all = function(namespace)
     for callback, cbank in pairs(callback_bank) do
         for i = #cbank, 1, -1 do
             local fn_t = cbank[i]

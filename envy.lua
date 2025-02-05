@@ -35,4 +35,8 @@ function public.auto()
     local env = envy.getfenv(2)
     local wrapper = public.setup(env)
     envy.import_all(env, wrapper)
+
+    -- Clear callbacks associated with namespace
+    local namespace = env["!guid"]
+    Callback.remove_all(namespace)
 end
