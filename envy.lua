@@ -45,24 +45,24 @@ function public.setup(env)
                         -- Someone please tell me there is a better way to do this
                         if pos then
                             if pos == 2 then
-                                copy[k] = function(arg1, ns, ...)
-                                    return v(arg1, ns or namespace, ...)
+                                copy[k] = function(arg1, ns)
+                                    return v(arg1, ns or namespace, namespace)
                                 end
                             elseif pos == 3 then
-                                copy[k] = function(arg1, arg2, ns, ...)
-                                    return v(arg1, arg2, ns or namespace, ...)
+                                copy[k] = function(arg1, arg2, ns)
+                                    return v(arg1, arg2, ns or namespace, namespace)
                                 end
                             elseif pos == 4 then
-                                copy[k] = function(arg1, arg2, arg3, ns, ...)
-                                    return v(arg1, arg2, arg3, ns or namespace, ...)
+                                copy[k] = function(arg1, arg2, arg3, ns)
+                                    return v(arg1, arg2, arg3, ns or namespace, namespace)
                                 end
                             elseif pos == 5 then
-                                copy[k] = function(arg1, arg2, arg3, arg4, ns, ...)
-                                    return v(arg1, arg2, arg3, arg4, ns or namespace, ...)
+                                copy[k] = function(arg1, arg2, arg3, arg4, ns)
+                                    return v(arg1, arg2, arg3, arg4, ns or namespace, namespace)
                                 end
                             elseif pos == 6 then
-                                copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns, ...)
-                                    return v(arg1, arg2, arg3, arg4, arg5, ns or namespace, ...)
+                                copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns)
+                                    return v(arg1, arg2, arg3, arg4, arg5, ns or namespace, namespace)
                                 end
                             end
                         end

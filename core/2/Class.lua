@@ -2,6 +2,10 @@
 
 Class = {}
 
+
+
+-- ========== Populate RAPI <-> GM name mappings ==========
+
 local file_path = _ENV["!plugins_mod_folder_path"].."/core/data/class_name_mapping.txt"
 local success, file = pcall(toml.decodeFromFile, file_path)
 class_rapi_to_gm = file.mapping
@@ -10,16 +14,186 @@ for k, v in pairs(class_rapi_to_gm) do
     class_gm_to_rapi[v] = k
 end
 
-Class_tables = {}
 
 
+-- ========== Metatables ==========
+
+local class_wrappers = {}   -- Populated on initialize
+
+metatable_class = {
+    -- Allows for accessing wrapped class arrays via Class.<class>
+    __index = function(t, k)
+        k = k:upper()
+        if class_wrappers[k] then return class_wrappers[k] end
+        log.error("Class does not exist", 2)
+    end,
+
+
+    __metatable = "Class"
+}
+setmetatable(Class, metatable_class)
+
+
+
+-- ========== Custom `.find` table ==========
+
+class_find_tables = {}
+for _, class_gm in pairs(class_rapi_to_gm) do
+    class_find_tables[class_gm] = {}
+end
+
+local allow_find_repopulate = false
+
+-- Run once on initialize, and afterwards
+-- every time a new piece of content is added
+Class_find_repopulate = function(class_gm)
+    local arr = gm.variable_global_get(class_gm)
+    local size = gm.array_length(arr)
+    local t = class_find_tables[class_gm]
+
+    -- Loop class_array
+    for i = 0, size - 1 do
+
+        -- If current element is valid (i.e., is an array),
+        -- get its namespace and identifier
+        local element = gm.array_get(arr, i)
+        local namespace, identifier = "invalid", "invalid"
+        if select(2, type(element)) ~= "sol.RefDynamicArrayOfRValue*" then
+            namespace = gm.array_get(element, 0)
+            identifier = gm.array_get(element, 1)
+        end
+
+        -- Store in table
+        t[namespace][identifier] = i
+        t[i] = {namespace, identifier}
+    end
+end
+
+local hooks = {
+    {gm.constants.achievement_create,       "class_achievement"},
+    {gm.constants.actor_skin_create,        "class_actor_skin"},
+    {gm.constants.actor_state_create,       "class_actor_state"},
+    {gm.constants.artifact_create,          "class_artifact"},
+    {gm.constants.buff_create,              "class_buff"},
+    {gm.constants.difficulty_create,        "class_difficulty"},
+    {gm.constants.elite_type_create,        "class_elite"},
+    {gm.constants.ending_create,            "class_ending_type"},
+    {gm.constants.environment_log_create,   "class_environment_log"},
+    {gm.constants.equipment_create,         "class_equipment"},
+    {gm.constants.gamemode_create,          "class_game_mode"},
+    {gm.constants.interactable_card_create, "class_interactable_card"},
+    {gm.constants.item_create,              "class_item"},
+    {gm.constants.item_log_create,          "class_item_log"},
+    {gm.constants.monster_card_create,      "class_monster_card"},
+    {gm.constants.monster_log_create,       "class_monster_log"},
+    {gm.constants.skill_create,             "class_skill"},
+    {gm.constants.stage_create,             "class_stage"},
+    {gm.constants.survivor_create,          "class_survivor"},
+    {gm.constants.survivor_log_create,      "class_survivor_log"}
+}
+for _, hook in ipairs(hooks) do
+    gm.post_script_hook(hook[1], function(self, other, result, args)
+        if not allow_find_repopulate then return end
+        Class_find_repopulate(hook[2])
+    end)
+end
+
+
+
+-- DEBUG
+Class.force_repopulate = function()
+    -- Populate find table
+    for _, class_gm in ipairs(class_rapi_to_gm) do
+        Class_find_repopulate(class_gm)
+    end
+    allow_find_repopulate = true
+
+    -- Populate class_wrappers
+    for class_rapi, class_gm in ipairs(class_rapi_to_gm) do
+        class_wrappers[class_rapi] = Array.wrap(gm.variable_global_get(class_gm))
+    end
+end
+
+
+
+-- ========== Base Implementations ==========
+
+-- This class will also create the base
+-- implementations for every global "class_"
+-- array, containing "PROPERTY", "find", and "wrap".
+
+metatable_class_arrays = {}
+
+-- Load property name from data
+local file_path = _ENV["!plugins_mod_folder_path"].."/core/data/class_array.txt"
+local success, file = pcall(toml.decodeFromFile, file_path)
+local properties = file.array
 
 for class_rapi, class_gm in pairs(class_rapi_to_gm) do
 
-    -- Class_tables[class_rapi]
+    local class_table = {
+
+        PROPERTY = ReadOnly.new(properties[class_gm]),
+
+
+        find = function(identifier, namespace, default_namespace)
+            -- Search in namespace
+            local element = class_find_tables[namespace][identifier]
+            if element then return class_table.wrap(element) end
+
+            -- Also search in "ror" namespace if default namespace (i.e., No namespace arg)
+            if namespace == default_namespace then
+                element = class_find_tables["ror"][identifier]
+                if element then return class_table.wrap(element) end
+            end
+
+            return nil
+        end,
+
+
+        find_all = function(filter, property)
+            -- TODO
+        end,
+
+
+        wrap = function(value)
+            return Proxy.new(value, metatable_class_arrays[class_rapi])
+        end
+
+    }
+    class_refs[class_rapi] = class_table
+
+
+    metatable_class_arrays[class_rapi] = {
+        -- Getter
+        __index = function(t, k)
+            local index = t.PROPERTY[k]
+            if index then
+                local array = gm.variable_global_get(class_gm)
+                return Wrap.wrap(gm.array_get(array, index))
+            end
+            log.error("Non-existent "..class.." property", 2)
+            return nil
+        end,
+
+
+        -- Setter
+        __newindex = function(t, k, v)
+            local index = t.PROPERTY[k]
+            if index then
+                local array = gm.variable_global_get(class_gm)
+                gm.array_set(array, index, Wrap.unwrap(v))
+                return
+            end
+            log.error("Non-existent "..class.." property", 2)
+        end,
+
+        
+        __metatable = class_rapi
+    }
 
 end
 
 
 
-return {Class}
+return {Class, metatable_class}

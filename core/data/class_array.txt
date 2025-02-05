@@ -1,4 +1,4 @@
-[array.achievement]
+[array.class_achievement]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -25,7 +25,7 @@ group                           = 22
 on_completed                    = 23
 
 
-[array.actor_skin]
+[array.class_actor_skin]
 namespace                       = 0
 identifier                      = 1
 effect_display                  = 2
@@ -35,7 +35,7 @@ draw_skinnable_instance         = 5
 skin_type_index                 = 6
 
 
-[array.actor_state]
+[array.class_actor_state]
 namespace                       = 0
 identifier                      = 1
 on_enter                        = 2
@@ -49,7 +49,7 @@ is_climb_state                  = 9
 activity_flags                  = 10
 
 
-[array.artifact]
+[array.class_artifact]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -62,7 +62,7 @@ active                          = 8
 achievement_id                  = 9
 
 
-[array.buff]
+[array.class_buff]
 namespace                       = 0
 identifier                      = 1
 show_icon                       = 2
@@ -82,7 +82,7 @@ client_handles_removal          = 15
 effect_display                  = 16
 
 
-[array.difficulty]
+[array.class_difficulty]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -98,7 +98,7 @@ is_monsoon_or_higher            = 11
 allow_blight_spawns             = 12
 
 
-[array.elite]
+[array.class_elite]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -109,14 +109,14 @@ effect_display                  = 6
 on_apply                        = 7
 
 
-[array.ending_type]
+[array.class_ending_type]
 namespace                       = 0
 identifier                      = 1
 primary_color                   = 2
 is_victory                      = 3
 
 
-[array.environment_log]
+[array.class_environment_log]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -135,7 +135,7 @@ is_secret                       = 14
 spr_icon                        = 15
 
 
-[array.equipment]
+[array.class_equipment]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -152,14 +152,14 @@ loot_tags                       = 12
 is_new_equipment                = 13
 
 
-[array.game_mode]
+[array.class_game_mode]
 namespace                       = 0
 identifier                      = 1
 count_normal_unlocks            = 2
 count_towards_games_played      = 3
 
 
-[array.interactable_card]
+[array.class_interactable_card]
 namespace                       = 0
 identifier                      = 1
 spawn_cost                      = 2
@@ -172,7 +172,7 @@ default_spawn_rarity_override   = 8
 decrease_weight_on_spawn        = 9
 
 
-[array.item]
+[array.class_item]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -191,7 +191,7 @@ loot_tags                       = 14
 is_new_item                     = 15
 
 
-[array.item_log]
+[array.class_item_log]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -206,7 +206,7 @@ group                           = 10
 achievement_id                  = 11
 
 
-[array.monster_card]
+[array.class_monster_card]
 namespace                       = 0
 identifier                      = 1
 spawn_type                      = 2
@@ -218,7 +218,7 @@ elite_list                      = 7
 can_be_blighted                 = 8
 
 
-[array.monster_log]
+[array.class_monster_log]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -239,7 +239,7 @@ enemy_object_ids_kills          = 16
 enemy_object_ids_deaths         = 17
 
 
-[array.skill]
+[array.class_skill]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -272,7 +272,7 @@ on_unequipped                   = 28
 upgrade_skill                   = 29
 
 
-[array.stage]
+[array.class_stage]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -293,7 +293,7 @@ populate_biome_properties       = 16
 log_id                          = 17
 
 
-[array.survivor]
+[array.class_survivor]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
@@ -330,7 +330,7 @@ is_secret                       = 32
 cape_offset                     = 33
 
 
-[array.survivor_log]
+[array.class_survivor_log]
 namespace                       = 0
 identifier                      = 1
 token_name                      = 2
