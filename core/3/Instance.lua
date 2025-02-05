@@ -7,14 +7,7 @@ local wrapper_cache = {}
 
 
 
--- ========== Static Methods ==========
-
-Instance.wrap = function(instance, instance_type)
-    instance = Wrap.unwrap(instance)
-    if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
-    if type(instance) ~= "userdata" then return Instance.wrap_invalid() end
-    return Instance_wrap_internal(instance)
-end
+-- ========== Internal ==========
 
 -- For internal use; skips type checks if valid instance is guaranteed
 -- Additionally, can specify metatable to use instead of having to check
@@ -32,6 +25,17 @@ Instance_wrap_internal = function(instance, mt)
     local wrapper = Proxy.new(instance, mt)
     wrapper_cache[id] = wrapper
     return wrapper
+end
+
+
+
+-- ========== Static Methods ==========
+
+Instance.wrap = function(instance, instance_type)
+    instance = Wrap.unwrap(instance)
+    if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
+    if type(instance) ~= "userdata" then return Instance.wrap_invalid() end
+    return Instance_wrap_internal(instance)
 end
 
 
