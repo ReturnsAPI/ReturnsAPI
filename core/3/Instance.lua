@@ -41,6 +41,13 @@ end
 
 -- ========== Static Methods ==========
 
+Instance.exists = function(instance)
+    instance = Wrap.unwrap(instance)
+    if type(instance) == "string" then return false end
+    return gm.instance_exists(instance) == 1
+end
+
+
 Instance.wrap = function(instance, instance_type)
     instance = Wrap.unwrap(instance)
     if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
