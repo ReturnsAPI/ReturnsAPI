@@ -44,7 +44,7 @@ end
 Instance.wrap = function(instance, instance_type)
     instance = Wrap.unwrap(instance)
     if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
-    if type(instance) ~= "userdata" then return Instance.wrap_invalid() end
+    if select(2, type(instance)) ~= "sol.CInstance*" then return Instance.wrap_invalid() end
     return Instance_wrap_internal(instance)
 end
 
@@ -118,13 +118,13 @@ metatable_instance = {
         end
 
         -- Get instance variable
-        return gm.variable_instance_get(Proxy.get(t), k)
+        return Wrap.wrap(gm.variable_instance_get(Proxy.get(t), k))
     end,
 
 
     __newindex = function(t, k, v)
         -- Set instance variable
-        gm.variable_instance_set(Proxy.get(t), k, v)
+        gm.variable_instance_set(Proxy.get(t), k, Wrap.unwrap(v))
     end,
 
     
