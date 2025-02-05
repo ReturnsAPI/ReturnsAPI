@@ -13,11 +13,11 @@ Instance.wrap = function(instance, instance_type)
     instance = Wrap.unwrap(instance)
     if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
     if type(instance) ~= "userdata" then return Instance.wrap_invalid() end
-    return Instance_wrap(instance)
+    return Instance_wrap_internal(instance)
 end
 
 -- For internal use; skips type checks if valid instance is guaranteed
-Instance_wrap = function(instance, mt)
+Instance_wrap_internal = function(instance, mt)
     local id = instance.id
     if wrapper_cache[id] then return wrapper_cache[id] end
 
