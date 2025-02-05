@@ -12,8 +12,7 @@ end
 
 
 Wrap.unwrap = function(value)
-    if type(value) == "table" then return value.value end
-    return value
+    return Proxy.get(value) or value
 end
 
 
