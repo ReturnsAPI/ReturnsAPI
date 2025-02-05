@@ -29,16 +29,21 @@ end
 methods_instance = {
 
     exists = function(self)
-        return gm.instance_exists(Proxy.get(self)) == 1
+        return gm.instance_exists(self.value) == 1
     end,
 
 
     destroy = function(self)
         if not self:exists() then return end
-        local instance = Proxy.get(self)
-        instance_data[instance.id] = nil
-        gm.instance_destroy(instance)
-    end
+        instance_data[self.value.id] = nil
+        gm.instance_destroy(self.value)
+    end,
+
+
+    same = function(self, other)
+        if not self:exists() then return false end
+        return self.value == Wrap.unwrap(other)
+    end,
 
 }
 
