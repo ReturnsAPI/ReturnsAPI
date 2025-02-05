@@ -56,13 +56,13 @@ metatable_instance = {
             return methods_instance[k]
         end
 
-        -- Get
+        -- Get instance variable
         return gm.variable_instance_get(Proxy.get(t), k)
     end,
 
 
     __newindex = function(t, k, v)
-        -- Set
+        -- Set instance variable
         gm.variable_instance_set(Proxy.get(t), k, v)
     end,
 
