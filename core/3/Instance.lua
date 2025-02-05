@@ -65,6 +65,13 @@ Instance.get_data = function(namespace, instance, subtable)
 end
 
 
+-- Instance.debug_print_cache = function()
+--     for k, v in pairs(wrapper_cache) do
+--         print(k, v)
+--     end
+-- end
+
+
 
 -- ========== Instance Methods ==========
 
