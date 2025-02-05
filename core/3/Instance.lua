@@ -3,7 +3,7 @@
 Instance = {}
 
 local instance_data = {}
-local wrapper_cache = {}
+local wrapper_cache = setmetatable({}, {__mode = "v"})
 
 
 
