@@ -42,4 +42,4 @@ metatable_actor = {
 
 
 
-return Actor
+return {Actor}

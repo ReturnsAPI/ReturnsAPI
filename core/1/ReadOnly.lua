@@ -40,4 +40,4 @@ ReadOnly = {
     end
 }
 
-return ReadOnly
+return {ReadOnly}

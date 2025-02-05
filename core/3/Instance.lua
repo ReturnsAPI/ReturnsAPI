@@ -172,4 +172,4 @@ end)
 
 
 
-return Instance
+return {Instance}

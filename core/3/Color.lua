@@ -163,15 +163,16 @@ end
 
 -- ========== Metatables ==========
 
-setmetatable(Color, {
+metatable_color = {
     __call = function(t, hex)
         return Color.from_hex(hex)
     end,
 
 
     __metatable = "Color"
-})
+}
+setmetatable(Color, metatable_color)
 
 
 
-return Color
+return {Color, metatable_color}

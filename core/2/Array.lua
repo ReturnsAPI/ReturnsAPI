@@ -113,6 +113,32 @@ methods_array = {
 
 -- ========== Metatables ==========
 
+metatable_array_class = {
+    __call = function(value, arg2)
+        -- Wrap
+        if select(2, type(value)) == "sol.RefDynamicArrayOfRValue*" then
+            return Proxy.new(value, metatable_array)
+        end
+
+        -- Create array from table
+        if type(value) == "table" then
+            local array = gm.array_create(0)
+            for _, v in ipairs(arg1) do
+                gm.array_push(array, Wrap.unwrap(v))
+            end
+            return Proxy.new(array, metatable_array)
+        end
+
+        -- Create array with optional size and default value
+        return Proxy.new(gm.array_create(value or 0, arg2 or 0), metatable_array)
+    end,
+
+
+    __metatable = "Array class"
+}
+setmetatable(Array, metatable_array_class)
+
+
 metatable_array = {
     __index = function(t, k)
         -- Get wrapped value
@@ -151,4 +177,4 @@ metatable_array = {
 
 
 
-return Array
+return {Array, metatable_array_class}

@@ -99,6 +99,32 @@ methods_list = {
 
 -- ========== Metatables ==========
 
+metatable_list_class = {
+    __call = function(value, arg2)
+        -- Create list from table
+        if type(value) == "table" then
+            local list = gm.ds_list_create()
+            for _, v in ipairs(value) do
+                gm.ds_list_add(list, Wrap.unwrap(v))
+            end
+            return List.wrap(list)
+        end
+
+        -- Wrap
+        if value then
+            return Proxy.new(value, metatable_list)
+        end
+
+        -- Create list
+        return List.wrap(gm.ds_list_create())
+    end,
+
+
+    __metatable = "List class"
+}
+setmetatable(List, metatable_list_class)
+
+
 metatable_list = {
     __index = function(t, k)
         -- Get wrapped value
@@ -137,4 +163,4 @@ metatable_list = {
 
 
 
-return List
+return {List, metatable_list_class}

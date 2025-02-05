@@ -55,4 +55,4 @@ metatable_player = {
 
 
 
-return Player
+return {Player}
