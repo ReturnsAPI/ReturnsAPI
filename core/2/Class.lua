@@ -69,6 +69,8 @@ Class_find_repopulate = function(class_gm)
     end
 end
 
+-- Run Class_find_repopulate for a class
+-- if a new piece of content is added to it
 local hooks = {
     {gm.constants.achievement_create,       "class_achievement"},
     {gm.constants.actor_skin_create,        "class_actor_skin"},
@@ -101,7 +103,7 @@ end
 
 
 -- DEBUG
-Class.force_repopulate = function()
+Class.debug_force_repopulate = function()
     -- Populate find table
     for _, class_gm in ipairs(class_rapi_to_gm) do
         Class_find_repopulate(class_gm)
@@ -110,7 +112,7 @@ Class.force_repopulate = function()
 
     -- Populate class_wrappers
     for class_rapi, class_gm in ipairs(class_rapi_to_gm) do
-        class_wrappers[class_rapi] = Array.wrap(gm.variable_global_get(class_gm))
+        class_wrappers[class_rapi:upper()] = Array.wrap(gm.variable_global_get(class_gm))
     end
 end
 
@@ -118,9 +120,16 @@ end
 
 -- ========== Base Implementations ==========
 
--- This class will also create the base
--- implementations for every global "class_"
--- array, containing "PROPERTY", "find", and "wrap".
+-- This file will also create the base implementations
+-- for every class_array class, containing:
+--      * PROPERTY
+--      * find
+--      * find_all
+--      * wrap
+--      * Metatable for get/set properties
+--
+-- Use class_refs[<RAPI name>] in their respective
+-- files instead of creating a new table
 
 metatable_class_arrays = {}
 
@@ -130,7 +139,6 @@ local success, file = pcall(toml.decodeFromFile, file_path)
 local properties = file.array
 
 for class_rapi, class_gm in pairs(class_rapi_to_gm) do
-
     local class_table = {
 
         PROPERTY = ReadOnly.new(properties[class_gm]),
@@ -191,7 +199,6 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
         
         __metatable = class_rapi
     }
-
 end
 
 
