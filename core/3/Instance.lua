@@ -54,7 +54,7 @@ Instance.wrap_invalid = function()
 end
 
 
-Instance.get_data = function(namespace, instance, subtable)
+Instance.get_data = function(instance, subtable, namespace)
     instance = Wrap.unwrap(instance)
     local id = instance.id
     subtable = subtable or "__main"
