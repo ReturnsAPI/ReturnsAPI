@@ -135,12 +135,19 @@ metatable_instance = {
 
 -- ========== Hooks ==========
 
+-- `instance_data` garbage collection
 gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
-    -- On room change, remove non-existent instances from instance_data
+    -- On room change, remove non-existent instances from `instance_data`
     for k, v in pairs(instance_data) do
         if gm.instance_exists(k) == 0 then
             instance_data[k] = nil
         end
+    end
+end)
+gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
+    -- Remove `instance_data` on non-player kill
+    if self.object_index ~= gm.constants.oP then
+        instance_data[self.id] = nil
     end
 end)
 
