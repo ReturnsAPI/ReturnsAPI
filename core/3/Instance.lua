@@ -11,19 +11,24 @@ local wrapper_cache = {}
 
 -- For internal use; skips type checks if valid instance is guaranteed
 -- Additionally, can specify metatable to use instead of having to check
--- check : If unsure if actor is a player, use check = 1 to only check if player
-Instance_wrap_internal = function(instance, mt, check)
+-- Use `check_if_player` if unsure if actor is a player or not
+Instance_wrap_internal = function(instance, mt, check_if_player)
     local id = instance.id
     if wrapper_cache[id] then return wrapper_cache[id] end
 
-    if not mt then mt = metatable_instance end
-
-    if check > 0 then
+    if not mt then
+        mt = metatable_instance
         local object_index = instance.object_index
-        if (check >= 1) and (object_index == gm.constants.oP) then
+        if object_index == gm.constants.oP then
             mt = metatable_player
-        elseif (check >= 2) and (gm.object_is_ancestor(object_index, gm.constants.pActor) == 1) then
+        elseif gm.object_is_ancestor(object_index, gm.constants.pActor) == 1 then
             mt = metatable_actor
+        end
+    end
+
+    if check_if_player then
+        if instance.object_index == gm.constants.oP then
+            mt = metatable_player
         end
     end
 
