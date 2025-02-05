@@ -8,9 +8,11 @@ Player = {}
 
 Player.get_local = function()
     if gm._mod_net_isOnline() then
-        return Instance.wrap(gm.variable_global_get("my_player"))
+        return Instance_wrap_internal(gm.variable_global_get("my_player"), metatable_player)
     end
-    return gm.instance_find(gm.constants.oP, 0)
+    local instance = gm.instance_find(gm.constants.oP, 0)
+    if instance ~= -4 then return Instance_wrap_internal(instance, metatable_player) end
+    return Instance.wrap_invalid()
 end
 
 
