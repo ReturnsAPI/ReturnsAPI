@@ -9,19 +9,33 @@ local wrapper_cache = {}
 
 -- ========== Static Methods ==========
 
-Instance.wrap = function(instance)
+Instance.wrap = function(instance, instance_type)
     instance = Wrap.unwrap(instance)
+    if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
+    if type(instance) ~= "userdata" then return Instance.wrap_invalid() end
+    return Instance_wrap(instance)
+end
+
+-- For internal use; skips type checks if valid instance is guaranteed
+Instance_wrap = function(instance, mt)
     local id = instance.id
     if wrapper_cache[id] then return wrapper_cache[id] end
 
-    local mt = metatable_instance
-    if gm.object_is_ancestor(instance.object_index, gm.constants.pActor) == 1 then
-        mt = metatable_actor
+    if not mt then
+        mt = metatable_instance
+        if gm.object_is_ancestor(instance.object_index, gm.constants.pActor) == 1 then
+            mt = metatable_actor
+        end
     end
 
     local wrapper = Proxy.new(instance, mt)
     wrapper_cache[id] = wrapper
     return wrapper
+end
+
+
+Instance.wrap_invalid = function()
+    return Proxy.new(-4, metatable_instance)
 end
 
 
@@ -54,7 +68,7 @@ methods_instance = {
 
 
     same = function(self, other)
-        if not self:exists() then return false end
+        -- if not self:exists() then return false end   -- From benchmarking - Largely increased performance cost for this
         return self.value == Wrap.unwrap(other)
     end,
 
