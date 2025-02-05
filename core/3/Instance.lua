@@ -36,7 +36,7 @@ methods_instance = {
     destroy = function(self)
         if not self:exists() then return end
         local instance = Proxy.get(self)
-        instance_data[instance] = nil
+        instance_data[instance.id] = nil
         gm.instance_destroy(instance)
     end
 
