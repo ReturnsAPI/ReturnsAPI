@@ -26,7 +26,7 @@ end
 
 
 Array.wrap = function(array)
-    if select(2, type(value)) ~= "sol.RefDynamicArrayOfRValue*" then
+    if select(2, type(array)) ~= "sol.RefDynamicArrayOfRValue*" then
         log.error("Value is not an array", 2)
     end
 

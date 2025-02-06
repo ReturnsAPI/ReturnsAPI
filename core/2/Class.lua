@@ -57,15 +57,18 @@ Class_find_repopulate = function(class_gm)
         -- If current element is valid (i.e., is an array),
         -- get its namespace and identifier
         local element = gm.array_get(arr, i)
-        local namespace, identifier = "invalid", "invalid"
-        if select(2, type(element)) ~= "sol.RefDynamicArrayOfRValue*" then
+        local namespace, identifier = nil, nil
+        if select(2, type(element)) == "sol.RefDynamicArrayOfRValue*" then
             namespace = gm.array_get(element, 0)
             identifier = gm.array_get(element, 1)
         end
 
         -- Store in table
-        t[namespace][identifier] = i
-        t[i] = {namespace, identifier}
+        if namespace then
+            if not t[namespace] then t[namespace] = {} end
+            t[namespace][identifier] = i
+            t[i] = {namespace, identifier}
+        end
     end
 end
 
@@ -139,58 +142,60 @@ local success, file = pcall(toml.decodeFromFile, file_path)
 local properties = file.array
 
 for class_rapi, class_gm in pairs(class_rapi_to_gm) do
-    local class_table = {
+    local class_table = {}
 
-        PROPERTY = ReadOnly.new(properties[class_gm]),
+    class_table.PROPERTY = ReadOnly.new(properties[class_gm])
 
-
-        find = function(identifier, namespace, default_namespace)
-            -- Search in namespace
-            local element = class_find_tables[namespace][identifier]
+    class_table.find = function(identifier, namespace, default_namespace)
+        -- Search in namespace
+        local namespace_table = class_find_tables[class_gm][namespace]
+        if namespace_table then
+            local element = namespace_table[identifier]
             if element then return class_table.wrap(element) end
-
-            -- Also search in "ror" namespace if default namespace (i.e., No namespace arg)
-            if namespace == default_namespace then
-                element = class_find_tables["ror"][identifier]
-                if element then return class_table.wrap(element) end
-            end
-
-            return nil
-        end,
-
-
-        find_all = function(filter, property)
-            -- TODO
-        end,
-
-
-        wrap = function(value)
-            return Proxy.new(value, metatable_class_arrays[class_rapi])
         end
 
-    }
-    class_refs[class_rapi] = class_table
+        -- Also search in "ror" namespace if default namespace (i.e., No namespace arg)
+        if namespace == default_namespace then
+            element = class_find_tables[class_gm]["ror"][identifier]
+            if element then return class_table.wrap(element) end
+        end
 
+        return nil
+    end
+
+    class_table.find_all = function(filter, property)
+        -- TODO
+    end
+
+    class_table.wrap = function(value)
+        return Proxy.new(value, metatable_class_arrays[class_rapi])
+    end
 
     metatable_class_arrays[class_rapi] = {
-        -- Getter
         __index = function(t, k)
-            local index = t.PROPERTY[k]
+            -- Get wrapped value
+            local value = Proxy.get(t)
+            if k == "value" then return value end
+
+            -- Getter
+            local index = class_table.PROPERTY[k]
             if index then
                 local array = gm.variable_global_get(class_gm)
-                return Wrap.wrap(gm.array_get(array, index))
+                local element = gm.array_get(array, value)
+                return Wrap.wrap(gm.array_get(element, index))
             end
             log.error("Non-existent "..class.." property", 2)
             return nil
         end,
 
 
-        -- Setter
         __newindex = function(t, k, v)
-            local index = t.PROPERTY[k]
+            -- Setter
+            local index = class_table.PROPERTY[k]
             if index then
                 local array = gm.variable_global_get(class_gm)
-                gm.array_set(array, index, Wrap.unwrap(v))
+                local element = gm.array_get(array, Proxy.get(t))
+                gm.array_set(element, index, Wrap.unwrap(v))
                 return
             end
             log.error("Non-existent "..class.." property", 2)
@@ -199,6 +204,8 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
         
         __metatable = class_rapi
     }
+
+    class_refs[class_rapi] = {class_table}
 end
 
 
