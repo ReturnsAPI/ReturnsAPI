@@ -36,7 +36,7 @@ setmetatable(Class, metatable_class)
 
 -- ========== Custom `.find` table ==========
 
-class_find_tables = {}
+local class_find_tables = {}
 for _, class_gm in pairs(class_rapi_to_gm) do
     class_find_tables[class_gm] = {}
 end
@@ -129,11 +129,13 @@ end
 --      * find_all
 --      * wrap
 --      * Metatable for get/set properties
---
+-- 
 -- Use _CLASS[<RAPI name>] in their respective
 -- files instead of creating a new table
+-- 
+-- Additionally, modify method_class[<RAPI name>] for instance methods
 
-metatable_class_arrays = {}
+local metatable_class_arrays = {}
 methods_class = {}
 
 -- Load property name from data
