@@ -134,6 +134,7 @@ end
 -- files instead of creating a new table
 
 metatable_class_arrays = {}
+methods_class = {}
 
 -- Load property name from data
 local file = toml.decodeFromFile(PATH.."core/data/class_array.txt")
@@ -174,6 +175,11 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
             -- Get wrapped value
             local value = Proxy.get(t)
             if k == "value" then return value end
+
+            -- Methods
+            if methods_class[class_rapi][k] then
+                return methods_class[class_rapi][k]
+            end
 
             -- Getter
             local index = class_table.PROPERTY[k]
