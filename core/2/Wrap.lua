@@ -29,4 +29,4 @@ end
 
 
 
-return {Wrap}
+_CLASS["Wrap"] = Wrap

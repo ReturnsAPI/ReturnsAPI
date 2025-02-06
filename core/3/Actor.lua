@@ -42,4 +42,4 @@ metatable_actor = {
 
 
 
-return {Actor}
+_CLASS["Actor"] = Actor 

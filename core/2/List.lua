@@ -163,4 +163,5 @@ metatable_list = {
 
 
 
-return {List, metatable_list_class}
+_CLASS["List"] = List
+_CLASS_MT["List"] = metatable_list_class

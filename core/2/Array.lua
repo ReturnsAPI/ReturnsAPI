@@ -177,4 +177,5 @@ metatable_array = {
 
 
 
-return {Array, metatable_array_class}
+_CLASS["Array"] = Array
+_CLASS_MT["Array"] = metatable_array_class

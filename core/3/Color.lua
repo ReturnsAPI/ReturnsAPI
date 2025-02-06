@@ -175,4 +175,5 @@ setmetatable(Color, metatable_color)
 
 
 
-return {Color, metatable_color}
+_CLASS["Color"] = Color
+_CLASS_MT["Color"] = metatable_color

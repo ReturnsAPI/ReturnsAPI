@@ -111,4 +111,4 @@ end)
 
 
 
-return {Callback}
+_CLASS["Callback"] = Callback

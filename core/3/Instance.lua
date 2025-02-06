@@ -172,4 +172,4 @@ end)
 
 
 
-return {Instance}
+_CLASS["Instance"] = Instance

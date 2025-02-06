@@ -9,13 +9,14 @@ envy = mods["MGReturns-ENVY"]
 
 
 -- Load core
-class_refs = {}
+_CLASS = {}     -- All public classes should self-populate these
+_CLASS_MT = {}
+
 local dirs = path.get_directories(PATH.."core")
 for _, dir in ipairs(dirs) do
     local files = path.get_files(dir)
     for _, file in ipairs(files) do
-        name = path.filename(file):sub(1, -5)
-        class_refs[name] = require(file)
+        require(file)
     end
 end
 

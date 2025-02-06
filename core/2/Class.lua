@@ -130,7 +130,7 @@ end
 --      * wrap
 --      * Metatable for get/set properties
 --
--- Use class_refs[<RAPI name>] in their respective
+-- Use _CLASS[<RAPI name>] in their respective
 -- files instead of creating a new table
 
 metatable_class_arrays = {}
@@ -203,9 +203,10 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
         __metatable = class_rapi
     }
 
-    class_refs[class_rapi] = {class_table}
+    _CLASS[class_rapi] = class_table
 end
 
 
 
-return {Class, metatable_class}
+_CLASS["Class"] = Class
+_CLASS_MT["Class"] = metatable_class
