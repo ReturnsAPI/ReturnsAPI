@@ -42,4 +42,4 @@ metatable_actor = {
 
 
 
-_CLASS["Actor"] = Actor 
+_CLASS["Actor"] = Actor
