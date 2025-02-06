@@ -9,8 +9,8 @@ envy = mods["MGReturns-ENVY"]
 
 
 -- Load core
-_CLASS = {}     -- All public classes should self-populate these
-_CLASS_MT = {}
+_CLASS = {}     -- All public classes should self-populate these two tables
+_CLASS_MT = {}  -- The metatable to set for the class (if applicable) when copying in envy.lua
 
 local dirs = path.get_directories(PATH.."core")
 for _, dir in ipairs(dirs) do
