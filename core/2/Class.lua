@@ -6,8 +6,7 @@ Class = {}
 
 -- ========== Populate RAPI <-> GM name mappings ==========
 
-local file_path = _ENV["!plugins_mod_folder_path"].."/core/data/class_name_mapping.txt"
-local success, file = pcall(toml.decodeFromFile, file_path)
+local file = toml.decodeFromFile(PATH.."core/data/class_name_mapping.txt")
 class_rapi_to_gm = file.mapping
 class_gm_to_rapi = {}
 for k, v in pairs(class_rapi_to_gm) do
@@ -137,8 +136,7 @@ end
 metatable_class_arrays = {}
 
 -- Load property name from data
-local file_path = _ENV["!plugins_mod_folder_path"].."/core/data/class_array.txt"
-local success, file = pcall(toml.decodeFromFile, file_path)
+local file = toml.decodeFromFile(PATH.."core/data/class_array.txt")
 local properties = file.array
 
 for class_rapi, class_gm in pairs(class_rapi_to_gm) do
