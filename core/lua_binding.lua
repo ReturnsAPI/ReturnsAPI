@@ -60,31 +60,6 @@ end)
 ------------------------------------------------
 -- EXAMPLES
 ------------------------------------------------
--- ActorComponent that spawns chain lightning around the player, similar to tesla coil
-------------------------------------------------
-local component_big_zappy = bind_function(function(actor)
-	if gm._mod_net_isClient() then return end
-	if math.random() > 0.05 then return end
-
-	local x = actor.x - 128 + math.random(256)
-	local y = actor.y - 128 + math.random(256)
-
-	local l = gm.instance_create(x, y, gm.constants.oChainLightning)
-	l.parent = actor
-	l.team = actor.team
-	l.damage = actor.damage * 8
-end)
-gm.post_script_hook(gm.constants.init_player, function(self, other, result, args)
-	-- (if you assign the component to to an Item's actor_component field, this is all handled automatically)
-
-	-- `0` is ACTOR_COMPONENT_SCRIPT_KIND.on_step, the only other kind is modify_stats which isn't useful as it runs at the end of recalculate_stats and we can already hook that
-	gm.actor_script_attach(self, 0, "big_zappy", component_big_zappy)
-
-	-- you would call this if you wanted to remove it manually
-	--gm.actor_script_remove(self, 0, "big_zappy")
-end)
-
-------------------------------------------------
 -- EffectDisplay assigned to an item
 ------------------------------------------------
 
@@ -124,5 +99,5 @@ gm.post_code_execute("gml_Object_pAttack_Create_0", function(self, other)
 	if self.object_index ~= gm.constants.oBulletAttack then return end
 	gm.array_push(self.on_hit.callables, on_hit_lightning)
 
-	--gm.instance_callback_set(self.on_hit, t) -- DOES NOT WORK because it calls method(undefined, func) internally, breaking our hooking system
+	--gm.instance_callback_set(self.on_hit, t) -- DOES NOT WORK because it calls method(undefined, func) internally, breaking this hooking system
 end)
