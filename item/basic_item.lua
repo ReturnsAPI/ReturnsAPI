@@ -17,10 +17,13 @@ myItem.effect_display = EffectDisplay.func(function(actor, draw_x, draw_y)
 end, ACTOR_DRAW_PRIORITY.above_body)
 -- ^ can't assign more than one EffectDisplay at a time, but that's fine
 
+-- scratch this. ActorComponents are difficult to use and not worth it. we are better off post-hooking step_actor and exposing an onStep thing as RMT does
+--[[
 -- onStep replacement
 myItem.actor_component = ActorComponent.on_step(function(actor)
 	-- ...
 end)
+--]]
 
 -- sarn's suggestion. would require wrapping the callback ID fields, but the syntax seems nice
 myItem.on_acquired:add(function(actor, stack)
