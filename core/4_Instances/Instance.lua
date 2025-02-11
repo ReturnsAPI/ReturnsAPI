@@ -55,9 +55,9 @@ Instance.find = function(...)
     if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
 
     -- Loop through object_indexes
-    for _, object_index in ipairs(t) do
-        object_index = Wrap.unwrap(object_index)
-        local inst = gm.instance_find(object_index, 0)
+    for _, object in ipairs(t) do
+        object = Wrap.unwrap(object)
+        local inst = gm.instance_find(object, 0)
 
         -- <Insert custom object finding here>
 
