@@ -71,6 +71,35 @@ Instance.find = function(...)
 end
 
 
+Instance.find_all = function(...)
+    local t = {...}     -- Variable number of object_indexes
+
+    -- If argument is a non-wrapper table, use it as the loop table
+    if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
+
+    local insts = {}
+
+    -- Loop through object_indexes
+    for _, object in ipairs(t) do
+        object = Wrap.unwrap(object)
+        local count = gm._mod_instance_number(object)
+        for n = 0, count - 1 do
+            local inst = gm.instance_find(object, n)
+            table.insert(insts, Instance_wrap_internal(inst))
+        end
+
+        -- <Insert custom object finding here>
+    end
+
+    return insts, #insts > 0
+end
+
+
+Instance.count = function(object)
+    return gm._mod_instance_number(object)
+end
+
+
 Instance.wrap = function(instance, instance_type)
     instance = Wrap.unwrap(instance)
     if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
