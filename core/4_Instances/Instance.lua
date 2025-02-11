@@ -134,7 +134,8 @@ methods_instance = {
 
 
     is_colliding = function(self, object, x, y)
-        if not self:exists() then return false end
+        -- if not self:exists() then return false end
+        if self.value == -4 then return false end
         object = Wrap.unwrap(object)
         return self.value:place_meeting(x or self.x, y or self.y, object) == 1
     end
