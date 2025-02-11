@@ -61,7 +61,7 @@ Instance.find = function(...)
 
         -- <Insert custom object finding here>
 
-        if inst ~= nil and inst ~= -4 then
+        if inst ~= -4 then
             return Instance.wrap(inst)
         end
     end
