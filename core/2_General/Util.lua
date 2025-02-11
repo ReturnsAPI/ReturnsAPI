@@ -122,6 +122,9 @@ end
 
 
 Util.mixed_hyperbolic = function(stack_count, chance, base_chance)
+    -- Allows for calculating hyperbolic scaling with a different 1st-stack chance
+    -- Also makes the 1st-stack equal the provided chance instead of being slightly under
+    --      E.g., Tougher Times 1st-stack in RoR2 gives around 13% block chance (not 15%)
     local base_chance = base_chance or chance
     local diff = base_chance - chance
     local stacks_chance = chance * stack_count
