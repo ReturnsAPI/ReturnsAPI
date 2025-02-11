@@ -4,8 +4,8 @@ PATH = _ENV["!plugins_mod_folder_path"].."/"
 
 
 -- ENVY initial setup
--- mods["MGReturns-ENVY"].auto()
--- envy = mods["MGReturns-ENVY"]
+mods["MGReturns-ENVY"].auto()
+envy = mods["MGReturns-ENVY"]
 
 
 -- Load core
