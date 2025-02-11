@@ -134,7 +134,7 @@ metatable_array_class = {
     end,
 
 
-    __metatable = "Array class"
+    __metatable = "RAPI.ArrayClass"
 }
 setmetatable(Array, metatable_array_class)
 
@@ -143,6 +143,7 @@ metatable_array = {
     __index = function(t, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(t) end
+        if k == "RAPI" then return true end
         
         -- Methods
         if methods_array[k] then
@@ -172,7 +173,7 @@ metatable_array = {
     end,
 
 
-    __metatable = "Array"
+    __metatable = "RAPI.Array"
 }
 
 

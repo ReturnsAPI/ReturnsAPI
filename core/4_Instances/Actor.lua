@@ -20,6 +20,7 @@ metatable_actor = {
     __index = function(t, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(t) end
+        if k == "RAPI" then return true end
 
         -- Methods
         if methods_actor[k] then
@@ -37,7 +38,7 @@ metatable_actor = {
     end,
 
     
-    __metatable = "Actor"
+    __metatable = "RAPI.Actor"
 }
 
 

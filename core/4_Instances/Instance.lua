@@ -48,6 +48,29 @@ Instance.exists = function(instance)
 end
 
 
+Instance.find = function(...)
+    local t = {...}     -- Variable number of object_indexes
+
+    -- If argument is a non-wrapper table, use it as the loop table
+    if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
+
+    -- Loop through object_indexes
+    for _, object_index in ipairs(t) do
+        object_index = Wrap.unwrap(object_index)
+        local inst = gm.instance_find(object_index, 0)
+
+        -- <Insert custom object finding here>
+
+        if inst ~= nil and inst ~= -4 then
+            return Instance.wrap(inst)
+        end
+    end
+
+    -- No instance found
+    return Instance.wrap_invalid()
+end
+
+
 Instance.wrap = function(instance, instance_type)
     instance = Wrap.unwrap(instance)
     if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
@@ -126,6 +149,7 @@ metatable_instance = {
     __index = function(t, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(t) end
+        if k == "RAPI" then return true end
 
         -- Methods
         if methods_instance[k] then
@@ -143,7 +167,7 @@ metatable_instance = {
     end,
 
     
-    __metatable = "Instance"
+    __metatable = "RAPI.Instance"
 }
 
 

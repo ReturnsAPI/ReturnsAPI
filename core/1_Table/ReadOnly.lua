@@ -28,7 +28,7 @@ local metatable_readonly = {
     --     return next, originals[t], nil
     -- end,
 
-    __metatable = "ReadOnly"
+    __metatable = "RAPI.ReadOnly"
 }
 
 ReadOnly = {

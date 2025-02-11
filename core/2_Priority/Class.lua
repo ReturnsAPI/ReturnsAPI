@@ -28,7 +28,7 @@ metatable_class = {
     end,
 
 
-    __metatable = "Class"
+    __metatable = "RAPI.Class"
 }
 setmetatable(Class, metatable_class)
 
@@ -177,6 +177,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
             -- Get wrapped value
             local value = Proxy.get(t)
             if k == "value" then return value end
+            if k == "RAPI" then return true end
 
             -- Methods
             if methods_class[class_rapi][k] then
@@ -208,7 +209,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
         end,
 
         
-        __metatable = class_rapi
+        __metatable = "RAPI."..class_rapi
     }
 
     _CLASS[class_rapi] = class_table

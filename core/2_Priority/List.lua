@@ -120,7 +120,7 @@ metatable_list_class = {
     end,
 
 
-    __metatable = "List class"
+    __metatable = "RAPI.ListClass"
 }
 setmetatable(List, metatable_list_class)
 
@@ -129,6 +129,7 @@ metatable_list = {
     __index = function(t, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(t) end
+        if k == "RAPI" then return true end
 
         -- Methods
         if methods_list[k] then
@@ -158,7 +159,7 @@ metatable_list = {
     end,
 
     
-    __metatable = "List"
+    __metatable = "RAPI.List"
 }
 
 
