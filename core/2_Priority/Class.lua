@@ -57,7 +57,7 @@ Class_find_repopulate = function(class_gm)
         -- get its namespace and identifier
         local element = gm.array_get(arr, i)
         local namespace, identifier = nil, nil
-        if select(2, type(element)) == "sol.RefDynamicArrayOfRValue*" then
+        if userdata_type(element) == "sol.RefDynamicArrayOfRValue*" then
             namespace = gm.array_get(element, 0)
             identifier = gm.array_get(element, 1)
         end

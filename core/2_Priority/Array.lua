@@ -26,7 +26,7 @@ end
 
 
 Array.wrap = function(array)
-    if select(2, type(array)) ~= "sol.RefDynamicArrayOfRValue*" then
+    if userdata_type(array) ~= "sol.RefDynamicArrayOfRValue*" then
         log.error("Value is not an array", 2)
     end
 
@@ -116,7 +116,7 @@ methods_array = {
 metatable_array_class = {
     __call = function(t, value, arg2)
         -- Wrap
-        if select(2, type(value)) == "sol.RefDynamicArrayOfRValue*" then
+        if userdata_type(value) == "sol.RefDynamicArrayOfRValue*" then
             return Proxy.new(value, metatable_array)
         end
 

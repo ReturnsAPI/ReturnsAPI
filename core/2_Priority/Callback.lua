@@ -98,16 +98,38 @@ end
 
 -- ========== Hooks ==========
 
-gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
-    local callback = args[1].value
-    local cbank = callback_bank[callback]
+-- gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
+--     local callback = args[1].value
+--     local cbank = callback_bank[callback]
 
-    if cbank then
-        for _, fn_t in ipairs(cbank) do
-            fn_t.fn()   -- fill with wrapped args
+--     if cbank then
+--         for _, fn_t in ipairs(cbank) do
+--             fn_t.fn()   -- fill with wrapped args
+--         end
+--     end
+-- end)
+
+memory.dynamic_hook("RAPI-callback_execute", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.callback_execute))),
+    -- Pre-hook
+    function(ret_val, self, other, result, arg_count, args)
+        
+    end,
+
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local arg_count = arg_count:get()
+        local args_typed = ffi.cast("struct RValue**", args:get_address())
+
+        local callback = tonumber(args_typed[0].i64)
+        local cbank = callback_bank[callback]
+
+        if cbank then
+            for _, fn_t in ipairs(cbank) do
+                fn_t.fn()   -- fill with wrapped args
+            end
         end
     end
-end)
+)
 
 
 

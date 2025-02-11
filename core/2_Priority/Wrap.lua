@@ -10,12 +10,12 @@ Wrap.wrap = function(value)
     value = Wrap.unwrap(value)
 
     -- Array
-    if select(2, type(value)) == "sol.RefDynamicArrayOfRValue*" then
+    if userdata_type(value) == "sol.RefDynamicArrayOfRValue*" then
         return Proxy.new(value, metatable_array)
     end
 
     -- Instance
-    if select(2, type(value)) == "sol.CInstance*" then
+    if userdata_type(value) == "sol.CInstance*" then
         return Instance_wrap_internal(value)
     end
 

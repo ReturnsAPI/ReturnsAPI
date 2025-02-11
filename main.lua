@@ -2,6 +2,8 @@
 
 PATH = _ENV["!plugins_mod_folder_path"].."/"
 
+gmf = require("ReturnOfModding-GLOBAL/gmf")
+
 
 -- ENVY initial setup
 -- mods["MGReturns-ENVY"].auto()

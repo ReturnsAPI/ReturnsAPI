@@ -51,7 +51,7 @@ end
 Instance.wrap = function(instance, instance_type)
     instance = Wrap.unwrap(instance)
     if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
-    if select(2, type(instance)) ~= "sol.CInstance*" then return Instance.wrap_invalid() end
+    if userdata_type(instance) ~= "sol.CInstance*" then return Instance.wrap_invalid() end
     return Instance_wrap_internal(instance)
 end
 
@@ -64,7 +64,7 @@ end
 -- Substitute for Wrap.wrap, since if Arrays are not being wrapped
 -- in RAPI, the only thing left in there is Instance wrapping
 Instance.try_wrap = function(value)
-    if select(2, type(value)) == "sol.CInstance*" then return Instance_wrap_internal(value) end
+    if userdata_type(value) == "sol.CInstance*" then return Instance_wrap_internal(value) end
     return value
 end
 
