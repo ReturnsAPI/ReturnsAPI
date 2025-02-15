@@ -1,11 +1,9 @@
 -- ENVY
 
--- Temp insertion into _G while we wait for ENVY to be updated
-
-function setup(env)
-    -- if env == nil then
-    --     env = envy.getfenv(2)
-    -- end
+function public.setup(env)
+    if env == nil then
+        env = envy.getfenv(2)
+    end
 
     local namespace = env["!guid"]
 
@@ -77,13 +75,10 @@ function setup(env)
 end
 
 
-function auto(env)
-    -- local env = getfenv(2)
-    local wrapper = setup(env)
-
-    for k, v in pairs(wrapper) do
-        env[k] = v
-    end
+function public.auto()
+    local env = envy.getfenv(2)
+    local wrapper = public.setup(env)
+    envy.import_all(env, wrapper)
 
     -- Clear callbacks associated with namespace
     local namespace = env["!guid"]
