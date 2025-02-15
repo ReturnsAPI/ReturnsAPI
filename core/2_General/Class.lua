@@ -41,8 +41,6 @@ for _, class_gm in pairs(class_rapi_to_gm) do
     class_find_tables[class_gm] = {}
 end
 
-local allow_find_repopulate = false
-
 -- Run once on initialize, and afterwards
 -- every time a new piece of content is added
 Class_find_repopulate = function(class_gm)
@@ -73,6 +71,7 @@ end
 
 -- Run Class_find_repopulate for a class
 -- if a new piece of content is added to it
+local allow_find_repopulate = false
 local hooks = {
     {gm.constants.achievement_create,       "class_achievement"},
     {gm.constants.actor_skin_create,        "class_actor_skin"},
