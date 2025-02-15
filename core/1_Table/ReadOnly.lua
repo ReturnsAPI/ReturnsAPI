@@ -5,8 +5,6 @@
 
 -- Additionally, ReadOnly.new should be called to *finalize* the lock
 
-local originals = setmetatable({}, {__mode = "k"})
-
 local metatable_readonly = {
     __index = function(t, k)
         return Proxy.get(t)[k]
