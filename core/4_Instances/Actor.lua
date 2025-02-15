@@ -8,7 +8,10 @@ Actor = {}
 
 methods_actor = {
 
-    
+    kill = function(self)
+        if self.value == -4 then return end
+        self.value:actor_kill()
+    end
 
 }
 
