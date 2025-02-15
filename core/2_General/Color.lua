@@ -173,7 +173,7 @@ metatable_color = {
     -- end,
 
 
-    __metatable = "RAPI.Color"
+    __metatable = "RAPI.Class.Color"
 }
 setmetatable(Color, metatable_color)
 

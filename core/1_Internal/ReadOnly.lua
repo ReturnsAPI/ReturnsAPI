@@ -18,7 +18,7 @@ local metatable_readonly = {
         return Proxy.get(t)(...)
     end,
 
-    __metatable = "RAPI.ReadOnly"
+    __metatable = "RAPI.Wrapper.ReadOnly"
 }
 
 ReadOnly = {

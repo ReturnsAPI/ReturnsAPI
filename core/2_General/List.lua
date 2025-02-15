@@ -120,7 +120,7 @@ metatable_list_class = {
     end,
 
 
-    __metatable = "RAPI.ListClass"
+    __metatable = "RAPI.Class.List"
 }
 setmetatable(List, metatable_list_class)
 
@@ -159,7 +159,7 @@ metatable_list = {
     end,
 
     
-    __metatable = "RAPI.List"
+    __metatable = "RAPI.Wrapper.List"
 }
 
 

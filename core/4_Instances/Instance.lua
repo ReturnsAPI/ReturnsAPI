@@ -197,7 +197,7 @@ metatable_instance = {
     end,
 
     
-    __metatable = "RAPI.Instance"
+    __metatable = "RAPI.Wrapper.Instance"
 }
 
 

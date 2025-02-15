@@ -134,7 +134,7 @@ metatable_array_class = {
     end,
 
 
-    __metatable = "RAPI.ArrayClass"
+    __metatable = "RAPI.Class.Array"
 }
 setmetatable(Array, metatable_array_class)
 
@@ -173,7 +173,7 @@ metatable_array = {
     end,
 
 
-    __metatable = "RAPI.Array"
+    __metatable = "RAPI.Wrapper.Array"
 }
 
 

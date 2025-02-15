@@ -41,7 +41,7 @@ metatable_actor = {
     end,
 
     
-    __metatable = "RAPI.Actor"
+    __metatable = "RAPI.Wrapper.Actor"
 }
 
 

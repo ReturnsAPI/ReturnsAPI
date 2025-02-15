@@ -51,7 +51,7 @@ metatable_player = {
     end,
 
     
-    __metatable = "RAPI.Player"
+    __metatable = "RAPI.Wrapper.Player"
 }
 
 

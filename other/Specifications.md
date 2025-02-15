@@ -2,6 +2,8 @@
 - All wrapper metatables must have cases for the `__index` key being `value` or `RAPI`.
     - `value`   Return the value stored in the wrapper.
     - `RAPI`    Return `true`.
+- `__metatable` should be `RAPI.Wrapper.<name>`.
+    - If the metatable is for the class table itself, it should be `RAPI.Class.<name>`.
 
 #### Namespace Binding
 - If a method has `namespace` as its first argument, the user *cannot* change it.

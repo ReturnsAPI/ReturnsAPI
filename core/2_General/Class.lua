@@ -28,7 +28,7 @@ metatable_class = {
     end,
 
 
-    __metatable = "RAPI.Class"
+    __metatable = "RAPI.Class.Class"
 }
 setmetatable(Class, metatable_class)
 
@@ -211,7 +211,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
         end,
 
         
-        __metatable = "RAPI."..class_rapi
+        __metatable = "RAPI.Wrapper."..class_rapi
     }
 
     _CLASS[class_rapi] = class_table
