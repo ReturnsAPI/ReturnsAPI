@@ -44,7 +44,8 @@ end
 -- Run once on initialize, and afterwards
 -- every time a new piece of content is added
 Class_find_repopulate = function(class_gm)
-    local arr = gm.variable_global_get(class_gm)
+    -- local arr = gm.variable_global_get(class_gm)
+    local arr = Class[class_gm_to_rapi[class_gm]].value
     local size = gm.array_length(arr)
     local t = class_find_tables[class_gm]
 
@@ -105,16 +106,16 @@ end
 
 -- DEBUG
 Class.debug_force_repopulate = function()
+    -- Populate class_wrappers
+    for class_rapi, class_gm in pairs(class_rapi_to_gm) do
+        class_wrappers[class_rapi:upper()] = Array.wrap(gm.variable_global_get(class_gm))
+    end
+
     -- Populate find table
     for _, class_gm in pairs(class_rapi_to_gm) do
         Class_find_repopulate(class_gm)
     end
     allow_find_repopulate = true
-
-    -- Populate class_wrappers
-    for class_rapi, class_gm in pairs(class_rapi_to_gm) do
-        class_wrappers[class_rapi:upper()] = Array.wrap(gm.variable_global_get(class_gm))
-    end
 end
 
 
@@ -186,7 +187,8 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
             -- Getter
             local index = class_table.PROPERTY[k]
             if index then
-                local array = gm.variable_global_get(class_gm)
+                -- local array = gm.variable_global_get(class_gm)
+                local array = Class[class_rapi].value
                 local element = gm.array_get(array, value)
                 return Wrap.wrap(gm.array_get(element, index))
             end
@@ -199,7 +201,8 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
             -- Setter
             local index = class_table.PROPERTY[k]
             if index then
-                local array = gm.variable_global_get(class_gm)
+                -- local array = gm.variable_global_get(class_gm)
+                local array = Class[class_rapi].value
                 local element = gm.array_get(array, Proxy.get(t))
                 gm.array_set(element, index, Wrap.unwrap(v))
                 return
