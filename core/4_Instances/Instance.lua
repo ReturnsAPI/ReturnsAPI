@@ -121,7 +121,7 @@ Instance.try_wrap = function(value)
 end
 
 
-Instance.get_data = function(instance, subtable, namespace)
+Instance.get_data = function(instance, subtable, namespace, default_namespace)
     instance = Wrap.unwrap(instance)
     local id = instance.id
     subtable = subtable or "__main"
