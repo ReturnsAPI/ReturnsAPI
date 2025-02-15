@@ -62,7 +62,7 @@ Instance.find = function(...)
         -- <Insert custom object finding here>
 
         if inst ~= -4 then
-            return Instance.wrap(inst)
+            return Instance_wrap_internal(inst)
         end
     end
 
