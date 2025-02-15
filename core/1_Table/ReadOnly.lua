@@ -9,7 +9,7 @@ local originals = setmetatable({}, {__mode = "k"})
 
 local metatable_readonly = {
     __index = function(t, k)
-        return originals[t][k]
+        return Proxy.get(t)[k]
     end,
     
     __newindex = function(t, k, v)
@@ -17,26 +17,15 @@ local metatable_readonly = {
     end,
 
     __call = function(t, ...)
-        return originals[t](...)
+        return Proxt.get(t)(...)
     end,
-
-    -- __len = function(t)
-    --     return #originals[t]
-    -- end,
-
-    -- __pairs = function(t)
-    --     return next, originals[t], nil
-    -- end,
 
     __metatable = "RAPI.ReadOnly"
 }
 
 ReadOnly = {
     new = function(t)
-        local readonly = {}
-        originals[readonly] = t or {}
-        setmetatable(readonly, metatable_readonly)
-        return readonly
+        return Proxy.new(t, metatable_readonly)
     end
 }
 
