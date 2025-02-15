@@ -15,7 +15,7 @@ local metatable_readonly = {
     end,
 
     __call = function(t, ...)
-        return Proxt.get(t)(...)
+        return Proxy.get(t)(...)
     end,
 
     __metatable = "RAPI.ReadOnly"
