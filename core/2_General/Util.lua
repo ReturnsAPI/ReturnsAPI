@@ -7,7 +7,8 @@ Util = {}
 -- ========== Static Methods ==========
 
 Util.bool = function(value)
-    return value > 0.5
+    if type(value) == "number" then return value > 0.5 end
+    return value
 end
 
 
