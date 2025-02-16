@@ -34,61 +34,81 @@ Callback.TYPE = ReadOnly.new(TYPE)
 
 -- ========== Static Methods ==========
 
-Callback.get_type_name = function(cbid)
-    if cbid < 0 or cbid >= #callback_list then log.error("Invalid Callback numID", 2) end
-    return callback_list[cbid + 1]
+Callback.get_type_name = function(num_id)
+    if num_id < 0 or num_id >= #callback_list then log.error("Invalid Callback numID", 2) end
+    return callback_list[num_id + 1]
 end
 
 
-Callback.add = function(namespace, callback, fn)
+Callback.add = function(namespace, callback, fn, priority)
     -- Throw error if not numerical ID
     if type(callback) ~= "number" then
         log.error("Invalid Callback type", 2)
     end
 
-    -- Create callback_bank subtable if it does not exist
+    -- All callbacks have the same priority (0) unless specified
+    -- Higher numbers run before lower ones (can be negative)
+    priority = priority or 0
+
+    -- Create callback_bank subtables if they do not exist
     if not callback_bank[callback] then
         callback_bank[callback] = {}
+        callback_bank[callback].priorities = {}
+    end
+    local cbank = callback_bank[callback]
+    if not cbank[priority] then
+        cbank[priority] = {}
+        table.insert(cbank.priorities, priority)
+        table.sort(cbank.priorities, function(a, b) return a > b end)
     end
 
     -- Add to subtable
     id_counter = id_counter + 1
 
-    local fn_t = {
+    local fn_table = {
         id          = id_counter,
         namespace   = namespace,
-        fn          = fn
+        fn          = fn,
+        priority    = priority
     }
-    local lookup_t = {callback, fn_t}
-    id_lookup[id_counter] = lookup_t
-    table.insert(callback_bank[callback], fn_t)
+    local lookup_table = {callback, fn_table}
+    id_lookup[id_counter] = lookup_table
+    table.insert(callback_bank[callback][priority], fn_table)
 
     return id_counter
 end
 
 
 Callback.remove = function(id)
-    local lookup_t = id_lookup[id]
-    if not lookup_t then return end
+    local lookup_table = id_lookup[id]
+    if not lookup_table then return end
     id_lookup[id] = nil
 
-    local cbank = callback_bank[lookup_t[1]]
-    for i, v in ipairs(cbank) do
-        if v == lookup_t[2] then
-            table.remove(cbank, i)
-            break
+    local cbank_callback = callback_bank[lookup_table[1]]
+    for priority, cbank_priority in pairs(cbank_callback) do
+        if type(priority) == "number" then
+            for i, v in ipairs(cbank_priority) do
+                if v == lookup_table[2] then
+                    table.remove(cbank_priority, i)
+                    break
+                end
+            end
         end
     end
 end
 
 
 Callback.remove_all = function(namespace)
-    for callback, cbank in pairs(callback_bank) do
-        for i = #cbank, 1, -1 do
-            local fn_t = cbank[i]
-            if fn_t.namespace == namespace then
-                id_lookup[fn_t.id] = nil
-                table.remove(cbank, i)
+    for _, cbank_callback in pairs(callback_bank) do
+        for priority, cbank_priority in pairs(cbank_callback) do
+            if type(priority) == "number" then
+                for i = #cbank_priority, 1, -1 do
+                    local fn_table = cbank_priority[i]
+                    if fn_table.namespace == namespace then
+                        id_lookup[fn_table.id] = nil
+                        table.remove(cbank_priority, i)
+                    end
+                end
             end
         end
     end
@@ -103,8 +123,8 @@ end
 --     local cbank = callback_bank[callback]
 
 --     if cbank then
---         for _, fn_t in ipairs(cbank) do
---             fn_t.fn()   -- fill with wrapped args
+--         for _, fn_table in ipairs(cbank) do
+--             fn_table.fn()   -- fill with wrapped args
 --         end
 --     end
 -- end)
@@ -121,11 +141,15 @@ memory.dynamic_hook("RAPI.callback_execute", "void*", {"void*", "void*", "void*"
         local args_typed = ffi.cast("struct RValue**", args:get_address())
 
         local callback = tonumber(args_typed[0].i64)
-        local cbank = callback_bank[callback]
+        local cbank_callback = callback_bank[callback]
 
-        if cbank then
-            for _, fn_t in ipairs(cbank) do
-                fn_t.fn()   -- fill with wrapped args
+        if not cbank_callback then return end
+
+        for _, priority in ipairs(cbank_callback.priorities) do
+            local cbank_priority = cbank_callback[priority]
+
+            for _, fn_table in ipairs(cbank_priority) do
+                fn_table.fn()   -- fill with wrapped args
             end
         end
     end
