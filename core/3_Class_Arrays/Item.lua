@@ -44,8 +44,11 @@ methods_class[rapi_name] = {
         local drop = nil
         local drops = Instance.find_all(gm.constants.pPickupItem) --, gm.constants.oCustomObject_pPickupItem)   -- TODO
         for _, d in ipairs(drops) do
-            if math.abs(d.x - x) <= 1 and math.abs(d.y - y) <= 1 then
+            local dData = Instance.get_data(d)
+            if math.abs(d.x - x) <= 1 and math.abs(d.y - y) <= 1
+            and (not dData.returned_drop) then
                 drop = d
+                dData.returned_drop = true
                 break
             end
         end
