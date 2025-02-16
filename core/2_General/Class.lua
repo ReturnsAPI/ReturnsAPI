@@ -177,7 +177,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
             -- Get wrapped value
             local value = Proxy.get(t)
             if k == "value" then return value end
-            if k == "RAPI" then return getmetatable(t):sub(6, -1) end
+            if k == "RAPI" then return getmetatable(t):sub(14, -1) end
 
             -- Methods
             if methods_class[class_rapi][k] then
