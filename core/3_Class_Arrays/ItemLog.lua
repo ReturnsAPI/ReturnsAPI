@@ -32,7 +32,7 @@ ItemLog.new_from_item = function(item)
 
     item = Wrap.unwrap(item)
 
-    
+
 end
 
 

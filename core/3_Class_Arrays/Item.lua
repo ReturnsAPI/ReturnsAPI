@@ -5,6 +5,43 @@ Item = _CLASS[rapi_name]
 
 
 
+-- ========== Enums ==========
+
+Item.TIER = ReadOnly.new({
+    common      = 0,
+    uncommon    = 1,
+    rare        = 2,
+    equipment   = 3,
+    boss        = 4,
+    special     = 5,
+    food        = 6,
+    notier      = 7
+})
+
+
+Item.LOOT_TAG = Proxy.new({
+    category_damage                 = 1,
+    category_healing                = 2,
+    category_utility                = 4,
+    equipment_blacklist_enigma      = 8,
+    equipment_blacklist_chaos       = 16,
+    equipment_blacklist_activator   = 32,
+    item_blacklist_engi_turrets     = 64,
+    item_blacklist_vendor           = 128,
+    item_blacklist_infuser          = 256
+})
+
+
+Item.STACK_KIND = Proxy.new({
+    normal          = 0,
+    temporary_blue  = 1,
+    temporary_red   = 2,
+    any             = 3,
+    temporary_any   = 4
+})
+
+
+
 -- ========== Static Methods ==========
 
 Item.new = function(namespace, identifier)
