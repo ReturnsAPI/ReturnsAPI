@@ -14,16 +14,16 @@ Item.new = function(namespace, identifier)
 
     -- Create new
     -- TODO: Pass proper args for this
-    item = Item.wrap(gm.item_create(
+    item = gm.item_create(
         namespace,
         identifier,
         nil,
         7,
         gm.object_add_w(namespace, identifier, gm.constants.pPickupItem),
         0
-    ))
+    )
 
-    return item
+    return Item.wrap(item)
 end
 
 
