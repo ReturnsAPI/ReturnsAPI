@@ -143,7 +143,7 @@ metatable_array = {
     __index = function(t, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(t) end
-        if k == "RAPI" then return true end
+        if k == "RAPI" then return getmetatable(t):sub(6, -1) end
         
         -- Methods
         if methods_array[k] then

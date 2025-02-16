@@ -1,7 +1,7 @@
 #### Wrapper Metatables
 - All wrapper metatables must have cases for the `__index` key being `value` or `RAPI`.
     - `value`   Return the value stored in the wrapper.
-    - `RAPI`    Return `true`.
+    - `RAPI`    Return `getmetatable(t):sub(6, -1)`.
 - `__metatable` should be `RAPI.Wrapper.<name>`.
     - If the metatable is for the class table itself, it should be `RAPI.Class.<name>`.
 
