@@ -11,6 +11,24 @@ methods_actor = {
     kill = function(self)
         if self.value == -4 then return end
         self.value:actor_kill()
+    end,
+
+
+    item_give = function(self, item, count, kind)
+        item = Wrap.unwrap(item)
+        gm.item_give(self.value, item, count or 1, kind or Item.STACK_KIND.normal)
+    end,
+
+
+    item_take = function(self, item, count, kind)
+        item = Wrap.unwrap(item)
+        gm.item_take(self.value, item, count or 1, kind or Item.STACK_KIND.normal)
+    end,
+
+
+    item_count = function(self, item, kind)
+        item = Wrap.unwrap(item)
+        return gm.item_count(self.value, item, kind or Item.STACK_KIND.any)
     end
 
 }
