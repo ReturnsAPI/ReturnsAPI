@@ -17,10 +17,12 @@ local pool_constants = {
     BOSS_EQUIPMENT  = 5,
     FOOD            = 6,
 }
+local pool_constants_flipped = {}
 
 -- Add to class table directly (e.g., LootPool.COMMON)
 for k, v in pairs(pool_constants) do
     LootPool[k] = v
+    pool_constants_flipped[v] = k
 end
 
 
@@ -58,14 +60,15 @@ LootPool.new = function(namespace, identifier)
 end
 
 
-LootPool.new_from_tier = function(tier)
+LootPool.new_from_tier = function(namespace, tier)
     -- Automatically populates pool properties
     -- and sets the tier's `_pool_for_reroll` properties to this
     if not tier then log.error("No tier provided", 2) end
     
     -- Create table with tier nsid
     local tier_lookup = item_tier_find_table[tier]
-    local pool = LootPool.new(tier_lookup[1], tier_lookup[2])
+    if not tier_lookup then tier_lookup = {nil, pool_constants_flipped[tier]} end
+    local pool = LootPool.new(namespace, tier_lookup[2])
 
     -- Set tier properties
     local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
