@@ -18,6 +18,8 @@ local callback_list = {
     "net_message_onReceived", "console_onCommand"
 }
 
+local callback_arg_types = {}
+
 
 
 -- ========== Enums ==========
@@ -124,6 +126,34 @@ end
 
 
 
+-- DEBUG
+Callback.generate_arg_type_table = function()
+    local callback_type_array = Array.wrap(gm.variable_global_get("class_callback"))
+    local str = ""
+
+    for num_id, _ in ipairs(callback_list) do
+        local arg_types = callback_type_array[num_id][3]
+        str = str.."\n\n"..(num_id - 1).." ("..Callback.get_type_name(num_id - 1)..")"
+
+        callback_arg_types[num_id - 1] = {}
+
+        for i = 1, #arg_types do
+            local arg_type = arg_types[i]
+            table.insert(callback_arg_types[num_id - 1], arg_type)
+            str = str.."\n  "..arg_type
+        end
+
+        -- for _, arg_type in pairs(arg_types) do
+        --     table.insert(callback_arg_types[num_id - 1], arg_type)
+        --     print(arg_type)
+        -- end
+    end
+
+    print(str)
+end
+
+
+
 -- ========== Hooks ==========
 
 -- gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
@@ -153,11 +183,47 @@ memory.dynamic_hook("RAPI.callback_execute", "void*", {"void*", "void*", "void*"
 
         if not cbank_callback then return end
 
+        -- Wrap args
+        local wrapped_args = {}
+
+        -- Wrap args (standard callbacks)
+        if callback < #callback_list then
+            local arg_types = callback_arg_types[callback]
+            for i, arg_type in ipairs(arg_types) do
+
+                local arg, is_instance_id = rvalue_to_lua(args_typed[i])
+                if is_instance_id then arg = gm.CInstance.instance_id_to_CInstance[arg] end
+
+                if      arg_type:match("Instance_oP")       then arg = Instance_wrap_internal(arg, metatable_player)
+                elseif  arg_type:match("Instance_pActor")   then arg = Instance_wrap_internal(arg, metatable_actor, true)
+                elseif  arg_type:match("Instance")          then arg = Instance_wrap_internal(arg)
+                -- elseif  arg_type:match("AttackInfo")        then TODO
+                -- elseif  arg_type:match("HitInfo")           then TODO
+                end
+
+                -- TODO Also add edge case for Callback 41 somewhere
+                
+                table.insert(wrapped_args, arg)
+            end
+
+        -- Wrap args (content callbacks)
+        else
+            for i = 1, arg_count - 1 do
+
+                local arg, is_instance_id = rvalue_to_lua(args_typed[i])
+                if is_instance_id then arg = gm.CInstance.instance_id_to_CInstance[arg] end
+                
+                table.insert(wrapped_args, Wrap.wrap(arg))
+            end
+
+        end
+
+        -- Call functions
         for _, priority in ipairs(cbank_callback.priorities) do
             local cbank_priority = cbank_callback[priority]
 
             for _, fn_table in ipairs(cbank_priority) do
-                fn_table.fn()   -- fill with wrapped args
+                fn_table.fn(table.unpack(wrapped_args))
             end
         end
     end

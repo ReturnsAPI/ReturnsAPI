@@ -9,6 +9,7 @@ end
 
 
 -- Taken from ReturnOfModding-DebugToolkit
+-- Returns `true` as a second return value if the RValue is an Instance ID
 function rvalue_to_lua(rvalue)
     local rvalue_type = rvalue.type
     if      rvalue_type == 0 then -- real
@@ -37,7 +38,7 @@ function rvalue_to_lua(rvalue)
         local rvalue_value = rvalue.value
         return rvalue_value ~= nil and rvalue_value ~= 0
     elseif  rvalue_type == 15 then -- ref (cinstance id)
-        return rvalue.i32 
+        return rvalue.i32, true
     else                       -- unset
         return nil
     end
