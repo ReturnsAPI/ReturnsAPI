@@ -2,7 +2,7 @@
 
 ItemTier = {}
 
-local item_tier_find_table = {}
+item_tier_find_table = {}
 
 
 
@@ -29,40 +29,37 @@ end
 -- ========== Static Methods ==========
 
 ItemTier.new = function(namespace, identifier)
-    local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
-    local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
-    new_index = #tiers_array
+    if not identifier then log.error("No identifier provided", 2) end
 
-    -- Create new tier struct for tier
+    -- Return existing tier if found
+    local tier = ItemTier.find(identifier, namespace)
+    if tier then return tier end
+
+    local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
+    tier = #tiers_array
+
+    -- Create new struct for tier
     local tier_struct = gm.struct_create()
-    tier_struct.index                       = new_index
+    tier_struct.index                       = tier
     tier_struct.text_color                  = "w"
     tier_struct.pickup_color                = Color.WHITE
     tier_struct.pickup_color_bright         = Color.WHITE
-    tier_struct.item_pool_for_reroll        = new_index
-    tier_struct.equipment_pool_for_reroll   = new_index
+    tier_struct.item_pool_for_reroll        = tier
+    tier_struct.equipment_pool_for_reroll   = tier
     tier_struct.ignore_fair                 = false
     tier_struct.fair_item_value             = 1
     tier_struct.pickup_particle_type        = -1
     tier_struct.spawn_sound                 = 57
 
-    -- Create new loot pool struct for each tier
-    local loot_struct = gm.struct_create()
-    loot_struct.index                       = new_index
-    loot_struct.item_tier                   = new_index
-    loot_struct.drop_pool                   = gm.ds_list_create()
-    loot_struct.available_drop_pool         = gm.ds_list_create()
-    loot_struct.is_equipment_pool           = false
-    loot_struct.command_crate_object_id     = 800   -- White crate
-
-    -- Push onto arrays
+    -- Push onto array
     tiers_array:push(tier_struct)
-    loot_pools_array:push(loot_struct)
 
     -- Add to find table
     if not item_tier_find_table[namespace] then item_tier_find_table[namespace] = {} end
-    item_tier_find_table[namespace][identifier] = new_index
-    item_tier_find_table[new_index] = {namespace, identifier}
+    item_tier_find_table[namespace][identifier] = tier
+    item_tier_find_table[tier] = {namespace, identifier}
+
+    return tier
 end
 
 

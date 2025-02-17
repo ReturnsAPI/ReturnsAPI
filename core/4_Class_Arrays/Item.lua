@@ -122,6 +122,11 @@ methods_class[rapi_name] = {
         for _, tag in ipairs(args) do tags = tags + tag end
 
         self.loot_tags = tags
+    end,
+
+
+    add_to_loot_pool = function(self, tier)
+        
     end
 
 }
