@@ -55,11 +55,11 @@ Callback.add = function(namespace, callback, fn, priority)
         callback_bank[callback] = {}
         callback_bank[callback].priorities = {}
     end
-    local cbank = callback_bank[callback]
-    if not cbank[priority] then
-        cbank[priority] = {}
-        table.insert(cbank.priorities, priority)
-        table.sort(cbank.priorities, function(a, b) return a > b end)
+    local cbank_callback = callback_bank[callback]
+    if not cbank_callback[priority] then
+        cbank_callback[priority] = {}
+        table.insert(cbank_callback.priorities, priority)
+        table.sort(cbank_callback.priorities, function(a, b) return a > b end)
     end
 
     -- Add to subtable
@@ -93,6 +93,10 @@ Callback.remove = function(id)
                     break
                 end
             end
+            if #cbank_priority <= 0 then
+                cbank_callback[priority] = nil
+                Util.table_remove_value(cbank_callback.priorities, priority)
+            end
         end
     end
 end
@@ -108,6 +112,10 @@ Callback.remove_all = function(namespace)
                         id_lookup[fn_table.id] = nil
                         table.remove(cbank_priority, i)
                     end
+                end
+                if #cbank_priority <= 0 then
+                    cbank_callback[priority] = nil
+                    Util.table_remove_value(cbank_callback.priorities, priority)
                 end
             end
         end
