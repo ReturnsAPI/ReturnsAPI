@@ -54,7 +54,7 @@ LootPool.new = function(namespace, identifier)
     loot_pool_find_table[namespace][identifier] = pool
     loot_pool_find_table[pool] = {namespace, identifier}
 
-    return loot_struct
+    return LootPool.wrap(pool)
 end
 
 
@@ -65,16 +65,15 @@ LootPool.new_from_tier = function(tier)
     
     -- Create table with tier nsid
     local tier_lookup = item_tier_find_table[tier]
-    local loot_struct = LootPool.new(tier_lookup[1], tier_lookup[2])
+    local pool = LootPool.new(tier_lookup[1], tier_lookup[2])
 
     -- Set tier properties
     local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
     local tier_struct = tiers_array:get(tier)
-    local pool_id = pool.index
-    tier_struct.item_pool_for_reroll        = pool_id
-    tier_struct.equipment_pool_for_reroll   = pool_id
+    tier_struct.item_pool_for_reroll        = pool.value
+    tier_struct.equipment_pool_for_reroll   = pool.value
 
-    return loot_struct
+    return pool
 end
 
 
@@ -83,23 +82,50 @@ LootPool.find = function(identifier, namespace, default_namespace)
     local namespace_table = loot_pool_find_table[namespace]
     if namespace_table then
         local id = namespace_table[identifier]
-        if id then
-            local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
-            return loot_pools_array:get(id)
-        end
+        if id then return LootPool.wrap(id) end
     end
 
     -- Also check vanilla tiers if no namespace arg
     if namespace == default_namespace then
         local id = pool_constants[identifier:upper()]
-        if id then
-            local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
-            return loot_pools_array:get(id)
-        end
+        if id then return LootPool.wrap(id) end
     end
 
     return nil
 end
+
+
+LootPool.wrap = function(pool)
+    return Proxy.new(Wrap.unwrap(pool), metatable_loot_pool)
+end
+
+
+
+-- ========== Metatables ==========
+
+metatable_loot_pool = {
+    __index = function(t, k)
+        -- Get wrapped value
+        if k == "value" then return Proxy.get(t) end
+        if k == "RAPI" then return getmetatable(t):sub(14, -1) end
+
+        -- Getter
+        local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
+        local loot_struct = loot_pools_array:get(Proxy.get(t))
+        return Wrap.wrap(loot_struct[k])
+    end,
+
+
+    __newindex = function(t, k, v)
+        -- Setter
+        local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
+        local loot_struct = loot_pools_array:get(Proxy.get(t))
+        loot_struct[k] = Wrap.unwrap(v)
+    end,
+
+    
+    __metatable = "RAPI.Wrapper.LootPool"
+}
 
 
 

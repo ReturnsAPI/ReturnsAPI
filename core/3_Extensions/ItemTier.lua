@@ -59,7 +59,7 @@ ItemTier.new = function(namespace, identifier)
     item_tier_find_table[namespace][identifier] = tier
     item_tier_find_table[tier] = {namespace, identifier}
 
-    return tier_struct
+    return ItemTier.wrap(tier)
 end
 
 
@@ -68,23 +68,50 @@ ItemTier.find = function(identifier, namespace, default_namespace)
     local namespace_table = item_tier_find_table[namespace]
     if namespace_table then
         local id = namespace_table[identifier]
-        if id then
-            local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
-            return tiers_array:get(id)
-        end
+        if id then return ItemTier.wrap(id) end
     end
 
     -- Also check vanilla tiers if no namespace arg
     if namespace == default_namespace then
         local id = tier_constants[identifier:upper()]
-        if id then
-            local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
-            return tiers_array:get(id)
-        end
+        if id then return ItemTier.wrap(id) end
     end
 
     return nil
 end
+
+
+ItemTier.wrap = function(tier)
+    return Proxy.new(Wrap.unwrap(tier), metatable_item_tier)
+end
+
+
+
+-- ========== Metatables ==========
+
+metatable_item_tier = {
+    __index = function(t, k)
+        -- Get wrapped value
+        if k == "value" then return Proxy.get(t) end
+        if k == "RAPI" then return getmetatable(t):sub(14, -1) end
+
+        -- Getter
+        local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
+        local tier_struct = tiers_array:get(Proxy.get(t))
+        return Wrap.wrap(tier_struct[k])
+    end,
+
+
+    __newindex = function(t, k, v)
+        -- Setter
+        local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
+        local tier_struct = tiers_array:get(Proxy.get(t))
+        tier_struct[k] = Wrap.unwrap(v)
+    end,
+
+    
+    __metatable = "RAPI.Wrapper.ItemTier"
+}
 
 
 

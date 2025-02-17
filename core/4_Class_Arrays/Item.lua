@@ -125,7 +125,7 @@ methods_class[rapi_name] = {
     end,
 
 
-    add_to_loot_pool = function(self, tier)
+    add_to_loot_pool = function(self, pool)
         
     end
 
