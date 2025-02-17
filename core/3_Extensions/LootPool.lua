@@ -183,8 +183,9 @@ memory.dynamic_hook("RAPI.loot_pool_populate", "void*", {"void*", "void*", "void
             local pool_struct = loot_pools_array:get(i)
             local drop_pool = List.wrap(pool_struct.drop_pool)
             local available_drop_pool = List.wrap(pool_struct.available_drop_pool)
-            local list_size = #drop_pool
+            available_drop_pool:clear()
 
+            local list_size = #drop_pool
             for j = 0, list_size - 1 do
                 local item_obj = drop_pool:get(j)
 
