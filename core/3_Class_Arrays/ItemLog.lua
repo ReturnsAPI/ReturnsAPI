@@ -90,7 +90,8 @@ methods_class[rapi_name] = {
         -- Set new item log position
         local pos = 0
         while pos < #item_log_order do
-            local group_ = Class.ItemLog:get(pos):get(10)
+            local log = item_log_order:get(pos)
+            local group_ = Class.ItemLog:get(log):get(10)
             if group < group_ then break end
             pos = pos + 1
         end
