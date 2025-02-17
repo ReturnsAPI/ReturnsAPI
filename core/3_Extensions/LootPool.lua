@@ -101,6 +101,34 @@ end
 
 
 
+-- ========== Instance Methods ==========
+
+methods_loot_pool = {
+
+    roll = function(self, required_loot_tags, disallowed_loot_tags)
+        required_sum, disallowed_sum = required_loot_tags, disallowed_loot_tags
+
+        if type(required_loot_tags) == "table" then
+            required_sum = 0
+            for _, v in ipairs(required_loot_tags) do
+                required_sum = required_sum + v
+            end
+        end
+
+        if type(disallowed_loot_tags) == "table" then
+            disallowed_sum = 0
+            for _, v in ipairs(disallowed_loot_tags) do
+                disallowed_sum = disallowed_sum + v
+            end
+        end
+
+        return gm.treasure_loot_pool_roll(self.value, required_sum, disallowed_sum)
+    end
+
+}
+
+
+
 -- ========== Metatables ==========
 
 metatable_loot_pool = {
@@ -108,6 +136,11 @@ metatable_loot_pool = {
         -- Get wrapped value
         if k == "value" then return Proxy.get(t) end
         if k == "RAPI" then return getmetatable(t):sub(14, -1) end
+
+        -- Methods
+        if methods_loot_pool[k] then
+            return methods_loot_pool[k]
+        end
 
         -- Getter
         local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
