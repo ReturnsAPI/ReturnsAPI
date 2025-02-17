@@ -52,7 +52,7 @@ end
 
 
 Sprite.wrap = function(sprite)
-    return Proxy.new(sprite, metatable_sprite)
+    return Proxy.new(Wrap.unwrap(sprite), metatable_sprite)
 end
 
 

@@ -169,7 +169,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
     end
 
     class_table.wrap = function(value)
-        return Proxy.new(value, metatable_class_arrays[class_rapi])
+        return Proxy.new(Wrap.unwrap(value), metatable_class_arrays[class_rapi])
     end
 
     metatable_class_arrays[class_rapi] = {
