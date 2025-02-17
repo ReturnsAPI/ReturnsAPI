@@ -213,7 +213,6 @@ memory.dynamic_hook("RAPI.callback_execute", "void*", {"void*", "void*", "void*"
                 
                 table.insert(wrapped_args, Wrap.wrap(arg))
             end
-
         end
 
         -- Call functions
