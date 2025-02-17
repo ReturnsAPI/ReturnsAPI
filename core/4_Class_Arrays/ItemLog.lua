@@ -18,7 +18,7 @@ ItemLog.GROUP = ReadOnly.new({
     equipment_locked    = 7,
     boss                = 8,
     boss_locked         = 9,
-    last                = 10
+    last                = 100   -- Normally 10, but this is to allow for custom tiers
 })
 
 
@@ -34,15 +34,18 @@ ItemLog.new = function(namespace, identifier)
 
     -- Create new
     -- TODO: Pass proper args for this
-    item_log = gm.item_log_create(
+    item_log = ItemLog.wrap(gm.item_log_create(
         namespace,
         identifier,
-        ItemLog.GROUP.last,
-        0,
-        0
-    )
+        0,  -- group
+        0,  -- sprite_id
+        0   -- object_id
+    ))
 
-    return ItemLog.wrap(item_log)
+    -- Set group to `last`
+    item_log:set_group(ItemLog.GROUP.last)
+
+    return item_log
 end
 
 
@@ -56,18 +59,18 @@ ItemLog.new_from_item = function(namespace, item)
     -- TODO: Add +1 if item is achievement-locked
 
     -- Create new
-    item_log = gm.item_log_create(
+    item_log = ItemLog.wrap(gm.item_log_create(
         namespace,
         item.identifier,
         group,
         item.sprite_id,
         item.object_id
-    )
+    ))
 
     -- Set the log ID of the item
     item.item_log_id = item_log
 
-    return ItemLog.wrap(item_log)
+    return item_log
 end
 
 

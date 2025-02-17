@@ -7,16 +7,17 @@ Item = _CLASS[rapi_name]
 
 -- ========== Enums ==========
 
-Item.TIER = ReadOnly.new({
-    common      = 0,
-    uncommon    = 1,
-    rare        = 2,
-    equipment   = 3,
-    boss        = 4,
-    special     = 5,
-    food        = 6,
-    notier      = 7
-})
+-- Moved to ItemTier
+-- Item.TIER = ReadOnly.new({
+--     common      = 0,
+--     uncommon    = 1,
+--     rare        = 2,
+--     equipment   = 3,
+--     boss        = 4,
+--     special     = 5,
+--     food        = 6,
+--     notier      = 7
+-- })
 
 
 Item.LOOT_TAG = Proxy.new({
@@ -53,16 +54,16 @@ Item.new = function(namespace, identifier)
 
     -- Create new
     -- TODO: Pass proper args for this
-    item = gm.item_create(
+    item = Item.wrap(gm.item_create(
         namespace,
         identifier,
         nil,
-        7,
+        7,      -- tier
         gm.object_add_w(namespace, identifier, gm.constants.pPickupItem),
-        0
-    )
+        0       -- loot_tags (?)
+    ))
 
-    return Item.wrap(item)
+    return item
 end
 
 
