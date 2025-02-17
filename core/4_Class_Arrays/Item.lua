@@ -126,7 +126,8 @@ methods_class[rapi_name] = {
 
 
     add_to_loot_pool = function(self, pool)
-        
+        pool = LootPool.wrap(pool)
+        gm.ds_list_add(pool.drop_pool, self.object_id)
     end
 
 }
