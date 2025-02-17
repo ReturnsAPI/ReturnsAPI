@@ -13,3 +13,6 @@
 #### Public Reference Population
 - All public classes should add themselves to `_CLASS` in their file.
     - If the class table itself has a metatable, that should be added to `_CLASS_MT`.
+
+#### Class Array Setters
+- Only add a setter if it does multiple things, otherwise the user should just set properties directly.

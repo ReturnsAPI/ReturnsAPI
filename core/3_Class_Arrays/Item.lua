@@ -45,6 +45,8 @@ Item.STACK_KIND = Proxy.new({
 -- ========== Static Methods ==========
 
 Item.new = function(namespace, identifier)
+    if not identifier then log.error("No identifier provided", 2) end
+
     -- Return existing item if found
     local item = Item.find(identifier, namespace)
     if item then return item end
@@ -91,10 +93,34 @@ methods_class[rapi_name] = {
         end
 
         return drop
+    end,
+
+
+    set_tier = function(self, tier)
+        self.tier = tier
+
+        -- Remove from all loot pools that the item is in
+        local pools = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
+        for i = 1, #pools do
+            local struct = pools[i]
+            local drop_pool = List.wrap(struct.drop_pool)
+            local pos = drop_pool:find(self.object_id)
+            if pos then drop_pool:delete(pos) end
+        end
+
+        -- Add to new loot pool
+        List.wrap(pools:get(tier).drop_pool):add(self.object_id)
+    end,
+
+
+    set_loot_tags = function(self, ...)
+        local args = {...}
+        if type(args[1]) == "table" then args = args[1] end
+
+        local tags = 0
+        for _, tag in ipairs(args) do tags = tags + tag end
+
+        self.loot_tags = tags
     end
 
 }
-
-
-
-_CLASS[rapi_name] = Item
