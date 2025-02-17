@@ -8,16 +8,16 @@ ItemLog = _CLASS[rapi_name]
 -- ========== Enums ==========
 
 ItemLog.GROUP = ReadOnly.new({
-    common		        = 0,
-    common_locked		= 1,
-    uncommon		    = 2,
-    uncommon_locked	    = 3,
-    rare		        = 4,
-    rare_locked		    = 5,
-    equipment		    = 6,
+    common              = 0,
+    common_locked       = 1,
+    uncommon            = 2,
+    uncommon_locked     = 3,
+    rare                = 4,
+    rare_locked         = 5,
+    equipment           = 6,
     equipment_locked    = 7,
-    boss		        = 8,
-    boss_locked		    = 9,
+    boss                = 8,
+    boss_locked         = 9,
     last                = 10
 })
 
