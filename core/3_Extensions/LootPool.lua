@@ -109,7 +109,7 @@ end
 methods_loot_pool = {
 
     roll = function(self, required_loot_tags, disallowed_loot_tags)
-        required_sum, disallowed_sum = required_loot_tags or 0, disallowed_loot_tags or 0
+        local required_sum, disallowed_sum = required_loot_tags or 0, disallowed_loot_tags or 0
 
         if type(required_loot_tags) == "table" then
             required_sum = 0
