@@ -180,10 +180,8 @@ memory.dynamic_hook("RAPI.callback_execute", "void*", {"void*", "void*", "void*"
 
         local callback = tonumber(args_typed[0].i64)
         local cbank_callback = callback_bank[callback]
-
         if not cbank_callback then return end
 
-        -- Wrap args
         local wrapped_args = {}
 
         -- Wrap args (standard callbacks)
