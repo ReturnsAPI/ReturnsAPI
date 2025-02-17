@@ -54,7 +54,7 @@ LootPool.new = function(namespace, identifier)
     loot_pool_find_table[namespace][identifier] = pool
     loot_pool_find_table[pool] = {namespace, identifier}
 
-    return pool
+    return loot_struct
 end
 
 
@@ -65,15 +65,16 @@ LootPool.new_from_tier = function(tier)
     
     -- Create table with tier nsid
     local tier_lookup = item_tier_find_table[tier]
-    local pool = LootPool.new(tier_lookup[1], tier_lookup[2])
+    local loot_struct = LootPool.new(tier_lookup[1], tier_lookup[2])
 
     -- Set tier properties
     local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
     local tier_struct = tiers_array:get(tier)
-    tier_struct.item_pool_for_reroll        = pool
-    tier_struct.equipment_pool_for_reroll   = pool
+    local pool_id = pool.index
+    tier_struct.item_pool_for_reroll        = pool_id
+    tier_struct.equipment_pool_for_reroll   = pool_id
 
-    return pool
+    return loot_struct
 end
 
 
@@ -82,13 +83,19 @@ LootPool.find = function(identifier, namespace, default_namespace)
     local namespace_table = loot_pool_find_table[namespace]
     if namespace_table then
         local id = namespace_table[identifier]
-        if id then return id end
+        if id then
+            local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
+            return loot_pools_array:get(id)
+        end
     end
 
     -- Also check vanilla tiers if no namespace arg
     if namespace == default_namespace then
         local id = pool_constants[identifier:upper()]
-        if id then return id end
+        if id then
+            local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
+            return loot_pools_array:get(id)
+        end
     end
 
     return nil

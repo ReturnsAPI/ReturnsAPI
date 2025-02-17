@@ -59,7 +59,7 @@ ItemTier.new = function(namespace, identifier)
     item_tier_find_table[namespace][identifier] = tier
     item_tier_find_table[tier] = {namespace, identifier}
 
-    return tier
+    return tier_struct
 end
 
 
@@ -68,13 +68,19 @@ ItemTier.find = function(identifier, namespace, default_namespace)
     local namespace_table = item_tier_find_table[namespace]
     if namespace_table then
         local id = namespace_table[identifier]
-        if id then return id end
+        if id then
+            local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
+            return tiers_array:get(id)
+        end
     end
 
     -- Also check vanilla tiers if no namespace arg
     if namespace == default_namespace then
         local id = tier_constants[identifier:upper()]
-        if id then return id end
+        if id then
+            local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
+            return tiers_array:get(id)
+        end
     end
 
     return nil
