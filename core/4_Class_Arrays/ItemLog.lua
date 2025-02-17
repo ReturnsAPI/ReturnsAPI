@@ -18,7 +18,7 @@ ItemLog.GROUP = ReadOnly.new({
     equipment_locked    = 7,
     boss                = 8,
     boss_locked         = 9,
-    last                = 100   -- Normally 10, but this is to allow for custom tiers
+    last                = 1000  -- Normally 10, but this is to allow for custom tiers
 })
 
 
