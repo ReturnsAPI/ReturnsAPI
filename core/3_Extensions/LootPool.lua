@@ -180,7 +180,6 @@ memory.dynamic_hook("RAPI.loot_pool_populate", "void*", {"void*", "void*", "void
         size = #loot_pools_array
 
         for i = 7, size - 1 do
-            print(i)
             local pool_struct = loot_pools_array:get(i)
             local drop_pool = List.wrap(pool_struct.drop_pool)
             local available_drop_pool = List.wrap(pool_struct.available_drop_pool)
@@ -188,7 +187,6 @@ memory.dynamic_hook("RAPI.loot_pool_populate", "void*", {"void*", "void*", "void
 
             for j = 0, list_size - 1 do
                 local item_obj = drop_pool:get(j)
-                print(j, item_obj)
 
                 -- TODO check if item is unlocked first
 
