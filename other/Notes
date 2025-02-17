@@ -2,5 +2,3 @@
     - Also check last arg; if that is "namespace", then allow specifying ns optionally
 
 - Mace Replica item log seems to be in the wrong group, so just move it in initialize
-
-- Custom Loot Pools do *not* autopopulate `available_drop_pool` (which is to be expected), so that must be done manually
