@@ -40,6 +40,8 @@ ItemTier.new = function(namespace, identifier)
 
     -- Create new struct for tier
     local tier_struct = gm.struct_create()
+    tier_struct.namespace                   = namespace     -- RAPI custom variable
+    tier_struct.identifier                  = identifier    -- RAPI custom variable
     tier_struct.index                       = tier
     tier_struct.text_color                  = "w"
     tier_struct.pickup_color                = Color.WHITE

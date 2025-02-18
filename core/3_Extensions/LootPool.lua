@@ -41,6 +41,8 @@ LootPool.new = function(namespace, identifier)
 
     -- Create new struct for pool
     local loot_struct = gm.struct_create()
+    loot_struct.namespace                   = namespace     -- RAPI custom variable
+    loot_struct.identifier                  = identifier    -- RAPI custom variable
     loot_struct.index                       = pool
     loot_struct.item_tier                   = pool
     loot_struct.drop_pool                   = gm.ds_list_create()
