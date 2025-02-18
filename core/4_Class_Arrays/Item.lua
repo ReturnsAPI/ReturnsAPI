@@ -98,6 +98,7 @@ methods_class[rapi_name] = {
 
 
     set_tier = function(self, tier)
+        tier = Wrap.unwrap(tier)
         self.tier = tier
 
         -- Remove from all loot pools that the item is in
