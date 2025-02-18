@@ -32,7 +32,7 @@ end
 LootPool.new = function(namespace, identifier)
     if not identifier then log.error("No identifier provided", 2) end
 
-    -- Return existing tier if found
+    -- Return existing pool if found
     local pool = LootPool.find(identifier, namespace)
     if pool then return pool end
 
