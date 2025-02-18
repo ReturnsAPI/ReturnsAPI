@@ -97,6 +97,13 @@ methods_class[rapi_name] = {
     end,
 
 
+    set_sprite = function(self, sprite)
+        sprite = Wrap.unwrap(sprite)
+        self.sprite_id = sprite
+        gm.object_set_sprite_w(self.object_id, sprite)  -- Set item object sprite
+    end,
+
+
     set_tier = function(self, tier)
         tier = Wrap.unwrap(tier)
         self.tier = tier
@@ -111,7 +118,11 @@ methods_class[rapi_name] = {
         end
 
         -- Add to new loot pool
-        List.wrap(pools:get(tier).drop_pool):add(self.object_id)
+        -- List.wrap(pools:get(tier).drop_pool):add(self.object_id)
+        local pool_id = ItemTier.wrap(tier).item_pool_for_reroll
+        if pool_id ~= -1 then
+            List.wrap(pools:get(pool_id).drop_pool):add(self.object_id)
+        end
     end,
 
 

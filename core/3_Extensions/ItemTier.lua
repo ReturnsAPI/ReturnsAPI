@@ -46,12 +46,15 @@ ItemTier.new = function(namespace, identifier)
     tier_struct.text_color                  = "w"
     tier_struct.pickup_color                = Color.WHITE
     tier_struct.pickup_color_bright         = Color.WHITE
-    tier_struct.item_pool_for_reroll        = tier
-    tier_struct.equipment_pool_for_reroll   = tier
+    tier_struct.item_pool_for_reroll        = -1
+    tier_struct.equipment_pool_for_reroll   = -1
     tier_struct.ignore_fair                 = false
     tier_struct.fair_item_value             = 1
     tier_struct.pickup_particle_type        = -1
     tier_struct.spawn_sound                 = 57
+    tier_struct.pickup_head_shape           = -1    -- This is `nil` in struct 1 and not present in any of the
+                                                    -- others but the game will throw an error without it
+                                                    -- `-1` seems to work fine
 
     -- Push onto array
     tiers_array:push(tier_struct)

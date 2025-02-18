@@ -128,7 +128,12 @@ methods_loot_pool = {
             end
         end
 
-        return gm.treasure_loot_pool_roll(self.value, required_sum, disallowed_sum)
+        local obj_id = gm.treasure_loot_pool_roll(self.value, required_sum, disallowed_sum)
+        local item = gm.object_to_item(obj_id)
+        if Util.bool(item) then item = Item.wrap(item) end
+
+        -- Return both the Item wrapper and item object_index
+        return item, obj_id
     end
 
 }

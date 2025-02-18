@@ -3,4 +3,5 @@
 
 - Mace Replica item log seems to be in the wrong group, so just move it in initialize
 
-- TODO: Test if `item_pool_for_reroll` for custom tiers works with Drifter recycle
+- Test if `item_pool_for_reroll` for custom tiers works with Drifter recycle
+    - Works!

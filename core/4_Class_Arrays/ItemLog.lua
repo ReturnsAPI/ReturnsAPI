@@ -55,17 +55,18 @@ ItemLog.new_from_item = function(namespace, item)
     if not item then log.error("No item provided", 2) end
     item = Item.wrap(item)
 
-    group = item.tier * 2
-    -- TODO: Add +1 if item is achievement-locked
-
     -- Create new
     item_log = ItemLog.wrap(gm.item_log_create(
         namespace,
         item.identifier,
-        group,
+        0,
         item.sprite_id,
         item.object_id
     ))
+
+    -- Set group
+    local group = item.tier * 2     -- TODO: Add +1 if item is achievement-locked
+    item_log:set_group(group)
 
     -- Set the log ID of the item
     item.item_log_id = item_log
