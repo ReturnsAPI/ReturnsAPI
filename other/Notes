@@ -2,3 +2,5 @@
     - Also check last arg; if that is "namespace", then allow specifying ns optionally
 
 - Mace Replica item log seems to be in the wrong group, so just move it in initialize
+
+- TODO: Test if `item_pool_for_reroll` for custom tiers works with Drifter recycle

@@ -66,6 +66,7 @@ LootPool.new_from_tier = function(namespace, tier)
     -- Automatically populates pool properties
     -- and sets the tier's `_pool_for_reroll` properties to this
     if not tier then log.error("No tier provided", 2) end
+    tier = Wrap.unwrap(tier)
     
     -- Create table with tier nsid
     local tier_lookup = item_tier_find_table[tier]
