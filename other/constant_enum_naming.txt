@@ -1,5 +1,5 @@
 This took me a while to decide on, but I decided that
-constants and enum values should have the same casing
+class constants and enum values should have the same casing
 Regrettably, callback names have also been converted from camelCase -> UPPER_SNAKE_CASE,
 but at the same time it was a bit silly to have them be
 camelCase vs. lower_snake_case for other enums; at least now it's consistent
