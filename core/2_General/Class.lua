@@ -187,7 +187,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
             end
 
             -- Getter
-            local index = class_table.Property[k]
+            local index = class_table.Property[k:upper()]
             if index then
                 -- local array = gm.variable_global_get(class_gm)
                 local array = Class[class_rapi].value
@@ -201,7 +201,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
 
         __newindex = function(t, k, v)
             -- Setter
-            local index = class_table.Property[k]
+            local index = class_table.Property[k:upper()]
             if index then
                 -- local array = gm.variable_global_get(class_gm)
                 local array = Class[class_rapi].value
