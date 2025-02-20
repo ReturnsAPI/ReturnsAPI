@@ -11,7 +11,7 @@ this would require coming up with enum names for all constants
 Current names:
 
 Callback.ON_DEATH
-Class.ITEM
+Class.ITEM  (this one is case-insensitive so Class.Item works too)
 Color.WHITE
 Color.Item.GREEN
 Color.Text.RED
