@@ -55,6 +55,10 @@ ItemLog.new_from_item = function(namespace, item)
     if not item then log.error("No item provided", 2) end
     item = Item.wrap(item)
 
+    -- Return existing item log if found
+    local item_log = ItemLog.find(item.identifier, namespace)
+    if item_log then return item_log end
+
     -- Create new
     item_log = ItemLog.wrap(gm.item_log_create(
         namespace,
