@@ -19,7 +19,7 @@ local tier_constants = {
     NOTIER      = 7
 }
 
--- Add to class table directly (e.g., ItemTier.COMMON)
+-- Add to ItemTier directly (e.g., ItemTier.COMMON)
 for k, v in pairs(tier_constants) do
     ItemTier[k] = v
 end

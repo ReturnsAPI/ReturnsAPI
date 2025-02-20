@@ -6,39 +6,48 @@ local callback_bank = {}
 local id_counter = 0
 local id_lookup = {}
 
-local callback_list = {
-    "onLoad", "postLoad", "onStep", "preStep", "postStep",
-    "onDraw", "preHUDDraw", "onHUDDraw", "postHUDDraw", "camera_onViewCameraUpdate",
-    "onScreenRefresh", "onGameStart", "onGameEnd", "onDirectorPopulateSpawnArrays",
-    "onStageStart", "onSecond", "onMinute", "onAttackCreate", "onAttackHit", "onAttackHandleStart",
-    "onAttackHandleEnd", "onDamageBlocked", "onEnemyInit", "onEliteInit", "onDeath", "onPlayerInit", "onPlayerStep",
-    "prePlayerHUDDraw", "onPlayerHUDDraw", "onPlayerInventoryUpdate", "onPlayerDeath",
-    "onCheckpointRespawn", "onInputPlayerDeviceUpdate", "onPickupCollected", "onPickupRoll", "onEquipmentUse", "postEquipmentUse", "onInteractableActivate",
-    "onHitProc", "onDamagedProc", "onKillProc",
-    "net_message_onReceived", "console_onCommand"
-}
+-- local callback_list = {
+--     "onLoad", "postLoad", "onStep", "preStep", "postStep",
+--     "onDraw", "preHUDDraw", "onHUDDraw", "postHUDDraw", "camera_onViewCameraUpdate",
+--     "onScreenRefresh", "onGameStart", "onGameEnd", "onDirectorPopulateSpawnArrays",
+--     "onStageStart", "onSecond", "onMinute", "onAttackCreate", "onAttackHit", "onAttackHandleStart",
+--     "onAttackHandleEnd", "onDamageBlocked", "onEnemyInit", "onEliteInit", "onDeath", "onPlayerInit", "onPlayerStep",
+--     "prePlayerHUDDraw", "onPlayerHUDDraw", "onPlayerInventoryUpdate", "onPlayerDeath",
+--     "onCheckpointRespawn", "onInputPlayerDeviceUpdate", "onPickupCollected", "onPickupRoll", "onEquipmentUse", "postEquipmentUse", "onInteractableActivate",
+--     "onHitProc", "onDamagedProc", "onKillProc",
+--     "net_message_onReceived", "console_onCommand"
+-- }
 
 local callback_arg_types = {}
 
 
 
--- ========== Enums ==========
+-- ========== Constants ==========
 
--- Generate Callback.TYPE enum
-local TYPE = {}
-for i, v in ipairs(callback_list) do
-    TYPE[v] = i - 1
+local callback_constants = {
+    "ON_LOAD", "POST_LOAD", "ON_STEP", "PRE_STEP", "POST_STEP",
+    "ON_DRAW", "PRE_HUD_DRAW", "ON_HUD_DRAW", "POST_HUD_DRAW", "CAMERA_ON_VIEW_CAMERA_UPDATE",
+    "ON_SCREEN_REFRESH", "ON_GAME_START", "ON_GAME_END", "ON_DIRECTOR_POPULATE_SPAWN_ARRAYS",
+    "ON_STAGE_START", "ON_SECOND", "ON_MINUTE", "ON_ATTACK_CREATE", "ON_ATTACK_HIT", "ON_ATTACK_HANDLE_START",
+    "ON_ATTACK_HANDLE_END", "ON_DAMAGE_BLOCKED", "ON_ENEMY_INIT", "ON_ELITE_INIT", "ON_DEATH", "ON_PLAYER_INIT", "ON_PLAYER_STEP",
+    "PRE_PLAYER_HUD_DRAW", "ON_PLAYER_HUD_DRAW", "ON_PLAYER_INVENTORY_UPDATE", "ON_PLAYER_DEATH",
+    "ON_CHECKPOINT_RESPAWN", "ON_INPUT_PLAYER_DEVICE_UPDATE", "ON_PICKUP_COLLECTED", "ON_PICKUP_ROLL", "ON_EQUIPMENT_USE", "POST_EQUIPMENT_USE", "ON_INTERACTABLE_ACTIVATE",
+    "ON_HIT_PROC", "ON_DAMAGED_PROC", "ON_KILL_PROC",
+    "NET_MESSAGE_ON_RECEIVED", "CONSOLE_ON_COMMAND"
+}
+
+-- Add to Callback directly (e.g., Callback.ON_DEATH)
+for i, v in ipairs(callback_constants) do
+    Callback[v] = i - 1
 end
-
-Callback.TYPE = ReadOnly.new(TYPE)
 
 
 
 -- ========== Static Methods ==========
 
 Callback.get_type_name = function(num_id)
-    if num_id < 0 or num_id >= #callback_list then log.error("Invalid Callback numID", 2) end
-    return callback_list[num_id + 1]
+    if num_id < 0 or num_id >= #callback_constants then log.error("Invalid Callback numID", 2) end
+    return callback_constants[num_id + 1]
 end
 
 
@@ -131,7 +140,7 @@ Callback.generate_arg_type_table = function()
     local callback_type_array = Array.wrap(gm.variable_global_get("class_callback"))
     local str = ""
 
-    for num_id, _ in ipairs(callback_list) do
+    for num_id, _ in ipairs(callback_constants) do
         local arg_types = callback_type_array[num_id][3]
         str = str.."\n\n"..(num_id - 1).." ("..Callback.get_type_name(num_id - 1)..")"
 
@@ -185,7 +194,7 @@ memory.dynamic_hook("RAPI.callback_execute", "void*", {"void*", "void*", "void*"
         local wrapped_args = {}
 
         -- Wrap args (standard callbacks)
-        if callback < #callback_list then
+        if callback < #callback_constants then
             local arg_types = callback_arg_types[callback]
             for i, arg_type in ipairs(arg_types) do
 

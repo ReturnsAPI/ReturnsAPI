@@ -124,7 +124,7 @@ end
 
 -- This file will also create the base implementations
 -- for every class_array class, containing:
---      * PROPERTY
+--      * Property
 --      * find
 --      * find_all
 --      * wrap
@@ -145,7 +145,9 @@ local properties = file.array
 for class_rapi, class_gm in pairs(class_rapi_to_gm) do
     local class_table = {}
 
-    class_table.PROPERTY = ReadOnly.new(properties[class_gm])
+    local capitalized = {}
+    for k, v in pairs(properties[class_gm]) do capitalized[k:upper()] = v end
+    class_table.Property = ReadOnly.new(capitalized)
 
     class_table.find = function(identifier, namespace, default_namespace)
         -- Search in namespace
@@ -185,7 +187,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
             end
 
             -- Getter
-            local index = class_table.PROPERTY[k]
+            local index = class_table.Property[k]
             if index then
                 -- local array = gm.variable_global_get(class_gm)
                 local array = Class[class_rapi].value
@@ -199,7 +201,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
 
         __newindex = function(t, k, v)
             -- Setter
-            local index = class_table.PROPERTY[k]
+            local index = class_table.Property[k]
             if index then
                 -- local array = gm.variable_global_get(class_gm)
                 local array = Class[class_rapi].value

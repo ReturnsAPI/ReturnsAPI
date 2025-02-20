@@ -8,37 +8,37 @@ Item = _CLASS[rapi_name]
 -- ========== Enums ==========
 
 -- Moved to ItemTier
--- Item.TIER = ReadOnly.new({
---     common      = 0,
---     uncommon    = 1,
---     rare        = 2,
---     equipment   = 3,
---     boss        = 4,
---     special     = 5,
---     food        = 6,
---     notier      = 7
+-- Item.Tier = ReadOnly.new({
+--     COMMON      = 0,
+--     UNCOMMON    = 1,
+--     RARE        = 2,
+--     EQUIPMENT   = 3,
+--     BOSS        = 4,
+--     SPECIAL     = 5,
+--     FOOD        = 6,
+--     NOTIER      = 7
 -- })
 
 
-Item.LOOT_TAG = Proxy.new({
-    category_damage                 = 1,
-    category_healing                = 2,
-    category_utility                = 4,
-    equipment_blacklist_enigma      = 8,
-    equipment_blacklist_chaos       = 16,
-    equipment_blacklist_activator   = 32,
-    item_blacklist_engi_turrets     = 64,
-    item_blacklist_vendor           = 128,
-    item_blacklist_infuser          = 256
+Item.LootTag = ReadOnly.new({
+    CATEGORY_DAMAGE                 = 1,
+    CATEGORY_HEALING                = 2,
+    CATEGORY_UTILITY                = 4,
+    EQUIPMENT_BLACKLIST_ENIGMA      = 8,
+    EQUIPMENT_BLACKLIST_CHAOS       = 16,
+    EQUIPMENT_BLACKLIST_ACTIVATOR   = 32,
+    ITEM_BLACKLIST_ENGI_TURRETS     = 64,
+    ITEM_BLACKLIST_VENDOR           = 128,
+    ITEM_BLACKLIST_INFUSER          = 256
 })
 
 
-Item.STACK_KIND = Proxy.new({
-    normal          = 0,
-    temporary_blue  = 1,
-    temporary_red   = 2,
-    any             = 3,
-    temporary_any   = 4
+Item.StackKind = ReadOnly.new({
+    NORMAL          = 0,
+    TEMPORARY_BLUE  = 1,
+    TEMPORARY_RED   = 2,
+    ANY             = 3,
+    TEMPORARY_ANY   = 4
 })
 
 

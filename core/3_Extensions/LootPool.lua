@@ -15,11 +15,11 @@ local pool_constants = {
     EQUIPMENT       = 3,
     BOSS            = 4,
     BOSS_EQUIPMENT  = 5,
-    FOOD            = 6,
+    FOOD            = 6
 }
 local pool_constants_flipped = {}
 
--- Add to class table directly (e.g., LootPool.COMMON)
+-- Add to LootPool directly (e.g., LootPool.COMMON)
 for k, v in pairs(pool_constants) do
     LootPool[k] = v
     pool_constants_flipped[v] = k

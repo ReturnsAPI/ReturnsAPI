@@ -7,18 +7,18 @@ ItemLog = _CLASS[rapi_name]
 
 -- ========== Enums ==========
 
-ItemLog.GROUP = ReadOnly.new({
-    common              = 0,
-    common_locked       = 1,
-    uncommon            = 2,
-    uncommon_locked     = 3,
-    rare                = 4,
-    rare_locked         = 5,
-    equipment           = 6,
-    equipment_locked    = 7,
-    boss                = 8,
-    boss_locked         = 9,
-    last                = 1000  -- Normally 10, but this is to allow for custom tiers
+ItemLog.Group = ReadOnly.new({
+    COMMON              = 0,
+    COMMON_LOCKED       = 1,
+    UNCOMMON            = 2,
+    UNCOMMON_LOCKED     = 3,
+    RARE                = 4,
+    RARE_LOCKED         = 5,
+    EQUIPMENT           = 6,
+    EQUIPMENT_LOCKED    = 7,
+    BOSS                = 8,
+    BOSS_LOCKED         = 9,
+    LAST                = 1000  -- Normally 10, but this is to allow for custom tiers
 })
 
 
@@ -42,8 +42,8 @@ ItemLog.new = function(namespace, identifier)
         0   -- object_id
     ))
 
-    -- Set group to `last`
-    item_log:set_group(ItemLog.GROUP.last)
+    -- Set group to `LAST`
+    item_log:set_group(ItemLog.Group.LAST)
 
     return item_log
 end

@@ -1,0 +1,12 @@
+Current names
+
+Callback.ON_DEATH
+Class.ITEM
+Color.WHITE
+Color.Item.GREEN
+Color.Text.RED
+Item.LootTag.CATEGORY_DAMAGE
+Item.StackKind.NORMAL
+ItemLog.Group.UNCOMMON
+ItemTier.COMMON
+LootPool.RARE

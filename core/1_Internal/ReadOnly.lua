@@ -18,6 +18,14 @@ local metatable_readonly = {
         return Proxy.get(t)(...)
     end,
 
+    __pairs = function(t)
+        return next, Proxy.get(t), nil
+    end,
+
+    __len = function(t)
+        return #Proxy.get(t)
+    end,
+
     __metatable = "RAPI.Wrapper.ReadOnly"
 }
 

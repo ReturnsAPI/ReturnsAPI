@@ -4,7 +4,7 @@ Color = {}
 
 
 
--- ========== Constants ==========
+-- ========== Constants and Enums ==========
 
 local color_constants = {
     -- GameMaker in-built colors
@@ -30,27 +30,6 @@ local color_constants = {
     WHITE           = 0xffffff,
     YELLOW          = 0x00ffff,
 
-    -- Item colors
-    ITEM_WHITE      = 0xffffff,
-    ITEM_GREEN      = 0x58b475,
-    ITEM_RED        = 0x3d27c9,
-    ITEM_YELLOW     = 0x41cdda,
-    ITEM_ORANGE     = 0x3566d9,
-    ITEM_PURPLE     = 0xc76aab,
-    ITEM_GRAY       = 0x555555,
-    ITEM_GREY       = 0x555555,
-
-    -- Text colors
-    TEXT_YELLOW     = 0x7bd2ef,
-    TEXT_BLUE       = 0xd29a31,
-    TEXT_GREEN      = 0x86b67e,
-    TEXT_RED        = 0x6666cf,
-    TEXT_ORANGE     = 0x5673f9,
-    TEXT_LTGRAY     = 0xc0c0c0,
-    TEXT_LTGREY     = 0xc0c0c0,
-    TEXT_DKGRAY     = 0x808080,
-    TEXT_DKGREY     = 0x808080,
-
     WHITE_ALMOST    = 0xfffffe
 }
 
@@ -58,6 +37,31 @@ local color_constants = {
 for k, v in pairs(color_constants) do
     Color[k] = v
 end
+
+
+Color.Item = ReadOnly.new({
+    WHITE   = 0xffffff,
+    GREEN   = 0x58b475,
+    RED     = 0x3d27c9,
+    YELLOW  = 0x41cdda,
+    ORANGE  = 0x3566d9,
+    PURPLE  = 0xc76aab,
+    GRAY    = 0x555555,
+    GREY    = 0x555555
+})
+
+
+Color.Text = ReadOnly.new({
+    YELLOW  = 0x7bd2ef,
+    BLUE    = 0xd29a31,
+    GREEN   = 0x86b67e,
+    RED     = 0x6666cf,
+    ORANGE  = 0x5673f9,
+    LTGRAY  = 0xc0c0c0,
+    LTGREY  = 0xc0c0c0,
+    DKGRAY  = 0x808080,
+    DKGREY  = 0x808080
+})
 
 
 
