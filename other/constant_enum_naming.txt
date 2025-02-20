@@ -1,7 +1,5 @@
-Current names
-
-This took me a while to decide on, but I think constants
-and enum values should have the same casing
+This took me a while to decide on, but I decided that
+constants and enum values should have the same casing
 Regrettably, callback names have also been converted from camelCase -> UPPER_SNAKE_CASE,
 but at the same time it was a bit silly to have them be
 camelCase vs. lower_snake_case for other enums; at least now it's consistent
@@ -9,6 +7,8 @@ camelCase vs. lower_snake_case for other enums; at least now it's consistent
 Alternatively, we could have values be lower_snake_case, but
 this would require coming up with enum names for all constants
 (i.e., Color.Constants.white or something; Color.white would be conflicting with method casing)
+
+Current names:
 
 Callback.ON_DEATH
 Class.ITEM
