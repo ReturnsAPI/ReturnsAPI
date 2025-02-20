@@ -1,5 +1,12 @@
 Current names
 
+This took me a while to decide on, but I think constants and
+enum values should have the same casing
+
+Alternatively, we could have values be lower_snake_case, but
+this would require coming up with enum names for all constants
+(i.e., Color.Constants.white or something; Color.white would be conflicting with method casing)
+
 Callback.ON_DEATH
 Class.ITEM
 Color.WHITE
