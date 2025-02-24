@@ -205,6 +205,8 @@ metatable_instance = {
 
 -- ========== instance_data GC ==========
 
+-- TODO replace with memory.dynamic_hook
+
 gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
     -- On room change, remove non-existent instances from `instance_data`
     for k, v in pairs(instance_data) do
