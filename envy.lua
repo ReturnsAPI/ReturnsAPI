@@ -15,7 +15,7 @@ function public.setup(env)
 
         -- Copy k, v references from original to copy table
         for k, v in pairs(class_ref) do
-            if k ~= "private" then
+            if k ~= "internal" then
                 copy[k] = v
 
                 -- Namespace binding
