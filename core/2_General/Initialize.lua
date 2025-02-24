@@ -2,8 +2,9 @@
 
 Initialize = {}
 
-local initialize_bank = {}
-initialize_bank.priorities = {}
+local initialize_bank = {
+    priorities = {}
+}
 
 local initialized = false
 
