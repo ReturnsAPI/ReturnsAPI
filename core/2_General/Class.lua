@@ -104,8 +104,9 @@ end
 
 
 
--- DEBUG
-Class.debug_force_repopulate = function()
+-- ========== Internal ==========
+
+function Class_initialize()
     -- Populate class_wrappers
     for class_rapi, class_gm in pairs(class_rapi_to_gm) do
         class_wrappers[class_rapi:upper()] = Array.wrap(gm.variable_global_get(class_gm))

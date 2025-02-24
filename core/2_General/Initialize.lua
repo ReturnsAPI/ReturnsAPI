@@ -10,7 +10,7 @@ local initialized = false
 
 
 
--- ========== Metatable ==========
+-- ========== Metatables ==========
 
 metatable_initialize = {
     __call = function(t, func, priority)
@@ -35,7 +35,15 @@ setmetatable(Initialize, metatable_initialize)
 
 
 
--- ========== Initialize ==========
+-- ========== Internal ==========
+
+local function RAPI_initialize()
+    Class_initialize()
+end
+
+
+
+-- ========== Hooks ==========
 
 memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.__input_system_tick))),
     -- Pre-hook
@@ -47,6 +55,9 @@ memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int
     function(ret_val, self, other, result, arg_count, args)
         if not initialized then
             initialized = true
+
+            -- Call RAPI initialize first
+            RAPI_initialize()
     
             -- Call functions
             for _, priority in ipairs(initialize_bank.priorities) do

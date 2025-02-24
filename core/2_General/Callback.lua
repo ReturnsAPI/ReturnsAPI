@@ -135,31 +135,26 @@ end
 
 
 
--- DEBUG
-Callback.generate_arg_type_table = function()
-    local callback_type_array = Array.wrap(gm.variable_global_get("class_callback"))
-    local str = ""
+-- ========== Internal ==========
 
-    for num_id, _ in ipairs(callback_constants) do
-        local arg_types = callback_type_array[num_id][3]
-        str = str.."\n\n"..(num_id - 1).." ("..Callback.get_type_name(num_id - 1)..")"
+-- Generate list of argument types for each callback
+local callback_type_array = gm.variable_global_get("class_callback")
+-- local str = ""
 
-        callback_arg_types[num_id - 1] = {}
+for num_id, _ in ipairs(callback_constants) do
+    local arg_types = gm.array_get(gm.array_get(callback_type_array, num_id - 1), 2)
+    -- str = str.."\n\n"..(num_id - 1).." ("..Callback.get_type_name(num_id - 1)..")"
 
-        for i = 1, #arg_types do
-            local arg_type = arg_types[i]
-            table.insert(callback_arg_types[num_id - 1], arg_type)
-            str = str.."\n  "..arg_type
-        end
+    callback_arg_types[num_id - 1] = {}
 
-        -- for _, arg_type in pairs(arg_types) do
-        --     table.insert(callback_arg_types[num_id - 1], arg_type)
-        --     print(arg_type)
-        -- end
+    for i = 0, gm.array_length(arg_types) - 1 do
+        local arg_type = gm.array_get(arg_types, i)
+        table.insert(callback_arg_types[num_id - 1], arg_type)
+        -- str = str.."\n  "..arg_type
     end
-
-    print(str)
 end
+
+-- print(str)
 
 
 
