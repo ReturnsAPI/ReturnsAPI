@@ -15,20 +15,17 @@ methods_actor = {
 
 
     item_give = function(self, item, count, kind)
-        item = Wrap.unwrap(item)
-        gm.item_give(self.value, item, count or 1, kind or Item.StackKind.NORMAL)
+        gm.item_give(self.value, Wrap.unwrap(item), count or 1, kind or Item.StackKind.NORMAL)
     end,
 
 
     item_take = function(self, item, count, kind)
-        item = Wrap.unwrap(item)
-        gm.item_take(self.value, item, count or 1, kind or Item.StackKind.NORMAL)
+        gm.item_take(self.value, Wrap.unwrap(item), count or 1, kind or Item.StackKind.NORMAL)
     end,
 
 
     item_count = function(self, item, kind)
-        item = Wrap.unwrap(item)
-        return gm.item_count(self.value, item, kind or Item.StackKind.ANY)
+        return gm.item_count(self.value, Wrap.unwrap(item), kind or Item.StackKind.ANY)
     end
 
 }
