@@ -7,7 +7,9 @@ Sprite = {}
 -- ========== Static Methods ==========
 
 Sprite.new = function(namespace, identifier, path, image_number, x_origin, y_origin)
-    -- <TODO Add initialization check here>
+    Initialize_check_if_done()
+    if not identifier then log.error("No identifier provided", 2) end
+    if not path then log.error("No image path provided", 2) end
 
     local sprite = gm.sprite_find(namespace.."-"..identifier)
     if sprite then

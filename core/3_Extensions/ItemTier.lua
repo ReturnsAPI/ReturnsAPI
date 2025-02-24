@@ -29,6 +29,7 @@ end
 -- ========== Static Methods ==========
 
 ItemTier.new = function(namespace, identifier)
+    Initialize_check_if_done()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing tier if found

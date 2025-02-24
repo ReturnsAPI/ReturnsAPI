@@ -26,6 +26,7 @@ ItemLog.Group = ReadOnly.new({
 -- ========== Static Methods ==========
 
 ItemLog.new = function(namespace, identifier)
+    Initialize_check_if_done()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing item log if found
@@ -50,6 +51,8 @@ end
 
 
 ItemLog.new_from_item = function(namespace, item)
+    Initialize_check_if_done()
+    
     -- Automatically populates log properties
     -- and sets the item's `item_log_id` to this
     if not item then log.error("No item provided", 2) end

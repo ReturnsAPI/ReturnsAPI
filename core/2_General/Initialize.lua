@@ -10,6 +10,27 @@ local initialized = false
 
 
 
+-- ========== Internal ==========
+
+local function RAPI_initialize()
+    Class_initialize()
+end
+
+
+Initialize_check_if_done = function()
+    if not initialized then log.error("Cannot call method before game initialization; try placing the call within Initialize()", 3) end
+end
+
+
+
+-- ========== Static Methods ==========
+
+Initialize.is_done = function()
+    return initialized
+end
+
+
+
 -- ========== Metatables ==========
 
 metatable_initialize = {
@@ -32,14 +53,6 @@ metatable_initialize = {
     __metatable = "RAPI.Class.Initialize"
 }
 setmetatable(Initialize, metatable_initialize)
-
-
-
--- ========== Internal ==========
-
-local function RAPI_initialize()
-    Class_initialize()
-end
 
 
 

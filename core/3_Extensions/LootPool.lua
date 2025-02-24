@@ -30,6 +30,7 @@ end
 -- ========== Static Methods ==========
 
 LootPool.new = function(namespace, identifier)
+    Initialize_check_if_done()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing pool if found
@@ -63,6 +64,8 @@ end
 
 
 LootPool.new_from_tier = function(namespace, tier)
+    Initialize_check_if_done()
+    
     -- Automatically populates pool properties
     -- and sets the tier's `_pool_for_reroll` properties to this
     if not tier then log.error("No tier provided", 2) end
