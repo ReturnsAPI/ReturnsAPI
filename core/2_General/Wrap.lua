@@ -1,6 +1,6 @@
 -- Wrap
 
-Wrap = {}
+Wrap = new_class()
 
 
 
@@ -16,7 +16,7 @@ Wrap.wrap = function(value)
 
     -- Instance
     if userdata_type(value) == "sol.CInstance*" then
-        return Instance_wrap_internal(value)
+        return Instance.internal.wrap(value)
     end
 
     return value

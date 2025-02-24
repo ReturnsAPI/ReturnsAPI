@@ -1,6 +1,6 @@
 -- List
 
-List = {}
+List = new_class()
 
 
 

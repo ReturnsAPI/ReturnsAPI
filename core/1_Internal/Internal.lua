@@ -8,6 +8,13 @@ function userdata_type(userdata)
 end
 
 
+function new_class()
+    return {
+        internal = {}
+    }
+end
+
+
 -- Taken from ReturnOfModding-DebugToolkit
 -- Returns `true` as a second return value if the RValue is an Instance ID
 function rvalue_to_lua(rvalue)

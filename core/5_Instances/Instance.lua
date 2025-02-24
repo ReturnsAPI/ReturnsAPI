@@ -1,6 +1,6 @@
 -- Instance
 
-Instance = {}
+Instance = new_class()
 
 local instance_data = {}
 local wrapper_cache = setmetatable({}, {__mode = "v"})
@@ -12,7 +12,7 @@ local wrapper_cache = setmetatable({}, {__mode = "v"})
 -- For internal use; skips type checks if valid instance is guaranteed
 -- Additionally, can specify metatable to use instead of having to check
 -- Use `check_if_player` if unsure if actor is a player or not
-Instance_wrap_internal = function(instance, mt, check_if_player)
+Instance.internal.wrap = function(instance, mt, check_if_player)
     local id = instance.id
     if wrapper_cache[id] then return wrapper_cache[id] end
 
@@ -62,7 +62,7 @@ Instance.find = function(...)
         -- <Insert custom object finding here>
 
         if inst ~= -4 then
-            return Instance_wrap_internal(inst)
+            return Instance.internal.wrap(inst)
         end
     end
 
@@ -85,7 +85,7 @@ Instance.find_all = function(...)
         local count = gm._mod_instance_number(object)
         for n = 0, count - 1 do
             local inst = gm.instance_find(object, n)
-            table.insert(insts, Instance_wrap_internal(inst))
+            table.insert(insts, Instance.internal.wrap(inst))
         end
 
         -- <Insert custom object finding here>
@@ -104,7 +104,7 @@ Instance.wrap = function(instance, instance_type)
     instance = Wrap.unwrap(instance)
     if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
     if userdata_type(instance) ~= "sol.CInstance*" then return Instance.wrap_invalid() end
-    return Instance_wrap_internal(instance)
+    return Instance.internal.wrap(instance)
 end
 
 
@@ -116,7 +116,7 @@ end
 -- Substitute for Wrap.wrap, since if Arrays are not being wrapped
 -- in RAPI, the only thing left in there is Instance wrapping
 Instance.try_wrap = function(value)
-    if userdata_type(value) == "sol.CInstance*" then return Instance_wrap_internal(value) end
+    if userdata_type(value) == "sol.CInstance*" then return Instance.internal.wrap(value) end
     return value
 end
 

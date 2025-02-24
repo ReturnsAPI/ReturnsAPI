@@ -1,6 +1,6 @@
 -- Array
 
-Array = {}
+Array = new_class()
 
 
 

@@ -1,13 +1,13 @@
 -- Sprite
 
-Sprite = {}
+Sprite = new_class()
 
 
 
 -- ========== Static Methods ==========
 
 Sprite.new = function(namespace, identifier, path, image_number, x_origin, y_origin)
-    Initialize_check_if_done()
+    Initialize.internal.check_if_done()
     if not identifier then log.error("No identifier provided", 2) end
     if not path then log.error("No image path provided", 2) end
 

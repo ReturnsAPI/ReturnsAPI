@@ -1,6 +1,6 @@
 -- Callback
 
-Callback = {}
+Callback = new_class()
 
 local callback_bank = {}
 local id_counter = 0
@@ -185,9 +185,9 @@ memory.dynamic_hook("RAPI.callback_execute", "void*", {"void*", "void*", "void*"
                 local arg, is_instance_id = rvalue_to_lua(args_typed[i])
                 if is_instance_id then arg = gm.CInstance.instance_id_to_CInstance[arg] end
 
-                if      arg_type:match("Instance_oP")       then arg = Instance_wrap_internal(arg, metatable_player)
-                elseif  arg_type:match("Instance_pActor")   then arg = Instance_wrap_internal(arg, metatable_actor, true)
-                elseif  arg_type:match("Instance")          then arg = Instance_wrap_internal(arg)
+                if      arg_type:match("Instance_oP")       then arg = Instance.internal.wrap(arg, metatable_player)
+                elseif  arg_type:match("Instance_pActor")   then arg = Instance.internal.wrap(arg, metatable_actor, true)
+                elseif  arg_type:match("Instance")          then arg = Instance.internal.wrap(arg)
                 -- elseif  arg_type:match("AttackInfo")        then TODO
                 -- elseif  arg_type:match("HitInfo")           then TODO
                 end

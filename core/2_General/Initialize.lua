@@ -1,6 +1,6 @@
 -- Initialize
 
-Initialize = {}
+Initialize = new_class()
 
 local initialize_bank = {
     priorities = {}
@@ -13,11 +13,11 @@ local initialized = false
 -- ========== Internal ==========
 
 local function RAPI_initialize()
-    Class_initialize()
+    Class.internal.initialize()
 end
 
 
-Initialize_check_if_done = function()
+Initialize.internal.check_if_done = function()
     if not initialized then log.error("Cannot call method before game initialization; try placing the call within Initialize()", 3) end
 end
 

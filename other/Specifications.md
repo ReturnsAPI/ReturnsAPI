@@ -14,5 +14,10 @@
 - All public classes should add themselves to `_CLASS` in their file.
     - If the class table itself has a metatable, that should be added to `_CLASS_MT`.
 
+#### Private Methods (for internal use)
+- `new_class()` (found in `Internal.lua`) simply returns a table with a subtable called `internal`.
+    - Place internal methods (i.e., that may be used by other files) within `internal`; these will *not* get exported in `envy.lua`.
+    - This is just to give these methods clearer names when used elsewhere.
+
 #### Class Array Setters
 - Only add a setter if it does multiple things, otherwise the user should just set properties directly.

@@ -1,6 +1,6 @@
 -- Color
 
-Color = {}
+Color = new_class()
 
 
 

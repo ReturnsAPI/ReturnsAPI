@@ -1,6 +1,6 @@
 -- Utility
 
-Util = {}
+Util = new_class()
 
 
 

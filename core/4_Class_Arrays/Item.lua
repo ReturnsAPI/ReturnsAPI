@@ -46,7 +46,7 @@ Item.StackKind = ReadOnly.new({
 -- ========== Static Methods ==========
 
 Item.new = function(namespace, identifier)
-    Initialize_check_if_done()
+    Initialize.internal.check_if_done()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing item if found

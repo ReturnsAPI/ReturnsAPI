@@ -1,6 +1,6 @@
 -- Class
 
-Class = {}
+Class = new_class()
 
 
 
@@ -43,7 +43,7 @@ end
 
 -- Run once on initialize, and afterwards
 -- every time a new piece of content is added
-Class_find_repopulate = function(class_gm)
+Class.internal.find_repopulate = function(class_gm)
     -- local arr = gm.variable_global_get(class_gm)
     local arr = Class[class_gm_to_rapi[class_gm]].value
     local size = gm.array_length(arr)
@@ -98,15 +98,15 @@ local hooks = {
 for _, hook in ipairs(hooks) do
     gm.post_script_hook(hook[1], function(self, other, result, args)
         if not allow_find_repopulate then return end
-        Class_find_repopulate(hook[2])
+        Class.internal.find_repopulate(hook[2])
     end)
 end
 
 
 
--- ========== Internal ==========
+-- ========== Initialize ==========
 
-function Class_initialize()
+Class.internal.initialize = function()
     -- Populate class_wrappers
     for class_rapi, class_gm in pairs(class_rapi_to_gm) do
         class_wrappers[class_rapi:upper()] = Array.wrap(gm.variable_global_get(class_gm))
@@ -114,7 +114,7 @@ function Class_initialize()
 
     -- Populate find table
     for _, class_gm in pairs(class_rapi_to_gm) do
-        Class_find_repopulate(class_gm)
+        Class.internal.find_repopulate(class_gm)
     end
     allow_find_repopulate = true
 end
@@ -144,7 +144,7 @@ local file = toml.decodeFromFile(PATH.."core/data/class_array.txt")
 local properties = file.array
 
 for class_rapi, class_gm in pairs(class_rapi_to_gm) do
-    local class_table = {}
+    local class_table = new_class()
 
     local capitalized = {}
     for k, v in pairs(properties[class_gm]) do capitalized[k:upper()] = v end

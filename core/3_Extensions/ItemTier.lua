@@ -1,6 +1,6 @@
 -- ItemTier
 
-ItemTier = {}
+ItemTier = new_class()
 
 item_tier_find_table = {}
 
@@ -29,7 +29,7 @@ end
 -- ========== Static Methods ==========
 
 ItemTier.new = function(namespace, identifier)
-    Initialize_check_if_done()
+    Initialize.internal.check_if_done()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing tier if found

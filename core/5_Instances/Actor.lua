@@ -1,6 +1,6 @@
 -- Actor
 
-Actor = {}
+Actor = new_class()
 
 
 
