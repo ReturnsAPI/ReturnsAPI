@@ -61,3 +61,4 @@ memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int
 
 
 _CLASS["Initialize"] = Initialize
+_CLASS_MT["Initialize"] = metatable_initialize
