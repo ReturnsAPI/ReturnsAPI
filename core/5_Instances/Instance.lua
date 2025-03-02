@@ -4,6 +4,7 @@ Instance = new_class()
 
 local instance_data = {}
 local wrapper_cache = setmetatable({}, {__mode = "v"})
+local get_data_cache = setmetatable({}, {__mode = "k"})
 
 
 
@@ -122,8 +123,23 @@ end
 
 
 Instance.get_data = function(instance, subtable, namespace, default_namespace)
+    -- DEBUG: Print size of get_data_cache
+    -- local count = 0
+    -- for k, v in pairs(get_data_cache) do count = count + 1 end
+    -- print("#get_data_cache: "..count)
+
     instance = Wrap.unwrap(instance)
-    local id = instance.id
+
+    -- Caching .id
+    -- Dunno if this really saves anything though
+    local id = get_data_cache[instance]
+    if not id then
+        id = instance.id
+        get_data_cache[instance] = id
+
+    -- else print("Got from cache!")
+    end
+
     subtable = subtable or "__main"
     namespace = namespace or "RAPI" -- Internal RAPI calling of this is not namespace-bound
     if not instance_data[id] then instance_data[id] = {} end
