@@ -119,7 +119,7 @@ metatable_object = {
         if index then
             local custom_object = Array.wrap(gm.variable_global_get("custom_object"))
             local obj_array = custom_object:get(value - Object.CUSTOM_START)
-            return obj_array:get(index)
+            obj_array:set(index, v)
         end
         log.error("Non-existent object property", 2)
         return nil
