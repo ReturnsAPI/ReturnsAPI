@@ -95,13 +95,11 @@ methods_class[rapi_name] = {
 
     -- $instance
     -- $return Instance
+    -- $param       x       | number    | The x spawn coordinate.
+    -- $param       y       | number    | The y spawn coordinate.
+    -- $optional    target  | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
     --[[
     Spawns and returns an item drop.
-
-    **Parameters:**
-    x       | number    | The x spawn coordinate.
-    y       | number    | The y spawn coordinate.
-    target  | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
     ]]--
     create = function(self, x, y, target)
         local object_id = self.object_id

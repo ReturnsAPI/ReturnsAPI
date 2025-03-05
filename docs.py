@@ -74,6 +74,7 @@ for l in lines:
 
                     # Docstring processing
                     case 0:
+                        if state_var[2] == 0: state_var[2] = "nil"
                         if state_var[3] == 0: state_var[3] = []
                         if state_var[4] == 0: state_var[4] = []
 
