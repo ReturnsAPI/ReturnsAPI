@@ -1,6 +1,12 @@
 # shitty docs generator cause idk how ldoc works
 # currently wip
 
+# TODO:
+# - parameter table
+# - instance methods
+# - loop through all `/core/*` files
+# - actually populate the docs
+
 import os
 from enum import Enum
 
