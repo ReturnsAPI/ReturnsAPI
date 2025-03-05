@@ -1,4 +1,5 @@
 # shitty docs generator cause idk how ldoc works
+# currently wip
 
 import os
 from enum import Enum
