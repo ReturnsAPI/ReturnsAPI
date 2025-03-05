@@ -48,7 +48,7 @@ Item.StackKind = ReadOnly.new({
 -- ========== Static Methods ==========
 
 -- $static
--- $return Item
+-- $return  Item
 -- $param   identifier  | string    | The identifier for the item.
 --[[
 Creates a new item with the given identifier if it does not already exist,
@@ -78,8 +78,8 @@ end
 
 
 -- $static
--- $name find
--- $return Item
+-- $name        find
+-- $return      Item
 -- $param       identifier  | string    | The identifier to search for.
 -- $optional    namespace   | string    | The namespace to search in.
 --[[
@@ -94,7 +94,7 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 methods_class[rapi_name] = {
 
     -- $instance
-    -- $return Instance
+    -- $return      Instance
     -- $param       x       | number    | The x spawn coordinate.
     -- $param       y       | number    | The y spawn coordinate.
     -- $optional    target  | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
