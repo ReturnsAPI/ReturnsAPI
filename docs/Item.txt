@@ -1,0 +1,64 @@
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#Enums)
+  * [`Item.LootTag`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#LootTag)
+  * [`Item.StackKind`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#StackKind)
+
+<br><br>
+
+---
+
+## Enums
+
+<a name="LootTag"></a>
+```lua
+Item.LootTag = {
+    CATEGORY_DAMAGE                 = 1,
+    CATEGORY_HEALING                = 2,
+    CATEGORY_UTILITY                = 4,
+    EQUIPMENT_BLACKLIST_ENIGMA      = 8,
+    EQUIPMENT_BLACKLIST_CHAOS       = 16,
+    EQUIPMENT_BLACKLIST_ACTIVATOR   = 32,
+    ITEM_BLACKLIST_ENGI_TURRETS     = 64,
+    ITEM_BLACKLIST_VENDOR           = 128,
+    ITEM_BLACKLIST_INFUSER          = 256
+}
+```
+
+<a name="StackKind"></a>
+```lua
+Item.StackKind = {
+    NORMAL          = 0,
+    TEMPORARY_BLUE  = 1,
+    TEMPORARY_RED   = 2,
+    ANY             = 3,
+    TEMPORARY_ANY   = 4
+}
+```
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="new"></a>
+```lua
+Item.new(identifier) -> Item
+```
+
+Creates a new item with the given identifier if it does not already exist,  
+or returns the existing one if it does.  
+
+<br><br>
+
+<a name="find"></a>
+```lua
+Item.find(identifier, [namespace]) -> Item
+```
+
+Searches for the specified item and returns it.  
+If no namespace is provided, searches in your mod's namespace first, and "ror" second.  
+
+<br><br>
+
+---
+
