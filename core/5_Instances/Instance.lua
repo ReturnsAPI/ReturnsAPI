@@ -43,10 +43,12 @@ end
 -- ========== Static Methods ==========
 
 -- $static
+-- $aref        exists-static
 -- $return      bool
 -- $param       instance    | Instance  | The instance to check.
 --[[
 Returns `true` if the instance exists, and `false` otherwise.
+Also exists as an $instance method, Instance#exists-instance$.
 ]]--
 Instance.exists = function(instance)
     instance = Wrap.unwrap(instance)
@@ -198,11 +200,23 @@ end
 
 methods_instance = {
 
+    -- $instance
+    -- $aref        exists-instance
+    -- $return      bool
+    -- $param       instance    | Instance  | The instance to check.
+    --[[
+    Returns `true` if the instance exists, and `false` otherwise.
+    Also exists as a $static method, Instance#exists-static$.
+    ]]--
     exists = function(self)
         return gm.instance_exists(self.value) == 1
     end,
 
 
+    -- $instance
+    --[[
+    Destroys the instance.
+    ]]--
     destroy = function(self)
         if not self:exists() then return end
         instance_data[self.value.id] = nil
@@ -210,12 +224,26 @@ methods_instance = {
     end,
 
 
+    -- $instance
+    -- $return      bool
+    -- $param       other       | Instance  | The other instance to check.
+    --[[
+    Returns `true` if this instance is the same one as `other`.
+    ]]--
     same = function(self, other)
         -- if not self:exists() then return false end   -- From benchmarking - Largely increased performance cost for this
         return self.value == Wrap.unwrap(other)
     end,
 
 
+    -- $instance
+    -- $return      bool
+    -- $param       object      | Object    | The object to check.
+    -- $optional    x           | number    | The x position to check at. <br>Uses this instance's current position by default.
+    -- $optional    y           | number    | The other instance to check. <br>Uses this instance's current position by default.
+    --[[
+    Returns `true` if this instance is colliding with *any* instance of the specified object.
+    ]]--
     is_colliding = function(self, object, x, y)
         -- if not self:exists() then return false end
         if self.value == -4 then return false end

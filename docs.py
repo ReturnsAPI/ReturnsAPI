@@ -46,9 +46,9 @@ for directory in os.listdir(core_path):
                 l = l.strip()
                 
                 # Check for doctype
-                if      "$enum" in l:       state = State.ENUM
-                elif    "$static" in l:     state = State.STATIC
-                elif    "$instance" in l:   state = State.INSTANCE
+                if      "$enum" in l:                   state = State.ENUM
+                elif    "$static" in l.split()[:2]:     state = State.STATIC
+                elif    "$instance" in l.split()[:2]:   state = State.INSTANCE
 
                 # Process doctype
                 else:
@@ -59,7 +59,7 @@ for directory in os.listdir(core_path):
 
                                 # Search for enum name
                                 case 0:
-                                    name = l.split(" ")
+                                    name = l.split()
                                     if len(name) > 0: name = name[0]
                                     if "." in name:
                                         state_var[1] = name
@@ -99,6 +99,8 @@ for directory in os.listdir(core_path):
                                         line[0] = "[" + line[0] + "]"
                                         line[2] = "*Optional.* " + parse_line(line[2])
                                         state_var[3].append(line)
+                                    elif "$aref" in l:
+                                        state_var[5] = l[8:].strip()
                                     elif "--[[" in l: pass
                                     elif "]]--" in l:
                                         state_var[0] = 1
@@ -109,12 +111,12 @@ for directory in os.listdir(core_path):
                                 case 1:
                                     if state_var[1] == 0:
                                         if "function" in l:
-                                            state_var[1] = l.split(" ")[0]
-                                            static.append((state_var[1], state_var[2], state_var[3], state_var[4]))
+                                            state_var[1] = l.split()[0]
+                                            static.append((state_var[1], state_var[2], state_var[3], state_var[4], state_var[5]))
                                             state = State.NONE
                                             state_var = [0 for i in range(10)]
                                     else:
-                                        static.append((state_var[1], state_var[2], state_var[3], state_var[4]))
+                                        static.append((state_var[1], state_var[2], state_var[3], state_var[4], state_var[5]))
                                         state = State.NONE
                                         state_var = [0 for i in range(10)]
 
@@ -129,7 +131,7 @@ for directory in os.listdir(core_path):
                                     if state_var[4] == 0: state_var[4] = []
 
                                     if "$name" in l:    # Optional, autofinds otherwise
-                                        state_var[1] = class_name + "." + l[8:].strip()
+                                        state_var[1] = l[8:].strip()
                                     elif "$return" in l:
                                         state_var[2] = l[10:].strip()
                                     elif "$param" in l:
@@ -141,6 +143,8 @@ for directory in os.listdir(core_path):
                                         line[0] = "[" + line[0] + "]"
                                         line[2] = "*Optional.* " + parse_line(line[2])
                                         state_var[3].append(line)
+                                    elif "$aref" in l:
+                                        state_var[5] = l[8:].strip()
                                     elif "--[[" in l: pass
                                     elif "]]--" in l:
                                         state_var[0] = 1
@@ -151,12 +155,12 @@ for directory in os.listdir(core_path):
                                 case 1:
                                     if state_var[1] == 0:
                                         if "function" in l:
-                                            state_var[1] = l.split(" ")[0]
-                                            instance.append((state_var[1], state_var[2], state_var[3], state_var[4]))
+                                            state_var[1] = l.split()[0]
+                                            instance.append((state_var[1], state_var[2], state_var[3], state_var[4], state_var[5]))
                                             state = State.NONE
                                             state_var = [0 for i in range(10)]
                                     else:
-                                        instance.append((state_var[1], state_var[2], state_var[3], state_var[4]))
+                                        instance.append((state_var[1], state_var[2], state_var[3], state_var[4], state_var[5]))
                                         state = State.NONE
                                         state_var = [0 for i in range(10)]
 
@@ -174,12 +178,16 @@ for directory in os.listdir(core_path):
                 if len(static) > 0:
                     f.write(f"* [**Static Methods**]({wiki}/{class_name}#static-methods)\n")
                     for s in static:
-                        f.write(f"  * [`{s[0]}`]({wiki}/{class_name}#{s[0].split(".")[1]})\n")
+                        aref = s[0].split(".")[1]
+                        if s[4] != 0: aref = s[4]
+                        f.write(f"  * [`{s[0]}`]({wiki}/{class_name}#{aref})\n")
                     f.write("\n")
                 if len(instance) > 0:
                     f.write(f"* [**Instance Methods**]({wiki}/{class_name}#instance-methods)\n")
                     for s in instance:
-                        f.write(f"  * [`{s[0]}`]({wiki}/{class_name}#{s[0]})\n")
+                        aref = s[0]
+                        if s[4] != 0: aref = s[4]
+                        f.write(f"  * [`{class_name[0].lower() + class_name[1:]}:{s[0]}`]({wiki}/{class_name}#{aref})\n")
                     f.write("\n")
                 f.write("<br><br>\n\n")
 
@@ -187,7 +195,6 @@ for directory in os.listdir(core_path):
                 if len(enums) > 0:
                     f.write("---\n\n")
                     f.write("## Enums\n\n")
-                    print(enums)
                     for enum in enums:
                         f.write(f"<a name=\"{enum[0].split(".")[1]}\"></a>\n")
                         f.write("```lua\n")
@@ -202,10 +209,10 @@ for directory in os.listdir(core_path):
                 if len(static) > 0:
                     f.write("---\n\n")
                     f.write("## Static Methods\n\n")
-                    print("")
-                    print(static)
                     for s in static:
-                        f.write(f"<a name=\"{s[0].split(".")[1]}\"></a>\n")
+                        aref = s[0].split(".")[1]
+                        if s[4] != 0: aref = s[4]
+                        f.write(f"<a name=\"{aref}\"></a>\n")
                         f.write("```lua\n")
                         args = ""
                         for arg in s[2]:
@@ -227,10 +234,10 @@ for directory in os.listdir(core_path):
                 if len(instance) > 0:
                     f.write("---\n\n")
                     f.write("## Instance Methods\n\n")
-                    print("")
-                    print(instance)
                     for s in instance:
-                        f.write(f"<a name=\"{s[0]}\"></a>\n")
+                        aref = s[0]
+                        if s[4] != 0: aref = s[4]
+                        f.write(f"<a name=\"{aref}\"></a>\n")
                         f.write("```lua\n")
                         args = ""
                         for arg in s[2]:

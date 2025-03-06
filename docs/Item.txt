@@ -9,7 +9,7 @@
   * [`Item.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#wrap)
 
 * [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#instance-methods)
-  * [`create`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#create)
+  * [`item:create`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#create)
 
 <br><br>
 

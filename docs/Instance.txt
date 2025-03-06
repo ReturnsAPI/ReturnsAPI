@@ -1,10 +1,16 @@
 * [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#static-methods)
-  * [`Instance.exists`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists)
+  * [`Instance.exists`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists-static)
   * [`Instance.find`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#find)
   * [`Instance.find_all`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#find_all)
   * [`Instance.count`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#count)
   * [`Instance.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#wrap)
   * [`Instance.wrap_invalid`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#wrap_invalid)
+
+* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#instance-methods)
+  * [`instance:exists`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists-instance)
+  * [`instance:destroy`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#destroy)
+  * [`instance:same`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#same)
+  * [`instance:is_colliding`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#is_colliding)
 
 <br><br>
 
@@ -12,12 +18,13 @@
 
 ## Static Methods
 
-<a name="exists"></a>
+<a name="exists-static"></a>
 ```lua
 Instance.exists(instance) -> bool
 ```
 
 Returns `true` if the instance exists, and `false` otherwise.  
+Also exists as an [`instance method`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists-instance).  
 
 **Parameters**  
 Parameter | Type | Description
@@ -93,6 +100,67 @@ Returns an Instance wrapper containing a non-existent instance (specifically, th
 
 **Parameters**  
 None
+
+<br><br>
+
+---
+
+## Instance Methods
+
+<a name="exists-instance"></a>
+```lua
+instance:exists(instance) -> bool
+```
+
+Returns `true` if the instance exists, and `false` otherwise.  
+Also exists as a [`static method`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists-static).  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`instance` | Instance | The instance to check.
+
+<br><br>
+
+<a name="destroy"></a>
+```lua
+instance:destroy() -> nil
+```
+
+Destroys the instance.  
+
+**Parameters**  
+None
+
+<br><br>
+
+<a name="same"></a>
+```lua
+instance:same(other) -> bool
+```
+
+Returns `true` if this instance is the same one as `other`.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`other` | Instance | The other instance to check.
+
+<br><br>
+
+<a name="is_colliding"></a>
+```lua
+instance:is_colliding(object, [x], [y]) -> bool
+```
+
+Returns `true` if this instance is colliding with *any* instance of the specified object.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`object` | Object | The object to check.
+`[x]` | number | *Optional.* The x position to check at. <br>Uses this instance's current position by default.
+`[y]` | number | *Optional.* The other instance to check. <br>Uses this instance's current position by default.
 
 <br><br>
 
