@@ -85,7 +85,7 @@ Parameter | Type | Description
 Item.find_all(filter, [property]) -> table, bool
 ```
 
-description  
+description [`Item.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#new)  
 
 **Parameters**
 Parameter | Type | Description

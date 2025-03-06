@@ -18,8 +18,7 @@ class State(Enum):
 
 def parse_line(line):
     global wiki
-    line = line.replace(">", "<")
-    line = line.split("<")
+    line = line.split("$")
     for i in range(1, len(line), 2):
         parts = [part.strip() for part in line[i].split(",")]
         line[i] = f"[`{parts[0]}`]({wiki}/{parts[1]})"
@@ -98,13 +97,13 @@ for l in lines:
                         elif "$optional" in l:
                             line = [part.strip() for part in l[12:].split("|")]
                             line[0] = "[" + line[0] + "]"
-                            line[2] = "*Optional.* " + line[2]
+                            line[2] = "*Optional.* " + parse_line(line[2])
                             state_var[3].append(line)
                         elif "--[[" in l: pass
                         elif "]]--" in l:
                             state_var[0] = 1
                         else:
-                            state_var[4].append(l)
+                            state_var[4].append(parse_line(l))
 
                     # Search for function name
                     case 1:
@@ -133,17 +132,18 @@ for l in lines:
                             state_var[2] = l[10:].strip()
                         elif "$param" in l:
                             line = [part.strip() for part in l[9:].split("|")]
+                            line[2] = parse_line(line[2])
                             state_var[3].append(line)
                         elif "$optional" in l:
                             line = [part.strip() for part in l[12:].split("|")]
                             line[0] = "[" + line[0] + "]"
-                            line[2] = "*Optional.* " + line[2]
+                            line[2] = "*Optional.* " + parse_line(line[2])
                             state_var[3].append(line)
                         elif "--[[" in l: pass
                         elif "]]--" in l:
                             state_var[0] = 1
                         else:
-                            state_var[4].append(l)
+                            state_var[4].append(parse_line(l))
 
                     # Search for function name
                     case 1:
