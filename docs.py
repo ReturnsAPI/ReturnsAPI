@@ -128,7 +128,9 @@ for directory in os.listdir(core_path):
                                     if state_var[3] == 0: state_var[3] = []
                                     if state_var[4] == 0: state_var[4] = []
 
-                                    if "$return" in l:
+                                    if "$name" in l:    # Optional, autofinds otherwise
+                                        state_var[1] = class_name + "." + l[8:].strip()
+                                    elif "$return" in l:
                                         state_var[2] = l[10:].strip()
                                     elif "$param" in l:
                                         line = [part.strip() for part in l[9:].split("|")]
