@@ -2,7 +2,6 @@
 # currently wip
 
 # TODO:
-# - shorthand for linking to other wiki pages
 # - loop through all `/core/*` files
 # - actually populate the docs
 
@@ -16,6 +15,15 @@ class State(Enum):
     ENUM        = 1
     STATIC      = 2
     INSTANCE    = 3
+
+def parse_line(line):
+    global wiki
+    line = line.replace(">", "<")
+    line = line.split("<")
+    for i in range(1, len(line), 2):
+        parts = [part.strip() for part in line[i].split(",")]
+        line[i] = f"[`{parts[0]}`]({wiki}/{parts[1]})"
+    return "".join(line)
 
 
 state = State.NONE
@@ -85,6 +93,7 @@ for l in lines:
                             state_var[2] = l[10:].strip()
                         elif "$param" in l:
                             line = [part.strip() for part in l[9:].split("|")]
+                            line[2] = parse_line(line[2])
                             state_var[3].append(line)
                         elif "$optional" in l:
                             line = [part.strip() for part in l[12:].split("|")]

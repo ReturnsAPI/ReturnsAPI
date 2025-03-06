@@ -91,7 +91,7 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 -- $static
 -- $name        find_all
 -- $return      table, bool
--- $param       filter      |           | description
+-- $param       filter      |           | description <Item.new, Item#new>
 -- $optional    property    | number    | description
 --[[
 description

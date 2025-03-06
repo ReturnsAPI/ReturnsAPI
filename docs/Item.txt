@@ -90,7 +90,7 @@ description
 **Parameters**
 Parameter | Type | Description
 | - | - | -
-`filter` |  | description
+`filter` |  | description [`Item.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#new)
 `[property]` | number | *Optional.* description
 
 <br><br>
