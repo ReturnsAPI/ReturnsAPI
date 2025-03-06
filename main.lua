@@ -25,7 +25,3 @@ end
 
 -- ENVY public setup
 require("./envy")
-
-
--- Generate docs base
-require("./docs")
