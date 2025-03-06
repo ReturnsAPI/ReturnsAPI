@@ -179,7 +179,7 @@ Parameter | Type | Description
 | - | - | -
 `object` | Object | The object to check.
 `[x]` | number | *Optional.* The x position to check at. <br>Uses this instance's current position by default.
-`[y]` | number | *Optional.* The other instance to check. <br>Uses this instance's current position by default.
+`[y]` | number | *Optional.* The y position to check at. <br>Uses this instance's current position by default.
 
 <br><br>
 

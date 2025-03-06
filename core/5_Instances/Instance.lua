@@ -251,7 +251,7 @@ methods_instance = {
     -- $return      bool
     -- $param       object      | Object    | The object to check.
     -- $optional    x           | number    | The x position to check at. <br>Uses this instance's current position by default.
-    -- $optional    y           | number    | The other instance to check. <br>Uses this instance's current position by default.
+    -- $optional    y           | number    | The y position to check at. <br>Uses this instance's current position by default.
     --[[
     Returns `true` if this instance is colliding with *any* instance of the specified object.
     ]]--
