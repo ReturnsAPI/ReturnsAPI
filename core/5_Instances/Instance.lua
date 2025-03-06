@@ -161,6 +161,18 @@ Instance.try_wrap = function(value)
 end
 
 
+-- $static
+-- $return      table
+-- $param       instance    | Instance  | The instance to get the table from.
+-- $optional    subtable    | string    | If specified, returns a different table under the ID `subtable`. <br>Useful for organization and preventing variable name conflicts within a mod itself. <br>This string can be whatever you want.
+-- $optional    namespace   | string    | If specified, returns another mod's table for the instance.
+--[[
+Returns a table unique to each instance (will be initially empty) and unique to each mod calling this.
+(e.g., Given the same instance and two mods A and B, A calling `get_data` will return a different table to B calling `get_data`).
+
+This table is useful for storing lua data (such as tables) in instances, which cannot be done with normal instance variables.
+It is automatically deleted upon the instance's destruction.
+]]--
 Instance.get_data = function(instance, subtable, namespace, default_namespace)
     -- DEBUG: Print size of get_data_cache
     -- local count = 0
@@ -203,7 +215,6 @@ methods_instance = {
     -- $instance
     -- $aref        exists-instance
     -- $return      bool
-    -- $param       instance    | Instance  | The instance to check.
     --[[
     Returns `true` if the instance exists, and `false` otherwise.
     Also exists as a $static method, Instance#exists-static$.
