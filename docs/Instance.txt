@@ -1,0 +1,22 @@
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#enums)
+
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#static-methods)
+
+* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#instance-methods)
+
+<br><br>
+
+---
+
+## Enums
+
+<br><br>
+
+---
+
+## Static Methods
+
+---
+
+## Instance Methods
+

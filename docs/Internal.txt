@@ -1,0 +1,22 @@
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Internal#enums)
+
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Internal#static-methods)
+
+* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Internal#instance-methods)
+
+<br><br>
+
+---
+
+## Enums
+
+<br><br>
+
+---
+
+## Static Methods
+
+---
+
+## Instance Methods
+

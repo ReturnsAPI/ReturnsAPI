@@ -20,6 +20,7 @@ Item = _CLASS[rapi_name]
 -- })
 
 
+-- $enum
 Item.LootTag = ReadOnly.new({
     CATEGORY_DAMAGE                 = 1,
     CATEGORY_HEALING                = 2,
@@ -33,6 +34,7 @@ Item.LootTag = ReadOnly.new({
 })
 
 
+-- $enum
 Item.StackKind = ReadOnly.new({
     NORMAL          = 0,
     TEMPORARY_BLUE  = 1,
@@ -45,6 +47,13 @@ Item.StackKind = ReadOnly.new({
 
 -- ========== Static Methods ==========
 
+-- $static
+-- $return  Item
+-- $param   identifier  | string    | The identifier for the item.
+--[[
+Creates a new item with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]--
 Item.new = function(namespace, identifier)
     Initialize.internal.check_if_done()
     if not identifier then log.error("No identifier provided", 2) end
@@ -68,11 +77,49 @@ Item.new = function(namespace, identifier)
 end
 
 
+-- $static
+-- $name        find
+-- $return      Item
+-- $param       identifier  | string    | The identifier to search for.
+-- $optional    namespace   | string    | The namespace to search in.
+--[[
+Searches for the specified item and returns it.
+If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+]]--
+
+
+-- $static
+-- $name        find_all
+-- $return      table, bool
+-- $param       filter      |           | description $Item.new, Item#new$
+-- $optional    property    | number    | description
+--[[
+description $Item.new, Item#new$
+]]--
+
+
+-- $static
+-- $name        wrap
+-- $return      Item
+-- $param       item_id     | number    | The item ID to wrap.
+--[[
+description
+]]--
+
+
 
 -- ========== Instance Methods ==========
 
 methods_class[rapi_name] = {
 
+    -- $instance
+    -- $return      Instance
+    -- $param       x       | number    | The x spawn coordinate.
+    -- $param       y       | number    | The y spawn coordinate.
+    -- $optional    target  | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
+    --[[
+    Spawns and returns an item drop.
+    ]]--
     create = function(self, x, y, target)
         local object_id = self.object_id
         if object_id == nil
