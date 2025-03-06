@@ -168,6 +168,7 @@ with open(p, "w") as f:
 
     # Enums
     f.write("## Enums\n\n")
+    print(enums)
     for enum in enums:
         f.write(f"<a name=\"{enum[0].split(".")[1]}\"></a>\n")
         f.write("```lua\n")
@@ -180,6 +181,7 @@ with open(p, "w") as f:
 
     # Static
     f.write("## Static Methods\n\n")
+    print("")
     print(static)
     for s in static:
         f.write(f"<a name=\"{s[0].split(".")[1]}\"></a>\n")
@@ -201,6 +203,7 @@ with open(p, "w") as f:
 
     # Instance
     f.write("## Instance Methods\n\n")
+    print("")
     print(instance)
     for s in instance:
         f.write(f"<a name=\"{s[0]}\"></a>\n")
