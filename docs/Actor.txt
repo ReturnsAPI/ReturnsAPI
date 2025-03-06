@@ -1,22 +1,2 @@
-* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#enums)
-
-* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#static-methods)
-
-* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#instance-methods)
-
 <br><br>
-
----
-
-## Enums
-
-<br><br>
-
----
-
-## Static Methods
-
----
-
-## Instance Methods
 

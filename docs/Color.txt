@@ -1,22 +1,2 @@
-* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#enums)
-
-* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#static-methods)
-
-* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#instance-methods)
-
 <br><br>
-
----
-
-## Enums
-
-<br><br>
-
----
-
-## Static Methods
-
----
-
-## Instance Methods
 

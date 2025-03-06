@@ -57,7 +57,7 @@ Item.new(identifier) -> Item
 Creates a new item with the given identifier if it does not already exist,  
 or returns the existing one if it does.  
 
-**Parameters**
+**Parameters**  
 Parameter | Type | Description
 | - | - | -
 `identifier` | string | The identifier for the item.
@@ -72,7 +72,7 @@ Item.find(identifier, [namespace]) -> Item
 Searches for the specified item and returns it.  
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.  
 
-**Parameters**
+**Parameters**  
 Parameter | Type | Description
 | - | - | -
 `identifier` | string | The identifier to search for.
@@ -87,7 +87,7 @@ Item.find_all(filter, [property]) -> table, bool
 
 description [`Item.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#new)  
 
-**Parameters**
+**Parameters**  
 Parameter | Type | Description
 | - | - | -
 `filter` |  | description [`Item.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#new)
@@ -102,7 +102,7 @@ Item.wrap(item_id) -> Item
 
 description  
 
-**Parameters**
+**Parameters**  
 Parameter | Type | Description
 | - | - | -
 `item_id` | number | The item ID to wrap.
@@ -120,7 +120,7 @@ item:create(x, y, [target]) -> Instance
 
 Spawns and returns an item drop.  
 
-**Parameters**
+**Parameters**  
 Parameter | Type | Description
 | - | - | -
 `x` | number | The x spawn coordinate.

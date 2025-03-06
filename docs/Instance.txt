@@ -1,14 +1,10 @@
-* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#enums)
-
 * [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#static-methods)
-
-* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#instance-methods)
-
-<br><br>
-
----
-
-## Enums
+  * [`Instance.exists`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists)
+  * [`Instance.find`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#find)
+  * [`Instance.find_all`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#find_all)
+  * [`Instance.count`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#count)
+  * [`Instance.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#wrap)
+  * [`Instance.wrap_invalid`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#wrap_invalid)
 
 <br><br>
 
@@ -16,7 +12,87 @@
 
 ## Static Methods
 
----
+<a name="exists"></a>
+```lua
+Instance.exists(instance) -> bool
+```
 
-## Instance Methods
+Returns `true` if the instance exists, and `false` otherwise.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`instance` | Instance | The instance to check.
+
+<br><br>
+
+<a name="find"></a>
+```lua
+Instance.find(instance) -> Instance
+```
+
+Returns the first instance of the specified object,  
+or an invalid instance (value of -4).  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`instance` | Instance | The instance to check.
+
+<br><br>
+
+<a name="find_all"></a>
+```lua
+Instance.find_all(...) -> table, bool
+```
+
+Returns a table of all instances of the specified object,  
+and a boolean that is `true` if the table is *not* empty.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`...` |  | A variable amount of objects to check. <br>Alternatively, a table containing them can be provided.
+
+<br><br>
+
+<a name="count"></a>
+```lua
+Instance.count(object) -> number
+```
+
+Returns the instance count of the specified object.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`object` | Object | The object to check.
+
+<br><br>
+
+<a name="wrap"></a>
+```lua
+Instance.wrap(instance) -> Instance
+```
+
+Returns an Instance wrapper containing the provided instance.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`instance` | CInstance | The instance to wrap.
+
+<br><br>
+
+<a name="wrap_invalid"></a>
+```lua
+Instance.wrap_invalid() -> Instance
+```
+
+Returns an Instance wrapper containing a non-existent instance (specifically, the value `-4`).  
+
+**Parameters**  
+None
+
+<br><br>
 

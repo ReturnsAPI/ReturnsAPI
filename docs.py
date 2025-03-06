@@ -164,69 +164,84 @@ for directory in os.listdir(core_path):
             with open(p, "w") as f:
 
                 # Index
-                f.write(f"* [**Enums**]({wiki}/{class_name}#enums)\n")
-                for enum in enums:
-                    f.write(f"  * [`{enum[0]}`]({wiki}/{class_name}#{enum[0].split(".")[1]})\n")
-                f.write(f"\n* [**Static Methods**]({wiki}/{class_name}#static-methods)\n")
-                for s in static:
-                    f.write(f"  * [`{s[0]}`]({wiki}/{class_name}#{s[0].split(".")[1]})\n")
-                f.write(f"\n* [**Instance Methods**]({wiki}/{class_name}#instance-methods)\n")
-                for s in instance:
-                    f.write(f"  * [`{s[0]}`]({wiki}/{class_name}#{s[0]})\n")
-                f.write("\n<br><br>\n\n---\n\n")
+                if len(enums) > 0:
+                    f.write(f"* [**Enums**]({wiki}/{class_name}#enums)\n")
+                    for enum in enums:
+                        f.write(f"  * [`{enum[0]}`]({wiki}/{class_name}#{enum[0].split(".")[1]})\n")
+                    f.write("\n")
+                if len(static) > 0:
+                    f.write(f"* [**Static Methods**]({wiki}/{class_name}#static-methods)\n")
+                    for s in static:
+                        f.write(f"  * [`{s[0]}`]({wiki}/{class_name}#{s[0].split(".")[1]})\n")
+                    f.write("\n")
+                if len(instance) > 0:
+                    f.write(f"* [**Instance Methods**]({wiki}/{class_name}#instance-methods)\n")
+                    for s in instance:
+                        f.write(f"  * [`{s[0]}`]({wiki}/{class_name}#{s[0]})\n")
+                    f.write("\n")
+                f.write("<br><br>\n\n")
 
                 # Enums
-                f.write("## Enums\n\n")
-                print(enums)
-                for enum in enums:
-                    f.write(f"<a name=\"{enum[0].split(".")[1]}\"></a>\n")
-                    f.write("```lua\n")
-                    f.write(enum[0] + " = {")
-                    for l in enum[1]:
-                        f.write("\n    " + l)
-                    f.write("\n}\n")
-                    f.write("```\n\n")
-                f.write("<br><br>\n\n---\n\n")
+                if len(enums) > 0:
+                    f.write("---\n\n")
+                    f.write("## Enums\n\n")
+                    print(enums)
+                    for enum in enums:
+                        f.write(f"<a name=\"{enum[0].split(".")[1]}\"></a>\n")
+                        f.write("```lua\n")
+                        f.write(enum[0] + " = {")
+                        for l in enum[1]:
+                            f.write("\n    " + l)
+                        f.write("\n}\n")
+                        f.write("```\n\n")
+                    f.write("<br><br>\n\n")
 
                 # Static
-                f.write("## Static Methods\n\n")
-                print("")
-                print(static)
-                for s in static:
-                    f.write(f"<a name=\"{s[0].split(".")[1]}\"></a>\n")
-                    f.write("```lua\n")
-                    args = ""
-                    for arg in s[2]:
-                        if args != "": args += ", "
-                        args += arg[0]
-                    f.write(f"{s[0]}({args}) -> {s[1]}\n")
-                    f.write("```\n")
-                    for l in s[3]:
-                        f.write("\n" + l + "  ")
-                    f.write("\n\n**Parameters**")
-                    f.write("\nParameter | Type | Description\n| - | - | -\n")
-                    for arg in s[2]:
-                        f.write(f"`{arg[0]}` | {arg[1]} | {arg[2]}\n")
-                    f.write("\n<br><br>\n\n")
-                f.write("---\n\n")
+                if len(static) > 0:
+                    f.write("---\n\n")
+                    f.write("## Static Methods\n\n")
+                    print("")
+                    print(static)
+                    for s in static:
+                        f.write(f"<a name=\"{s[0].split(".")[1]}\"></a>\n")
+                        f.write("```lua\n")
+                        args = ""
+                        for arg in s[2]:
+                            if args != "": args += ", "
+                            args += arg[0]
+                        f.write(f"{s[0]}({args}) -> {s[1]}\n")
+                        f.write("```\n")
+                        for l in s[3]:
+                            f.write("\n" + l + "  ")
+                        f.write("\n\n**Parameters**  ")
+                        if len(s[2]) > 0:
+                            f.write("\nParameter | Type | Description\n| - | - | -\n")
+                            for arg in s[2]:
+                                f.write(f"`{arg[0]}` | {arg[1]} | {arg[2]}\n")
+                        else: f.write("\nNone\n")
+                        f.write("\n<br><br>\n\n")
 
                 # Instance
-                f.write("## Instance Methods\n\n")
-                print("")
-                print(instance)
-                for s in instance:
-                    f.write(f"<a name=\"{s[0]}\"></a>\n")
-                    f.write("```lua\n")
-                    args = ""
-                    for arg in s[2]:
-                        if args != "": args += ", "
-                        args += arg[0]
-                    f.write(f"{class_name[0].lower() + class_name[1:]}:{s[0]}({args}) -> {s[1]}\n")
-                    f.write("```\n")
-                    for l in s[3]:
-                        f.write("\n" + l + "  ")
-                    f.write("\n\n**Parameters**")
-                    f.write("\nParameter | Type | Description\n| - | - | -\n")
-                    for arg in s[2]:
-                        f.write(f"`{arg[0]}` | {arg[1]} | {arg[2]}\n")
-                    f.write("\n<br><br>\n\n")
+                if len(instance) > 0:
+                    f.write("---\n\n")
+                    f.write("## Instance Methods\n\n")
+                    print("")
+                    print(instance)
+                    for s in instance:
+                        f.write(f"<a name=\"{s[0]}\"></a>\n")
+                        f.write("```lua\n")
+                        args = ""
+                        for arg in s[2]:
+                            if args != "": args += ", "
+                            args += arg[0]
+                        f.write(f"{class_name[0].lower() + class_name[1:]}:{s[0]}({args}) -> {s[1]}\n")
+                        f.write("```\n")
+                        for l in s[3]:
+                            f.write("\n" + l + "  ")
+                        f.write("\n\n**Parameters**  ")
+                        if len(s[2]) > 0:
+                            f.write("\nParameter | Type | Description\n| - | - | -\n")
+                            for arg in s[2]:
+                                f.write(f"`{arg[0]}` | {arg[1]} | {arg[2]}\n")
+                        else: f.write("\nNone\n")
+                        f.write("\n<br><br>\n\n")

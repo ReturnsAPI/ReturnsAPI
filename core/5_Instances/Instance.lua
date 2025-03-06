@@ -42,6 +42,12 @@ end
 
 -- ========== Static Methods ==========
 
+-- $static
+-- $return      bool
+-- $param       instance    | Instance  | The instance to check.
+--[[
+Returns `true` if the instance exists, and `false` otherwise.
+]]--
 Instance.exists = function(instance)
     instance = Wrap.unwrap(instance)
     if type(instance) == "string" then return false end
@@ -49,6 +55,13 @@ Instance.exists = function(instance)
 end
 
 
+-- $static
+-- $return      Instance
+-- $param       instance    | Instance  | The instance to check.
+--[[
+Returns the first instance of the specified object,
+or an invalid instance (value of -4).
+]]--
 Instance.find = function(...)
     local t = {...}     -- Variable number of object_indexes
 
@@ -72,6 +85,13 @@ Instance.find = function(...)
 end
 
 
+-- $static
+-- $return      table, bool
+-- $param       ...         |           | A variable amount of objects to check. <br>Alternatively, a table containing them can be provided.
+--[[
+Returns a table of all instances of the specified object,
+and a boolean that is `true` if the table is *not* empty.
+]]--
 Instance.find_all = function(...)
     local t = {...}     -- Variable number of object_indexes
 
@@ -96,12 +116,24 @@ Instance.find_all = function(...)
 end
 
 
+-- $static
+-- $return      number
+-- $param       object      | Object    | The object to check.
+--[[
+Returns the instance count of the specified object.
+]]--
 Instance.count = function(object)
     return gm._mod_instance_number(object)
 end
 
 
-Instance.wrap = function(instance, instance_type)
+-- $static
+-- $return      Instance
+-- $param       instance    | CInstance | The instance to wrap.
+--[[
+Returns an Instance wrapper containing the provided instance.
+]]--
+Instance.wrap = function(instance)
     instance = Wrap.unwrap(instance)
     if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
     if userdata_type(instance) ~= "sol.CInstance*" then return Instance.wrap_invalid() end
@@ -109,6 +141,11 @@ Instance.wrap = function(instance, instance_type)
 end
 
 
+-- $static
+-- $return      Instance
+--[[
+Returns an Instance wrapper containing a non-existent instance (specifically, the value `-4`).
+]]--
 Instance.wrap_invalid = function()
     return Proxy.new(-4, metatable_instance)
 end
