@@ -1,6 +1,15 @@
-* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#Enums)
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#enums)
   * [`Item.LootTag`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#LootTag)
   * [`Item.StackKind`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#StackKind)
+
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#static-methods)
+  * [`Item.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#new)
+  * [`Item.find`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#find)
+  * [`Item.find_all`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#find_all)
+  * [`Item.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#wrap)
+
+* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#instance-methods)
+  * [`create`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#create)
 
 <br><br>
 
@@ -48,6 +57,11 @@ Item.new(identifier) -> Item
 Creates a new item with the given identifier if it does not already exist,  
 or returns the existing one if it does.  
 
+**Parameters**
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier for the item.
+
 <br><br>
 
 <a name="find"></a>
@@ -58,7 +72,60 @@ Item.find(identifier, [namespace]) -> Item
 Searches for the specified item and returns it.  
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.  
 
+**Parameters**
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier to search for.
+`[namespace]` | string | *Optional.* The namespace to search in.
+
+<br><br>
+
+<a name="find_all"></a>
+```lua
+Item.find_all(filter, [property]) -> table, bool
+```
+
+description  
+
+**Parameters**
+Parameter | Type | Description
+| - | - | -
+`filter` |  | description
+`[property]` | number | *Optional.* description
+
+<br><br>
+
+<a name="wrap"></a>
+```lua
+Item.wrap(item_id) -> Item
+```
+
+description  
+
+**Parameters**
+Parameter | Type | Description
+| - | - | -
+`item_id` | number | The item ID to wrap.
+
 <br><br>
 
 ---
+
+## Instance Methods
+
+<a name="create"></a>
+```lua
+item:create(x, y, [target]) -> Instance
+```
+
+Spawns and returns an item drop.  
+
+**Parameters**
+Parameter | Type | Description
+| - | - | -
+`x` | number | The x spawn coordinate.
+`y` | number | The y spawn coordinate.
+`[target]` | Instance | *Optional.* If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
+
+<br><br>
 

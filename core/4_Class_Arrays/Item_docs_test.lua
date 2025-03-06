@@ -88,6 +88,25 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 ]]--
 
 
+-- $static
+-- $name        find_all
+-- $return      table, bool
+-- $param       filter      |           | description
+-- $optional    property    | number    | description
+--[[
+description
+]]--
+
+
+-- $static
+-- $name        wrap
+-- $return      Item
+-- $param       item_id     | number    | The item ID to wrap.
+--[[
+description
+]]--
+
+
 
 -- ========== Instance Methods ==========
 
