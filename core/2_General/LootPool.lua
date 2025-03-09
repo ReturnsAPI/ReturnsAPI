@@ -114,6 +114,18 @@ end
 
 methods_loot_pool = {
 
+    add = function(self, item)
+        gm.ds_list_add(self.drop_pool, Item.wrap(item).object_id)
+    end,
+
+
+    remove = function(self, item)
+        local pool = self.drop_pool
+        local pos = gm.ds_list_find_index(pool, Item.wrap(item).object_id)
+        if pos then gm.ds_list_delete(pool, pos) end
+    end,
+
+
     roll = function(self, required_loot_tags, disallowed_loot_tags)
         local required_sum, disallowed_sum = required_loot_tags or 0, disallowed_loot_tags or 0
 

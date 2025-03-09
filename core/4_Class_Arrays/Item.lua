@@ -166,10 +166,11 @@ methods_class[rapi_name] = {
         end
 
         -- Add to new loot pool
-        -- List.wrap(pools:get(tier).drop_pool):add(self.object_id)
-        local pool_id = ItemTier.wrap(tier).item_pool_for_reroll
-        if pool_id ~= -1 then
-            List.wrap(pools:get(pool_id).drop_pool):add(self.object_id)
+        -- local pool_id = ItemTier.wrap(tier).item_pool_for_reroll
+        -- self:add_to_loot_pool(pool_id)
+        local pool = ItemTier.wrap(tier).item_pool_for_reroll
+        if pool ~= -1 then
+            LootPool.wrap(pool):add(self)
         end
     end,
 
@@ -182,12 +183,6 @@ methods_class[rapi_name] = {
         for _, tag in ipairs(args) do tags = tags + tag end
 
         self.loot_tags = tags
-    end,
-
-
-    add_to_loot_pool = function(self, pool)
-        pool = LootPool.wrap(pool)
-        gm.ds_list_add(pool.drop_pool, self.object_id)
     end
 
 }
