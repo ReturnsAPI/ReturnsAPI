@@ -2,6 +2,8 @@
 
 Object = new_class()
 
+local find_cache = {}   -- Stores object IDs, not wrappers
+
 
 
 -- ========== Constants and Enums ==========
@@ -48,17 +50,32 @@ end
 
 
 Object.find = function(identifier, namespace, default_namespace)
+    local nsid = namespace.."-"..identifier
+
+    -- Check in cache
+    local cached_id = find_cache[nsid]
+    if cached_id then return Object.wrap(cached_id) end
+
     -- Search in namespace
-    local object = gm.object_find(namespace.."-"..identifier)
-    if object then return Object.wrap(object) end
+    local object = gm.object_find(nsid)
+    if object then
+        find_cache[nsid] = object
+        return Object.wrap(object)
+    end
 
     -- Also search for object in "ror" and then gm.constants if no namespace arg
     if namespace == default_namespace then
         local object = gm.object_find("ror-"..identifier)
-        if object then return Object.wrap(object) end
+        if object then
+            find_cache[nsid] = object
+            return Object.wrap(object)
+        end
 
         local object = gm.constants["o"..identifier:sub(1, 1):upper()..identifier:sub(2, -1)]
-        if object then return Object.wrap(object) end
+        if object then
+            find_cache[nsid] = object
+            return Object.wrap(object)
+        end
     end
 
     return nil
