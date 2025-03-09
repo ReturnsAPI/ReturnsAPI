@@ -1,11 +1,11 @@
 -- ENVY
 
-function public.setup(env)
+function public.setup(env, namespace)
     if env == nil then
         env = envy.getfenv(2)
     end
 
-    local namespace = env["!guid"]
+    local namespace = namespace or env["!guid"]
 
     local wrapper = {}
     for name, class_ref in pairs(_CLASS) do
@@ -77,13 +77,15 @@ function public.setup(env)
 end
 
 
-function public.auto()
+function public.auto(properties)
+    local properties = properties or {}
+
     local env = envy.getfenv(2)
-    local wrapper = public.setup(env)
+    local wrapper = public.setup(env, properties.namespace)
     envy.import_all(env, wrapper)
 
     -- Clear callbacks associated with namespace
-    local namespace = env["!guid"]
+    local namespace = properties.namespace or env["!guid"]
     Callback.remove_all(namespace)
     RecalculateStats.remove_all(namespace)
 end
