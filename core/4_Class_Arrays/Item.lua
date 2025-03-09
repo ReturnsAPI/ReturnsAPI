@@ -165,13 +165,9 @@ methods_class[rapi_name] = {
             if pos then drop_pool:delete(pos) end
         end
 
-        -- Add to new loot pool
-        -- local pool_id = ItemTier.wrap(tier).item_pool_for_reroll
-        -- self:add_to_loot_pool(pool_id)
+        -- Add to new loot pool (if it exists)
         local pool = ItemTier.wrap(tier).item_pool_for_reroll
-        if pool ~= -1 then
-            LootPool.wrap(pool):add(self)
-        end
+        if pool ~= -1 then LootPool.wrap(pool):add(self) end
     end,
 
 
