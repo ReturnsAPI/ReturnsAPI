@@ -2,7 +2,7 @@
 
 Object = new_class()
 
-local find_cache = {}   -- Stores object IDs, not wrappers
+local find_cache = {}
 
 
 
@@ -51,30 +51,38 @@ end
 
 Object.find = function(identifier, namespace, default_namespace)
     local nsid = namespace.."-"..identifier
+    local ror_nsid = "ror-"..identifier
 
-    -- Check in cache
-    local cached_id = find_cache[nsid]
-    if cached_id then return Object.wrap(cached_id) end
+    -- Check in cache (both mod namespace and "ror")
+    local cached = find_cache[nsid]
+    if cached then return cached end
+    if namespace == default_namespace then
+        local cached = find_cache[ror_nsid]
+        if cached then return cached end
+    end
 
     -- Search in namespace
     local object = gm.object_find(nsid)
     if object then
+        object = Object.wrap(object)
         find_cache[nsid] = object
-        return Object.wrap(object)
+        return object
     end
 
     -- Also search for object in "ror" and then gm.constants if no namespace arg
     if namespace == default_namespace then
-        local object = gm.object_find("ror-"..identifier)
+        local object = gm.object_find(ror_nsid)
         if object then
-            find_cache["ror-"..identifier] = object
-            return Object.wrap(object)
+            object = Object.wrap(object)
+            find_cache[ror_nsid] = object
+            return object
         end
 
         local object = gm.constants["o"..identifier:sub(1, 1):upper()..identifier:sub(2, -1)]
         if object then
-            find_cache["ror-"..identifier] = object
-            return Object.wrap(object)
+            object = Object.wrap(object)
+            find_cache[ror_nsid] = object
+            return object
         end
     end
 
