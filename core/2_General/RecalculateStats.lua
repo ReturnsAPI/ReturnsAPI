@@ -127,7 +127,7 @@ end
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"CInstance*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.recalculate_stats))),
+memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"CInstance*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.recalculate_stats),
     -- Pre-hook
     function(ret_val, self, other, result, arg_count, args)
         gather_params(self)
@@ -231,36 +231,43 @@ local index_to_table = {
     [3] = "skill_special",
 }
 
--- i tried to turn this into a dynamic hook and it blew up cause idk what im doing. someone else can do it if they care -kris
--- also, this gets called extremely frequently -- 12 times when an actor spawns, and 4 times each time stats are recaculated, so it could probably use optimisation
-gm.post_script_hook(ActorSkill_recalculate_stats, function(self, other, result, args)
-    local skill_id = gm.variable_struct_get(self, "skill_id") or 0
-    local is_primary = gm.array_get(gm.array_get(class_skill, skill_id), 17) or false
+-- this gets called extremely frequently -- 12 times when an actor spawns, and 4 times each time stats are recaculated. needs to be optimal as possible
+memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"YYObjectBase*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(ActorSkill_recalculate_stats),
+    -- Pre-hook
+    function(ret_val, self, other, result, arg_count, args)
 
-    if is_primary then return end
+    end,
 
-    gather_params(gm.variable_struct_get(self, "parent"))
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local skill_id = gm.variable_struct_get(self, "skill_id") or 0
+        local is_primary = gm.array_get(gm.array_get(class_skill, skill_id), 17) or false
 
-    local skill_index = gm.variable_struct_get(self, "slot_index") or 1
-    local modifiers = params[index_to_table[skill_index]]
-    if not modifiers then return end
+        if is_primary then return end
 
-    -- add stock
-    local max_stock = gm.variable_struct_get(self, "max_stock")
-    max_stock = math.max(1, max_stock + modifiers.max_stock_add)
-    gm.variable_struct_set(self, "max_stock", max_stock)
+        gather_params(gm.variable_struct_get(self, "parent"))
 
-    -- modify cooldown
-    local cooldown = gm.variable_struct_get(self, "cooldown")
-    cooldown = math.floor(math.max(30, cooldown * modifiers.cooldown_mult))
-    gm.variable_struct_set(self, "cooldown", cooldown)
+        local skill_index = gm.variable_struct_get(self, "slot_index") or 1
+        local modifiers = params[index_to_table[skill_index]]
+        if not modifiers then return end
 
-    -- start cooldown if necessary. ugly because orig already calls this before this hook, but oh well
-    local auto_restock = gm.array_get(gm.array_get(class_skill, skill_id), 10) or false
-    if auto_restock then
-        local skill_start_cooldown = gm.variable_struct_get(self, "skill_start_cooldown")
-        skill_start_cooldown(self, self)
+        -- add stock
+        local max_stock = gm.variable_struct_get(self, "max_stock")
+        max_stock = math.max(1, max_stock + modifiers.max_stock_add)
+        gm.variable_struct_set(self, "max_stock", max_stock)
+
+        -- modify cooldown
+        local cooldown = gm.variable_struct_get(self, "cooldown")
+        cooldown = math.floor(math.max(30, cooldown * modifiers.cooldown_mult))
+        gm.variable_struct_set(self, "cooldown", cooldown)
+
+        -- start cooldown if necessary. ugly because orig already calls this before this hook, but oh well
+        local auto_restock = gm.array_get(gm.array_get(class_skill, skill_id), 10) or false
+        if auto_restock then
+            local skill_start_cooldown = gm.variable_struct_get(self, "skill_start_cooldown")
+            skill_start_cooldown(self, self)
+        end
     end
-end)
+)
 
 _CLASS["RecalculateStats"] = RecalculateStats
