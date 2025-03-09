@@ -195,7 +195,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
                 local element = gm.array_get(array, value)
                 return Wrap.wrap(gm.array_get(element, index))
             end
-            log.error("Non-existent "..class.." property", 2)
+            log.error("Non-existent "..class_rapi.." property", 2)
             return nil
         end,
 
@@ -210,7 +210,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
                 gm.array_set(element, index, Wrap.unwrap(v))
                 return
             end
-            log.error("Non-existent "..class.." property", 2)
+            log.error("Non-existent "..class_rapi.." property", 2)
         end,
 
         
