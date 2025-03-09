@@ -67,13 +67,13 @@ Object.find = function(identifier, namespace, default_namespace)
     if namespace == default_namespace then
         local object = gm.object_find("ror-"..identifier)
         if object then
-            find_cache[nsid] = object
+            find_cache["ror-"..identifier] = object
             return Object.wrap(object)
         end
 
         local object = gm.constants["o"..identifier:sub(1, 1):upper()..identifier:sub(2, -1)]
         if object then
-            find_cache[nsid] = object
+            find_cache["ror-"..identifier] = object
             return Object.wrap(object)
         end
     end
