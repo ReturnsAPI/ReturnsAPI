@@ -84,4 +84,5 @@ metatable_buffer = {
     __metatable = "RAPI.Wrapper.Buffer"
 }
 
-_CLASS["Buffer"] = Buffer
+-- No reason to export this since there are zero static methods the user can call (if .wrap is in `internal`)
+-- _CLASS["Buffer"] = Buffer
