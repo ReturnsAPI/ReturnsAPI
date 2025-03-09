@@ -2,6 +2,8 @@
 
 Sprite = new_class()
 
+local find_cache = {}
+
 
 
 -- ========== Static Methods ==========
@@ -39,14 +41,33 @@ end
 
 
 Sprite.find = function(identifier, namespace, default_namespace)
+    local nsid = namespace.."-"..identifier
+    local ror_nsid = "ror-"..identifier
+
+    -- Check in cache (both mod namespace and "ror")
+    local cached = find_cache[nsid]
+    if cached then return cached end
+    if namespace == default_namespace then
+        local cached = find_cache[ror_nsid]
+        if cached then return cached end
+    end
+
     -- Look in mod namespace
-    local sprite = gm.sprite_find(namespace.."-"..identifier)
-    if sprite then return Sprite.wrap(sprite) end
+    local sprite = gm.sprite_find(nsid)
+    if sprite then
+        sprite = Sprite.wrap(sprite)
+        find_cache[nsid] = sprite
+        return sprite
+    end
 
     -- Also look in "ror" namespace if user passed no `namespace` arg
     if namespace == default_namespace then
-        sprite = gm.sprite_find("ror-"..identifier)
-        if sprite then return Sprite.wrap(sprite) end
+        sprite = gm.sprite_find(ror_nsid)
+        if sprite then
+            sprite = Sprite.wrap(sprite)
+            find_cache[ror_nsid] = sprite
+            return sprite
+        end
     end
 
     return nil
