@@ -58,18 +58,18 @@ ItemLog.new_from_item = function(namespace, item)
     if not item then log.error("No item provided", 2) end
     item = Item.wrap(item)
 
-    -- Return existing item log if found
+    -- Use existing item log if found
     local item_log = ItemLog.find(item.identifier, namespace)
-    if item_log then return item_log end
-
-    -- Create new
-    item_log = ItemLog.wrap(gm.item_log_create(
-        namespace,
-        item.identifier,
-        0,
-        item.sprite_id,
-        item.object_id
-    ))
+    if not item_log then
+        -- Create new
+        item_log = ItemLog.wrap(gm.item_log_create(
+            namespace,
+            item.identifier,
+            0,
+            item.sprite_id,
+            item.object_id
+        ))
+    end
 
     -- Set group
     local group = item.tier * 2     -- TODO: Add +1 if item is achievement-locked
