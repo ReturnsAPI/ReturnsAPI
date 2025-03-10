@@ -12,6 +12,18 @@ end
 
 
 
+-- ========== Instance Methods ==========
+
+methods_hitinfo = {
+
+    abc = function(self)
+        
+    end
+
+}
+
+
+
 -- ========== Metatables ==========
 
 local out = gmf.rvalue_new(0)
@@ -23,11 +35,11 @@ metatable_hitinfo = {
         if k == "RAPI" then return getmetatable(t):sub(14, -1) end
 
         -- Methods
-        -- if methods_instance[k] then
-        --     return methods_instance[k]
-        -- end
+        if methods_hitinfo[k] then
+            return methods_hitinfo[k]
+        end
 
-        -- Getter
+        ---- Getter
         local holder = ffi.new("struct RValue[2]")  -- args holder
 
         -- hitinfo
@@ -44,7 +56,7 @@ metatable_hitinfo = {
 
 
     __newindex = function(t, k, v)
-        -- Setter
+        ---- Setter
         local holder = ffi.new("struct RValue[3]")  -- args holder
 
         -- hitinfo
