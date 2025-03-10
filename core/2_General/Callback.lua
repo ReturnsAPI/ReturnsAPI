@@ -322,7 +322,7 @@ memory.dynamic_hook("RAPI.callback_execute", "void*", {"void*", "void*", "void*"
                 if      arg_type:match("Instance_oP")       then arg = Instance.internal.wrap(arg, metatable_player)
                 elseif  arg_type:match("Instance_pActor")   then arg = Instance.internal.wrap(arg, metatable_actor, true)
                 elseif  arg_type:match("Instance")          then arg = Instance.internal.wrap(arg)
-                -- elseif  arg_type:match("AttackInfo")        then TODO
+                elseif  arg_type:match("AttackInfo")        then arg = AttackInfo.wrap(arg)
                 elseif  arg_type:match("HitInfo")           then arg = HitInfo.wrap(arg)
                 end
                 

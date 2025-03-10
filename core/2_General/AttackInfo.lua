@@ -1,20 +1,20 @@
--- HitInfo
+-- AttackInfo
 
-HitInfo = new_class()
+AttackInfo = new_class()
 
 
 
 -- ========== Static Methods ==========
 
-HitInfo.wrap = function(hit_info)
-    return Proxy.new(hit_info, metatable_hitinfo)
+AttackInfo.wrap = function(attack_info)
+    return Proxy.new(attack_info, metatable_attackinfo)
 end
 
 
 
 -- ========== Instance Methods ==========
 
-methods_hitinfo = {
+methods_attackinfo = {
 
     abc = function(self)
         
@@ -26,21 +26,19 @@ methods_hitinfo = {
 
 -- ========== Metatables ==========
 
-metatable_hitinfo = {
+metatable_attackinfo = {
     __index = function(t, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(t) end
         if k == "RAPI" then return getmetatable(t):sub(14, -1) end
 
         -- Methods
-        if methods_hitinfo[k] then
-            return methods_hitinfo[k]
+        if methods_attackinfo[k] then
+            return methods_attackinfo[k]
         end
 
         -- Getter
-        local ret = metatable_struct_getset.__index(t, k)
-        if k == "attack_info" then ret = AttackInfo.wrap(ret) end
-        return ret
+        return metatable_struct_getset.__index(t, k)
     end,
 
 
@@ -50,9 +48,9 @@ metatable_hitinfo = {
     end,
 
     
-    __metatable = "RAPI.Wrapper.HitInfo"
+    __metatable = "RAPI.Wrapper.AttackInfo"
 }
 
 
 
-_CLASS["HitInfo"] = HitInfo
+_CLASS["AttackInfo"] = AttackInfo
