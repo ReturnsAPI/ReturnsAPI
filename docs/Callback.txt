@@ -97,8 +97,6 @@ Parameter | Type | Description
 `fn` | function | The function to register. <br>The parameters for it depend on the callback type (see below).
 `[priority]` | number | *Optional.* The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`0` by default.
   
-testing  
-  
 TODO add table  
 
 <br><br>

@@ -121,8 +121,6 @@ If you need to be more specific than that, try to keep a distance of at least `1
 
 --$ptable
 
-testing
-
 TODO add table
 ]]
 Callback.add = function(namespace, callback, fn, priority)
