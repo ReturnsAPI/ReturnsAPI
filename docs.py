@@ -18,6 +18,7 @@ Fields
 
 In any description,
 $<text to display>, <section link>$     Link to another section/page of the wiki (e.g., `$some display text, Item#LootTag$`)"
+--$ptable                               Display the parameter table at that position, allowing for text after it
 """
 
 import os
@@ -34,6 +35,7 @@ class State(Enum):
 
 def parse_line(line):
     global wiki
+    if "--$ptable" in line: return line     # Do not parse the "print parameter table" instruction
     line = line.split("$")
     for i in range(1, len(line), 2):
         parts = [part.strip() for part in line[i].split(",")]
@@ -286,6 +288,13 @@ for directory in os.listdir(core_path):
                     f.write("---\n\n")
                     f.write("## Static Methods\n\n")
                     for s in static:
+                        def param_table():
+                            f.write("\n**Parameters**  ")
+                            if len(s[2]) > 0:
+                                f.write("\nParameter | Type | Description\n| - | - | -")
+                                for arg in s[2]:
+                                    f.write(f"\n`{arg[0]}` | {arg[1]} | {arg[2]}")
+                            else: f.write("\nNone")
                         aref = s[0].split(".")[1]
                         if s[4] != 0: aref = s[4]
                         f.write(f"<a name=\"{aref}\"></a>\n")
@@ -296,21 +305,30 @@ for directory in os.listdir(core_path):
                             args += arg[0]
                         f.write(f"{s[0]}({args}) -> {s[1]}\n")
                         f.write("```\n")
+                        ptable_done = False
                         for l in s[3]:
-                            f.write("\n" + l + "  ")
-                        f.write("\n\n**Parameters**  ")
-                        if len(s[2]) > 0:
-                            f.write("\nParameter | Type | Description\n| - | - | -\n")
-                            for arg in s[2]:
-                                f.write(f"`{arg[0]}` | {arg[1]} | {arg[2]}\n")
-                        else: f.write("\nNone\n")
-                        f.write("\n<br><br>\n\n")
+                            if "--$ptable" in l:
+                                param_table()
+                                ptable_done = True
+                            else:
+                                f.write("\n" + l + "  ")
+                        if not ptable_done:
+                            f.write("\n")
+                            param_table()
+                        f.write("\n\n<br><br>\n\n")
 
                 # Instance
                 if len(instance) > 0:
                     f.write("---\n\n")
                     f.write("## Instance Methods\n\n")
                     for s in instance:
+                        def param_table():
+                            f.write("\n**Parameters**  ")
+                            if len(s[2]) > 0:
+                                f.write("\nParameter | Type | Description\n| - | - | -")
+                                for arg in s[2]:
+                                    f.write(f"\n`{arg[0]}` | {arg[1]} | {arg[2]}")
+                            else: f.write("\nNone")
                         aref = s[0]
                         if s[4] != 0: aref = s[4]
                         f.write(f"<a name=\"{aref}\"></a>\n")
@@ -321,12 +339,14 @@ for directory in os.listdir(core_path):
                             args += arg[0]
                         f.write(f"{class_name[0].lower() + class_name[1:]}:{s[0]}({args}) -> {s[1]}\n")
                         f.write("```\n")
+                        ptable_done = False
                         for l in s[3]:
-                            f.write("\n" + l + "  ")
-                        f.write("\n\n**Parameters**  ")
-                        if len(s[2]) > 0:
-                            f.write("\nParameter | Type | Description\n| - | - | -\n")
-                            for arg in s[2]:
-                                f.write(f"`{arg[0]}` | {arg[1]} | {arg[2]}\n")
-                        else: f.write("\nNone\n")
-                        f.write("\n<br><br>\n\n")
+                            if "--$ptable" in l:
+                                param_table()
+                                ptable_done = True
+                            else:
+                                f.write("\n" + l + "  ")
+                        if not ptable_done:
+                            f.write("\n")
+                            param_table()
+                        f.write("\n\n<br><br>\n\n")

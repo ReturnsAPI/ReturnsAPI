@@ -1,5 +1,9 @@
 * [**Constants**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#constants)
 
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#static-methods)
+  * [`Callback.get_type_name`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#get_type_name)
+  * [`Callback.add`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#add)
+
 <br><br>
 
 ---
@@ -51,6 +55,51 @@ Callback.ON_KILL_PROC                         = 40
 Callback.NET_MESSAGE_ON_RECEIVED              = 41
 Callback.CONSOLE_ON_COMMAND                   = 42
 ```
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="get_type_name"></a>
+```lua
+Callback.get_type_name(num_id) -> string
+```
+
+Returns the string name of the callback type with the given ID.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`num_id` | number | The numerical ID of the callback type.
+
+<br><br>
+
+<a name="add"></a>
+```lua
+Callback.add(callback, fn, [priority]) -> number
+```
+
+Registers a function under a callback type.  
+Returns the unique ID of the registered callback.  
+  
+**Convention**  
+To allow for a decent amount of space between priorities,  
+use the value `1000` to have your function run *before* the majority  
+and the value `-1000` to run *after* the majority.  
+If you need to be more specific than that, try to keep a distance of at least `100`.  
+  
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`callback` | number | The callback type to register under.
+`fn` | function | The function to register. <br>The parameters for it depend on the callback type (see below).
+`[priority]` | number | *Optional.* The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`0` by default.
+  
+testing  
+  
+TODO add table  
 
 <br><br>
 

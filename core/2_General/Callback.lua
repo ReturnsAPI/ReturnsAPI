@@ -92,12 +92,39 @@ end
 
 -- ========== Static Methods ==========
 
+--$static
+--$return       string
+--$param        num_id      | number    | The numerical ID of the callback type.
+--[[
+Returns the string name of the callback type with the given ID.
+]]
 Callback.get_type_name = function(num_id)
     if num_id < 0 or num_id >= #callback_constants then log.error("Invalid Callback numID", 2) end
     return callback_constants[num_id + 1]
 end
 
 
+--$static
+--$return       number
+--$param        callback    | number    | The callback type to register under.
+--$param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
+--$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`0` by default.
+--[[
+Registers a function under a callback type.
+Returns the unique ID of the registered callback.
+
+**Convention**
+To allow for a decent amount of space between priorities,
+use the value `1000` to have your function run *before* the majority
+and the value `-1000` to run *after* the majority.
+If you need to be more specific than that, try to keep a distance of at least `100`.
+
+--$ptable
+
+testing
+
+TODO add table
+]]
 Callback.add = function(namespace, callback, fn, priority)
     -- Throw error if not numerical ID
     if type(callback) ~= "number" then
