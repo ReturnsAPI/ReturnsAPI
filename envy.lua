@@ -1,11 +1,15 @@
 -- ENVY
 
+if not NAMESPACE_PATH then NAMESPACE_PATH = {} end  -- Do not reset this on hotload
+
+
 function public.setup(env, namespace)
     if env == nil then
         env = envy.getfenv(2)
     end
 
     local namespace = namespace or env["!guid"]
+    NAMESPACE_PATH[namespace] = env["!plugins_mod_folder_path"]
 
     local wrapper = {}
     for name, class_ref in pairs(_CLASS) do
