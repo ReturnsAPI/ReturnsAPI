@@ -53,7 +53,7 @@ Item.StackKind = ReadOnly.new({
 --[[
 Creates a new item with the given identifier if it does not already exist,
 or returns the existing one if it does.
-]]--
+]]
 Item.new = function(namespace, identifier)
     Initialize.internal.check_if_done()
     if not identifier then log.error("No identifier provided", 2) end
@@ -85,7 +85,7 @@ end
 --[[
 Searches for the specified item and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
-]]--
+]]
 
 
 -- $static
@@ -95,7 +95,7 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 -- $optional    property    | number    | description
 --[[
 description $Item.new, Item#new$
-]]--
+]]
 
 
 -- $static
@@ -104,7 +104,7 @@ description $Item.new, Item#new$
 -- $param       item_id     | number    | The item ID to wrap.
 --[[
 description
-]]--
+]]
 
 
 
@@ -119,7 +119,7 @@ methods_class[rapi_name] = {
     -- $optional    target  | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
     --[[
     Spawns and returns an item drop.
-    ]]--
+    ]]
     create = function(self, x, y, target)
         local object_id = self.object_id
         if object_id == nil

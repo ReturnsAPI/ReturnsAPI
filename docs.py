@@ -1,5 +1,25 @@
 # shitty docs generator cause idk how ldoc works
 
+"""
+Types
+$constants                              Follow this up with --[[ ]]; one per line (name only, e.g., WHITE instead of Color.WHITE)
+$enum
+$static
+$instance
+
+Fields
+$name                                   Method name (auto-finds if not provided)
+$aref                                   Section link of wiki page (only needed if a static and instance have the same name)
+$return <return value(s)>               `nil` if not provided
+$param <name> | <type(s)> | <desc>
+$optional <name> | <type(s)> | <desc>
+
+--[[ ]]                                 Method description
+
+In any description,
+$<text to display>, <section link>$     Link to another section/page of the wiki (e.g., `$some display text, Item#LootTag$`)"
+"""
+
 import os
 from enum import Enum
 
@@ -7,9 +27,10 @@ wiki = "https://github.com/ReturnsAPI/ReturnsAPI/wiki"
 
 class State(Enum):
     NONE        = 0
-    ENUM        = 1
-    STATIC      = 2
-    INSTANCE    = 3
+    CONSTANTS   = 1
+    ENUM        = 2
+    STATIC      = 3
+    INSTANCE    = 4
 
 def parse_line(line):
     global wiki
@@ -31,6 +52,7 @@ for directory in os.listdir(core_path):
             state = State.NONE
             state_var = [0 for i in range(10)]
 
+            constants = []
             enums = []
             static = []
             instance = []
@@ -46,13 +68,26 @@ for directory in os.listdir(core_path):
                 l = l.strip()
                 
                 # Check for doctype
-                if      "$enum" in l:                   state = State.ENUM
+                if      "$constants" in l:              state = State.CONSTANTS
+                elif    "$enum" in l:                   state = State.ENUM
                 elif    "$static" in l.split()[:2]:     state = State.STATIC
                 elif    "$instance" in l.split()[:2]:   state = State.INSTANCE
 
                 # Process doctype
                 else:
                     match state:
+
+                        case State.CONSTANTS:
+                            if state_var[0] == 0: state_var[0] = ""
+
+                            # Add values until closing ]] is reached
+                            if "--[[" in l: pass
+                            elif "]]" in l:
+                                state = State.NONE
+                                state_var = [0 for i in range(10)]
+                            else:
+                                constants.append(l)
+
 
                         case State.ENUM:
                             match state_var[0]:
@@ -102,7 +137,7 @@ for directory in os.listdir(core_path):
                                     elif "$aref" in l:
                                         state_var[5] = l[8:].strip()
                                     elif "--[[" in l: pass
-                                    elif "]]--" in l:
+                                    elif "]]" in l:
                                         state_var[0] = 1
                                     else:
                                         state_var[4].append(parse_line(l))
@@ -146,7 +181,7 @@ for directory in os.listdir(core_path):
                                     elif "$aref" in l:
                                         state_var[5] = l[8:].strip()
                                     elif "--[[" in l: pass
-                                    elif "]]--" in l:
+                                    elif "]]" in l:
                                         state_var[0] = 1
                                     else:
                                         state_var[4].append(parse_line(l))
@@ -170,6 +205,8 @@ for directory in os.listdir(core_path):
             with open(p, "w") as f:
 
                 # Index
+                if len(constants) > 0:
+                    f.write(f"* [**Constants**]({wiki}/{class_name}#constants)\n\n")
                 if len(enums) > 0:
                     f.write(f"* [**Enums**]({wiki}/{class_name}#enums)\n")
                     for enum in enums:
@@ -190,6 +227,16 @@ for directory in os.listdir(core_path):
                         f.write(f"  * [`{class_name[0].lower() + class_name[1:]}:{s[0]}`]({wiki}/{class_name}#{aref})\n")
                     f.write("\n")
                 f.write("<br><br>\n\n")
+
+                # Constants
+                if len(constants) > 0:
+                    f.write("---\n\n")
+                    f.write("## Constants\n\n")
+                    f.write("```lua\n")
+                    for const in constants:
+                        f.write(class_name + "." + const + "\n")
+                    f.write("```\n\n")
+                    f.write("<br><br>\n\n")
 
                 # Enums
                 if len(enums) > 0:

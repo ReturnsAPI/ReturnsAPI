@@ -49,7 +49,7 @@ end
 --[[
 Returns `true` if the instance exists, and `false` otherwise.
 Also exists as an $instance method, Instance#exists-instance$.
-]]--
+]]
 Instance.exists = function(instance)
     instance = Wrap.unwrap(instance)
     if type(instance) == "string" then return false end
@@ -63,7 +63,7 @@ end
 --[[
 Returns the first instance of the specified object,
 or an invalid instance (value of -4).
-]]--
+]]
 Instance.find = function(...)
     local t = {...}     -- Variable number of object_indexes
 
@@ -93,7 +93,7 @@ end
 --[[
 Returns a table of all instances of the specified object,
 and a boolean that is `true` if the table is *not* empty.
-]]--
+]]
 Instance.find_all = function(...)
     local t = {...}     -- Variable number of object_indexes
 
@@ -123,7 +123,7 @@ end
 -- $param       object      | Object    | The object to check.
 --[[
 Returns the instance count of the specified object.
-]]--
+]]
 Instance.count = function(object)
     return gm._mod_instance_number(object)
 end
@@ -134,7 +134,7 @@ end
 -- $param       instance    | CInstance | The instance to wrap.
 --[[
 Returns an Instance wrapper containing the provided instance.
-]]--
+]]
 Instance.wrap = function(instance)
     instance = Wrap.unwrap(instance)
     if type(instance) == "number" then instance = gm.CInstance.instance_id_to_CInstance[instance] end
@@ -147,7 +147,7 @@ end
 -- $return      Instance
 --[[
 Returns an Instance wrapper containing a non-existent instance (specifically, the value `-4`).
-]]--
+]]
 Instance.wrap_invalid = function()
     return Proxy.new(-4, metatable_instance)
 end
@@ -172,7 +172,7 @@ Returns a table unique to each instance (will be initially empty) and unique to 
 
 This table is useful for storing lua data (such as tables) in instances, which cannot be done with normal instance variables.
 It is automatically deleted upon the instance's destruction.
-]]--
+]]
 Instance.get_data = function(instance, subtable, namespace, default_namespace)
     -- DEBUG: Print size of get_data_cache
     -- local count = 0
@@ -218,7 +218,7 @@ methods_instance = {
     --[[
     Returns `true` if the instance exists, and `false` otherwise.
     Also exists as a $static method, Instance#exists-static$.
-    ]]--
+    ]]
     exists = function(self)
         return gm.instance_exists(self.value) == 1
     end,
@@ -227,7 +227,7 @@ methods_instance = {
     -- $instance
     --[[
     Destroys the instance.
-    ]]--
+    ]]
     destroy = function(self)
         if not self:exists() then return end
         instance_data[self.value.id] = nil
@@ -240,7 +240,7 @@ methods_instance = {
     -- $param       other       | Instance  | The other instance to check.
     --[[
     Returns `true` if this instance is the same one as `other`.
-    ]]--
+    ]]
     same = function(self, other)
         -- if not self:exists() then return false end   -- From benchmarking - Largely increased performance cost for this
         return self.value == Wrap.unwrap(other)
@@ -254,7 +254,7 @@ methods_instance = {
     -- $optional    y           | number    | The y position to check at. <br>Uses this instance's current position by default.
     --[[
     Returns `true` if this instance is colliding with *any* instance of the specified object.
-    ]]--
+    ]]
     is_colliding = function(self, object, x, y)
         -- if not self:exists() then return false end
         if self.value == -4 then return false end
