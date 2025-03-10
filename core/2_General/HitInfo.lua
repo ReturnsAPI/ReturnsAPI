@@ -1,0 +1,71 @@
+-- HitInfo
+
+HitInfo = new_class()
+
+
+
+-- ========== Static Methods ==========
+
+HitInfo.wrap = function(hitinfo)
+    return Proxy.new(hitinfo, metatable_hitinfo)
+end
+
+
+
+-- ========== Metatables ==========
+
+local out = gmf.rvalue_new(0)
+
+metatable_hitinfo = {
+    __index = function(t, k)
+        -- Get wrapped value
+        if k == "value" then return Proxy.get(t) end
+        if k == "RAPI" then return getmetatable(t):sub(14, -1) end
+
+        -- Methods
+        -- if methods_instance[k] then
+        --     return methods_instance[k]
+        -- end
+
+        -- Getter
+        local holder = ffi.new("struct RValue[2]")  -- args holder
+
+        -- hitinfo
+        holder[0] = ffi.new("struct RValue")
+        holder[0].type = 6
+        holder[0].yy_object_base = Proxy.get(t)
+
+        -- key
+        holder[1] = gmf.rvalue_new_string(k)
+
+        gmf.variable_struct_get(out, nil, nil, 2, holder)
+        return rvalue_to_lua(out)
+    end,
+
+
+    __newindex = function(t, k, v)
+        -- Setter
+        local holder = ffi.new("struct RValue[3]")  -- args holder
+
+        -- hitinfo
+        holder[0] = ffi.new("struct RValue")
+        holder[0].type = 6
+        holder[0].yy_object_base = Proxy.get(t)
+
+        -- key
+        holder[1] = gmf.rvalue_new_string(k)
+
+        -- value
+        if type(v) == "string" then holder[2] = gmf.rvalue_new_string(v)
+        else holder[2] = gmf.rvalue_new(v) end
+
+        gmf.variable_struct_set(out, nil, nil, 3, holder)
+    end,
+
+    
+    __metatable = "RAPI.Wrapper.HitInfo"
+}
+
+
+
+_CLASS["HitInfo"] = HitInfo
