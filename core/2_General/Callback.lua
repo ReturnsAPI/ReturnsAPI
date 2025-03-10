@@ -22,7 +22,7 @@ local callback_arg_types = {}
 
 
 
--- ========== Constants ==========
+-- ========== Constants and Enums ==========
 
 --$constants
 --[[
@@ -89,6 +89,13 @@ for i, v in ipairs(callback_constants) do
 end
 
 
+--$enum
+Callback.Priority = ReadOnly.new({
+    BEFORE  = 1000,
+    AFTER   = -1000
+})
+
+
 
 -- ========== Static Methods ==========
 
@@ -115,8 +122,7 @@ Returns the unique ID of the registered callback.
 
 **Convention**
 To allow for a decent amount of space between priorities,
-use the value `1000` to have your function run *before* the majority
-and the value `-1000` to run *after* the majority.
+use the enum values in $`Callback.Priority`, Callback#Priority$.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 
 --$ptable

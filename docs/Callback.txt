@@ -1,5 +1,8 @@
 * [**Constants**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#constants)
 
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#enums)
+  * [`Callback.Priority`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#Priority)
+
 * [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#static-methods)
   * [`Callback.get_type_name`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#get_type_name)
   * [`Callback.add`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#add)
@@ -60,6 +63,20 @@ Callback.CONSOLE_ON_COMMAND                   = 42
 
 ---
 
+## Enums
+
+<a name="Priority"></a>
+```lua
+Callback.Priority = {
+    BEFORE  = 1000,
+    AFTER   = -1000
+}
+```
+
+<br><br>
+
+---
+
 ## Static Methods
 
 <a name="get_type_name"></a>
@@ -86,8 +103,7 @@ Returns the unique ID of the registered callback.
   
 **Convention**  
 To allow for a decent amount of space between priorities,  
-use the value `1000` to have your function run *before* the majority  
-and the value `-1000` to run *after* the majority.  
+use the enum values in [`Callback.Priority`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#Priority).  
 If you need to be more specific than that, try to keep a distance of at least `100`.  
   
 **Parameters**  
