@@ -51,6 +51,7 @@ function rvalue_to_lua(rvalue)
     end
 end
 
+
 -- The Gamemaker garbage collector frees anything that doesn't appear to be used.
 -- Lua variables do not count as references, so this DS list is used to prevent unreferenced structs and other objects from disappearing
 if __ref_list then
