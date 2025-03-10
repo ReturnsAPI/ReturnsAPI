@@ -6,7 +6,7 @@ Color = new_class()
 
 -- ========== Constants and Enums ==========
 
--- $constants
+--$constants
 --[[
 AQUA            0xffff00
 BLACK           0x000000
@@ -65,6 +65,7 @@ for k, v in pairs(color_constants) do
 end
 
 
+-- $enum
 Color.Item = ReadOnly.new({
     WHITE   = 0xffffff,
     GREEN   = 0x58b475,
@@ -77,6 +78,7 @@ Color.Item = ReadOnly.new({
 })
 
 
+-- $enum
 Color.Text = ReadOnly.new({
     YELLOW  = 0x7bd2ef,
     BLUE    = 0xd29a31,

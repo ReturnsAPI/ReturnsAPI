@@ -42,10 +42,10 @@ end
 
 -- ========== Static Methods ==========
 
--- $static
--- $aref        exists-static
--- $return      bool
--- $param       instance    | Instance  | The instance to check.
+--$static
+--$aref         exists-static
+--$return       bool
+--$param        instance    | Instance  | The instance to check.
 --[[
 Returns `true` if the instance exists, and `false` otherwise.
 Also exists as an $instance method, Instance#exists-instance$.
@@ -57,9 +57,9 @@ Instance.exists = function(instance)
 end
 
 
--- $static
--- $return      Instance
--- $param       instance    | Instance  | The instance to check.
+--$static
+--$return       Instance
+--$param        instance    | Instance  | The instance to check.
 --[[
 Returns the first instance of the specified object,
 or an invalid instance (value of -4).
@@ -87,9 +87,9 @@ Instance.find = function(...)
 end
 
 
--- $static
--- $return      table, bool
--- $param       ...         |           | A variable amount of objects to check. <br>Alternatively, a table containing them can be provided.
+--$static
+--$return       table, bool
+--$param        ...         |           | A variable amount of objects to check. <br>Alternatively, a table containing them can be provided.
 --[[
 Returns a table of all instances of the specified object,
 and a boolean that is `true` if the table is *not* empty.
@@ -118,9 +118,9 @@ Instance.find_all = function(...)
 end
 
 
--- $static
--- $return      number
--- $param       object      | Object    | The object to check.
+--$static
+--$return       number
+--$param        object      | Object    | The object to check.
 --[[
 Returns the instance count of the specified object.
 ]]
@@ -129,9 +129,9 @@ Instance.count = function(object)
 end
 
 
--- $static
--- $return      Instance
--- $param       instance    | CInstance | The instance to wrap.
+--$static
+--$return       Instance
+--$param        instance    | CInstance | The instance to wrap.
 --[[
 Returns an Instance wrapper containing the provided instance.
 ]]
@@ -143,8 +143,8 @@ Instance.wrap = function(instance)
 end
 
 
--- $static
--- $return      Instance
+--$static
+--$return       Instance
 --[[
 Returns an Instance wrapper containing a non-existent instance (specifically, the value `-4`).
 ]]
@@ -161,11 +161,11 @@ Instance.try_wrap = function(value)
 end
 
 
--- $static
--- $return      table
--- $param       instance    | Instance  | The instance to get the table from.
--- $optional    subtable    | string    | If specified, returns a different table under the ID `subtable`. <br>Useful for organization and preventing variable name conflicts within a mod itself. <br>This string can be whatever you want.
--- $optional    namespace   | string    | If specified, returns another mod's table for the instance.
+--$static
+--$return       table
+--$param        instance    | Instance  | The instance to get the table from.
+--$optional     subtable    | string    | If specified, returns a different table under the ID `subtable`. <br>Useful for organization and preventing variable name conflicts within a mod itself. <br>This string can be whatever you want.
+--$optional     namespace   | string    | If specified, returns another mod's table for the instance.
 --[[
 Returns a table unique to each instance (will be initially empty) and unique to each mod calling this.
 (e.g., Given the same instance and two mods A and B, A calling `get_data` will return a different table to B calling `get_data`).
@@ -212,9 +212,9 @@ end
 
 methods_instance = {
 
-    -- $instance
-    -- $aref        exists-instance
-    -- $return      bool
+    --$instance
+    --$aref         exists-instance
+    --$return       bool
     --[[
     Returns `true` if the instance exists, and `false` otherwise.
     Also exists as a $static method, Instance#exists-static$.
@@ -224,7 +224,7 @@ methods_instance = {
     end,
 
 
-    -- $instance
+    --$instance
     --[[
     Destroys the instance.
     ]]
@@ -235,9 +235,9 @@ methods_instance = {
     end,
 
 
-    -- $instance
-    -- $return      bool
-    -- $param       other       | Instance  | The other instance to check.
+    --$instance
+    --$return       bool
+    --$param        other       | Instance  | The other instance to check.
     --[[
     Returns `true` if this instance is the same one as `other`.
     ]]
@@ -247,11 +247,11 @@ methods_instance = {
     end,
 
 
-    -- $instance
-    -- $return      bool
-    -- $param       object      | Object    | The object to check.
-    -- $optional    x           | number    | The x position to check at. <br>Uses this instance's current position by default.
-    -- $optional    y           | number    | The y position to check at. <br>Uses this instance's current position by default.
+    --$instance
+    --$return       bool
+    --$param        object      | Object    | The object to check.
+    --$optional     x           | number    | The x position to check at. <br>Uses this instance's current position by default.
+    --$optional     y           | number    | The y position to check at. <br>Uses this instance's current position by default.
     --[[
     Returns `true` if this instance is colliding with *any* instance of the specified object.
     ]]

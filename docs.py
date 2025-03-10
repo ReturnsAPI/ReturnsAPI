@@ -2,17 +2,17 @@
 
 """
 Types
-$constants                              Follow this up with --[[ ]]; one per line (<name> <value> - e.g., WHITE 0xffffff)
-$enum
-$static
-$instance
+--$constants                            Follow this up with --[[ ]]; one per line (<name> <value> - e.g., WHITE 0xffffff)
+--$enum
+--$static
+--$instance
 
 Fields
-$name                                   Method name (auto-finds if not provided)
-$aref                                   Section link of wiki page (only needed if a static and instance have the same name)
-$return <return value(s)>               `nil` if not provided
-$param <name> | <type(s)> | <desc>
-$optional <name> | <type(s)> | <desc>
+--$name                                 Method name (auto-finds if not provided)
+--$aref                                 Section link of wiki page (only needed if a static and instance have the same name)
+--$return <return value(s)>             `nil` if not provided
+--$param <name> | <type(s)> | <desc>
+--$optional <name> | <type(s)> | <desc>
 
 --[[ ]]                                 Method description
 
@@ -68,10 +68,10 @@ for directory in os.listdir(core_path):
                 l = l.strip()
                 
                 # Check for doctype
-                if      "$constants" in l:              state = State.CONSTANTS
-                elif    "$enum" in l:                   state = State.ENUM
-                elif    "$static" in l.split()[:2]:     state = State.STATIC
-                elif    "$instance" in l.split()[:2]:   state = State.INSTANCE
+                if      "--$constants" in l:            state = State.CONSTANTS
+                elif    "--$enum" in l:                 state = State.ENUM
+                elif    "--$static" in l.split():       state = State.STATIC
+                elif    "--$instance" in l.split():     state = State.INSTANCE
 
                 # Process doctype
                 else:
@@ -122,21 +122,21 @@ for directory in os.listdir(core_path):
                                     if state_var[3] == 0: state_var[3] = []
                                     if state_var[4] == 0: state_var[4] = []
 
-                                    if "$name" in l:    # Optional, autofinds otherwise
-                                        state_var[1] = class_name + "." + l[8:].strip()
-                                    elif "$return" in l:
-                                        state_var[2] = l[10:].strip()
-                                    elif "$param" in l:
-                                        line = [part.strip() for part in l[9:].split("|")]
+                                    if "--$name" in l:    # Optional, autofinds otherwise
+                                        state_var[1] = class_name + "." + l[7:].strip()
+                                    elif "--$return" in l:
+                                        state_var[2] = l[9:].strip()
+                                    elif "--$param" in l:
+                                        line = [part.strip() for part in l[8:].split("|")]
                                         line[2] = parse_line(line[2])
                                         state_var[3].append(line)
-                                    elif "$optional" in l:
-                                        line = [part.strip() for part in l[12:].split("|")]
+                                    elif "--$optional" in l:
+                                        line = [part.strip() for part in l[11:].split("|")]
                                         line[0] = "[" + line[0] + "]"
                                         line[2] = "*Optional.* " + parse_line(line[2])
                                         state_var[3].append(line)
-                                    elif "$aref" in l:
-                                        state_var[5] = l[8:].strip()
+                                    elif "--$aref" in l:
+                                        state_var[5] = l[7:].strip()
                                     elif "--[[" in l: pass
                                     elif "]]" in l:
                                         state_var[0] = 1
@@ -166,21 +166,21 @@ for directory in os.listdir(core_path):
                                     if state_var[3] == 0: state_var[3] = []
                                     if state_var[4] == 0: state_var[4] = []
 
-                                    if "$name" in l:    # Optional, autofinds otherwise
-                                        state_var[1] = l[8:].strip()
-                                    elif "$return" in l:
-                                        state_var[2] = l[10:].strip()
-                                    elif "$param" in l:
-                                        line = [part.strip() for part in l[9:].split("|")]
+                                    if "--$name" in l:    # Optional, autofinds otherwise
+                                        state_var[1] = l[7:].strip()
+                                    elif "--$return" in l:
+                                        state_var[2] = l[9:].strip()
+                                    elif "--$param" in l:
+                                        line = [part.strip() for part in l[8:].split("|")]
                                         line[2] = parse_line(line[2])
                                         state_var[3].append(line)
-                                    elif "$optional" in l:
-                                        line = [part.strip() for part in l[12:].split("|")]
+                                    elif "--$optional" in l:
+                                        line = [part.strip() for part in l[11:].split("|")]
                                         line[0] = "[" + line[0] + "]"
                                         line[2] = "*Optional.* " + parse_line(line[2])
                                         state_var[3].append(line)
-                                    elif "$aref" in l:
-                                        state_var[5] = l[8:].strip()
+                                    elif "--$aref" in l:
+                                        state_var[5] = l[7:].strip()
                                     elif "--[[" in l: pass
                                     elif "]]" in l:
                                         state_var[0] = 1
