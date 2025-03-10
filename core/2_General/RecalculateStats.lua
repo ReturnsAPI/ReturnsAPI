@@ -175,7 +175,7 @@ end)
 
 memory.dynamic_hook_mid("RAPI.RecalculateStats.lifesteal", {"rax"}, {"RValue*"}, 0, ptr:add(0x2965), function(args)
     -- no multiplicative lifesteal modifiers in vanilla
-    args[1].value = (args[1].value + params.lifesteal_add) * params.lifesteal_mult
+    args[1].value = (args[1].value + params.lifesteal_add) * params.lifesteal_mult - 0.9999     -- remove this if you really hate it lol
 end)
 
 memory.dynamic_hook_mid("RAPI.RecalculateStats.attack_speed", {"rdx"}, {"RValue*"}, 0, ptr:add(0x3034), function(args)
