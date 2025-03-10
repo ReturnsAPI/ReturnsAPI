@@ -10,14 +10,14 @@ Types
 Fields
 --$name                                 Method name (auto-finds if not provided)
 --$aref                                 Section link of wiki page (only needed if a static and instance have the same name)
---$return <return value(s)>             `nil` if not provided
+--$return <return value(s)>             nil if not provided
 --$param <name> | <type(s)> | <desc>
 --$optional <name> | <type(s)> | <desc>
 
 --[[ ]]                                 Method description
 
 In any description,
-$<text to display>, <section link>$     Link to another section/page of the wiki (e.g., `$some display text, Item#LootTag$`)"
+$<text to display>, <section link>$     Link to another section/page of the wiki (e.g., $some display text, Item#LootTag$)"
 --$ptable                               Display the parameter table at that position, allowing for text after it
 """
 
