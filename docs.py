@@ -3,7 +3,7 @@
 """
 Types
 --$constants                            Follow this up with --[[ ]]; one per line (<name> <value> - e.g., WHITE 0xffffff)
---$enum                                 Normally auto-finds, but if not, use $name and --[[ ]]
+--$enum                                 Normally auto-finds, but if not, use $name and --[[ ]] (one per line, <name> <value>)
 --$static
 --$instance
 
