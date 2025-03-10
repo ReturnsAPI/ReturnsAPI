@@ -51,7 +51,9 @@ metatable_hitinfo = {
         holder[1] = gmf.rvalue_new_string(k)
 
         gmf.variable_struct_get(out, nil, nil, 2, holder)
-        return Wrap.wrap(rvalue_to_lua(out))
+        local ret_val, is_instance_id = rvalue_to_lua(out)
+        if is_instance_id then ret_val = gm.CInstance.instance_id_to_CInstance[ret_val] end
+        return Wrap.wrap(ret_val)
     end,
 
 
