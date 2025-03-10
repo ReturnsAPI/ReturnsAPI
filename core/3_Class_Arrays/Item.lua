@@ -53,6 +53,27 @@ Item.StackKind = ReadOnly.new({
 })
 
 
+--$properties
+--[[
+namespace       | string    | 
+identifier      | string    | 
+token_name      | string    | 
+token_text      | string    | 
+on_acquired     | number    | 
+on_removed      | number    | 
+tier            | number    | 
+sprite_id       | number    | 
+object_id       | number    | 
+item_log_id     | number    | 
+achievement_id  | number    | 
+is_hidden       | bool      | 
+effect_display  |           | 
+actor_component |           | 
+loot_tags       | number    | 
+is_new_item     | bool      | 
+]]
+
+
 
 -- ========== Static Methods ==========
 

@@ -4,6 +4,7 @@
 Types
 --$constants                            Follow this up with --[[ ]]; one per line (<name> <value> - e.g., WHITE 0xffffff)
 --$enum                                 Normally auto-finds, but if not, use $name and --[[ ]] (one per line, <name> <value>)
+--$properties                           Follow this up with --[[ ]]; one per line (<name> | <type> | <description>)
 --$static
 --$instance
 
@@ -30,8 +31,9 @@ class State(Enum):
     NONE        = 0
     CONSTANTS   = 1
     ENUM        = 2
-    STATIC      = 3
-    INSTANCE    = 4
+    PROPERTIES  = 3
+    STATIC      = 4
+    INSTANCE    = 5
 
 def parse_line(line):
     global wiki
@@ -56,6 +58,7 @@ for directory in os.listdir(core_path):
 
             constants = []
             enums = []
+            properties = []
             static = []
             instance = []
 
@@ -72,6 +75,7 @@ for directory in os.listdir(core_path):
                 # Check for doctype
                 if      "--$constants" in l:            state = State.CONSTANTS
                 elif    "--$enum" in l:                 state = State.ENUM
+                elif    "--$properties" in l:           state = State.PROPERTIES
                 elif    "--$static" in l.split():       state = State.STATIC
                 elif    "--$instance" in l.split():     state = State.INSTANCE
 
@@ -89,7 +93,7 @@ for directory in os.listdir(core_path):
                                 state_var = [0 for i in range(10)]
                             else:
                                 l = l.split()
-                                constants.append((l[0], l[1]))
+                                constants.append(l)
 
 
                         case State.ENUM:
@@ -129,6 +133,19 @@ for directory in os.listdir(core_path):
                                         state_var = [0 for i in range(10)]
                                     else:
                                         state_var[2].append(l.split())
+
+
+                        case State.PROPERTIES:
+                            if state_var[0] == 0: state_var[0] = ""
+
+                            # Add values until closing ]] is reached
+                            if "--[[" in l: pass
+                            elif "]]" in l:
+                                state = State.NONE
+                                state_var = [0 for i in range(10)]
+                            else:
+                                l = [line.strip() for line in l.split("|")]
+                                properties.append(l)
 
 
                         case State.STATIC:
@@ -231,6 +248,8 @@ for directory in os.listdir(core_path):
                     for enum in enums:
                         f.write(f"  * [`{enum[0]}`]({wiki}/{class_name}#{enum[0].split(".")[1]})\n")
                     f.write("\n")
+                if len(properties) > 0:
+                    f.write(f"* [**Properties**]({wiki}/{class_name}#properties)\n\n")
                 if len(static) > 0:
                     f.write(f"* [**Static Methods**]({wiki}/{class_name}#static-methods)\n")
                     for s in static:
@@ -282,6 +301,15 @@ for directory in os.listdir(core_path):
                         f.write("\n}\n")
                         f.write("```\n\n")
                     f.write("<br><br>\n\n")
+
+                # Properties
+                if len(properties) > 0:
+                    f.write("---\n\n")
+                    f.write("## Properties\n\n")
+                    f.write("Property | Type | Description\n| - | - | -")
+                    for p in properties:
+                        f.write(f"\n`{p[0]}` | {p[1]} | {p[2]}")
+                    f.write("\n\n<br><br>\n\n")
 
                 # Static
                 if len(static) > 0:
