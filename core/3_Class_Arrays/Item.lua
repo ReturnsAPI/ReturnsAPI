@@ -7,19 +7,6 @@ Item = _CLASS[rapi_name]
 
 -- ========== Enums ==========
 
--- Moved to ItemTier
--- Item.Tier = ReadOnly.new({
---     COMMON      = 0,
---     UNCOMMON    = 1,
---     RARE        = 2,
---     EQUIPMENT   = 3,
---     BOSS        = 4,
---     SPECIAL     = 5,
---     FOOD        = 6,
---     NOTIER      = 7
--- })
-
-
 --$enum
 --$name Property
 --[[
