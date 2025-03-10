@@ -6,6 +6,32 @@ Color = new_class()
 
 -- ========== Constants and Enums ==========
 
+-- $constants
+--[[
+AQUA            0xffff00
+BLACK           0x000000
+BLUE            0xff0000
+DKGRAY          0x404040
+DKGREY          0x404040
+FUCHSIA         0xff00ff
+GRAY            0x808080
+GREEN           0x008000
+LIME            0x00ff00
+LTGRAY          0xc0c0c0
+LTGREY          0xc0c0c0
+MAROON          0x000080
+NAVY            0x800000
+OLIVE           0x008080
+ORANGE          0x40a0ff
+PURPLE          0x800080
+RED             0x0000ff
+SILVER          0xc0c0c0
+TEAL            0x808000
+WHITE           0xffffff
+YELLOW          0x00ffff
+WHITE_ALMOST    0xfffffe
+]]
+
 local color_constants = {
     -- GameMaker in-built colors
     AQUA            = 0xffff00,

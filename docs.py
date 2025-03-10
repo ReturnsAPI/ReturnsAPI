@@ -2,7 +2,7 @@
 
 """
 Types
-$constants                              Follow this up with --[[ ]]; one per line (name only, e.g., WHITE instead of Color.WHITE)
+$constants                              Follow this up with --[[ ]]; one per line (<name> <value> - e.g., WHITE 0xffffff)
 $enum
 $static
 $instance
@@ -86,7 +86,8 @@ for directory in os.listdir(core_path):
                                 state = State.NONE
                                 state_var = [0 for i in range(10)]
                             else:
-                                constants.append(l)
+                                l = l.split()
+                                constants.append((l[0], l[1]))
 
 
                         case State.ENUM:
@@ -233,8 +234,12 @@ for directory in os.listdir(core_path):
                     f.write("---\n\n")
                     f.write("## Constants\n\n")
                     f.write("```lua\n")
+                    spacesn = 0
                     for const in constants:
-                        f.write(class_name + "." + const + "\n")
+                        spacesn = len(const[0])
+                    for const in constants:
+                        spaces = "".join([" " for i in range(spacesn + 4 - len(const[0]))])
+                        f.write(class_name + "." + const[0] + spaces + "= " + const[1] + "\n")
                     f.write("```\n\n")
                     f.write("<br><br>\n\n")
 
