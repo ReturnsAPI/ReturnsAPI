@@ -51,7 +51,7 @@ metatable_hitinfo = {
         holder[1] = gmf.rvalue_new_string(k)
 
         gmf.variable_struct_get(out, nil, nil, 2, holder)
-        return rvalue_to_lua(out)
+        return Wrap.wrap(rvalue_to_lua(out))
     end,
 
 
@@ -68,6 +68,7 @@ metatable_hitinfo = {
         holder[1] = gmf.rvalue_new_string(k)
 
         -- value
+        v = Wrap.unwrap(v)
         if type(v) == "string" then holder[2] = gmf.rvalue_new_string(v)
         else holder[2] = gmf.rvalue_new(v) end
 
