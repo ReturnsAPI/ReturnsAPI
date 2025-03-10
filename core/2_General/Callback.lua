@@ -191,8 +191,6 @@ memory.dynamic_hook("RAPI.callback_execute", "void*", {"void*", "void*", "void*"
                 -- elseif  arg_type:match("AttackInfo")        then TODO
                 -- elseif  arg_type:match("HitInfo")           then TODO
                 end
-
-                -- TODO Also add edge case for Callback 41 somewhere
                 
                 table.insert(wrapped_args, arg)
             end
