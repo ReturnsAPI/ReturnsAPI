@@ -13,6 +13,7 @@ Global.internal.initialize = function()
     structures = {
         item_tiers              = Array.wrap(gm.variable_global_get("item_tiers")),
         treasure_loot_pools     = Array.wrap(gm.variable_global_get("treasure_loot_pools")),
+        item_log_display_list   = List.wrap(gm.variable_global_get("item_log_display_list"))
     }
 end
 

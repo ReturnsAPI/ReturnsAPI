@@ -94,7 +94,7 @@ methods_class[rapi_name] = {
         -- move its position in the logbook
 
         -- Remove previous item log position (if found)
-        local item_log_order = List.wrap(gm.variable_global_get("item_log_display_list"))
+        local item_log_order = Global.item_log_display_list
         local pos = item_log_order:find(self.value)
         if pos then item_log_order:delete(pos) end
 
