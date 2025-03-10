@@ -72,6 +72,9 @@ local function reset_params()
     params.knockback_cap_add = 0 -- damage threshold for being staggered
     params.knockback_cap_mult = 1
 
+    params.maxbarrier_add = 0
+    params.maxbarrier_mult = 1
+
     -- primary skills usually can't be meaningfully given stocks or reduced cooldowns, so
     --params.skill_primary.stock_add = 0
     --params.skill_primary.cooldown_mult = 1
@@ -220,6 +223,10 @@ end)
 
 memory.dynamic_hook_mid("RAPI.RecalculateStats.pGravity2", {"rbx"}, {"RValue*"}, 0, ptr:add(0x489f), function(args)
     args[1].value = (args[1].value + params.pGravity2_add) * params.pGravity2_mult
+end)
+
+memory.dynamic_hook_mid("RAPI.RecalculateStats.maxbarrier", {"rax"}, {"RValue*"}, 0, ptr:add(0x5053), function(args)
+    args[1].value = math.max(0, (args[1].value + params.maxbarrier_add) * params.maxbarrier_mult)
 end)
 
 local ActorSkill_recalculate_stats = gm.constants.anon_ActorSkill_gml_GlobalScript_scr_actor_skills_83921016_ActorSkill_gml_GlobalScript_scr_actor_skills
