@@ -55,22 +55,22 @@ Item.StackKind = ReadOnly.new({
 
 --$properties
 --[[
-namespace       | string    | 
-identifier      | string    | 
+namespace       | string    | The namespace the item is in.
+identifier      | string    | The identifier for the item within the namespace.
 token_name      | string    | 
 token_text      | string    | 
-on_acquired     | number    | 
-on_removed      | number    | 
-tier            | number    | 
-sprite_id       | number    | 
-object_id       | number    | 
-item_log_id     | number    | 
-achievement_id  | number    | 
+on_acquired     | number    | The ID of the callback that runs when the item is acquired.
+on_removed      | number    | The ID of the callback that runs when the item is removed.
+tier            | number    | The tier of the item.
+sprite_id       | number    | The sprite ID of the item.
+object_id       | number    | The object ID of the item.
+item_log_id     | number    | The item log ID of the item.
+achievement_id  | number    | The achievement ID of the item. <br>If *not* `-1`, the item will be locked until the achievement is unlocked.
 is_hidden       | bool      | 
 effect_display  |           | 
 actor_component |           | 
-loot_tags       | number    | 
-is_new_item     | bool      | 
+loot_tags       | number    | The sum of all loot tags applied to the item.
+is_new_item     | bool      | `true` for new vanilla items added in *Returns*, and for new modded items.
 ]]
 
 
