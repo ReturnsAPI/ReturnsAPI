@@ -59,15 +59,8 @@ local function reset_params()
     params.armor_add = 0 -- damage reduction using a special non-linear formula -- negative values result in increased damage up to +100%
     params.armor_mult = 1
 
-    params.lifesteal_add = 0 -- flat amount healed every attack proc
-    params.lifesteal_mult = 1
-
     params.cooldown_mult = 1 -- multiplier for skill cooldowns
     params.equipment_cooldown_mult = 1 -- multiplier for equipment cooldown
-
-    params.explosive_shot_add = 0 -- behemoth/volatile
-    params.lightning_add = 0 -- ukulele/overloading
-    params.fire_trail_add = 0 -- fireman boots/burning witness/blazing
 
     params.knockback_cap_add = 0 -- damage threshold for being staggered
     params.knockback_cap_mult = 1
@@ -176,11 +169,6 @@ memory.dynamic_hook_mid("RAPI.RecalculateStats.critical_chance", {"rdx"}, {"RVal
     args[1].value = (args[1].value + params.critical_chance_add) * params.critical_chance_mult
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.lifesteal", {"rax"}, {"RValue*"}, 0, ptr:add(0x2965), function(args)
-    -- no multiplicative lifesteal modifiers in vanilla
-    args[1].value = (args[1].value + params.lifesteal_add) * params.lifesteal_mult - 0.9999     -- remove this if you really hate it lol
-end)
-
 memory.dynamic_hook_mid("RAPI.RecalculateStats.attack_speed", {"rdx"}, {"RValue*"}, 0, ptr:add(0x3034), function(args)
     -- no multiplicative attack speed modifiers in vanilla
     args[1].value = (args[1].value + params.attack_speed_add) * params.attack_speed_mult
@@ -194,18 +182,6 @@ end)
 memory.dynamic_hook_mid("RAPI.RecalculateStats.armor", {"rax"}, {"RValue*"}, 0, ptr:add(0x4187), function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
     args[1].value = (args[1].value + params.armor_add) * params.armor_mult
-end)
-
-memory.dynamic_hook_mid("RAPI.RecalculateStats.explosive_shot", {"rdi"}, {"RValue*"}, 0, ptr:add(0x433d), function(args)
-    args[1].value = args[1].value + params.explosive_shot_add
-end)
-
-memory.dynamic_hook_mid("RAPI.RecalculateStats.lightning", {"rdi"}, {"RValue*"}, 0, ptr:add(0x43be), function(args)
-    args[1].value = args[1].value + params.lightning_add
-end)
-
-memory.dynamic_hook_mid("RAPI.RecalculateStats.fire_trail", {"rsi"}, {"RValue*"}, 0, ptr:add(0x4478), function(args)
-    args[1].value = args[1].value + params.fire_trail_add
 end)
 
 memory.dynamic_hook_mid("RAPI.RecalculateStats.equipment_cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0x4675), function(args)
