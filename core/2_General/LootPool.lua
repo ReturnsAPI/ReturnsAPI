@@ -37,7 +37,7 @@ LootPool.new = function(namespace, identifier)
     local pool = LootPool.find(identifier, namespace)
     if pool then return pool end
 
-    local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
+    local loot_pools_array = Global.treasure_loot_pools
     pool = #loot_pools_array
 
     -- Create new struct for pool
@@ -77,7 +77,7 @@ LootPool.new_from_tier = function(namespace, tier)
     local pool = LootPool.new(namespace, tier_lookup[2])
 
     -- Set tier properties
-    local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
+    local tiers_array = Global.item_tiers
     local tier_struct = tiers_array:get(tier)
     tier_struct.item_pool_for_reroll        = pool.value
     tier_struct.equipment_pool_for_reroll   = pool.value
@@ -171,16 +171,14 @@ metatable_loot_pool = {
         end
 
         -- Getter
-        local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
-        local loot_struct = loot_pools_array:get(Proxy.get(t))
+        local loot_struct = Global.treasure_loot_pools:get(Proxy.get(t))
         return Wrap.wrap(loot_struct[k])
     end,
 
 
     __newindex = function(t, k, v)
         -- Setter
-        local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
-        local loot_struct = loot_pools_array:get(Proxy.get(t))
+        local loot_struct = Global.treasure_loot_pools:get(Proxy.get(t))
         loot_struct[k] = Wrap.unwrap(v)
     end,
 
@@ -201,7 +199,7 @@ memory.dynamic_hook("RAPI.loot_pool_populate", "void*", {"void*", "void*", "void
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        local loot_pools_array = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
+        local loot_pools_array = Global.treasure_loot_pools
         size = #loot_pools_array
 
         for i = 7, size - 1 do

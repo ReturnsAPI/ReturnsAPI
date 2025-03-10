@@ -13,6 +13,7 @@ local initialized = false
 -- ========== Internal ==========
 
 local function RAPI_initialize()
+    Global.internal.initialize()
     Class.internal.initialize()
 end
 

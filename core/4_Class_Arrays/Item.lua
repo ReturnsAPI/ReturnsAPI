@@ -157,7 +157,7 @@ methods_class[rapi_name] = {
         self.tier = tier
 
         -- Remove from all loot pools that the item is in
-        local pools = Array.wrap(gm.variable_global_get("treasure_loot_pools"))
+        local pools = Global.treasure_loot_pools
         for i = 1, #pools do
             local struct = pools[i]
             local drop_pool = List.wrap(struct.drop_pool)

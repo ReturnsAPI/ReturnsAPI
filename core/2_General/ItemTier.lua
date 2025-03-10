@@ -36,7 +36,7 @@ ItemTier.new = function(namespace, identifier)
     local tier = ItemTier.find(identifier, namespace)
     if tier then return tier end
 
-    local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
+    local tiers_array = Global.item_tiers
     tier = #tiers_array
 
     -- Create new struct for tier
@@ -102,16 +102,14 @@ metatable_item_tier = {
         if k == "RAPI" then return getmetatable(t):sub(14, -1) end
 
         -- Getter
-        local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
-        local tier_struct = tiers_array:get(Proxy.get(t))
+        local tier_struct = Global.item_tiers:get(Proxy.get(t))
         return Wrap.wrap(tier_struct[k])
     end,
 
 
     __newindex = function(t, k, v)
         -- Setter
-        local tiers_array = Array.wrap(gm.variable_global_get("item_tiers"))
-        local tier_struct = tiers_array:get(Proxy.get(t))
+        local tier_struct = Global.item_tiers:get(Proxy.get(t))
         tier_struct[k] = Wrap.unwrap(v)
     end,
 
