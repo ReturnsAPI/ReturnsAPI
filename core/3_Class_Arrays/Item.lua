@@ -104,7 +104,7 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --$optional     property    | number    | The property to check. <br>$`Item.Property.NAMESPACE`, Item#Property$ by default.
 --[[
 Returns a table of items matching the specified filter and property,
-and a boolean that is true if the table is *not* empty.
+and a boolean that is `true` if the table is *not* empty.
 ]]
 
 
