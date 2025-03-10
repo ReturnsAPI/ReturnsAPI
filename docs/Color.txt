@@ -1,5 +1,9 @@
 * [**Constants**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#constants)
 
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#enums)
+  * [`Color.Item`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#Item)
+  * [`Color.Text`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#Text)
+
 <br><br>
 
 ---
@@ -29,6 +33,41 @@ Color.TEAL            = 0x808000
 Color.WHITE           = 0xffffff
 Color.YELLOW          = 0x00ffff
 Color.WHITE_ALMOST    = 0xfffffe
+```
+
+<br><br>
+
+---
+
+## Enums
+
+<a name="Item"></a>
+```lua
+Color.Item = {
+    WHITE   = 0xffffff,
+    GREEN   = 0x58b475,
+    RED     = 0x3d27c9,
+    YELLOW  = 0x41cdda,
+    ORANGE  = 0x3566d9,
+    PURPLE  = 0xc76aab,
+    GRAY    = 0x555555,
+    GREY    = 0x555555
+}
+```
+
+<a name="Text"></a>
+```lua
+Color.Text = {
+    YELLOW  = 0x7bd2ef,
+    BLUE    = 0xd29a31,
+    GREEN   = 0x86b67e,
+    RED     = 0x6666cf,
+    ORANGE  = 0x5673f9,
+    LTGRAY  = 0xc0c0c0,
+    LTGREY  = 0xc0c0c0,
+    DKGRAY  = 0x808080,
+    DKGREY  = 0x808080
+}
 ```
 
 <br><br>

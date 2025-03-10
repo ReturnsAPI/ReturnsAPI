@@ -65,7 +65,7 @@ for k, v in pairs(color_constants) do
 end
 
 
--- $enum
+--$enum
 Color.Item = ReadOnly.new({
     WHITE   = 0xffffff,
     GREEN   = 0x58b475,
@@ -78,7 +78,7 @@ Color.Item = ReadOnly.new({
 })
 
 
--- $enum
+--$enum
 Color.Text = ReadOnly.new({
     YELLOW  = 0x7bd2ef,
     BLUE    = 0xd29a31,

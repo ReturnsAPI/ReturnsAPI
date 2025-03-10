@@ -21,6 +21,28 @@ Item = _CLASS[rapi_name]
 
 
 --$enum
+--$name Property
+--[[
+NAMESPACE           0
+IDENTIFIER          1
+TOKEN_NAME          2
+TOKEN_TEXT          3
+ON_ACQUIRED         4
+ON_REMOVED          5
+TIER                6
+SPRITE_ID           7
+OBJECT_ID           8
+ITEM_LOG_ID         9
+ACHIEVEMENT_ID      10
+IS_HIDDEN           11
+EFFECT_DISPLAY      12
+ACTOR_COMPONENT     13
+LOOT_TAGS           14
+IS_NEW_ITEM         15
+]]
+
+
+--$enum
 Item.LootTag = ReadOnly.new({
     CATEGORY_DAMAGE                 = 1,
     CATEGORY_HEALING                = 2,
@@ -91,10 +113,11 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --$static
 --$name         find_all
 --$return       table, bool
---$param        filter      |           | description $Item.new, Item#new$
---$optional     property    | number    | description
+--$param        filter      |           | The filter to search by.
+--$optional     property    | number    | The property to check. <br>$`Item.Property.NAMESPACE`, Item#Property$ by default.
 --[[
-description $Item.new, Item#new$
+Returns a table of items matching the specified filter and property,
+and a boolean that is true if the table is *not* empty.
 ]]
 
 
@@ -103,7 +126,7 @@ description $Item.new, Item#new$
 --$return       Item
 --$param        item_id     | number    | The item ID to wrap.
 --[[
-description
+Returns an Item wrapper containing the provided item ID.
 ]]
 
 

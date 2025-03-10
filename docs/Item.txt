@@ -1,4 +1,5 @@
 * [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#enums)
+  * [`Item.Property`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#Property)
   * [`Item.LootTag`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#LootTag)
   * [`Item.StackKind`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#StackKind)
 
@@ -16,6 +17,28 @@
 ---
 
 ## Enums
+
+<a name="Property"></a>
+```lua
+Item.Property = {
+    NAMESPACE          = 0
+    IDENTIFIER         = 1
+    TOKEN_NAME         = 2
+    TOKEN_TEXT         = 3
+    ON_ACQUIRED        = 4
+    ON_REMOVED         = 5
+    TIER               = 6
+    SPRITE_ID          = 7
+    OBJECT_ID          = 8
+    ITEM_LOG_ID        = 9
+    ACHIEVEMENT_ID     = 10
+    IS_HIDDEN          = 11
+    EFFECT_DISPLAY     = 12
+    ACTOR_COMPONENT    = 13
+    LOOT_TAGS          = 14
+    IS_NEW_ITEM        = 15
+}
+```
 
 <a name="LootTag"></a>
 ```lua
@@ -85,13 +108,14 @@ Parameter | Type | Description
 Item.find_all(filter, [property]) -> table, bool
 ```
 
-description [`Item.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#new)  
+Returns a table of items matching the specified filter and property,  
+and a boolean that is true if the table is *not* empty.  
 
 **Parameters**  
 Parameter | Type | Description
 | - | - | -
-`filter` |  | description [`Item.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#new)
-`[property]` | number | *Optional.* description
+`filter` |  | The filter to search by.
+`[property]` | number | *Optional.* The property to check. <br>[`Item.Property.NAMESPACE`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#Property) by default.
 
 <br><br>
 
@@ -100,7 +124,7 @@ Parameter | Type | Description
 Item.wrap(item_id) -> Item
 ```
 
-description  
+Returns an Item wrapper containing the provided item ID.  
 
 **Parameters**  
 Parameter | Type | Description

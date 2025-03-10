@@ -3,7 +3,7 @@
 """
 Types
 --$constants                            Follow this up with --[[ ]]; one per line (<name> <value> - e.g., WHITE 0xffffff)
---$enum
+--$enum                                 Normally auto-finds, but if not, use $name and --[[ ]]
 --$static
 --$instance
 
@@ -37,7 +37,7 @@ def parse_line(line):
     line = line.split("$")
     for i in range(1, len(line), 2):
         parts = [part.strip() for part in line[i].split(",")]
-        line[i] = f"[`{parts[0]}`]({wiki}/{parts[1]})"
+        line[i] = f"[{parts[0]}]({wiki}/{parts[1]})"
     return "".join(line)
 
 
@@ -95,12 +95,19 @@ for directory in os.listdir(core_path):
 
                                 # Search for enum name
                                 case 0:
-                                    name = l.split()
-                                    if len(name) > 0: name = name[0]
-                                    if "." in name:
-                                        state_var[1] = name
+                                    if "--$name" in l:
+                                        state_var[1] = class_name + "." + l[7:].strip()
+                                    elif "--[[" in l:
+                                        state_var[0] = 2
                                         state_var[2] = []
-                                    state_var[0] = 1
+                                    else:
+                                        if state_var[1] == 0:
+                                            name = l.split()
+                                            if len(name) > 0: name = name[0]
+                                            if "." in name:
+                                                state_var[1] = name
+                                                state_var[2] = []
+                                        state_var[0] = 1
 
                                 # Add values until closing } is reached
                                 case 1:
@@ -111,6 +118,15 @@ for directory in os.listdir(core_path):
                                         enums.append((state_var[1], state_var[2]))
                                         state = State.NONE
                                         state_var = [0 for i in range(10)]
+
+                                # Add values until closing ]] is reached
+                                case 2:
+                                    if "]]" in l:
+                                        enums.append((state_var[1], state_var[2], True))    # len 3 to mark this as --[[ ]]
+                                        state = State.NONE
+                                        state_var = [0 for i in range(10)]
+                                    else:
+                                        state_var[2].append(l.split())
 
 
                         case State.STATIC:
@@ -236,7 +252,7 @@ for directory in os.listdir(core_path):
                     f.write("```lua\n")
                     spacesn = 0
                     for const in constants:
-                        spacesn = len(const[0])
+                        spacesn = max(len(const[0]), spacesn)
                     for const in constants:
                         spaces = "".join([" " for i in range(spacesn + 4 - len(const[0]))])
                         f.write(class_name + "." + const[0] + spaces + "= " + const[1] + "\n")
@@ -251,8 +267,16 @@ for directory in os.listdir(core_path):
                         f.write(f"<a name=\"{enum[0].split(".")[1]}\"></a>\n")
                         f.write("```lua\n")
                         f.write(enum[0] + " = {")
-                        for l in enum[1]:
-                            f.write("\n    " + l)
+                        if len(enum) == 2:   # Standard
+                            for l in enum[1]:
+                                f.write("\n    " + l)
+                        else:                   # --[[ ]]
+                            spacesn = 0
+                            for l in enum[1]:
+                                spacesn = max(len(l[0]), spacesn)
+                            for l in enum[1]:
+                                spaces = "".join([" " for i in range(spacesn + 4 - len(l[0]))])
+                                f.write("\n    " + l[0] + spaces + "= " + l[1])
                         f.write("\n}\n")
                         f.write("```\n\n")
                     f.write("<br><br>\n\n")

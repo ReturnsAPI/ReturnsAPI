@@ -25,7 +25,7 @@ Instance.exists(instance) -> bool
 ```
 
 Returns `true` if the instance exists, and `false` otherwise.  
-Also exists as an [`instance method`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists-instance).  
+Also exists as an [instance method](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists-instance).  
 
 **Parameters**  
 Parameter | Type | Description
@@ -40,7 +40,7 @@ Instance.find(instance) -> Instance
 ```
 
 Returns the first instance of the specified object,  
-or an invalid instance (value of -4).  
+or an invalid instance (value of `-4`).  
 
 **Parameters**  
 Parameter | Type | Description
@@ -134,7 +134,7 @@ instance:exists() -> bool
 ```
 
 Returns `true` if the instance exists, and `false` otherwise.  
-Also exists as a [`static method`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists-static).  
+Also exists as a [static method](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists-static).  
 
 **Parameters**  
 None

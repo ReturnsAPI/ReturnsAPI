@@ -62,7 +62,7 @@ end
 --$param        instance    | Instance  | The instance to check.
 --[[
 Returns the first instance of the specified object,
-or an invalid instance (value of -4).
+or an invalid instance (value of `-4`).
 ]]
 Instance.find = function(...)
     local t = {...}     -- Variable number of object_indexes
