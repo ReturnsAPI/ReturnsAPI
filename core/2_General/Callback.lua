@@ -113,7 +113,7 @@ end
 
 --$static
 --$return       number
---$param        callback    | number    | The callback type to register under.
+--$param        callback    | number    | The $callback type, Callback#constants$ to register under.
 --$param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
 --$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`0` by default.
 --[[
@@ -127,7 +127,53 @@ If you need to be more specific than that, try to keep a distance of at least `1
 
 --$ptable
 
-TODO add table
+**Callbacks**
+Parameters are listed in order for each callback.
+Callback                            | Parameters
+| --------------------------------- | ----------
+`ON_LOAD`                           | None
+`POST_LOAD`                         | None
+`ON_STEP`                           | None
+`PRE_STEP`                          | None
+`POST_STEP`                         | None
+`ON_DRAW`                           | None
+`PRE_HUD_DRAW`                      | None
+`ON_HUD_DRAW`                       | None
+`POST_HUD_DRAW`                     | None
+`CAMERA_ON_VIEW_CAMERA_UPDATE`      | None
+`ON_SCREEN_REFRESH`                 | None
+`ON_GAME_START`                     | None
+`ON_GAME_END`                       | None
+`ON_DIRECTOR_POPULATE_SPAWN_ARRAYS` | None
+`ON_STAGE_START`                    | None
+`ON_SECOND`                         | `minute` (number) - Current minute on the timer <br>`second` (number) - Current second on the timer
+`ON_MINUTE`                         | `minute` (number) - Current minute on the timer <br>`second` (number) - Current second on the timer
+`ON_ATTACK_CREATE`                  | 
+`ON_ATTACK_HIT`                     | 
+`ON_ATTACK_HANDLE_START`            | 
+`ON_ATTACK_HANDLE_END`              | 
+`ON_DAMAGE_BLOCKED`                 | 
+`ON_ENEMY_INIT`                     | 
+`ON_ELITE_INIT`                     | 
+`ON_DEATH`                          | 
+`ON_PLAYER_INIT`                    | 
+`ON_PLAYER_STEP`                    | 
+`PRE_PLAYER_HUD_DRAW`               | 
+`ON_PLAYER_HUD_DRAW`                | 
+`ON_PLAYER_INVENTORY_UPDATE`        | 
+`ON_PLAYER_DEATH`                   | 
+`ON_CHECKPOINT_RESPAWN`             | 
+`ON_INPUT_PLAYER_DEVICE_UPDATE`     | 
+`ON_PICKUP_COLLECTED`               | 
+`ON_PICKUP_ROLL`                    | 
+`ON_EQUIPMENT_USE`                  | 
+`POST_EQUIPMENT_USE`                | 
+`ON_INTERACTABLE_ACTIVATE`          | 
+`ON_HIT_PROC`                       | 
+`ON_DAMAGED_PROC`                   | 
+`ON_KILL_PROC`                      | 
+`NET_MESSAGE_ON_RECEIVED`           | 
+`CONSOLE_ON_COMMAND`                | 
 ]]
 Callback.add = function(namespace, callback, fn, priority)
     -- Throw error if not numerical ID
@@ -168,6 +214,12 @@ Callback.add = function(namespace, callback, fn, priority)
 end
 
 
+--$static
+--$param        id          | number    | The unique ID of the registered callback to remove.
+--[[
+Removes a registered callback function.
+The ID is the one from $`Callback.add`, Callback#add$.
+]]
 Callback.remove = function(id)
     local lookup_table = id_lookup[id]
     if not lookup_table then return end
@@ -191,6 +243,10 @@ Callback.remove = function(id)
 end
 
 
+--$static
+--[[
+Removes all registered callbacks functions from your namespace.
+]]
 Callback.remove_all = function(namespace)
     for _, cbank_callback in pairs(callback_bank) do
         for priority, cbank_priority in pairs(cbank_callback) do
