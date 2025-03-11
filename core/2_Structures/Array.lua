@@ -147,6 +147,22 @@ metatable_array = {
     end,
 
 
+    __pairs = function(t)
+        return function(t, k)
+            k = k + 1
+            if k <= #t then return k, t[k] end
+        end, t, 0
+    end,
+
+
+    __ipairs = function(t)
+        return function(t, k)
+            k = k + 1
+            if k <= #t then return k, t[k] end
+        end, t, 0
+    end,
+
+
     __metatable = "RAPI.Wrapper.Array"
 }
 
