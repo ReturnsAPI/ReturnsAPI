@@ -102,7 +102,7 @@ metatable_list_class = {
         if value then return List.wrap(value) end
 
         -- New
-        return List.new(value)
+        return List.new()
     end,
 
 
