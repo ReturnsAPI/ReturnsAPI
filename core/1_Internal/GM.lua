@@ -10,6 +10,7 @@ local function_cache = {}
 
 metatable_GM = {
     __index = function(t, k)
+        if not gmf[k] then log.error("GM."..k.." does not exist", 2) end
         if not function_cache[k] then
             function_cache[k] = function(...)
                 local count = select("#", ...)
