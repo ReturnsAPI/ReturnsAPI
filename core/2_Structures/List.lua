@@ -73,14 +73,16 @@ methods_list = {
 
     add = function(self, ...)
         local values = {...}
+        local count = #values + 1
 
-        local holder = ffi.new("struct RValue[2]")
+        local holder = ffi.new("struct RValue["..count.."]")
         holder[0] = self.value
 
-        for _, v in ipairs(values) do
-            holder[1] = gmf.rvalue_new_auto(Wrap.unwrap(v))
-            gmf.ds_list_add(nil, nil, nil, 2, holder)
+        for i, v in ipairs(values) do
+            holder[i] = gmf.rvalue_new_auto(Wrap.unwrap(v))
         end
+
+        gmf.ds_list_add(nil, nil, nil, count, holder)
     end
 
 }
