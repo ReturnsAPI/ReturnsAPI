@@ -34,7 +34,6 @@ end
 methods_struct = {
 
     get_keys = function(self)
-        print("get_keys")
         local holder = ffi.new("struct RValue[1]")
         holder[0] = gmf.rvalue_new_object(self.value.yy_object_base)
         local out = gmf.rvalue_new(0)
