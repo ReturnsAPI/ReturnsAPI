@@ -33,20 +33,17 @@ end
 
 methods_struct = {
 
-    -- get_keys = function(t, k)
-    --     local holder = ffi.new("struct RValue[1]")  -- args holder
-    
-    --     -- hitinfo
-    --     holder[0] = ffi.new("struct RValue")
-    --     holder[0].type = 6
-    --     holder[0].yy_object_base = Proxy.get(t)
-    
-    --     gmf.variable_struct_get_names(out, nil, nil, 1, holder)
-    --     -- local array = rvalue_to_lua(out)
-    --     -- return Array.wrap(array)
-    --     -- return array
-    --     return out
-    -- end
+    get_keys = function(self)
+        print("get_keys")
+        local holder = ffi.new("struct RValue[1]")
+        holder[0] = gmf.rvalue_new_object(self.value.yy_object_base)
+        local out = gmf.rvalue_new(0)
+        gmf.variable_struct_get_names(out, nil, nil, 1, holder)
+        local arr = Array.wrap(out)
+        local keys = {}
+        for i, v in ipairs(arr) do keys[i] = v end
+        return keys
+    end
 
 }
 
@@ -82,6 +79,19 @@ metatable_struct = {
         holder[1] = gmf.rvalue_new_string(k)
         holder[2] = gmf.rvalue_new_auto(Wrap.unwrap(v))
         gmf.variable_struct_set(nil, nil, nil, 3, holder)
+    end,
+
+
+    __pairs = function(t)
+        local keys = t:get_keys()
+        local i = 0
+        return function(t)
+            i = i + 1
+            if i <= #keys then
+                local k = keys[i]
+                return k, t[k]
+            end
+        end, t, nil
     end,
 
 
