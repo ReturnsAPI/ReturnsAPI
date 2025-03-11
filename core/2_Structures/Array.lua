@@ -69,7 +69,7 @@ methods_array = {
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
         holder[1] = gmf.rvalue_new(index)
-        holder[2] = gmf.rvalue_new_auto(value)
+        holder[2] = gmf.rvalue_new_auto(Wrap.unwrap(value))
         gmf.array_set(nil, nil, nil, 3, holder)
     end,
 
@@ -90,7 +90,7 @@ methods_array = {
         holder[0] = self.value
 
         for _, v in ipairs(values) do
-            holder[1] = gmf.rvalue_new_auto(v)
+            holder[1] = gmf.rvalue_new_auto(Wrap.unwrap(v))
             gmf.array_push(nil, nil, nil, 2, holder)
         end
     end
