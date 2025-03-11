@@ -16,7 +16,8 @@ end
 Struct.wrap = function(struct)
     struct = Wrap.unwrap(struct)
     if not Struct.is(struct) then log.error("Value is not a struct", 2) end
-    return Proxy.new(struct, metatable_struct)
+    __ref_list:add(struct)
+    return Proxy.new_gc(struct, metatable_struct)
 end
 
 
@@ -92,6 +93,11 @@ metatable_struct = {
                 return k, t[k]
             end
         end, t, nil
+    end,
+
+
+    __gc = function(t)
+        __ref_list:remove(t.value)
     end,
 
 

@@ -23,5 +23,9 @@ for _, dir in ipairs(dirs) do
 end
 
 
+-- Create __ref_list
+__ref_list = List.new()
+
+
 -- ENVY public setup
 require("./envy")

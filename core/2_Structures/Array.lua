@@ -38,7 +38,8 @@ end
 Array.wrap = function(array)
     array = Wrap.unwrap(array)
     if not Array.is(array) then log.error("Value is not an array", 2) end
-    return Proxy.new(array, metatable_array)
+    __ref_list:add(array)
+    return Proxy.new_gc(array, metatable_array)
 end
 
 
@@ -56,6 +57,7 @@ end
 methods_array = {
 
     get = function(self, index)
+        if index >= self:size() then log.error("Array index out of bounds", 2) end
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
         holder[1] = gmf.rvalue_new(index)
@@ -139,7 +141,7 @@ metatable_array = {
     __newindex = function(t, k, v)
         -- Setter
         k = tonumber(Wrap.unwrap(k))
-        if k then t:set(k - 1, Wrap.unwrap(v)) end
+        if k then t:set(k - 1, v) end
     end,
     
     
@@ -161,6 +163,11 @@ metatable_array = {
             k = k + 1
             if k <= #t then return k, t[k] end
         end, t, 0
+    end,
+
+
+    __gc = function(t)
+        __ref_list:remove(t.value)
     end,
 
 

@@ -13,6 +13,13 @@ Proxy = {
         return proxy
     end,
 
+    new_gc = function(t, mt)
+        local proxy = {}
+        originals[proxy] = t or {}
+        setmetatable_gc(proxy, mt)
+        return proxy
+    end,
+
     get = function(proxy)
         return originals[proxy]
     end
