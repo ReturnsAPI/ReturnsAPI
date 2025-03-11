@@ -8,6 +8,8 @@ local item_count_cache = {}
 
 -- ========== Instance Methods ==========
 
+local out = gmf.rvalue_new(0)
+
 methods_actor = {
 
     kill = function(self)
@@ -41,6 +43,69 @@ methods_actor = {
 
     item_count_NONCACHED = function(self, item, kind)
         return gm.item_count(self.value, Wrap.unwrap(item), kind or Item.StackKind.ANY)
+    end,
+
+
+    item_count_GMF = function(self, item, kind)
+        local holder = ffi.new("struct RValue[3]")  -- args holder
+
+        -- actor
+        print(self)
+        -- holder[0] = ffi.cast("struct CInstance *", self)
+        -- holder[0] = gm.CInstance.instance_id_to_CInstance_ffi[self.i32]
+        -- holder[0] = ffi.new("struct RValue")
+        -- holder[0].type = 6
+        -- holder[0].yy_object_base = ffi.cast("struct YYObjectBase *", self)
+        -- holder[0].cinstance = ffi.cast("struct CInstance *", self.cinstance)
+
+        -- item
+        holder[1] = gmf.rvalue_new(item)
+
+        -- kind
+        holder[2] = gmf.rvalue_new(kind or Item.StackKind.ANY)
+
+        gmf.item_count(out, nil, nil, 3, holder)
+        return rvalue_to_lua(out)
+    end,
+
+
+    debug = function(self)
+        local holder = ffi.new("struct RValue[2]")  -- args holder
+
+        holder[0] = gmf.rvalue_new(gm.constants.oP)
+        holder[1] = gmf.rvalue_new(0)
+
+        gmf.instance_find(out, nil, nil, 2, holder)
+        return out
+    end,
+
+
+    debug2 = function(self)
+        local holder = ffi.new("struct RValue[2]")  -- args holder
+
+        holder[0] = gmf.rvalue_new(gm.constants.oP)
+        holder[1] = gmf.rvalue_new(0)
+
+        gmf.instance_find(out, nil, nil, 2, holder)
+        
+
+
+        local holder = ffi.new("struct RValue[3]")
+
+        -- actor
+        holder[0] = ffi.new("struct RValue")
+        holder[0].type = 6
+        holder[0].yy_object_base = ffi.cast("struct YYObjectBase *", out.yy_object_base)
+        holder[0].cinstance = ffi.cast("struct CInstance *", out.cinstance)
+
+        -- item
+        holder[1] = gmf.rvalue_new(0)
+
+        -- kind
+        holder[2] = gmf.rvalue_new(3)
+
+        gmf.item_count(out, nil, nil, 3, holder)
+        return rvalue_to_lua(out)
     end
 
 }

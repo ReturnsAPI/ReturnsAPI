@@ -122,6 +122,23 @@ Util.string_to_table = function(string_)
 end
 
 
+Util.allow_gc_metamethod = function(table_)
+    -- Allow `table_` to call its `__gc` metamethod on being garbage collected
+    local prox = newproxy(true)
+    getmetatable(prox).__gc = function() getmetatable(table_).__gc(table) end
+    table_[prox] = true
+end
+
+
+Util.setmetatable_gc = function(t, mt)
+    -- `setmetatable` but with `__gc` metamethod enabled
+    local prox = newproxy(true)
+    getmetatable(prox).__gc = function() mt.__gc(t) end
+    t[prox] = true
+    return setmetatable(t, mt)
+end
+
+
 Util.mixed_hyperbolic = function(stack_count, chance, base_chance)
     -- Allows for calculating hyperbolic scaling with a different 1st-stack chance
     -- Also makes the 1st-stack equal the provided chance instead of being slightly under

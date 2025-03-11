@@ -1,5 +1,7 @@
 -- Array
 
+return
+
 Array = new_class()
 
 
