@@ -7,7 +7,7 @@ List = new_class()
 -- ========== Static Methods ==========
 
 List.new = function(table)
-    if table then
+    if type(table) == "table" then
         local out = gmf.rvalue_new(0)
         gmf.ds_list_create(out, nil, nil, 0, nil)
         local list = List.wrap(out)
