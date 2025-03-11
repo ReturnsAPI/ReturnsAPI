@@ -66,7 +66,7 @@ metatable_struct = {
         end
         
         -- Getter
-        local holder = ffi.new("struct RValue[2]")  -- args holder
+        local holder = ffi.new("struct RValue[2]")
         holder[0] = gmf.rvalue_new_object(Proxy.get(t).yy_object_base)
         holder[1] = gmf.rvalue_new_string(k)
         local out = gmf.rvalue_new(0)
@@ -77,7 +77,7 @@ metatable_struct = {
 
     __newindex = function(t, k, v)
         -- Setter
-        local holder = ffi.new("struct RValue[3]")  -- args holder
+        local holder = ffi.new("struct RValue[3]")
         holder[0] = gmf.rvalue_new_object(Proxy.get(t).yy_object_base)
         holder[1] = gmf.rvalue_new_string(k)
         holder[2] = gmf.rvalue_new_auto(Wrap.unwrap(v))
