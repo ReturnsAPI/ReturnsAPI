@@ -92,8 +92,18 @@ methods_list = {
 -- ========== Metatables ==========
 
 metatable_list_class = {
-    __call = function(t, value, arg2)
-        
+    __call = function(t, value)
+        arg1 = Wrap.unwrap(arg1)
+        arg2 = Wrap.unwrap(arg2)
+
+        -- New (from table)
+        if type(value) == "table" then return List.new(value) end
+
+        -- Wrap
+        if value then return List.wrap(value) end
+
+        -- New
+        return List.new(value)
     end,
 
 

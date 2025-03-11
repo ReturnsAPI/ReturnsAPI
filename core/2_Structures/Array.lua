@@ -107,10 +107,13 @@ methods_array = {
 
 metatable_array_class = {
     __call = function(t, arg1, arg2)
+        arg1 = Wrap.unwrap(arg1)
+        arg2 = Wrap.unwrap(arg2)
+
         -- Wrap
         if Array.is(arg1) then return Array.wrap(arg1) end
 
-        -- Pass to Array.new
+        -- New
         return Array.new(arg1, arg2)
     end,
 
