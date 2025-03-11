@@ -2,6 +2,8 @@
 
 Actor = new_class()
 
+local item_count_cache = {}
+
 
 
 -- ========== Instance Methods ==========
@@ -25,6 +27,19 @@ methods_actor = {
 
 
     item_count = function(self, item, kind)
+        local id = self.value.id
+        local item = Wrap.unwrap(item)
+        local kind = kind or Item.StackKind.ANY
+        if not item_count_cache[id] then item_count_cache[id] = {} end
+        if not item_count_cache[id][item] then item_count_cache[id][item] = {} end
+        if item_count_cache[id][item][kind] then return item_count_cache[id][item][kind] end
+        local count = gm.item_count(self.value, item, kind)
+        item_count_cache[id][item][kind] = count
+        return count
+    end,
+
+
+    item_count_NONCACHED = function(self, item, kind)
         return gm.item_count(self.value, Wrap.unwrap(item), kind or Item.StackKind.ANY)
     end
 
@@ -58,6 +73,92 @@ metatable_actor = {
     
     __metatable = "RAPI.Wrapper.Actor"
 }
+
+
+
+-- ========== Hooks ==========
+
+-- Reset cache when an item is given/taken
+
+memory.dynamic_hook("RAPI.Actor.item_give_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.item_give_internal))),
+    -- Pre-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local arg_count = arg_count:get()
+        local args_typed = ffi.cast("struct RValue**", args:get_address())
+
+        -- Get args
+        local actor, is_instance_id = rvalue_to_lua(args_typed[0])
+        if not is_instance_id then actor = actor.id end
+        local item  = rvalue_to_lua(args_typed[1])
+        local count = rvalue_to_lua(args_typed[2])
+        local kind  = rvalue_to_lua(args_typed[3])
+
+        if not item_count_cache[actor] then item_count_cache[actor] = {} end
+        item_count_cache[actor][item] = {}
+    end,
+
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        
+    end
+)
+
+memory.dynamic_hook("RAPI.Actor.item_take_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.item_take_internal))),
+    -- Pre-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local arg_count = arg_count:get()
+        local args_typed = ffi.cast("struct RValue**", args:get_address())
+
+        -- Get args
+        local actor, is_instance_id = rvalue_to_lua(args_typed[0])
+        if not is_instance_id then actor = actor.id end
+        local item  = rvalue_to_lua(args_typed[1])
+        local count = rvalue_to_lua(args_typed[2])
+        local kind  = rvalue_to_lua(args_typed[3])
+
+        if not item_count_cache[actor] then item_count_cache[actor] = {} end
+        item_count_cache[actor][item] = {}
+    end,
+
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        
+    end
+)
+
+
+
+-- ========== _count_cache GC ==========
+
+-- TODO replace with memory.dynamic_hook
+
+gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+    -- On room change, remove non-existent instances from cache
+    for k, v in pairs(item_count_cache) do
+        if gm.instance_exists(k) == 0 then
+            item_count_cache[k] = nil
+        end
+    end
+end)
+
+
+gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
+    -- Remove cache on non-player kill
+    local actor = args[1].value
+    if actor.object_index ~= gm.constants.oP then
+        item_count_cache[actor.id] = nil
+    end
+end)
+
+
+gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
+    -- Move cache to new instance
+    local id = args[1].value.id
+    if item_count_cache[id] then
+        item_count_cache[args[2].value.id] = item_count_cache[id]
+        item_count_cache[id] = nil
+    end
+end)
 
 
 

@@ -294,7 +294,7 @@ end
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.callback_execute", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.callback_execute))),
+memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.callback_execute))),
     -- Pre-hook
     function(ret_val, self, other, result, arg_count, args)
         
