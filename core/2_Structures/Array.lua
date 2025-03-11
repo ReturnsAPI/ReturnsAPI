@@ -68,16 +68,7 @@ methods_array = {
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
         holder[1] = gmf.rvalue_new(index)
-
-        -- value
-        if type(value) == "number" then
-            holder[2] = gmf.rvalue_new(value)
-        elseif type(value) == "string" then
-            holder[2] = gmf.rvalue_new_string(value)
-        else
-            holder[2] = value
-        end
-
+        holder[2] = gmf.rvalue_new_auto(value)
         gmf.array_set(nil, nil, nil, 3, holder)
     end,
 
@@ -98,15 +89,7 @@ methods_array = {
         holder[0] = self.value
 
         for _, v in ipairs(values) do
-            -- value
-            if type(v) == "number" then
-                holder[1] = gmf.rvalue_new(v)
-            elseif type(v) == "string" then
-                holder[1] = gmf.rvalue_new_string(v)
-            else
-                holder[1] = v
-            end
-
+            holder[1] = gmf.rvalue_new_auto(v)
             gmf.array_push(nil, nil, nil, 2, holder)
         end
     end

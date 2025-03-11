@@ -65,15 +65,10 @@ metatable_struct = {
             return methods_struct[k]
         end
         
-        --- Getter
+        -- Getter
         local holder = ffi.new("struct RValue[2]")  -- args holder
-
-        -- hitinfo
         holder[0] = gmf.rvalue_new_object(Proxy.get(t).yy_object_base)
-
-        -- key
         holder[1] = gmf.rvalue_new_string(k)
-
         local out = gmf.rvalue_new(0)
         gmf.variable_struct_get(out, nil, nil, 2, holder)
         return Wrap.wrap(out)
@@ -81,20 +76,11 @@ metatable_struct = {
 
 
     __newindex = function(t, k, v)
-        --- Setter
+        -- Setter
         local holder = ffi.new("struct RValue[3]")  -- args holder
-
-        -- hitinfo
         holder[0] = gmf.rvalue_new_object(Proxy.get(t).yy_object_base)
-
-        -- key
         holder[1] = gmf.rvalue_new_string(k)
-
-        -- value
-        v = Wrap.unwrap(v)
-        if type(v) == "string" then holder[2] = gmf.rvalue_new_string(v)
-        else holder[2] = gmf.rvalue_new(v) end
-
+        holder[2] = gmf.rvalue_new_auto(Wrap.unwrap(v))
         gmf.variable_struct_set(nil, nil, nil, 3, holder)
     end,
 

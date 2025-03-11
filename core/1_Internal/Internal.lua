@@ -17,6 +17,12 @@ gmf.rvalue_new_object = function (obj)
 	return rvalue
 end
 
+gmf.rvalue_new_auto = function (val)
+    if type(val) == "number" then return gmf.rvalue_new(val) end
+    if type(val) == "string" then return gmf.rvalue_new_string(val) end
+    return val
+end
+
 
 -- The Gamemaker garbage collector frees anything that doesn't appear to be used.
 -- Lua variables do not count as references, so this DS list is used to prevent unreferenced structs and other objects from disappearing

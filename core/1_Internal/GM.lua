@@ -20,13 +20,7 @@ metatable_GM = {
 
                 -- Populate holder
                 for i = 1, count do
-                    if type(args[i]) == "number" then
-                        holder[i - 1] = gmf.rvalue_new(args[i])
-                    elseif type(args[i]) == "string" then
-                        holder[i - 1] = gmf.rvalue_new_string(args[i])
-                    else
-                        holder[i - 1] = args[i]
-                    end
+                    holder[i - 1] = gmf.rvalue_new_auto(args[i])
                 end
 
                 local out = gmf.rvalue_new(0)
