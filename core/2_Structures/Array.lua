@@ -36,6 +36,7 @@ end
 
 
 Array.wrap = function(array)
+    array = Wrap.unwrap(array)
     if not Array.is(array) then log.error("Value is not an array", 2) end
     return Proxy.new(array, metatable_array)
 end

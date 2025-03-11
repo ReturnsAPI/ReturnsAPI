@@ -14,6 +14,7 @@ end
 
 
 Struct.wrap = function(struct)
+    struct = Wrap.unwrap(struct)
     if not Struct.is(struct) then log.error("Value is not a struct", 2) end
     return Proxy.new(struct, metatable_struct)
 end
