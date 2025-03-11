@@ -48,7 +48,7 @@ Wrap.wrap = function(rvalue)
             return rvalue.cscriptref, 6.2
         end
         -- struct(?)
-        return Struct.wrap(yyobjectbase), 6.3
+        return Struct.wrap(rvalue), 6.3
     elseif  rvalue_type == 7 then   -- int32
         return rvalue.i32, 7
     elseif  rvalue_type == 10 then  -- int64

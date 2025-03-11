@@ -43,7 +43,8 @@ end
 
 Array.is = function(value)
     value = Wrap.unwrap(value)
-    if type(value) == "cdata" and value.type == Wrap.Type.ARRAY then return true end
+    if type(value) == "cdata"
+    and value.type == Wrap.Type.ARRAY then return true end
     return false
 end
 
