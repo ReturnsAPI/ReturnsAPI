@@ -144,7 +144,7 @@ metatable_array = {
 
         -- Getter
         k = tonumber(Wrap.unwrap(k))
-        if k and k >= 1 then -- and k <= #t then
+        if k and k >= 1 and k <= #t then
             return t:get(k - 1)
         end
         return nil
