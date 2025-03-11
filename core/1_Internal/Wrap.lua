@@ -28,6 +28,7 @@ end
 -- ========== Static Methods ==========
 
 Wrap.wrap = function(rvalue)
+    if type(rvalue) ~= "cdata" then return rvalue end
     local rvalue_type = rvalue.type
     if      rvalue_type == 0 then   -- real
         return rvalue.value, 0
