@@ -26,11 +26,11 @@ Instance.find = function(...)
         object = Wrap.unwrap(object)
 
         local holder = ffi.new("struct RValue[2]")
-        holder[0] = gmf.rvalue_new(object)
-        holder[1] = gmf.rvalue_new(0)
-        local out = gmf.rvalue_new(0)
+        holder[0] = RValue.new(object)
+        holder[1] = RValue.new(0)
+        local out = RValue.new(0)
         gmf.instance_find(out, nil, nil, 2, holder)
-        local inst = Wrap.wrap(out)
+        local inst = RValue.to_wrapper(out)
 
         -- <Insert custom object finding here>
 
@@ -50,16 +50,16 @@ methods_instance = {
     exists = function(self)
         if self.value == -4 then return false end
         local holder = ffi.new("struct RValue[1]")
-        holder[0] = gmf.rvalue_new(self.value)
-        local out = gmf.rvalue_new(0)
+        holder[0] = RValue.new(self.value)
+        local out = RValue.new(0)
         gmf.instance_exists(out, nil, nil, 1, holder)
-        return Wrap.wrap(out) == 1
+        return RValue.to_wrapper(out) == 1
     end,
 
 
     destroy = function(self)
         local holder = ffi.new("struct RValue[1]")
-        holder[0] = gmf.rvalue_new(self.value)
+        holder[0] = RValue.new(self.value)
         gmf.instance_destroy(nil, nil, nil, 1, holder)
     end
 
@@ -82,25 +82,25 @@ metatable_instance = {
 
         -- Getter
         local holder = ffi.new("struct RValue[2]")
-        holder[0] = gmf.rvalue_new(Proxy.get(t))
-        holder[1] = gmf.rvalue_new_string(k)
-        local out = gmf.rvalue_new(0)
+        holder[0] = RValue.new(Proxy.get(t))
+        holder[1] = RValue.new(k)
+        local out = RValue.new(0)
         gmf.variable_instance_get(out, nil, nil, 2, holder)
-        return Wrap.wrap(out)
+        return RValue.to_wrapper(out)
     end,
 
 
     __newindex = function(t, k, v)
         -- Setter
         local holder = ffi.new("struct RValue[3]")
-        holder[0] = gmf.rvalue_new(Proxy.get(t))
-        holder[1] = gmf.rvalue_new_string(k)
-        holder[2] = gmf.rvalue_new_auto(Wrap.unwrap(v))
+        holder[0] = RValue.new(Proxy.get(t))
+        holder[1] = RValue.new(k)
+        holder[2] = RValue.new(Wrap.unwrap(v))
         gmf.variable_instance_set(nil, nil, nil, 3, holder)
 
         -- TODO: When setting an Instance back into an instance variable,
         -- make sure it's marked as a REF value and not a normal number
-        -- Can do this by passing a second return value with Wrap.unwrap saying that it is a Wrap.Type.REF (possibly)
+        -- Can do this by passing a second return value with Wrap.unwrap saying that it is a RValue.Type.REF (possibly)
         -- This also goes for data structures, globals, etc.
         -- Also, test if a normal number works first
     end,

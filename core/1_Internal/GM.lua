@@ -16,16 +16,17 @@ metatable_GM = {
                 local count = select("#", ...)
                 local args = {...}
                 if #args ~= count then log.error("Argument mismatch; should be "..count, 2) end
-                local holder = ffi.new("struct RValue["..count.."]")  -- args holder
+                local holder = ffi.new("struct RValue["..count.."]")
 
                 -- Populate holder
                 for i = 1, count do
-                    holder[i - 1] = gmf.rvalue_new_auto(args[i])
+                    holder[i - 1] = RValue.new(args[i])
+                    -- print("holder "..(i-1)..": "..tostring(holder[i - 1]))
                 end
 
-                local out = gmf.rvalue_new(0)
+                local out = RValue.new(0)
                 gmf[k](out, nil, nil, count, holder)
-                return Wrap.wrap(out)
+                return RValue.to_wrapper(out)
             end
         end
         return function_cache[k]

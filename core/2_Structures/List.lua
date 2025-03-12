@@ -8,7 +8,7 @@ List = new_class()
 
 List.new = function(table)
     if type(table) == "table" then
-        local out = gmf.rvalue_new(0)
+        local out = RValue.new(0)
         gmf.ds_list_create(out, nil, nil, 0, nil)
         local list = List.wrap(out)
 
@@ -19,7 +19,7 @@ List.new = function(table)
         return list
     end
 
-    local out = gmf.rvalue_new(0)
+    local out = RValue.new(0)
     gmf.ds_list_create(out, nil, nil, 0, nil)
     return List.wrap(out)
 end
@@ -46,18 +46,18 @@ methods_list = {
         if index >= self:size() then log.error("List index out of bounds", 2) end
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
-        holder[1] = gmf.rvalue_new(index)
-        local out = gmf.rvalue_new(0)
+        holder[1] = RValue.new(index)
+        local out = RValue.new(0)
         gmf.ds_list_find_value(out, nil, nil, 2, holder)
-        return Wrap.wrap(out)
+        return RValue.to_wrapper(out)
     end,
 
 
     set = function(self, index, value)
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
-        holder[1] = gmf.rvalue_new(index)
-        holder[2] = gmf.rvalue_new_auto(Wrap.unwrap(value))
+        holder[1] = RValue.new(index)
+        holder[2] = RValue.new(Wrap.unwrap(value))
         gmf.ds_list_set(nil, nil, nil, 3, holder)
     end,
 
@@ -65,9 +65,9 @@ methods_list = {
     size = function(self)
         local holder = ffi.new("struct RValue[1]")
         holder[0] = self.value
-        local out = gmf.rvalue_new(0)
+        local out = RValue.new(0)
         gmf.ds_list_size(out, nil, nil, 1, holder)
-        return Wrap.wrap(out)
+        return RValue.to_wrapper(out)
     end,
 
 
@@ -79,7 +79,7 @@ methods_list = {
         holder[0] = self.value
 
         for i, v in ipairs(values) do
-            holder[i] = gmf.rvalue_new_auto(Wrap.unwrap(v))
+            holder[i] = RValue.new(Wrap.unwrap(v))
         end
 
         gmf.ds_list_add(nil, nil, nil, count, holder)

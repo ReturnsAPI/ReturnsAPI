@@ -11,9 +11,9 @@ Array.new = function(arg1, arg2)
     -- Create array from table
     if type(arg1) == "table" then
         local holder = ffi.new("struct RValue[2]")
-        holder[0] = gmf.rvalue_new(0)
-        holder[1] = gmf.rvalue_new(0)
-        local out = gmf.rvalue_new(0)
+        holder[0] = RValue.new(0)
+        holder[1] = RValue.new(0)
+        local out = RValue.new(0)
         gmf.array_create(out, nil, nil, 2, holder)
         local arr = Array.wrap(out)
 
@@ -27,9 +27,9 @@ Array.new = function(arg1, arg2)
     -- Overload 2
     -- Create array with optional size and default value
     local holder = ffi.new("struct RValue[2]")
-    holder[0] = gmf.rvalue_new(arg1 or 0)
-    holder[1] = gmf.rvalue_new(arg2 or 0)
-    local out = gmf.rvalue_new(0)
+    holder[0] = RValue.new(arg1 or 0)
+    holder[1] = RValue.new(arg2 or 0)
+    local out = RValue.new(0)
     gmf.array_create(out, nil, nil, 2, holder)
     return Array.wrap(out)
 end
@@ -46,7 +46,7 @@ end
 Array.is = function(value)
     value = Wrap.unwrap(value)
     if type(value) == "cdata"
-    and value.type == Wrap.Type.ARRAY then return true end
+    and value.type == RValue.Type.ARRAY then return true end
     return false
 end
 
@@ -60,18 +60,18 @@ methods_array = {
         if index >= self:size() then log.error("Array index out of bounds", 2) end
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
-        holder[1] = gmf.rvalue_new(index)
-        local out = gmf.rvalue_new(0)
+        holder[1] = RValue.new(index)
+        local out = RValue.new(0)
         gmf.array_get(out, nil, nil, 2, holder)
-        return Wrap.wrap(out)
+        return RValue.to_wrapper(out)
     end,
 
 
     set = function(self, index, value)
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
-        holder[1] = gmf.rvalue_new(index)
-        holder[2] = gmf.rvalue_new_auto(Wrap.unwrap(value))
+        holder[1] = RValue.new(index)
+        holder[2] = RValue.new(Wrap.unwrap(value))
         gmf.array_set(nil, nil, nil, 3, holder)
     end,
 
@@ -79,9 +79,9 @@ methods_array = {
     size = function(self)
         local holder = ffi.new("struct RValue[1]")
         holder[0] = self.value
-        local out = gmf.rvalue_new(0)
+        local out = RValue.new(0)
         gmf.array_length(out, nil, nil, 1, holder)
-        return Wrap.wrap(out)
+        return RValue.to_wrapper(out)
     end,
 
 
@@ -93,7 +93,7 @@ methods_array = {
         holder[0] = self.value
 
         for i, v in ipairs(values) do
-            holder[i] = gmf.rvalue_new_auto(Wrap.unwrap(v))
+            holder[i] = RValue.new(Wrap.unwrap(v))
         end
 
         gmf.array_push(nil, nil, nil, count, holder)

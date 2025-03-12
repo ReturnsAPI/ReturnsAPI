@@ -7,7 +7,7 @@ Struct = new_class()
 -- ========== Static Methods ==========
 
 Struct.new = function()
-    local out = gmf.rvalue_new(0)
+    local out = RValue.new(0)
     gmf.struct_create(out, nil, nil, 0, nil)
     return Struct.wrap(out)
 end
@@ -24,7 +24,7 @@ end
 Struct.is = function(value)
     value = Wrap.unwrap(value)
     if type(value) == "cdata"
-    and value.type == Wrap.Type.OBJECT
+    and value.type == RValue.Type.OBJECT
     and value.yy_object_base.type == 0 then return true end
     return false
 end
@@ -37,8 +37,8 @@ methods_struct = {
 
     get_keys = function(self)
         local holder = ffi.new("struct RValue[1]")
-        holder[0] = gmf.rvalue_new_object(self.value.yy_object_base)
-        local out = gmf.rvalue_new(0)
+        holder[0] = RValue.new(self.value.yy_object_base, RValue.Type.OBJECT)
+        local out = RValue.new(0)
         gmf.variable_struct_get_names(out, nil, nil, 1, holder)
         local arr = Array.wrap(out)
         local keys = {}
@@ -65,20 +65,20 @@ metatable_struct = {
         
         -- Getter
         local holder = ffi.new("struct RValue[2]")
-        holder[0] = gmf.rvalue_new_object(Proxy.get(t).yy_object_base)
-        holder[1] = gmf.rvalue_new_string(k)
-        local out = gmf.rvalue_new(0)
+        holder[0] = RValue.new(Proxy.get(t).yy_object_base, RValue.Type.OBJECT)
+        holder[1] = RValue.new(k)
+        local out = RValue.new(0)
         gmf.variable_struct_get(out, nil, nil, 2, holder)
-        return Wrap.wrap(out)
+        return RValue.to_wrapper(out)
     end,
 
 
     __newindex = function(t, k, v)
         -- Setter
         local holder = ffi.new("struct RValue[3]")
-        holder[0] = gmf.rvalue_new_object(Proxy.get(t).yy_object_base)
-        holder[1] = gmf.rvalue_new_string(k)
-        holder[2] = gmf.rvalue_new_auto(Wrap.unwrap(v))
+        holder[0] = RValue.new(Proxy.get(t).yy_object_base, RValue.Type.OBJECT)
+        holder[1] = RValue.new(k)
+        holder[2] = RValue.new(Wrap.unwrap(v))
         gmf.variable_struct_set(nil, nil, nil, 3, holder)
     end,
 

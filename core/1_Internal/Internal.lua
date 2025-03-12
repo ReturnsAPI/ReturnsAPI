@@ -23,21 +23,6 @@ function print2(text)
 end
 
 
--- Extend gmf
-gmf.rvalue_new_object = function (obj)
-	local rvalue = ffi.new("struct RValue")
-	rvalue.type = 6
-    rvalue.yy_object_base = obj
-	return rvalue
-end
-
-gmf.rvalue_new_auto = function (val)
-    local _type = type(val)
-    if _type == "number" then return gmf.rvalue_new(val) end
-    if _type == "string" then return gmf.rvalue_new_string(val) end
-    return val
-end
-
 
 if __ref_list then
     -- clear it when hot reloading, this will garbage-collect all the old structs
