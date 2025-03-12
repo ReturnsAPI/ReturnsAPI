@@ -50,7 +50,7 @@ methods_instance = {
     exists = function(self)
         if self.value == -4 then return false end
         local holder = ffi.new("struct RValue[1]")
-        holder[0] = RValue.new(self.value)
+        holder[0] = RValue.new(self.value, RValue.Type.REF)
         local out = RValue.new(0)
         gmf.instance_exists(out, nil, nil, 1, holder)
         return RValue.to_wrapper(out) == 1
@@ -59,7 +59,7 @@ methods_instance = {
 
     destroy = function(self)
         local holder = ffi.new("struct RValue[1]")
-        holder[0] = RValue.new(self.value)
+        holder[0] = RValue.new(self.value, RValue.Type.REF)
         gmf.instance_destroy(nil, nil, nil, 1, holder)
     end
 
