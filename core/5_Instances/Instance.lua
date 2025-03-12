@@ -31,11 +31,6 @@ methods_instance = {
         local holder = ffi.new("struct RValue[1]")
         holder[0] = gmf.rvalue_new(self.value)
         gmf.instance_destroy(nil, nil, nil, 1, holder)
-    end,
-
-
-    same = function(self, other)
-        return self.value == Wrap.unwrap(other)
     end
 
 }
@@ -72,6 +67,11 @@ metatable_instance = {
         holder[1] = gmf.rvalue_new_string(k)
         holder[2] = gmf.rvalue_new_auto(Wrap.unwrap(v))
         gmf.variable_instance_set(nil, nil, nil, 3, holder)
+    end,
+
+
+    __eq = function(t, other)
+        return t.value == other.value
     end,
 
     
