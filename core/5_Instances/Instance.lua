@@ -34,7 +34,7 @@ Instance.find = function(...)
 
         -- <Insert custom object finding here>
 
-        if inst:exists() then return inst end
+        if inst ~= -4 then return inst end
     end
 
     -- No instance found
