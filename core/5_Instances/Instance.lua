@@ -3,6 +3,7 @@
 Instance = new_class()
 
 local instance_data = {}
+local wrapper_cache = setmetatable({}, {__mode = "v"})
 
 
 
@@ -92,6 +93,9 @@ Instance.wrap = function(id, wrap_as_actor)
         Proxy.new(-4, metatable_instance)   -- Wrap as invalid instance
     end
 
+    -- Check cache
+    if wrapper_cache[id] then return wrapper_cache[id] end
+
     local inst = nil
 
     -- Instance -> Actor?
@@ -113,6 +117,9 @@ Instance.wrap = function(id, wrap_as_actor)
 
     -- Player
     -- TODO
+
+    -- Add to cache
+    wrapper_cache[id] = inst
 
     return inst
 end
