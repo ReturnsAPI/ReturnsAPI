@@ -83,6 +83,71 @@ methods_list = {
         end
 
         gmf.ds_list_add(nil, nil, nil, count, holder)
+    end,
+
+
+    insert = function(self, index, value)
+        local holder = ffi.new("struct RValue[3]")
+        holder[0] = self.value
+        holder[1] = RValue.new(Wrap.unwrap(index))
+        holder[2] = RValue.new(Wrap.unwrap(value))
+        gmf.ds_list_insert(nil, nil, nil, 3, holder)
+    end,
+
+
+    delete = function(self, index)
+        local holder = ffi.new("struct RValue[2]")
+        holder[0] = self.value
+        holder[1] = RValue.new(Wrap.unwrap(index))
+        gmf.ds_list_delete(nil, nil, nil, 2, holder)
+    end,
+
+
+    delete_value = function(self, value)
+        local index = self:find(value)
+        if not index then return end
+        local holder = ffi.new("struct RValue[2]")
+        holder[0] = self.value
+        holder[1] = RValue.new(index)
+        gmf.ds_list_delete(nil, nil, nil, 2, holder)
+    end,
+
+
+    clear = function(self)
+        local holder = ffi.new("struct RValue[1]")
+        holder[0] = self.value
+        gmf.ds_list_clear(nil, nil, nil, 1, holder)
+    end,
+
+
+    contains = function(self, value)
+        local holder = ffi.new("struct RValue[2]")
+        holder[0] = self.value
+        holder[1] = RValue.new(Wrap.unwrap(value))
+        local out = RValue.new(0)
+        gmf.ds_list_find_index(out, nil, nil, 2, holder)
+        local ret = RValue.to_wrapper(out)
+        return ret >= 0
+    end,
+
+
+    find = function(self, value)
+        local holder = ffi.new("struct RValue[2]")
+        holder[0] = self.value
+        holder[1] = RValue.new(Wrap.unwrap(value))
+        local out = RValue.new(0)
+        gmf.ds_list_find_index(out, nil, nil, 2, holder)
+        local ret = RValue.to_wrapper(out)
+        if ret < 0 then return nil end
+        return ret
+    end,
+
+
+    sort = function(self, descending)
+        local holder = ffi.new("struct RValue[2]")
+        holder[0] = self.value
+        holder[1] = RValue.new(not descending, RValue.Type.BOOL)
+        gmf.ds_list_sort(nil, nil, nil, 2, holder)
     end
 
 }

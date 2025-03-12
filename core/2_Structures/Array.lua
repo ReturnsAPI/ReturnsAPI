@@ -138,7 +138,7 @@ methods_array = {
     end,
 
 
-    clear = function(self, index, number)
+    clear = function(self)
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
         holder[1] = RValue.new(0)
