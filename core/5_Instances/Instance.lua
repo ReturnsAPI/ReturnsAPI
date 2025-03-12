@@ -98,8 +98,10 @@ metatable_instance = {
         end
 
         -- Getter
+        local id = Proxy.get(t)
+        if id == -4 then log.error("Cannot get from non-existent instance", 2) end
         local holder = ffi.new("struct RValue[2]")
-        holder[0] = RValue.new(Proxy.get(t), RValue.Type.REF)
+        holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.new(k)
         local out = RValue.new(0)
         gmf.variable_instance_get(out, nil, nil, 2, holder)
@@ -109,8 +111,10 @@ metatable_instance = {
 
     __newindex = function(t, k, v)
         -- Setter
+        local id = Proxy.get(t)
+        if id == -4 then log.error("Cannot set to non-existent instance", 2) end
         local holder = ffi.new("struct RValue[3]")
-        holder[0] = RValue.new(Proxy.get(t), RValue.Type.REF)
+        holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.new(k)
         holder[2] = RValue.new(Wrap.unwrap(v))
         gmf.variable_instance_set(nil, nil, nil, 3, holder)
