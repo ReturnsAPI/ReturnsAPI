@@ -97,12 +97,6 @@ metatable_instance = {
         holder[1] = RValue.new(k)
         holder[2] = RValue.new(Wrap.unwrap(v))
         gmf.variable_instance_set(nil, nil, nil, 3, holder)
-
-        -- TODO: When setting an Instance back into an instance variable,
-        -- make sure it's marked as a REF value and not a normal number
-        -- Can do this by passing a second return value with Wrap.unwrap saying that it is a RValue.Type.REF (possibly)
-        -- This also goes for data structures, globals, etc.
-        -- Also, test if a normal number works first
     end,
 
 
