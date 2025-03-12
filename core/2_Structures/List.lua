@@ -115,7 +115,7 @@ metatable_list = {
     __index = function(t, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(t) end
-        if k == "type" then return getmetatable(t):sub(14, -1) end
+        if k == "RAPI" then return getmetatable(t):sub(14, -1) end
         
         -- Methods
         if methods_list[k] then

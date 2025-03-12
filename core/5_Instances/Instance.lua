@@ -15,12 +15,40 @@ Instance.wrap = function(id)
 end
 
 
+Instance.find = function(...)
+    local t = {...}     -- Variable number of object_indexes
+
+    -- If argument is a non-wrapper table, use it as the loop table
+    if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
+
+    -- Loop through object_indexes
+    for _, object in ipairs(t) do
+        object = Wrap.unwrap(object)
+
+        local holder = ffi.new("struct RValue[2]")
+        holder[0] = gmf.rvalue_new(object)
+        holder[1] = gmf.rvalue_new(0)
+        local out = gmf.rvalue_new(0)
+        gmf.instance_find(out, nil, nil, 2, holder)
+        local inst = Wrap.wrap(out)
+
+        -- <Insert custom object finding here>
+
+        if inst:exists() then return inst end
+    end
+
+    -- No instance found
+    return Instance.wrap(-4)
+end
+
+
 
 -- ========== Instance Methods ==========
 
 methods_instance = {
 
     exists = function(self)
+        if self.value == -4 then return false end
         local holder = ffi.new("struct RValue[1]")
         holder[0] = gmf.rvalue_new(self.value)
         local out = gmf.rvalue_new(0)
@@ -45,7 +73,7 @@ metatable_instance = {
     __index = function(t, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(t) end
-        if k == "type" then return getmetatable(t):sub(14, -1) end
+        if k == "RAPI" then return getmetatable(t):sub(14, -1) end
 
         -- Methods
         if methods_instance[k] then
