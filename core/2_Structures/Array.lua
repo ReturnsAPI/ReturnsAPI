@@ -127,6 +127,17 @@ methods_array = {
     end,
 
 
+    delete_value = function(self, value)
+        local index = self:find(value)
+        if not index then return end
+        local holder = ffi.new("struct RValue[3]")
+        holder[0] = self.value
+        holder[1] = RValue.new(index)
+        holder[2] = RValue.new(1)
+        gmf.array_delete(nil, nil, nil, 3, holder)
+    end,
+
+
     clear = function(self, index, number)
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
