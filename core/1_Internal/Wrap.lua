@@ -58,8 +58,8 @@ Wrap.wrap = function(rvalue)
         local rvalue_value = rvalue.value
         return (rvalue_value ~= nil and rvalue_value ~= 0), 13
     elseif  rvalue_type == 15 then  -- ref (cinstance id)
-        return rvalue.i32, 15
-        -- return Instance.wrap(rvalue.i32), 15
+        -- return rvalue.i32, 15
+        return Instance.wrap(rvalue.i32), 15
     end
     return nil                      -- unset
 end

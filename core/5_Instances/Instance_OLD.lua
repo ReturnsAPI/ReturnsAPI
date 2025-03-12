@@ -1,5 +1,7 @@
 -- Instance
 
+return
+
 Instance = new_class()
 
 local instance_data = {}
