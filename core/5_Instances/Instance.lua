@@ -37,6 +37,7 @@ end
 
 Instance.get_data = function(instance, subtable, namespace, default_namespace)
     id = Wrap.unwrap(instance)
+    if (type(id) ~= "number") or (id < 100000) then log.error("Instance does not exist", 2) end
     subtable = subtable or "__main"
     namespace = namespace or "RAPI" -- Internal RAPI calling of this is not namespace-bound
     if not instance_data[id] then instance_data[id] = {} end
