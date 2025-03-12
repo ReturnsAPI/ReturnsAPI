@@ -34,21 +34,21 @@ RValue.to_wrapper = function(rvalue)
 
     local rvalue_type = rvalue.type
 
-    if      rvalue_type == RValue.Type.REAL         then return rvalue.value, rvalue_type
-    elseif  rvalue_type == RValue.Type.STRING       then return ffi.string(rvalue.ref_string.m_str), rvalue_type
-    elseif  rvalue_type == RValue.Type.ARRAY        then return Array.wrap(rvalue), rvalue_type
-    elseif  rvalue_type == RValue.Type.PTR          then return rvalue.i64, rvalue_type
-    elseif  rvalue_type == RValue.Type.UNDEFINED    then return nil, rvalue_type
+    if      rvalue_type == RValue.Type.REAL         then return rvalue.value
+    elseif  rvalue_type == RValue.Type.STRING       then return ffi.string(rvalue.ref_string.m_str)
+    elseif  rvalue_type == RValue.Type.ARRAY        then return Array.wrap(rvalue)
+    elseif  rvalue_type == RValue.Type.PTR          then return rvalue.i64
+    elseif  rvalue_type == RValue.Type.UNDEFINED    then return nil
     elseif  rvalue_type == RValue.Type.OBJECT then
         local yyobjectbase = rvalue.yy_object_base
-        if      yyobjectbase.type == 1  then return rvalue.cinstance, rvalue_type + 0.1
-        elseif  yyobjectbase.type == 3  then return rvalue.cscriptref, rvalue_type + 0.2
+        if      yyobjectbase.type == 1  then return rvalue.cinstance
+        elseif  yyobjectbase.type == 3  then return rvalue.cscriptref
         end
-        return Struct.wrap(rvalue), rvalue_type + 0.3
-    elseif  rvalue_type == RValue.Type.INT32        then return rvalue.i32, rvalue_type
-    elseif  rvalue_type == RValue.Type.INT64        then return rvalue.i64, rvalue_type
-    elseif  rvalue_type == RValue.Type.BOOL         then return (rvalue.value ~= nil and rvalue.value ~= 0), rvalue_type
-    elseif  rvalue_type == RValue.Type.REF          then return Instance.wrap(rvalue.i32), rvalue_type
+        return Struct.wrap(rvalue)
+    elseif  rvalue_type == RValue.Type.INT32        then return rvalue.i32
+    elseif  rvalue_type == RValue.Type.INT64        then return rvalue.i64
+    elseif  rvalue_type == RValue.Type.BOOL         then return (rvalue.value ~= nil and rvalue.value ~= 0)
+    elseif  rvalue_type == RValue.Type.REF          then return Instance.wrap(rvalue.i32)
     end
 
     return nil  -- Unset

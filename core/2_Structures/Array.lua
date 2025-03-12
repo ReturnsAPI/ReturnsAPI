@@ -172,7 +172,7 @@ methods_array = {
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
         holder[1] = RValue.new(not descending, RValue.Type.BOOL)
-        gmf.array_delete(nil, nil, nil, 2, holder)
+        gmf.array_sort(nil, nil, nil, 2, holder)
     end
     
 }
