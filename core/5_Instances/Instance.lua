@@ -101,6 +101,7 @@ metatable_instance = {
         -- TODO: When setting an Instance back into an instance variable,
         -- make sure it's marked as a REF value and not a normal number
         -- Can do this by passing a second return value with Wrap.unwrap saying that it is a Wrap.Type.REF (possibly)
+        -- This also goes for data structures, globals, etc.
     end,
 
 
