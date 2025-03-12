@@ -13,9 +13,8 @@ function public.setup(env, namespace)
 
     local wrapper = {}
     for name, class_ref in pairs(_CLASS) do
-        -- Create copy and copy metatable over (if applicable)
+        -- Create copy
         local copy = {}
-        if _CLASS_MT[name] then setmetatable(copy, _CLASS_MT[name]) end
 
         -- Copy k, v references from original to copy table
         for k, v in pairs(class_ref) do
@@ -74,6 +73,10 @@ function public.setup(env, namespace)
                 end
             end
         end
+
+        -- Copy metatable over (if applicable)
+        if _CLASS_MT[name] then setmetatable(copy, _CLASS_MT[name]) end
+
         wrapper[name] = copy
     end
 

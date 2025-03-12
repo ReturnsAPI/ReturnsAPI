@@ -22,5 +22,9 @@ Proxy = {
 
     get = function(proxy)
         return originals[proxy]
+    end,
+
+    set = function(proxy, value)
+        originals[proxy] = value
     end
 }
