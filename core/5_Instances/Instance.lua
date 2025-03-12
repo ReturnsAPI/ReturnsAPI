@@ -75,7 +75,7 @@ methods_instance = {
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         gmf.instance_destroy(nil, nil, nil, 1, holder)
         instance_data[self.value] = nil
-        self.value = -4
+        Proxy.get(self) = -4
     end
 
 }
