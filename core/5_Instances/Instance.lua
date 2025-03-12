@@ -74,6 +74,7 @@ methods_instance = {
         local holder = ffi.new("struct RValue[1]")
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         gmf.instance_destroy(nil, nil, nil, 1, holder)
+        self.value = -4
     end
 
 }
