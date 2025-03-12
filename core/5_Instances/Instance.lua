@@ -35,6 +35,15 @@ Instance.find = function(...)
 end
 
 
+Instance.count = function(object)
+    local holder = ffi.new("struct RValue[1]")
+    holder[0] = RValue.new(Wrap.unwrap(object))
+    local out = RValue.new(0)
+    gmf._mod_instance_number(out, nil, nil, 1, holder)
+    return RValue.to_wrapper(out)
+end
+
+
 Instance.get_data = function(instance, subtable, namespace, default_namespace)
     id = Wrap.unwrap(instance)
     if (type(id) ~= "number") or (id < 100000) then log.error("Instance does not exist", 2) end
