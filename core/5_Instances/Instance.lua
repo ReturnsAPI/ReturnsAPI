@@ -8,7 +8,9 @@ Instance = new_class()
 
 Instance.wrap = function(id)
     id = Wrap.unwrap(id)
-    if (type(id) ~= "number") or (id < 100000) then log.error("Not a valid instance id", 2) end
+    if (type(id) ~= "number") or (id < 100000) then
+        Proxy.new(-4, metatable_instance)   -- Wrap as invalid instance
+    end
     return Proxy.new(id, metatable_instance)
 end
 
