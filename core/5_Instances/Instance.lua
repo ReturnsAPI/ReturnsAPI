@@ -86,13 +86,20 @@ Instance.get_data = function(instance, subtable, namespace, default_namespace)
 end
 
 
-Instance.wrap = function(id)
+Instance.wrap = function(id, wrap_as_actor)
     id = Wrap.unwrap(id)
     if (type(id) ~= "number") or (id < 100000) then
         Proxy.new(-4, metatable_instance)   -- Wrap as invalid instance
     end
-    return Proxy.new(id, metatable_instance)
+
+    -- TODO make better
+    local inst = Proxy.new(id, metatable_instance)
+    if gm.object_is_ancestor(inst.object_index, gm.constants.pActor) == 1 then
+        inst = Proxy.new(id, metatable_actor)
+    end
+    return inst
 end
+
 
 
 -- ========== Instance Methods ==========

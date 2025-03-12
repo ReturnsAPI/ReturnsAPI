@@ -1,7 +1,5 @@
 -- Actor
 
-return
-
 Actor = new_class()
 
 local item_count_cache = {}
@@ -10,104 +8,56 @@ local item_count_cache = {}
 
 -- ========== Instance Methods ==========
 
-local out = gmf.rvalue_new(0)
-
 methods_actor = {
 
     kill = function(self)
         if self.value == -4 then return end
-        self.value:actor_kill()
+        self:actor_kill()
     end,
 
 
     item_give = function(self, item, count, kind)
-        gm.item_give(self.value, Wrap.unwrap(item), count or 1, kind or Item.StackKind.NORMAL)
+        if self.value == -4 then return end
+        local holder = ffi.new("struct RValue*[4]")
+        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        holder[1] = RValue.new(Wrap.unwrap(item))
+        holder[2] = RValue.new(count or 1)
+        holder[3] = RValue.new(kind or Item.StackKind.NORMAL)
+        gmf.item_give(nil, nil, RValue.new(0), 4, holder)
     end,
 
 
     item_take = function(self, item, count, kind)
-        gm.item_take(self.value, Wrap.unwrap(item), count or 1, kind or Item.StackKind.NORMAL)
+        if self.value == -4 then return end
+        local holder = ffi.new("struct RValue*[4]")
+        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        holder[1] = RValue.new(Wrap.unwrap(item))
+        holder[2] = RValue.new(count or 1)
+        holder[3] = RValue.new(kind or Item.StackKind.NORMAL)
+        gmf.item_take(nil, nil, RValue.new(0), 4, holder)
     end,
 
 
     item_count = function(self, item, kind)
-        local id = self.value.id
+        local id = self.value
+        if id == -4 then return 0 end
+
+        -- Build cache subtable if existn't
         local item = Wrap.unwrap(item)
         local kind = kind or Item.StackKind.ANY
         if not item_count_cache[id] then item_count_cache[id] = {} end
         if not item_count_cache[id][item] then item_count_cache[id][item] = {} end
         if item_count_cache[id][item][kind] then return item_count_cache[id][item][kind] end
-        local count = gm.item_count(self.value, item, kind)
-        item_count_cache[id][item][kind] = count
-        return count
-    end,
 
-
-    item_count_NONCACHED = function(self, item, kind)
-        return gm.item_count(self.value, Wrap.unwrap(item), kind or Item.StackKind.ANY)
-    end,
-
-
-    item_count_GMF = function(self, item, kind)
-        local holder = ffi.new("struct RValue[3]")  -- args holder
-
-        -- actor
-        print(self)
-        -- holder[0] = ffi.cast("struct CInstance *", self)
-        -- holder[0] = gm.CInstance.instance_id_to_CInstance_ffi[self.i32]
-        -- holder[0] = ffi.new("struct RValue")
-        -- holder[0].type = 6
-        -- holder[0].yy_object_base = ffi.cast("struct YYObjectBase *", self)
-        -- holder[0].cinstance = ffi.cast("struct CInstance *", self.cinstance)
-
-        -- item
-        holder[1] = gmf.rvalue_new(item)
-
-        -- kind
-        holder[2] = gmf.rvalue_new(kind or Item.StackKind.ANY)
-
-        gmf.item_count(out, nil, nil, 3, holder)
-        return rvalue_to_lua(out)
-    end,
-
-
-    debug = function(self)
-        local holder = ffi.new("struct RValue[2]")  -- args holder
-
-        holder[0] = gmf.rvalue_new(gm.constants.oP)
-        holder[1] = gmf.rvalue_new(0)
-
-        gmf.instance_find(out, nil, nil, 2, holder)
-        return out
-    end,
-
-
-    debug2 = function(self)
-        local holder = ffi.new("struct RValue[2]")  -- args holder
-
-        holder[0] = gmf.rvalue_new(gm.constants.oP)
-        holder[1] = gmf.rvalue_new(0)
-
-        gmf.instance_find(out, nil, nil, 2, holder)
-        
-
-
-        local holder = ffi.new("struct RValue[3]")
-
-        -- actor
-        holder[0] = ffi.new("struct RValue")
-        holder[0].type = 6
-        holder[0].yy_object_base = ffi.cast("struct YYObjectBase *", out.yy_object_base)
-        holder[0].cinstance = ffi.cast("struct CInstance *", out.cinstance)
-
-        -- item
-        holder[1] = gmf.rvalue_new(0)
-
-        -- kind
-        holder[2] = gmf.rvalue_new(3)
-
-        gmf.item_count(out, nil, nil, 3, holder)
-        return rvalue_to_lua(out)
+        local holder = ffi.new("struct RValue*[3]")
+        holder[0] = RValue.new(id, RValue.Type.REF)
+        holder[1] = RValue.new(Wrap.unwrap(item))
+        holder[2] = RValue.new(kind or Item.StackKind.NORMAL)
+        local out = RValue.new(0)
+        gmf.item_count(nil, nil, out, 3, holder)
+        local ret = RValue.to_wrapper(out)
+        item_count_cache[id][item][kind] = ret
+        return ret
     end
 
 }
@@ -154,14 +104,14 @@ memory.dynamic_hook("RAPI.Actor.item_give_internal", "void*", {"void*", "void*",
         local args_typed = ffi.cast("struct RValue**", args:get_address())
 
         -- Get args
-        local actor, is_instance_id = rvalue_to_lua(args_typed[0])
-        if not is_instance_id then actor = actor.id end
-        local item  = rvalue_to_lua(args_typed[1])
-        local count = rvalue_to_lua(args_typed[2])
-        local kind  = rvalue_to_lua(args_typed[3])
+        local actor = RValue.to_wrapper(args_typed[0])
+        local item  = RValue.to_wrapper(args_typed[1])
+        -- local count = RValue.to_wrapper(args_typed[2])
+        -- local kind  = RValue.to_wrapper(args_typed[3])
 
-        if not item_count_cache[actor] then item_count_cache[actor] = {} end
-        item_count_cache[actor][item] = {}
+        local id = actor.value
+        if not item_count_cache[id] then item_count_cache[id] = {} end
+        item_count_cache[id][item] = {}
     end,
 
     -- Post-hook
@@ -177,14 +127,14 @@ memory.dynamic_hook("RAPI.Actor.item_take_internal", "void*", {"void*", "void*",
         local args_typed = ffi.cast("struct RValue**", args:get_address())
 
         -- Get args
-        local actor, is_instance_id = rvalue_to_lua(args_typed[0])
-        if not is_instance_id then actor = actor.id end
-        local item  = rvalue_to_lua(args_typed[1])
-        local count = rvalue_to_lua(args_typed[2])
-        local kind  = rvalue_to_lua(args_typed[3])
+        local actor = RValue.to_wrapper(args_typed[0])
+        local item  = RValue.to_wrapper(args_typed[1])
+        -- local count = RValue.to_wrapper(args_typed[2])
+        -- local kind  = RValue.to_wrapper(args_typed[3])
 
-        if not item_count_cache[actor] then item_count_cache[actor] = {} end
-        item_count_cache[actor][item] = {}
+        local id = actor.value
+        if not item_count_cache[id] then item_count_cache[id] = {} end
+        item_count_cache[id][item] = {}
     end,
 
     -- Post-hook
