@@ -92,10 +92,9 @@ Instance.wrap = function(id, wrap_as_actor)
         Proxy.new(-4, metatable_instance)   -- Wrap as invalid instance
     end
 
-    -- Instance
     local inst = nil
 
-    -- Actor
+    -- Instance -> Actor?
     if not wrap_as_actor then
         inst = Proxy.new(id, metatable_instance)
 
@@ -107,6 +106,8 @@ Instance.wrap = function(id, wrap_as_actor)
         if RValue.to_wrapper(out) == 1 then
             inst = Proxy.new(id, metatable_actor)
         end
+
+    -- Actor
     else inst = Proxy.new(id, metatable_actor)
     end
 
