@@ -40,7 +40,7 @@ metatable_global = {
         local holder = ffi.new("struct RValue[2]")
         holder[0] = RValue.new(Wrap.unwrap(k))
         holder[1] = RValue.new(Wrap.unwrap(v))
-        gmf.variable_global_set(nil, nil, nil, 2, holder)
+        gmf.variable_global_set(RValue.new(0), nil, nil, 2, holder)
     end,
 
 

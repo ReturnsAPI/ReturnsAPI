@@ -79,7 +79,7 @@ metatable_struct = {
         holder[0] = RValue.new(Proxy.get(t).yy_object_base, RValue.Type.OBJECT)
         holder[1] = RValue.new(k)
         holder[2] = RValue.new(Wrap.unwrap(v))
-        gmf.variable_struct_set(nil, nil, nil, 3, holder)
+        gmf.variable_struct_set(RValue.new(0), nil, nil, 3, holder)
     end,
 
 

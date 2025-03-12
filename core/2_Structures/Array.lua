@@ -72,7 +72,7 @@ methods_array = {
         holder[0] = self.value
         holder[1] = RValue.new(index)
         holder[2] = RValue.new(Wrap.unwrap(value))
-        gmf.array_set(nil, nil, nil, 3, holder)
+        gmf.array_set(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
@@ -96,7 +96,7 @@ methods_array = {
             holder[i] = RValue.new(Wrap.unwrap(v))
         end
 
-        gmf.array_push(nil, nil, nil, count, holder)
+        gmf.array_push(RValue.new(0), nil, nil, count, holder)
     end,
 
 
@@ -114,7 +114,7 @@ methods_array = {
         holder[0] = self.value
         holder[1] = RValue.new(Wrap.unwrap(index))
         holder[2] = RValue.new(Wrap.unwrap(value))
-        gmf.array_insert(nil, nil, nil, 3, holder)
+        gmf.array_insert(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
@@ -123,7 +123,7 @@ methods_array = {
         holder[0] = self.value
         holder[1] = RValue.new(Wrap.unwrap(index))
         holder[2] = RValue.new(Wrap.unwrap(number) or 1)
-        gmf.array_delete(nil, nil, nil, 3, holder)
+        gmf.array_delete(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
@@ -134,7 +134,7 @@ methods_array = {
         holder[0] = self.value
         holder[1] = RValue.new(index)
         holder[2] = RValue.new(1)
-        gmf.array_delete(nil, nil, nil, 3, holder)
+        gmf.array_delete(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
@@ -143,7 +143,7 @@ methods_array = {
         holder[0] = self.value
         holder[1] = RValue.new(0)
         holder[2] = RValue.new(self:size())
-        gmf.array_delete(nil, nil, nil, 3, holder)
+        gmf.array_delete(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
@@ -172,7 +172,7 @@ methods_array = {
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
         holder[1] = RValue.new(not descending, RValue.Type.BOOL)
-        gmf.array_sort(nil, nil, nil, 2, holder)
+        gmf.array_sort(RValue.new(0), nil, nil, 2, holder)
     end
     
 }

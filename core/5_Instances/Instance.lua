@@ -114,12 +114,24 @@ methods_instance = {
     destroy = function(self)
         local holder = ffi.new("struct RValue[1]")
         holder[0] = RValue.new(self.value, RValue.Type.REF)
-        gmf.instance_destroy(nil, nil, nil, 1, holder)
+        gmf.instance_destroy(RValue.new(0), nil, nil, 1, holder)
         instance_data[self.value] = nil
         Proxy.set(self, -4)
     end
 
 }
+
+-- Add GM scripts
+for scr, _ in pairs(gmf_builtin) do
+    methods_instance[scr] = function(self, ...)
+        methods_GM.callso(scr)(self.value, self.value, ...)
+    end
+end
+for scr, _ in pairs(gmf_script) do
+    methods_instance[scr] = function(self, ...)
+        methods_GM.callso(scr)(self.value, self.value, ...)
+    end
+end
 
 
 
@@ -156,7 +168,7 @@ metatable_instance = {
         holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.new(k)
         holder[2] = RValue.new(Wrap.unwrap(v))
-        gmf.variable_instance_set(nil, nil, nil, 3, holder)
+        gmf.variable_instance_set(RValue.new(0), nil, nil, 3, holder)
     end,
 
 

@@ -38,7 +38,7 @@ methods_list = {
     destroy = function(self)
         local holder = ffi.new("struct RValue[1]")
         holder[0] = self.value
-        gmf.ds_list_destroy(nil, nil, nil, 1, holder)
+        gmf.ds_list_destroy(RValue.new(0), nil, nil, 1, holder)
     end,
 
 
@@ -58,7 +58,7 @@ methods_list = {
         holder[0] = self.value
         holder[1] = RValue.new(index)
         holder[2] = RValue.new(Wrap.unwrap(value))
-        gmf.ds_list_set(nil, nil, nil, 3, holder)
+        gmf.ds_list_set(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
@@ -82,7 +82,7 @@ methods_list = {
             holder[i] = RValue.new(Wrap.unwrap(v))
         end
 
-        gmf.ds_list_add(nil, nil, nil, count, holder)
+        gmf.ds_list_add(RValue.new(0), nil, nil, count, holder)
     end,
 
 
@@ -91,7 +91,7 @@ methods_list = {
         holder[0] = self.value
         holder[1] = RValue.new(Wrap.unwrap(index))
         holder[2] = RValue.new(Wrap.unwrap(value))
-        gmf.ds_list_insert(nil, nil, nil, 3, holder)
+        gmf.ds_list_insert(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
@@ -99,7 +99,7 @@ methods_list = {
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
         holder[1] = RValue.new(Wrap.unwrap(index))
-        gmf.ds_list_delete(nil, nil, nil, 2, holder)
+        gmf.ds_list_delete(RValue.new(0), nil, nil, 2, holder)
     end,
 
 
@@ -109,14 +109,14 @@ methods_list = {
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
         holder[1] = RValue.new(index)
-        gmf.ds_list_delete(nil, nil, nil, 2, holder)
+        gmf.ds_list_delete(RValue.new(0), nil, nil, 2, holder)
     end,
 
 
     clear = function(self)
         local holder = ffi.new("struct RValue[1]")
         holder[0] = self.value
-        gmf.ds_list_clear(nil, nil, nil, 1, holder)
+        gmf.ds_list_clear(RValue.new(0), nil, nil, 1, holder)
     end,
 
 
@@ -147,7 +147,7 @@ methods_list = {
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
         holder[1] = RValue.new(not descending, RValue.Type.BOOL)
-        gmf.ds_list_sort(nil, nil, nil, 2, holder)
+        gmf.ds_list_sort(RValue.new(0), nil, nil, 2, holder)
     end
 
 }

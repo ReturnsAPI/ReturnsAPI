@@ -25,10 +25,8 @@ methods_GM = {
 
             if gmf_builtin[k] then
                 function_cache[k] = function(...)
-                    -- local count = select("#", ...)
                     local args = {...}
                     local count = #args
-                    -- if #args ~= count then log.error("Argument mismatch; should be "..count, 2) end
                     local holder = ffi.new("struct RValue["..count.."]")
 
                     -- Populate holder
@@ -49,10 +47,8 @@ methods_GM = {
 
             elseif gmf_script[k] then
                 function_cache[k] = function(...)
-                    -- local count = select("#", ...)
                     local args = {...}
                     local count = #args
-                    -- if #args ~= count then log.error("Argument mismatch; should be "..count, 2) end
                     local holder = ffi.new("struct RValue*["..count.."]")
 
                     -- Populate holder
@@ -78,10 +74,8 @@ methods_GM = {
 
             if gmf_builtin[k] then
                 function_cache_callso[k] = function(self, other, ...)
-                    -- local count = select("#", ...)
                     local args = {...}
                     local count = #args
-                    -- if #args ~= count then log.error("Argument mismatch; should be "..count, 2) end
                     local holder = ffi.new("struct RValue["..count.."]")
 
                     -- Populate holder
@@ -92,8 +86,8 @@ methods_GM = {
 
                     local out = RValue.new(0)
                     gmf[k]( out,
-                            gm.CInstance.instance_id_to_CInstance[Wrap.unwrap(self)],
-                            gm.CInstance.instance_id_to_CInstance[Wrap.unwrap(other)],
+                            ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(self)]),
+                            ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(other)]),
                             count,
                             holder)
                     return RValue.to_wrapper(out)
@@ -101,16 +95,14 @@ methods_GM = {
 
             elseif gmf_object[k] then
                 function_cache_callso[k] = function(self, other)
-                    gmf[k]( gm.CInstance.instance_id_to_CInstance[Wrap.unwrap(self)],
-                            gm.CInstance.instance_id_to_CInstance[Wrap.unwrap(other)])
+                    gmf[k]( ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(self)]),
+                            ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(other)]))
                 end
 
             elseif gmf_script[k] then
                 function_cache_callso[k] = function(self, other, ...)
-                    -- local count = select("#", ...)
                     local args = {...}
                     local count = #args
-                    -- if #args ~= count then log.error("Argument mismatch; should be "..count, 2) end
                     local holder = ffi.new("struct RValue*["..count.."]")
 
                     -- Populate holder
@@ -120,8 +112,8 @@ methods_GM = {
                     end
 
                     local out = RValue.new(0)
-                    gmf[k]( gm.CInstance.instance_id_to_CInstance[Wrap.unwrap(self.value)],
-                            gm.CInstance.instance_id_to_CInstance[Wrap.unwrap(other)],
+                    gmf[k]( ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(self)]),
+                            ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(other)]),
                             out,
                             count,
                             holder)
