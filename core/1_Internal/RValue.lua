@@ -23,6 +23,8 @@ for k, v in pairs(RValue.Type) do
     RValue.Type[v] = k
 end
 
+RValue.Type = ReadOnly.new(RValue.Type)
+
 
 
 -- ========== Static Methods ==========
