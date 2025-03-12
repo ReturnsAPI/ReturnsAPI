@@ -20,7 +20,7 @@ metatable_GM = {
 
                 -- Populate holder
                 for i = 1, count do
-                    holder[i - 1] = RValue.new(args[i])
+                    holder[i - 1] = RValue.new(Wrap.unwrap(args[i]))
                     -- print("holder "..(i-1)..": "..tostring(holder[i - 1]))
                 end
 
