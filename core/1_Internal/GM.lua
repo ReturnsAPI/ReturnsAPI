@@ -1,6 +1,6 @@
 -- GM
 
-GM = {}
+GM = new_class()
 
 local function_cache = {}
 local function_cache_callso = {}
