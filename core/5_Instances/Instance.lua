@@ -7,6 +7,7 @@ Instance = new_class()
 -- ========== Static Methods ==========
 
 Instance.wrap = function(id)
+    id = Wrap.unwrap(id)
     if (type(id) ~= "number") or (id < 100000) then log.error("Not a valid instance id", 2) end
     return Proxy.new(id, metatable_instance)
 end
