@@ -248,7 +248,7 @@ metatable_array = {
 
 
     __gc = function(t)
-        -- __ref_list:remove(t.value)   -- TODO in List
+        __ref_list:delete_value(t.value)
     end,
 
 

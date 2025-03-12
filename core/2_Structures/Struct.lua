@@ -97,7 +97,7 @@ metatable_struct = {
 
 
     __gc = function(t)
-        __ref_list:remove(t.value)
+        __ref_list:delete_value(t.value)
     end,
 
 
