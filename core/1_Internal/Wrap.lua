@@ -6,6 +6,12 @@ Wrap = new_class()
 
 -- ========== Static Methods ==========
 
+local lua_type_lookup = {
+    number      = RValue.Type.REAL,
+    string      = RValue.Type.STRING,
+    boolean     = RValue.Type.BOOL
+}
+
 local rvalue_type_lookup = {
     Array       = RValue.Type.ARRAY,
     Struct      = RValue.Type.OBJECT,
@@ -16,8 +22,9 @@ local rvalue_type_lookup = {
 -- May return an RValue.Type as a second value
 -- Make sure this gets passed into RValue.new if using that; having them be on the same line works
 Wrap.unwrap = function(value)
-    local rvalue_type = nil
-    if type(value) == "table" and value.RAPI then
+    local type_value = type(value)
+    local rvalue_type = nil --lua_type_lookup[type_value]
+    if type_value == "table" and value.RAPI then
         rvalue_type = rvalue_type_lookup[value.RAPI]
     end
     return Proxy.get(value) or value, rvalue_type
