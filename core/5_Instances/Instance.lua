@@ -92,11 +92,25 @@ Instance.wrap = function(id, wrap_as_actor)
         Proxy.new(-4, metatable_instance)   -- Wrap as invalid instance
     end
 
-    -- TODO make better
+    -- Instance
     local inst = Proxy.new(id, metatable_instance)
-    if gm.object_is_ancestor(inst.object_index, gm.constants.pActor) == 1 then
-        inst = Proxy.new(id, metatable_actor)
+
+    -- Actor
+    if not wrap_as_actor then
+        local holder = ffi.new("struct RValue[2]")
+        holder[0] = RValue.new(inst.object_index)
+        holder[1] = RValue.new(gm.constants.pActor)
+        local out = RValue.new(0)
+        gmf.object_is_ancestor(out, nil, nil, 2, holder)
+        if RValue.to_wrapper(out) == 1 then
+            inst = Proxy.new(id, metatable_actor)
+        end
+    else inst = Proxy.new(id, metatable_actor)
     end
+
+    -- Player
+    -- TODO
+
     return inst
 end
 
