@@ -97,6 +97,71 @@ methods_array = {
         end
 
         gmf.array_push(nil, nil, nil, count, holder)
+    end,
+
+
+    pop = function(self)
+        local holder = ffi.new("struct RValue[1]")
+        holder[0] = self.value
+        local out = RValue.new(0)
+        gmf.array_pop(out, nil, nil, 1, holder)
+        return RValue.to_wrapper(out)
+    end,
+
+
+    insert = function(self, index, value)
+        local holder = ffi.new("struct RValue[3]")
+        holder[0] = self.value
+        holder[1] = RValue.new(Wrap.unwrap(index))
+        holder[2] = RValue.new(Wrap.unwrap(value))
+        gmf.array_insert(nil, nil, nil, 3, holder)
+    end,
+
+
+    delete = function(self, index, number)
+        local holder = ffi.new("struct RValue[3]")
+        holder[0] = self.value
+        holder[1] = RValue.new(Wrap.unwrap(index))
+        holder[2] = RValue.new(Wrap.unwrap(number) or 1)
+        gmf.array_delete(nil, nil, nil, 3, holder)
+    end,
+
+
+    clear = function(self, index, number)
+        local holder = ffi.new("struct RValue[3]")
+        holder[0] = self.value
+        holder[1] = RValue.new(0)
+        holder[2] = RValue.new(self:size())
+        gmf.array_delete(nil, nil, nil, 3, holder)
+    end,
+
+
+    contains = function(self, value, offset, length)
+        local holder = ffi.new("struct RValue[4]")
+        holder[0] = self.value
+        holder[1] = RValue.new(Wrap.unwrap(value))
+        holder[2] = RValue.new(offset or 0)
+        holder[3] = RValue.new(length or self:size())
+        local out = RValue.new(0)
+        gmf.array_contains(out, nil, nil, 4, holder)
+        return RValue.to_wrapper(out)
+    end,
+
+
+    find = function(self, value)
+        value = Wrap.unwrap(value)
+        for i, v in ipairs(self) do
+            if v == value then return i - 1 end
+        end
+        return nil
+    end,
+
+
+    sort = function(self, descending)
+        local holder = ffi.new("struct RValue[2]")
+        holder[0] = self.value
+        holder[1] = RValue.new(not descending, RValue.Type.BOOL)
+        gmf.array_delete(nil, nil, nil, 2, holder)
     end
     
 }
