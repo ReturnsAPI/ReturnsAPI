@@ -66,7 +66,9 @@ methods_instance = {
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         local out = RValue.new(0)
         gmf.instance_exists(out, nil, nil, 1, holder)
-        return RValue.to_wrapper(out) == 1
+        local ret = (RValue.to_wrapper(out) == 1)
+        if not ret then Proxy.get(self) = -4 end
+        return ret
     end,
 
 
