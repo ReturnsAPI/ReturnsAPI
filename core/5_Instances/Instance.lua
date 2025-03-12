@@ -72,7 +72,7 @@ methods_instance = {
 metatable_instance = {
     __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return Proxy.get(t) end
+        if k == "value" or k == "id" then return Proxy.get(t) end
         if k == "RAPI" then return getmetatable(t):sub(14, -1) end
 
         -- Methods
