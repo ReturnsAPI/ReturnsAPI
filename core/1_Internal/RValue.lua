@@ -56,21 +56,34 @@ end
 
 
 RValue.new = function(val, rvalue_type)
-    local type_val = type(val)
+    -- No RValue.Type specified; lua primitives
+    if not rvalue_type then
+        local type_val = type(val)
+        if type_val == "number" then
+            local rvalue = ffi.new("struct RValue")
+            rvalue.value = val
+            return rvalue
+        elseif type_val == "string" then
+            local rvalue = ffi.new("struct RValue[1]")
+            gmf.yysetstring(rvalue, val)
+            return rvalue[0]
+        else
+            return val
+        end
+    end
 
-    -- String
-    if  type_val    == "string"
-    or  rvalue_type == RValue.Type.STRING   then
+    -- RValue.Type.STRING
+    if rvalue_type == RValue.Type.STRING then
         local rvalue = ffi.new("struct RValue[1]")
         gmf.yysetstring(rvalue, val)
         return rvalue[0]
     end
     
-    -- Everything else
+    -- Other RValue.Type
     local rvalue = ffi.new("struct RValue")
-	if rvalue_type then rvalue.type = rvalue_type end
-
-    if      rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
+	rvalue.type = rvalue_type
+    if      rvalue_type == RValue.Type.REAL         then rvalue.value = val
+    elseif  rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
     elseif  rvalue_type == RValue.Type.PTR          then rvalue.i64 = val
     elseif  rvalue_type == RValue.Type.UNDEFINED    then -- Nothing
     elseif  rvalue_type == RValue.Type.OBJECT       then rvalue.yy_object_base = val
@@ -78,11 +91,8 @@ RValue.new = function(val, rvalue_type)
     elseif  rvalue_type == RValue.Type.INT64        then rvalue.i64 = val
     elseif  rvalue_type == RValue.Type.BOOL         then rvalue.value = val
     elseif  rvalue_type == RValue.Type.REF          then rvalue.i32 = val
-    elseif  rvalue_type == RValue.Type.REAL
-    or      type_val    == "number"                 then rvalue.value = val
-    else    return val
+    else    return nil
     end
-    
 	return rvalue
 end
 
