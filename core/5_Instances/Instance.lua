@@ -35,11 +35,41 @@ Instance.find = function(...)
 end
 
 
+Instance.find_all = function(...)
+    local t = {...}     -- Variable number of object_indexes
+
+    -- If argument is a non-wrapper table, use it as the loop table
+    if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
+
+    local insts = {}
+
+    -- Loop through object_indexes
+    for _, object in ipairs(t) do
+        object = Wrap.unwrap(object)
+        local count = Instance.count(object)
+
+        local holder = ffi.new("struct RValue[2]")
+        holder[0] = RValue.new(object)
+
+        for n = 0, count - 1 do
+            holder[1] = RValue.new(n)
+            local out = RValue.new(0)
+            gmf.instance_find(out, nil, nil, 2, holder)
+            table.insert(insts, RValue.to_wrapper(out))
+        end
+
+        -- <Insert custom object finding here>
+    end
+
+    return insts, #insts > 0
+end
+
+
 Instance.count = function(object)
-    local holder = ffi.new("struct RValue[1]")
+    local holder = ffi.new("struct RValue*[1]")
     holder[0] = RValue.new(Wrap.unwrap(object))
     local out = RValue.new(0)
-    gmf._mod_instance_number(out, nil, nil, 1, holder)
+    gmf._mod_instance_number(nil, nil, out, 1, holder)
     return RValue.to_wrapper(out)
 end
 
@@ -76,7 +106,7 @@ methods_instance = {
         local out = RValue.new(0)
         gmf.instance_exists(out, nil, nil, 1, holder)
         local ret = (RValue.to_wrapper(out) == 1)
-        if not ret then Proxy.get(self) = -4 end
+        if not ret then Proxy.set(self, -4) end
         return ret
     end,
 
@@ -86,7 +116,7 @@ methods_instance = {
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         gmf.instance_destroy(nil, nil, nil, 1, holder)
         instance_data[self.value] = nil
-        Proxy.get(self) = -4
+        Proxy.set(self, -4)
     end
 
 }
