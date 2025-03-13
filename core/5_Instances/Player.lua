@@ -16,7 +16,9 @@ Player.get_local = function()
     holder[1] = RValue.new(0)
     local out = RValue.new(0)
     gmf.instance_find(out, nil, nil, 2, holder)
-    return RValue.to_wrapper(out)
+    local inst = RValue.to_wrapper(out)
+    if inst ~= -4 then return inst end
+    return Instance.wrap(-4)
 end
 
 
