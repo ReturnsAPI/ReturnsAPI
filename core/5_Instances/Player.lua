@@ -9,7 +9,8 @@ Player = new_class()
 Player.get_local = function()
     if Net.online() then return Global.my_player end
 
-    -- instance_find(oP, 0)
+    -- Return first oP to exist
+    -- (which I think is always the local player)
     local holder = ffi.new("struct RValue[2]")
     holder[0] = RValue.new(gm.constants.oP)
     holder[1] = RValue.new(0)
