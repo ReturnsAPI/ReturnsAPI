@@ -7,9 +7,8 @@ Struct = new_class()
 -- ========== Static Methods ==========
 
 Struct.new = function()
-    local out = RValue.new(0)
-    gmf.struct_create(out, nil, nil, 0, nil)
-    return Struct.wrap(out)
+    local rvalue_struct = RValue.new(ffi.cast("struct YYObjectBase*", gm.gmf_struct_create()), RValue.Type.OBJECT)
+    return Struct.wrap(rvalue_struct)
 end
 
 
@@ -37,7 +36,7 @@ methods_struct = {
 
     get_keys = function(self)
         local holder = ffi.new("struct RValue[1]")
-        holder[0] = RValue.new(self.value.yy_object_base, RValue.Type.OBJECT)
+        holder[0] = self.value
         local out = RValue.new(0)
         gmf.variable_struct_get_names(out, nil, nil, 1, holder)
         local arr = Array.wrap(out)
@@ -65,7 +64,7 @@ metatable_struct = {
         
         -- Getter
         local holder = ffi.new("struct RValue[2]")
-        holder[0] = RValue.new(Proxy.get(t).yy_object_base, RValue.Type.OBJECT)
+        holder[0] = Proxy.get(t)
         holder[1] = RValue.new(k)
         local out = RValue.new(0)
         gmf.variable_struct_get(out, nil, nil, 2, holder)
@@ -76,7 +75,7 @@ metatable_struct = {
     __newindex = function(t, k, v)
         -- Setter
         local holder = ffi.new("struct RValue[3]")
-        holder[0] = RValue.new(Proxy.get(t).yy_object_base, RValue.Type.OBJECT)
+        holder[0] = Proxy.get(t)
         holder[1] = RValue.new(k)
         holder[2] = RValue.new(Wrap.unwrap(v))
         gmf.variable_struct_set(RValue.new(0), nil, nil, 3, holder)
