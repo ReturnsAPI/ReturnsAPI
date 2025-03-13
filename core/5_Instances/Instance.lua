@@ -25,7 +25,8 @@ Instance.find = function(object)
         local out = RValue.new(0)
         gmf.instance_find(out, nil, nil, 2, holder)
         local inst = RValue.to_wrapper(out)
-        return inst
+        if inst ~= -4 then return inst end
+        return Instance.wrap(-4)
 
     -- Table
     else
@@ -265,7 +266,7 @@ metatable_instance = {
 
         -- Getter
         local id = Proxy.get(t)
-        if id == -4 then log.error("Cannot get from non-existent instance", 2) end
+        if id == -4 then log.error("Instance does not exist", 2) end
         local holder = ffi.new("struct RValue[2]")
         holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.new(k)
@@ -278,7 +279,7 @@ metatable_instance = {
     __newindex = function(t, k, v)
         -- Setter
         local id = Proxy.get(t)
-        if id == -4 then log.error("Cannot set to non-existent instance", 2) end
+        if id == -4 then log.error("Instance does not exist", 2) end
         local holder = ffi.new("struct RValue[3]")
         holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.new(k)
