@@ -125,7 +125,7 @@ methods_GM = {
 
 metatable_GM = {
     __index = function(t, k)
-        if k == "callso" then return callso end
+        if k == "SO" then return callso end
         return methods_GM.call(k)
     end,
 
@@ -147,11 +147,11 @@ metatable_callso = {
 
 
     __newindex = function(t, k, v)
-        log.error("GM.callso has nothing to set", 2)
+        log.error("GM.SO has nothing to set", 2)
     end,
 
 
-    __metatable = "RAPI.Class.GM.callso"
+    __metatable = "RAPI.Class.GM.SO"
 }
 callso = setmetatable({}, metatable_callso)
 
