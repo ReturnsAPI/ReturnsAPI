@@ -26,7 +26,8 @@ end
 
 
 List.wrap = function(list)
-    return Proxy.new(Wrap.unwrap(list), metatable_list)
+    list = Wrap.unwrap(list)
+    return Proxy.new(list, metatable_list)
 end
 
 

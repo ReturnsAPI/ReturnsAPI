@@ -99,7 +99,8 @@ end
 
 
 Object.wrap = function(object)
-    return Proxy.new(Wrap.unwrap(object), metatable_object)
+    object = Wrap.unwrap(object)
+    return Proxy.new(object, metatable_object)
 end
 
 
