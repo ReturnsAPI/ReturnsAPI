@@ -17,6 +17,8 @@ local rvalue_type_lookup = {
     Struct      = RValue.Type.OBJECT,
 
     Instance    = RValue.Type.REF,
+    Actor       = RValue.Type.REF,
+    Player      = RValue.Type.REF,
 }
 
 -- May return an RValue.Type as a second value
