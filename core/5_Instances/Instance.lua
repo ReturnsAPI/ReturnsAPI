@@ -3,7 +3,7 @@
 Instance = new_class()
 
 local instance_data = {}
-local wrapper_cache = {}
+local wrapper_cache = setmetatable({}, {__mode = "v"})
 
 
 
@@ -286,13 +286,6 @@ gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
     for k, v in pairs(instance_data) do
         if gm.instance_exists(k) == 0 then
             instance_data[k] = nil
-            wrapper_cache[k] = nil
-        end
-    end
-    for k, v in pairs(wrapper_cache) do
-        if gm.instance_exists(k) == 0 then
-            instance_data[k] = nil
-            wrapper_cache[k] = nil
         end
     end
 end)
@@ -303,7 +296,6 @@ gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, a
     local actor = args[1].value
     if actor.object_index ~= gm.constants.oP then
         instance_data[actor.id] = nil
-        wrapper_cache[actor.id] = nil
     end
 end)
 
@@ -311,12 +303,9 @@ end)
 gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
     -- Move `instance_data` to new instance
     local id = args[1].value.id
-    if instance_data[id]
-    or wrapper_cache[id] then
+    if instance_data[id] then
         instance_data[args[2].value.id] = instance_data[id]
         instance_data[id] = nil
-        wrapper_cache[args[2].value.id] = wrapper_cache[id]
-        wrapper_cache[id] = nil
     end
 end)
 
