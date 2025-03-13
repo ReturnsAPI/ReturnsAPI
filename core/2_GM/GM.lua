@@ -31,7 +31,7 @@ methods_GM = {
 
                     -- Populate holder
                     for i = 1, count do
-                        holder[i - 1] = RValue.new(Wrap.unwrap(args[i]))
+                        holder[i - 1] = RValue.from_wrapper(args[i])
                         -- print("holder "..(i-1)..": "..tostring(holder[i - 1]))
                     end
 
@@ -53,7 +53,7 @@ methods_GM = {
 
                     -- Populate holder
                     for i = 1, count do
-                        holder[i - 1] = RValue.new(Wrap.unwrap(args[i]))
+                        holder[i - 1] = RValue.from_wrapper(args[i])
                         -- print("holder "..(i-1)..": "..tostring(holder[i - 1]))
                     end
 
@@ -80,7 +80,7 @@ methods_GM = {
 
                     -- Populate holder
                     for i = 1, count do
-                        holder[i - 1] = RValue.new(Wrap.unwrap(args[i]))
+                        holder[i - 1] = RValue.from_wrapper(args[i])
                         -- print("holder "..(i-1)..": "..tostring(holder[i - 1]))
                     end
 
@@ -102,7 +102,7 @@ methods_GM = {
 
                     -- Populate holder
                     for i = 1, count do
-                        holder[i - 1] = RValue.new(Wrap.unwrap(args[i]))
+                        holder[i - 1] = RValue.from_wrapper(args[i])
                         -- print("holder "..(i-1)..": "..tostring(holder[i - 1]))
                     end
 

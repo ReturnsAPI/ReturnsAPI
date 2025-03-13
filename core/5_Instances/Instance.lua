@@ -20,7 +20,7 @@ Instance.find = function(object)
     -- Single find
     if type(object) ~= "table" or object.RAPI then
         local holder = ffi.new("struct RValue[2]")
-        holder[0] = RValue.new(Wrap.unwrap(object))
+        holder[0] = RValue.from_wrapper(object)
         holder[1] = RValue.new(0)
         local out = RValue.new(0)
         gmf.instance_find(out, nil, nil, 2, holder)
@@ -32,7 +32,7 @@ Instance.find = function(object)
     else
         for _, obj in ipairs(object) do
             local holder = ffi.new("struct RValue[2]")
-            holder[0] = RValue.new(Wrap.unwrap(obj))
+            holder[0] = RValue.from_wrapper(obj)
             holder[1] = RValue.new(0)
             local out = RValue.new(0)
             gmf.instance_find(out, nil, nil, 2, holder)
@@ -111,7 +111,7 @@ Returns the instance count of the specified object.
 ]]
 Instance.count = function(object)
     local holder = ffi.new("struct RValue*[1]")
-    holder[0] = RValue.new(Wrap.unwrap(object))
+    holder[0] = RValue.from_wrapper(object)
     local out = RValue.new(0)
     gmf._mod_instance_number(nil, nil, out, 1, holder)
     return RValue.to_wrapper(out)
@@ -285,7 +285,7 @@ metatable_instance = {
         local holder = ffi.new("struct RValue[3]")
         holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.new(k)
-        holder[2] = RValue.new(Wrap.unwrap(v))
+        holder[2] = RValue.from_wrapper(v)
         gmf.variable_instance_set(RValue.new(0), nil, nil, 3, holder)
     end,
 

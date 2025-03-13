@@ -35,7 +35,7 @@ Array.new = function(arg1, arg2)
 end
 
 
-Array.wrap = function(array)
+Array.wrap = function(array)    -- Stores `array RValue`
     array = Wrap.unwrap(array)
     if not Array.is(array) then log.error("Value is not an array", 2) end
     __ref_list:add(array)
@@ -71,7 +71,7 @@ methods_array = {
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
         holder[1] = RValue.new(index)
-        holder[2] = RValue.new(Wrap.unwrap(value))
+        holder[2] = RValue.from_wrapper(value)
         gmf.array_set(RValue.new(0), nil, nil, 3, holder)
     end,
 
@@ -93,7 +93,7 @@ methods_array = {
         holder[0] = self.value
 
         for i, v in ipairs(values) do
-            holder[i] = RValue.new(Wrap.unwrap(v))
+            holder[i] = RValue.from_wrapper(v)
         end
 
         gmf.array_push(RValue.new(0), nil, nil, count, holder)
@@ -112,8 +112,8 @@ methods_array = {
     insert = function(self, index, value)
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
-        holder[1] = RValue.new(Wrap.unwrap(index))
-        holder[2] = RValue.new(Wrap.unwrap(value))
+        holder[1] = RValue.from_wrapper(index)
+        holder[2] = RValue.from_wrapper(value)
         gmf.array_insert(RValue.new(0), nil, nil, 3, holder)
     end,
 
@@ -121,8 +121,8 @@ methods_array = {
     delete = function(self, index, number)
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
-        holder[1] = RValue.new(Wrap.unwrap(index))
-        holder[2] = RValue.new(Wrap.unwrap(number) or 1)
+        holder[1] = RValue.from_wrapper(index)
+        holder[2] = RValue.from_wrapper(number or 1)
         gmf.array_delete(RValue.new(0), nil, nil, 3, holder)
     end,
 
@@ -150,7 +150,7 @@ methods_array = {
     contains = function(self, value, offset, length)
         local holder = ffi.new("struct RValue[4]")
         holder[0] = self.value
-        holder[1] = RValue.new(Wrap.unwrap(value))
+        holder[1] = RValue.from_wrapper(value)
         holder[2] = RValue.new(offset or 0)
         holder[3] = RValue.new(length or self:size())
         local out = RValue.new(0)

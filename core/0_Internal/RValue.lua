@@ -26,6 +26,22 @@ end
 RValue.Type = ReadOnly.new(RValue.Type)
 
 
+local lua_type_lookup = {
+    number      = RValue.Type.REAL,
+    string      = RValue.Type.STRING,
+    boolean     = RValue.Type.BOOL
+}
+
+local rvalue_type_lookup = {
+    Array       = RValue.Type.ARRAY,
+    Struct      = RValue.Type.OBJECT,
+
+    Instance    = RValue.Type.REF,
+    Actor       = RValue.Type.REF,
+    Player      = RValue.Type.REF,
+}
+
+
 
 -- ========== Static Methods ==========
 
@@ -55,6 +71,20 @@ RValue.to_wrapper = function(rvalue)
 end
 
 
+-- Variant of Wrap.unwrap that places it into and returns an RValue
+RValue.from_wrapper = function(value)
+    -- Get correct RValue.Type
+    local type_value = type(value)
+    local rvalue_type = lua_type_lookup[type_value]
+    if type_value == "table" and value.RAPI then
+        rvalue_type = rvalue_type_lookup[value.RAPI]
+    end
+
+    -- Get raw value and make an RValue from it
+    return RValue.new(Proxy.get(value) or value, rvalue_type)
+end
+
+
 RValue.peek = function(rvalue)
     if type(rvalue) ~= "cdata" then return end
 
@@ -79,9 +109,6 @@ RValue.peek = function(rvalue)
 end
 
 
--- If passing in an output from Wrap.unwrap,
--- make sure *both* return values are passed in
--- Having them be on the same line works ( e.g., RValue.new(Wrap.unwrap(value)) )
 RValue.new = function(val, rvalue_type)
     -- Return RValue.Type.UNDEFINED if `val` is nil
     if val == nil then

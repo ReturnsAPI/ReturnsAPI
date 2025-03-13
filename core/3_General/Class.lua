@@ -176,8 +176,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
     end
 
     class_table.wrap = function(value)
-        value = Wrap.unwrap(value)
-        return Proxy.new(value, metatable_class_arrays[class_rapi])
+        return Proxy.new(Wrap.unwrap(value), metatable_class_arrays[class_rapi])
     end
 
     methods_class[class_rapi] = {}  -- Populate in class file
@@ -208,8 +207,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
             -- Setter
             local index = class_table.Property[k:upper()]
             if index then
-                v = Wrap.unwrap(v)
-                Class[class_rapi]:get(Proxy.get(t)):set(index, v)
+                Class[class_rapi]:get(Proxy.get(t)):set(index, Wrap.unwrap(v))
                 return
             end
             log.error("Non-existent "..class_rapi.." property", 2)

@@ -144,3 +144,92 @@ Returns an Item wrapper containing the provided item ID.
 
 -- ========== Instance Methods ==========
 
+methods_class[rapi_name] = {
+
+    --$instance
+    --$return       Instance
+    --$param        x       | number    | The x spawn coordinate.
+    --$param        y       | number    | The y spawn coordinate.
+    --$optional     target  | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
+    --[[
+    Spawns and returns an item drop.
+    ]]
+    create = function(self, x, y, target)
+        local object_id = self.object_id
+        if object_id == nil or object_id == -1 then return nil end
+
+        -- This function spawns the item 40 px above, so add 40 to y in the call
+        -- gm.item_drop_object(object_id, x, y + 40, Wrap.unwrap(target), false)
+        local holder = ffi.new("struct RValue*[5]")
+        holder[0] = RValue.new(object_id)
+        holder[1] = RValue.new(x)
+        holder[2] = RValue.new(y + 40)
+        holder[3] = RValue.from_wrapper(target)
+        holder[4] = RValue.new(false)
+        RValue.peek(holder[0])
+        RValue.peek(holder[1])
+        RValue.peek(holder[2])
+        RValue.peek(holder[3])
+        RValue.peek(holder[4])
+        gmf.item_drop_object(nil, nil, RValue.new(0), 5, holder)
+
+        -- gm.item_drop_object(object_id,
+        --                     x,
+        --                     y + 40,
+        --                     Wrap.unwrap(target),
+        --                     false)
+
+        -- Look for drop (because gm.item_drop_object does not actually return the instance for some reason)
+        -- local drop = nil
+        -- local drops = Instance.find_all(gm.constants.pPickupItem) --, gm.constants.oCustomObject_pPickupItem)   -- TODO
+        -- for _, d in ipairs(drops) do
+        --     local dData = Instance.get_data(d)
+        --     if math.abs(d.x - x) <= 1 and math.abs(d.y - y) <= 1
+        --     and (not dData.returned_drop) then
+        --         drop = d
+        --         dData.returned_drop = true
+        --         break
+        --     end
+        -- end
+
+        -- return drop
+    end,
+
+
+    set_sprite = function(self, sprite) -- TODO
+        sprite = Wrap.unwrap(sprite)
+        self.sprite_id = sprite
+        gm.object_set_sprite_w(self.object_id, sprite)  -- Set item object sprite
+    end,
+
+
+    set_tier = function(self, tier) -- TODO
+        tier = Wrap.unwrap(tier)
+        self.tier = tier
+
+        -- Remove from all loot pools that the item is in
+        local pools = Global.treasure_loot_pools
+        for i = 1, #pools do
+            local struct = pools[i]
+            local drop_pool = List.wrap(struct.drop_pool)
+            local pos = drop_pool:find(self.object_id)
+            if pos then drop_pool:delete(pos) end
+        end
+
+        -- Add to new loot pool (if it exists)
+        local pool = ItemTier.wrap(tier).item_pool_for_reroll
+        if pool ~= -1 then LootPool.wrap(pool):add(self) end
+    end,
+
+
+    set_loot_tags = function(self, ...) -- TODO
+        local args = {...}
+        if type(args[1]) == "table" then args = args[1] end
+
+        local tags = 0
+        for _, tag in ipairs(args) do tags = tags + tag end
+
+        self.loot_tags = tags
+    end
+
+}

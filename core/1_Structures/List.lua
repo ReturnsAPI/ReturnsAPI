@@ -26,8 +26,7 @@ end
 
 
 List.wrap = function(list)
-    list = Wrap.unwrap(list)
-    return Proxy.new(list, metatable_list)
+    return Proxy.new(Wrap.unwrap(list), metatable_list)
 end
 
 
@@ -58,7 +57,7 @@ methods_list = {
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
         holder[1] = RValue.new(index)
-        holder[2] = RValue.new(Wrap.unwrap(value))
+        holder[2] = RValue.from_wrapper(value)
         gmf.ds_list_set(RValue.new(0), nil, nil, 3, holder)
     end,
 
@@ -80,7 +79,7 @@ methods_list = {
         holder[0] = self.value
 
         for i, v in ipairs(values) do
-            holder[i] = RValue.new(Wrap.unwrap(v))
+            holder[i] = RValue.from_wrapper(v)
         end
 
         gmf.ds_list_add(RValue.new(0), nil, nil, count, holder)
@@ -90,8 +89,8 @@ methods_list = {
     insert = function(self, index, value)
         local holder = ffi.new("struct RValue[3]")
         holder[0] = self.value
-        holder[1] = RValue.new(Wrap.unwrap(index))
-        holder[2] = RValue.new(Wrap.unwrap(value))
+        holder[1] = RValue.from_wrapper(index)
+        holder[2] = RValue.from_wrapper(value)
         gmf.ds_list_insert(RValue.new(0), nil, nil, 3, holder)
     end,
 
@@ -99,7 +98,7 @@ methods_list = {
     delete = function(self, index)
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
-        holder[1] = RValue.new(Wrap.unwrap(index))
+        holder[1] = RValue.from_wrapper(index)
         gmf.ds_list_delete(RValue.new(0), nil, nil, 2, holder)
     end,
 
@@ -124,7 +123,7 @@ methods_list = {
     contains = function(self, value)
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
-        holder[1] = RValue.new(Wrap.unwrap(value))
+        holder[1] = RValue.from_wrapper(value)
         local out = RValue.new(0)
         gmf.ds_list_find_index(out, nil, nil, 2, holder)
         local ret = RValue.to_wrapper(out)
@@ -135,7 +134,7 @@ methods_list = {
     find = function(self, value)
         local holder = ffi.new("struct RValue[2]")
         holder[0] = self.value
-        holder[1] = RValue.new(Wrap.unwrap(value))
+        holder[1] = RValue.from_wrapper(value)
         local out = RValue.new(0)
         gmf.ds_list_find_index(out, nil, nil, 2, holder)
         local ret = RValue.to_wrapper(out)

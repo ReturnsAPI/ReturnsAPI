@@ -27,7 +27,7 @@ metatable_global = {
         if structures[k] then return structures[k] end
 
         local holder = ffi.new("struct RValue[1]")
-        holder[0] = RValue.new(Wrap.unwrap(k))
+        holder[0] = RValue.from_wrapper(k)
         local out = RValue.new(0)
         gmf.variable_global_get(out, nil, nil, 1, holder)
         return RValue.to_wrapper(out)
@@ -38,8 +38,8 @@ metatable_global = {
         if structures[k] then log.error("Do not set global variable '"..k.."'", 2) end
         
         local holder = ffi.new("struct RValue[2]")
-        holder[0] = RValue.new(Wrap.unwrap(k))
-        holder[1] = RValue.new(Wrap.unwrap(v))
+        holder[0] = RValue.from_wrapper(k)
+        holder[1] = RValue.from_wrapper(v)
         gmf.variable_global_set(RValue.new(0), nil, nil, 2, holder)
     end,
 

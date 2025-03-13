@@ -20,7 +20,7 @@ methods_actor = {
         if self.value == -4 then return end
         local holder = ffi.new("struct RValue*[4]")
         holder[0] = RValue.new(self.value, RValue.Type.REF)
-        holder[1] = RValue.new(Wrap.unwrap(item))
+        holder[1] = RValue.from_wrapper(item)
         holder[2] = RValue.new(count or 1)
         holder[3] = RValue.new(kind or Item.StackKind.NORMAL)
         gmf.item_give(nil, nil, RValue.new(0), 4, holder)
@@ -31,7 +31,7 @@ methods_actor = {
         if self.value == -4 then return end
         local holder = ffi.new("struct RValue*[4]")
         holder[0] = RValue.new(self.value, RValue.Type.REF)
-        holder[1] = RValue.new(Wrap.unwrap(item))
+        holder[1] = RValue.from_wrapper(item)
         holder[2] = RValue.new(count or 1)
         holder[3] = RValue.new(kind or Item.StackKind.NORMAL)
         gmf.item_take(nil, nil, RValue.new(0), 4, holder)
@@ -51,7 +51,7 @@ methods_actor = {
 
         local holder = ffi.new("struct RValue*[3]")
         holder[0] = RValue.new(id, RValue.Type.REF)
-        holder[1] = RValue.new(Wrap.unwrap(item))
+        holder[1] = RValue.from_wrapper(item)
         holder[2] = RValue.new(kind or Item.StackKind.NORMAL)
         local out = RValue.new(0)
         gmf.item_count(nil, nil, out, 3, holder)

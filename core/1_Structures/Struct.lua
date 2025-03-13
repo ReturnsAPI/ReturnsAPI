@@ -77,7 +77,7 @@ metatable_struct = {
         local holder = ffi.new("struct RValue[3]")
         holder[0] = Proxy.get(t)
         holder[1] = RValue.new(k)
-        holder[2] = RValue.new(Wrap.unwrap(v))
+        holder[2] = RValue.from_wrapper(v)
         gmf.variable_struct_set(RValue.new(0), nil, nil, 3, holder)
     end,
 
