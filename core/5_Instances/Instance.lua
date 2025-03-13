@@ -11,6 +11,25 @@ local wrapper_cache = setmetatable({}, {__mode = "v"})
 
 --$static
 --$return       Instance
+--$param        object  | Object    | The object to spawn.
+--$param        x       | number    | The x spawn coordinate.
+--$param        y       | number    | The y spawn coordinate.
+--[[
+Creates and returns an instance of the specified object.
+]]
+Instance.create = function(x, y, object)
+    local holder = ffi.new("struct RValue[3]")
+    holder[0] = RValue.new(x)
+    holder[1] = RValue.new(y)
+    holder[2] = RValue.from_wrapper(object)
+    local out = RValue.new(0)
+    gmf.instance_create(nil, nil, out, 3, holder)
+    return RValue.to_wrapper(out)
+end
+
+
+--$static
+--$return       Instance
 --$param        object  | Object or table   | The object to check. <br>Alternatively, a single table containing multiple can be provided.
 --[[
 Returns the first instance of the specified object(s),
