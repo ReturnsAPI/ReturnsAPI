@@ -6,11 +6,11 @@ Wrap = new_class()
 
 -- ========== Static Methods ==========
 
-local lua_type_lookup = {
-    number      = RValue.Type.REAL,
-    string      = RValue.Type.STRING,
-    boolean     = RValue.Type.BOOL
-}
+-- local lua_type_lookup = {
+--     number      = RValue.Type.REAL,
+--     string      = RValue.Type.STRING,
+--     boolean     = RValue.Type.BOOL
+-- }
 
 local rvalue_type_lookup = {
     Array       = RValue.Type.ARRAY,
