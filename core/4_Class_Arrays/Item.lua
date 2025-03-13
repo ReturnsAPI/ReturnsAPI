@@ -113,6 +113,9 @@ Item.new = function(namespace, identifier)
     gmf.item_create(nil, nil, out, 6, holder)
     local item = Item.wrap(RValue.to_wrapper(out))
 
+    -- Remove `is_new_item` flag
+    item.is_new_item = false
+
     return item
 end
 
