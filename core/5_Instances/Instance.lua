@@ -9,6 +9,13 @@ local wrapper_cache = {}
 
 -- ========== Static Methods ==========
 
+--$static
+--$return       Instance
+--$param        ...     | Object(s) or table    | A variable amount of objects. <br>Alternatively, a single table containing them can be provided.
+--[[
+Returns the first instance of the specified object(s),
+or an invalid instance (value of `-4`).
+]]
 Instance.find = function(...)
     local t = {...}     -- Variable number of object_indexes
 
@@ -36,6 +43,13 @@ Instance.find = function(...)
 end
 
 
+--$static
+--$return       table, bool
+--$param        ...     | Object(s) or table    | A variable amount of objects. <br>Alternatively, a single table containing them can be provided.
+--[[
+Returns a table of all instances of the specified object(s),
+and a boolean that is `true` if the table is *not* empty.
+]]
 Instance.find_all = function(...)
     local t = {...}     -- Variable number of object_indexes
 
@@ -66,6 +80,12 @@ Instance.find_all = function(...)
 end
 
 
+--$static
+--$return       number
+--$param        object  | Object    | The object to check.
+--[[
+Returns the instance count of the specified object.
+]]
 Instance.count = function(object)
     local holder = ffi.new("struct RValue*[1]")
     holder[0] = RValue.new(Wrap.unwrap(object))
@@ -75,6 +95,18 @@ Instance.count = function(object)
 end
 
 
+--$static
+--$return       table
+--$param        instance    | Instance  | The instance to get the table from.
+--$optional     subtable    | string    | If specified, returns a different table under the ID `subtable`. <br>Useful for organization and preventing variable name conflicts within a mod itself. <br>This string can be whatever you want.
+--$optional     namespace   | string    | If specified, returns another mod's table for the instance.
+--[[
+Returns a table unique to each instance (will be initially empty) and unique to each mod calling this.
+(e.g., Given the same instance and two mods A and B, A calling `get_data` will return a different table to B calling `get_data`).
+
+This table is useful for storing lua data (such as tables) in instances, which cannot be done with normal instance variables.
+It is automatically deleted upon the instance's destruction.
+]]
 Instance.get_data = function(instance, subtable, namespace, default_namespace)
     id = Wrap.unwrap(instance)
     if (type(id) ~= "number") or (id < 100000) then log.error("Instance does not exist", 2) end
@@ -87,6 +119,12 @@ Instance.get_data = function(instance, subtable, namespace, default_namespace)
 end
 
 
+--$static
+--$return       Instance
+--$param        id      | number    | The instance ID to wrap.
+--[[
+Returns an Instance wrapper containing the provided instance.
+]]
 Instance.wrap = function(id)
     id = Wrap.unwrap(id)
     if (type(id) ~= "number") or (id < 100000) then
@@ -131,6 +169,11 @@ end
 
 methods_instance = {
 
+    --$instance
+    --$return       bool
+    --[[
+    Returns `true` if the instance exists, and `false` otherwise.
+    ]]
     exists = function(self)
         if self.value == -4 then return false end
         local holder = ffi.new("struct RValue[1]")
@@ -143,12 +186,31 @@ methods_instance = {
     end,
 
 
+    --$instance
+    --[[
+    Destroys the instance.
+    ]]
     destroy = function(self)
         local holder = ffi.new("struct RValue[1]")
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         gmf.instance_destroy(RValue.new(0), nil, nil, 1, holder)
         instance_data[self.value] = nil
         Proxy.set(self, -4)
+    end,
+
+
+    --$instance
+    --$return       bool
+    --$param        object      | Object    | The object to check.
+    --$optional     x           | number    | The x position to check at. <br>Uses this instance's current position by default.
+    --$optional     y           | number    | The y position to check at. <br>Uses this instance's current position by default.
+    --[[
+    Returns `true` if this instance is colliding with *any* instance of the specified object.
+    ]]
+    is_colliding = function(self, object, x, y)
+        if self.value == -4 then return false end
+        object = Wrap.unwrap(object)
+        return self:place_meeting(x or self.x, y or self.y, object) == 1
     end
 
 }
