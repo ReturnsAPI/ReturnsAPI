@@ -116,7 +116,6 @@ memory.dynamic_hook("RAPI.Actor.item_give_internal", "void*", {"void*", "void*",
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        
     end
 )
 
@@ -139,7 +138,6 @@ memory.dynamic_hook("RAPI.Actor.item_take_internal", "void*", {"void*", "void*",
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        
     end
 )
 

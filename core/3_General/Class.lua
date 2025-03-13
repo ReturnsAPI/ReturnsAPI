@@ -96,7 +96,8 @@ local hooks = {
 for _, hook in ipairs(hooks) do
     memory.dynamic_hook("RAPI.Class."..hook[2], "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", hook[1]))),
         -- Pre-hook
-        nil,
+        function(ret_val, self, other, result, arg_count, args)
+        end,
 
         -- Post-hook
         function(ret_val, self, other, result, arg_count, args)
