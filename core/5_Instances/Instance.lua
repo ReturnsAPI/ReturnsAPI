@@ -57,7 +57,7 @@ Returns a table of all instances of the specified object(s),
 and a boolean that is `true` if the table is *not* empty.
 
 **NOTE:** The execution time scales with the number of
-instances of the object, and can add a lot of overhead at high numbers.
+instances of the object, and can be very expensive at high numbers.
 Try not to call this too much.
 ]]
 Instance.find_all = function(object)
