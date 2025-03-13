@@ -8,7 +8,14 @@ Player = new_class()
 
 Player.get_local = function()
     if Net.online() then return Global.my_player end
-    return Instance.find(gm.constants.oP)
+
+    -- instance_find(oP, 0)
+    local holder = ffi.new("struct RValue[2]")
+    holder[0] = RValue.new(gm.constants.oP)
+    holder[1] = RValue.new(0)
+    local out = RValue.new(0)
+    gmf.instance_find(out, nil, nil, 2, holder)
+    return RValue.to_wrapper(out)
 end
 
 
