@@ -1,7 +1,5 @@
 -- Player
 
-return
-
 Player = new_class()
 
 
@@ -9,12 +7,8 @@ Player = new_class()
 -- ========== Static Methods ==========
 
 Player.get_local = function()
-    if gm._mod_net_isOnline() then
-        return Instance.internal.wrap(gm.variable_global_get("my_player"), metatable_player)
-    end
-    local instance = gm.instance_find(gm.constants.oP, 0)
-    if instance ~= -4 then return Instance.internal.wrap(instance, metatable_player) end
-    return Instance.wrap_invalid()
+    if Net.online() then return Global.my_player end
+    return Instance.find(gm.constants.oP)
 end
 
 

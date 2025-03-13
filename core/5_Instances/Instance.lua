@@ -101,6 +101,7 @@ Instance.wrap = function(id, wrap_as_actor)
     -- Instance -> Actor?
     if not wrap_as_actor then
         inst = Proxy.new(id, metatable_instance)
+        if inst.value == -4 then return inst end
 
         local holder = ffi.new("struct RValue[2]")
         holder[0] = RValue.new(inst.object_index)
