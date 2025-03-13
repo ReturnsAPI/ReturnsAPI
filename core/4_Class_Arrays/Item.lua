@@ -92,26 +92,16 @@ Item.new = function(namespace, identifier)
     local item = Item.find(identifier, namespace)
     if item then return item end
 
-    -- Create new pickup item object
-    local holder = ffi.new("struct RValue*[3]")
-    holder[0] = RValue.new(namespace)
-    holder[1] = RValue.new(identifier)
-    holder[2] = RValue.new(gm.constants.pPickupItem)
-    local object = RValue.new(0)
-    gmf.object_add_w(nil, nil, object, 3, holder)
-
-    -- Create new item
+    -- Create new
     -- TODO: Pass proper args for this
-    local holder = ffi.new("struct RValue*[6]")
-    holder[0] = RValue.new(namespace)
-    holder[1] = RValue.new(identifier)
-    holder[2] = RValue.new(nil)     -- if nil, it is auto-set
-    holder[3] = RValue.new(7)       -- tier; TODO use ItemTier.NOTIER
-    holder[4] = object
-    holder[5] = RValue.new(0)       -- loot_tags (?)
-    local out = RValue.new(0)
-    gmf.item_create(nil, nil, out, 6, holder)
-    local item = Item.wrap(RValue.to_wrapper(out))
+    item = Item.wrap(GM.item_create(
+        namespace,
+        identifier,
+        nil,    -- item ID; if nil, it is auto-set
+        7,      -- tier; TODO use ItemTier.NOTIER
+        GM.object_add_w(namespace, identifier, gm.constants.pPickupItem),
+        0       -- loot_tags (?)
+    ))
 
     -- Remove `is_new_item` flag
     item.is_new_item = false
