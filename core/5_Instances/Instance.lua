@@ -16,6 +16,8 @@ local wrapper_cache = setmetatable({}, {__mode = "v"})
 --$param        y       | number    | The y spawn coordinate.
 --[[
 Creates and returns an instance of the specified object.
+
+Also exists as a $method of Object, Object#create$.
 ]]
 Instance.create = function(x, y, object)
     local holder = ffi.new("struct RValue[3]")
