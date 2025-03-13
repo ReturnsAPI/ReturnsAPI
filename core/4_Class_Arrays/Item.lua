@@ -93,7 +93,7 @@ Item.new = function(namespace, identifier)
     if item then return item end
 
     -- Create new pickup item object
-    local holder = ffi.new("struct RValue[3]")
+    local holder = ffi.new("struct RValue*[3]")
     holder[0] = RValue.new(namespace)
     holder[1] = RValue.new(identifier)
     holder[2] = RValue.new(gm.constants.pPickupItem)
@@ -102,10 +102,10 @@ Item.new = function(namespace, identifier)
 
     -- Create new item
     -- TODO: Pass proper args for this
-    local holder = ffi.new("struct RValue[6]")
+    local holder = ffi.new("struct RValue*[6]")
     holder[0] = RValue.new(namespace)
     holder[1] = RValue.new(identifier)
-    -- holder[2] = RValue.new(arg2 or 0)    -- nil (?)
+    holder[2] = nil                 -- item ID; TODO leave as nil somehow to have it auto-set
     holder[3] = RValue.new(7)       -- tier
     holder[4] = object
     holder[5] = RValue.new(0)       -- loot_tags (?)
