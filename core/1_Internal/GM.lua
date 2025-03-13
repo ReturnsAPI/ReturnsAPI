@@ -91,8 +91,7 @@ methods_GM = {
 
             elseif gmf_object[k] then
                 function_cache_callso[k] = function(self, other)
-                    gmf[k]( ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(self)]),
-                            ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(other)]))
+                    gmf[k](self.CInstance, other.CInstance)
                 end
 
             elseif gmf_script[k] then
