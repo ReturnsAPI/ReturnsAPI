@@ -63,7 +63,6 @@ RValue.new = function(val, rvalue_type)
     if val == nil then
         local rvalue = ffi.new("struct RValue")
         rvalue.type = RValue.Type.UNDEFINED
-        -- rvalue.i64 = 0
         return rvalue
     end
 
@@ -101,7 +100,7 @@ RValue.new = function(val, rvalue_type)
     if      rvalue_type == RValue.Type.REAL         then rvalue.value = val
     elseif  rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
     elseif  rvalue_type == RValue.Type.PTR          then rvalue.i64 = val
-    elseif  rvalue_type == RValue.Type.UNDEFINED    then -- Nothing rvalue.i64 = 0
+    elseif  rvalue_type == RValue.Type.UNDEFINED    then -- Nothing
     elseif  rvalue_type == RValue.Type.OBJECT       then rvalue.yy_object_base = val
     elseif  rvalue_type == RValue.Type.INT32        then rvalue.i32 = val
     elseif  rvalue_type == RValue.Type.INT64        then rvalue.i64 = val
