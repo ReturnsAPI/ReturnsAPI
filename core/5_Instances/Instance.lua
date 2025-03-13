@@ -76,7 +76,8 @@ Instance.find_all = function(object)
             holder[1] = RValue.new(n)
             local out = RValue.new(0)
             gmf.instance_find(out, nil, nil, 2, holder)
-            table.insert(insts, RValue.to_wrapper(out))
+            local inst = RValue.to_wrapper(out)
+            if inst ~= -4 then table.insert(insts, inst) end
         end
 
     -- Table
@@ -92,7 +93,8 @@ Instance.find_all = function(object)
                 holder[1] = RValue.new(n)
                 local out = RValue.new(0)
                 gmf.instance_find(out, nil, nil, 2, holder)
-                table.insert(insts, RValue.to_wrapper(out))
+                local inst = RValue.to_wrapper(out)
+                if inst ~= -4 then table.insert(insts, inst) end
             end
         end
     end
