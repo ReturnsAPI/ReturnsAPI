@@ -72,6 +72,7 @@ memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int
             RAPI_initialize()
     
             -- Call functions
+            -- Do not call them again on hotload
             if not init_hotloaded then
                 for _, priority in ipairs(initialize_bank.priorities) do
                     local ibank_priority = initialize_bank[priority]
