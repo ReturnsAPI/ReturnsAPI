@@ -45,8 +45,8 @@ RValue.to_wrapper = function(rvalue)
         elseif  yyobjectbase.type == 3  then return rvalue.cscriptref
         end
         return Struct.wrap(rvalue)
-    elseif  rvalue_type == RValue.Type.INT32        then return rvalue.i32
-    elseif  rvalue_type == RValue.Type.INT64        then return rvalue.i64
+    elseif  rvalue_type == RValue.Type.INT32        then return tonumber(rvalue.i32)  -- Don't see any immediate consequences of doing this
+    elseif  rvalue_type == RValue.Type.INT64        then return tonumber(rvalue.i64)
     elseif  rvalue_type == RValue.Type.BOOL         then return (rvalue.value ~= nil and rvalue.value ~= 0)
     elseif  rvalue_type == RValue.Type.REF          then return Instance.wrap(rvalue.i32)
     end
@@ -63,7 +63,7 @@ RValue.new = function(val, rvalue_type)
     if val == nil then
         local rvalue = ffi.new("struct RValue")
         rvalue.type = RValue.Type.UNDEFINED
-        rvalue.i64 = 0
+        -- rvalue.i64 = 0
         return rvalue
     end
 
@@ -78,8 +78,13 @@ RValue.new = function(val, rvalue_type)
             local rvalue = ffi.new("struct RValue[1]")
             gmf.yysetstring(rvalue, val)
             return rvalue[0]
+        elseif type_val == "boolean" then
+            local rvalue = ffi.new("struct RValue")
+            rvalue.type = RValue.Type.BOOL
+            rvalue.value = val
+            return rvalue
         else
-            return nil
+            return val
         end
     end
 
@@ -96,7 +101,7 @@ RValue.new = function(val, rvalue_type)
     if      rvalue_type == RValue.Type.REAL         then rvalue.value = val
     elseif  rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
     elseif  rvalue_type == RValue.Type.PTR          then rvalue.i64 = val
-    -- elseif  rvalue_type == RValue.Type.UNDEFINED    then rvalue.i64 = 0
+    elseif  rvalue_type == RValue.Type.UNDEFINED    then -- Nothing rvalue.i64 = 0
     elseif  rvalue_type == RValue.Type.OBJECT       then rvalue.yy_object_base = val
     elseif  rvalue_type == RValue.Type.INT32        then rvalue.i32 = val
     elseif  rvalue_type == RValue.Type.INT64        then rvalue.i64 = val
