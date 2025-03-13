@@ -55,6 +55,30 @@ RValue.to_wrapper = function(rvalue)
 end
 
 
+RValue.peek = function(rvalue)
+    if type(rvalue) ~= "cdata" then return end
+
+    local rvalue_type = rvalue.type
+    local str = ""
+
+    if      rvalue_type == RValue.Type.REAL         then str = "Value: "..tostring(rvalue.value)
+    elseif  rvalue_type == RValue.Type.STRING       then str = "m_str: "..tostring(rvalue.ref_string.m_str)
+    elseif  rvalue_type == RValue.Type.ARRAY        then str = "i64: "..tostring(rvalue.i64)
+    elseif  rvalue_type == RValue.Type.PTR          then str = "i64: "..tostring(rvalue.i64)
+    elseif  rvalue_type == RValue.Type.UNDEFINED    then str = "i64: "..tostring(rvalue.i64)
+    elseif  rvalue_type == RValue.Type.OBJECT then
+        local yyob = rvalue.yy_object_base
+        str = "yy_object_base: "..tostring(yyob)..", ".."yyob.type: "..tostring(yyob.type)
+    elseif  rvalue_type == RValue.Type.INT32        then str = "i32: "..tostring(rvalue.i32)
+    elseif  rvalue_type == RValue.Type.INT64        then str = "i64: "..tostring(rvalue.i64)
+    elseif  rvalue_type == RValue.Type.BOOL         then str = "bool: "..tostring(rvalue.value ~= nil and rvalue.value ~= 0)
+    elseif  rvalue_type == RValue.Type.REF          then str = "i32: "..tostring(rvalue.i32)
+    end
+
+    print("Type: "..RValue.Type[rvalue_type], str)
+end
+
+
 -- If passing in an output from Wrap.unwrap,
 -- make sure *both* return values are passed in
 -- Having them be on the same line works ( e.g., RValue.new(Wrap.unwrap(value)) )
@@ -63,6 +87,7 @@ RValue.new = function(val, rvalue_type)
     if val == nil then
         local rvalue = ffi.new("struct RValue")
         rvalue.type = RValue.Type.UNDEFINED
+        rvalue.i64 = 0
         return rvalue
     end
 
