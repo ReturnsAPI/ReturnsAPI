@@ -21,3 +21,8 @@
 
 #### Class Array Setters
 - Only add a setter if it does multiple things, otherwise the user should just set properties directly.
+
+#### gmf
+- Even though `GM` exists now, it is only around ~3x faster than `gm`.
+    - Basically it's only for users.
+- Internally, you should still be creating RValue holders and calling `gmf` directly, which is a *lot* faster.
