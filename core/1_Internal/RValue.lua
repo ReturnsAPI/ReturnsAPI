@@ -55,6 +55,9 @@ RValue.to_wrapper = function(rvalue)
 end
 
 
+-- If passing in an output from Wrap.unwrap,
+-- make sure *both* return values are passed in
+-- Having them be on the same line works ( e.g., RValue.new(Wrap.unwrap(value)) )
 RValue.new = function(val, rvalue_type)
     -- No RValue.Type specified; lua primitives
     if not rvalue_type then

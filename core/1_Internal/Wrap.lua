@@ -20,7 +20,8 @@ local rvalue_type_lookup = {
 }
 
 -- May return an RValue.Type as a second value
--- Make sure this gets passed into RValue.new if using that; having them be on the same line works
+-- Make sure this gets passed into RValue.new if using that
+-- Having them be on the same line works ( e.g., RValue.new(Wrap.unwrap(value)) )
 Wrap.unwrap = function(value)
     local type_value = type(value)
     local rvalue_type = nil --lua_type_lookup[type_value]
