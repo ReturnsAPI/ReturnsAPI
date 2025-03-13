@@ -59,6 +59,14 @@ end
 -- make sure *both* return values are passed in
 -- Having them be on the same line works ( e.g., RValue.new(Wrap.unwrap(value)) )
 RValue.new = function(val, rvalue_type)
+    -- Return RValue.Type.UNDEFINED if `val` is nil
+    if val == nil then
+        local rvalue = ffi.new("struct RValue")
+        rvalue.type = RValue.Type.UNDEFINED
+        rvalue.i64 = 0
+        return rvalue
+    end
+
     -- No RValue.Type specified; lua primitives
     if not rvalue_type then
         local type_val = type(val)
@@ -71,7 +79,7 @@ RValue.new = function(val, rvalue_type)
             gmf.yysetstring(rvalue, val)
             return rvalue[0]
         else
-            return val
+            return nil
         end
     end
 
@@ -88,7 +96,7 @@ RValue.new = function(val, rvalue_type)
     if      rvalue_type == RValue.Type.REAL         then rvalue.value = val
     elseif  rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
     elseif  rvalue_type == RValue.Type.PTR          then rvalue.i64 = val
-    elseif  rvalue_type == RValue.Type.UNDEFINED    then -- Nothing
+    -- elseif  rvalue_type == RValue.Type.UNDEFINED    then rvalue.i64 = 0
     elseif  rvalue_type == RValue.Type.OBJECT       then rvalue.yy_object_base = val
     elseif  rvalue_type == RValue.Type.INT32        then rvalue.i32 = val
     elseif  rvalue_type == RValue.Type.INT64        then rvalue.i64 = val
