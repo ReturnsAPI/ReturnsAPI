@@ -86,8 +86,8 @@ methods_GM = {
 
                     local out = RValue.new(0)
                     gmf[k]( out,
-                            ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(self)]),
-                            ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(other)]),
+                            self.CInstance,
+                            other.CInstance,
                             count,
                             holder)
                     return RValue.to_wrapper(out)
@@ -112,8 +112,8 @@ methods_GM = {
                     end
 
                     local out = RValue.new(0)
-                    gmf[k]( ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(self)]),
-                            ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Wrap.unwrap(other)]),
+                    gmf[k]( self.CInstance,
+                            other.CInstance,
                             out,
                             count,
                             holder)

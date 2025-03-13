@@ -155,12 +155,12 @@ methods_instance = {
 -- Add GM scripts
 for scr, _ in pairs(gmf_builtin) do
     methods_instance[scr] = function(self, ...)
-        methods_GM.callso(scr)(self.value, self.value, ...)
+        methods_GM.callso(scr)(self, self, ...)
     end
 end
 for scr, _ in pairs(gmf_script) do
     methods_instance[scr] = function(self, ...)
-        methods_GM.callso(scr)(self.value, self.value, ...)
+        methods_GM.callso(scr)(self, self, ...)
     end
 end
 
@@ -173,6 +173,7 @@ metatable_instance = {
         -- Get wrapped value
         if k == "value" or k == "id" then return Proxy.get(t) end
         if k == "RAPI" then return getmetatable(t):sub(14, -1) end
+        if k == "CInstance" then return ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Proxy.get(t)]) end
 
         -- Methods
         if methods_instance[k] then
