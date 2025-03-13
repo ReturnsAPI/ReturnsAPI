@@ -87,7 +87,7 @@ Instance.get_data = function(instance, subtable, namespace, default_namespace)
 end
 
 
-Instance.wrap = function(id, wrap_as_actor)
+Instance.wrap = function(id)
     id = Wrap.unwrap(id)
     if (type(id) ~= "number") or (id < 100000) then
         Proxy.new(-4, metatable_instance)   -- Wrap as invalid instance
@@ -96,33 +96,33 @@ Instance.wrap = function(id, wrap_as_actor)
     -- Check cache
     if wrapper_cache[id] then return wrapper_cache[id] end
 
-    local inst = nil
-
-    -- Instance -> Actor?
-    if not wrap_as_actor then
-        inst = Proxy.new(id, metatable_instance)
-        if inst.value == -4 then return inst end
-
-        local holder = ffi.new("struct RValue[2]")
-        holder[0] = RValue.new(inst.object_index)
-        holder[1] = RValue.new(gm.constants.pActor)
-        local out = RValue.new(0)
-        gmf.object_is_ancestor(out, nil, nil, 2, holder)
-        if RValue.to_wrapper(out) == 1 then
-            inst = Proxy.new(id, metatable_actor)
-        end
-
-    -- Actor
-    else inst = Proxy.new(id, metatable_actor)
+    -- Instance
+    local inst = Proxy.new(id, metatable_instance)
+    if inst.value == -4 then
+        wrapper_cache[id] = inst
+        return inst
     end
 
+    local obj_index = inst.object_index
+
     -- Player
-    -- TODO
+    if obj_index == gm.constants.oP then
+        inst = Proxy.new(id, metatable_player)
+        wrapper_cache[id] = inst
+        return inst
+    end
 
-    -- Add to cache
-    wrapper_cache[id] = inst
-
-    return inst
+    -- Actor
+    local holder = ffi.new("struct RValue[2]")
+    holder[0] = RValue.new(obj_index)
+    holder[1] = RValue.new(gm.constants.pActor)
+    local out = RValue.new(0)
+    gmf.object_is_ancestor(out, nil, nil, 2, holder)
+    if RValue.to_wrapper(out) == 1 then
+        inst = Proxy.new(id, metatable_actor)
+        wrapper_cache[id] = inst
+        return inst
+    end
 end
 
 
