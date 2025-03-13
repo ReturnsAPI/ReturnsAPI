@@ -28,7 +28,7 @@ if __ref_list then
     -- clear it when hot reloading, this will garbage-collect all the old structs
     __ref_list:destroy()
 end
-__ref_list = nil    -- Created in main.lua after loading core
+__ref_list = nil    -- Created in List.lua (sorry for weird placement)
 
 
 -- -- The Gamemaker garbage collector frees anything that doesn't appear to be used.

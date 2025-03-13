@@ -92,7 +92,7 @@ function public.auto(properties)
     envy.import_all(env, wrapper)
 
     -- Clear callbacks associated with namespace
-    -- local namespace = properties.namespace or env["!guid"]
-    -- Callback.remove_all(namespace)
+    local namespace = properties.namespace or env["!guid"]
+    Callback.remove_all(namespace)
     -- RecalculateStats.remove_all(namespace)
 end
