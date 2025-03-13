@@ -11,55 +11,56 @@ local wrapper_cache = setmetatable({}, {__mode = "v"})
 
 --$static
 --$return       Instance
---$param        ...     | Object(s) or table    | A variable amount of objects. <br>Alternatively, a single table containing them can be provided.
+--$param        object  | Object or table   | The object to check. <br>Alternatively, a single table containing multiple can be provided.
 --[[
 Returns the first instance of the specified object(s),
 or an invalid instance (value of `-4`).
 ]]
-Instance.find = function(...)
-    local t = {...}     -- Variable number of object_indexes
-
-    -- If argument is a non-wrapper table, use it as the loop table
-    if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
-
-    -- Loop through object_indexes
-    for _, object in ipairs(t) do
-        object = Wrap.unwrap(object)
-
+Instance.find = function(object)
+    -- Single find
+    if type(object) ~= "table" or object.RAPI then
         local holder = ffi.new("struct RValue[2]")
-        holder[0] = RValue.new(object)
+        holder[0] = RValue.new(Wrap.unwrap(object))
         holder[1] = RValue.new(0)
         local out = RValue.new(0)
         gmf.instance_find(out, nil, nil, 2, holder)
         local inst = RValue.to_wrapper(out)
+        return inst
 
-        -- <Insert custom object finding here>
+    -- Table
+    else
+        for _, obj in ipairs(object) do
+            local holder = ffi.new("struct RValue[2]")
+            holder[0] = RValue.new(Wrap.unwrap(obj))
+            holder[1] = RValue.new(0)
+            local out = RValue.new(0)
+            gmf.instance_find(out, nil, nil, 2, holder)
+            local inst = RValue.to_wrapper(out)
+    
+            -- <Insert custom object finding here>
+    
+            if inst ~= -4 then return inst end
+        end
 
-        if inst ~= -4 then return inst end
+        -- No instance found
+        return Instance.wrap(-4)
+
     end
-
-    -- No instance found
-    return Instance.wrap(-4)
 end
 
 
 --$static
 --$return       table, bool
---$param        ...     | Object(s) or table    | A variable amount of objects. <br>Alternatively, a single table containing them can be provided.
+--$param        object  | Object or table   | The object to check. <br>Alternatively, a single table containing multiple can be provided.
 --[[
 Returns a table of all instances of the specified object(s),
 and a boolean that is `true` if the table is *not* empty.
 ]]
-Instance.find_all = function(...)
-    local t = {...}     -- Variable number of object_indexes
-
-    -- If argument is a non-wrapper table, use it as the loop table
-    if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
-
+Instance.find_all = function(object)
     local insts = {}
 
-    -- Loop through object_indexes
-    for _, object in ipairs(t) do
+    -- Single find
+    if type(object) ~= "table" or object.RAPI then
         object = Wrap.unwrap(object)
         local count = Instance.count(object)
 
@@ -73,7 +74,22 @@ Instance.find_all = function(...)
             table.insert(insts, RValue.to_wrapper(out))
         end
 
-        -- <Insert custom object finding here>
+    -- Table
+    else
+        for _, obj in ipairs(object) do
+            obj = Wrap.unwrap(obj)
+            local count = Instance.count(obj)
+
+            local holder = ffi.new("struct RValue[2]")
+            holder[0] = RValue.new(obj)
+
+            for n = 0, count - 1 do
+                holder[1] = RValue.new(n)
+                local out = RValue.new(0)
+                gmf.instance_find(out, nil, nil, 2, holder)
+                table.insert(insts, RValue.to_wrapper(out))
+            end
+        end
     end
 
     return insts, #insts > 0
