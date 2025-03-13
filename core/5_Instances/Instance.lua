@@ -153,12 +153,12 @@ methods_instance = {
 }
 
 -- Add GM scripts
-for scr, _ in pairs(gmf_builtin) do
+for scr, _ in pairs(GM.internal.builtin) do
     methods_instance[scr] = function(self, ...)
         methods_GM.callso(scr)(self, self, ...)
     end
 end
-for scr, _ in pairs(gmf_script) do
+for scr, _ in pairs(GM.internal.script) do
     methods_instance[scr] = function(self, ...)
         methods_GM.callso(scr)(self, self, ...)
     end

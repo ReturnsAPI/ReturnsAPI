@@ -9,9 +9,9 @@ local function_cache_callso = {}
 
 -- ========== Lookup Tables ==========
 
-gmf_builtin = require("./core/data/gmfBuiltin")
-gmf_object = require("./core/data/gmfObject")
-gmf_script = require("./core/data/gmfScript")
+GM.internal.builtin = require("./core/data/gmfBuiltin")
+GM.internal.object  = require("./core/data/gmfObject")
+GM.internal.script  = require("./core/data/gmfScript")
 
 
 
@@ -23,7 +23,7 @@ methods_GM = {
         if not gmf[k] then log.error("GM."..k.." does not exist", 2) end
         if not function_cache[k] then
 
-            if gmf_builtin[k] then
+            if GM.internal.builtin[k] then
                 function_cache[k] = function(...)
                     local args = {...}
                     local count = #args
@@ -40,12 +40,12 @@ methods_GM = {
                     return RValue.to_wrapper(out)
                 end
 
-            elseif gmf_object[k] then
+            elseif GM.internal.object[k] then
                 function_cache[k] = function()
                     gmf[k](nil, nil)
                 end
 
-            elseif gmf_script[k] then
+            elseif GM.internal.script[k] then
                 function_cache[k] = function(...)
                     local args = {...}
                     local count = #args
@@ -72,7 +72,7 @@ methods_GM = {
         if not gmf[k] then log.error("GM."..k.." does not exist", 2) end
         if not function_cache_callso[k] then
 
-            if gmf_builtin[k] then
+            if GM.internal.builtin[k] then
                 function_cache_callso[k] = function(self, other, ...)
                     local args = {...}
                     local count = #args
@@ -89,12 +89,12 @@ methods_GM = {
                     return RValue.to_wrapper(out)
                 end
 
-            elseif gmf_object[k] then
+            elseif GM.internal.object[k] then
                 function_cache_callso[k] = function(self, other)
                     gmf[k](self.CInstance, other.CInstance)
                 end
 
-            elseif gmf_script[k] then
+            elseif GM.internal.script[k] then
                 function_cache_callso[k] = function(self, other, ...)
                     local args = {...}
                     local count = #args
