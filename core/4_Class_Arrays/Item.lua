@@ -160,12 +160,14 @@ methods_class[rapi_name] = {
 
         -- This function spawns the item 40 px above, so add 40 to y in the call
         -- gm.item_drop_object(object_id, x, y + 40, Wrap.unwrap(target), false)
+        print("FLAG 1")
         local holder = ffi.new("struct RValue*[5]")
         holder[0] = RValue.new(object_id)
         holder[1] = RValue.new(x)
         holder[2] = RValue.new(y + 40)
         holder[3] = RValue.from_wrapper(target)
         holder[4] = RValue.new(false)
+        print("FLAG 2")
         RValue.peek(holder[0])
         RValue.peek(holder[1])
         RValue.peek(holder[2])
