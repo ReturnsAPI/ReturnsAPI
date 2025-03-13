@@ -85,11 +85,7 @@ methods_GM = {
                     end
 
                     local out = RValue.new(0)
-                    gmf[k]( out,
-                            self.CInstance,
-                            other.CInstance,
-                            count,
-                            holder)
+                    gmf[k](out, self.CInstance, other.CInstance, count, holder)
                     return RValue.to_wrapper(out)
                 end
 
@@ -112,11 +108,7 @@ methods_GM = {
                     end
 
                     local out = RValue.new(0)
-                    gmf[k]( self.CInstance,
-                            other.CInstance,
-                            out,
-                            count,
-                            holder)
+                    gmf[k](self.CInstance, other.CInstance, out, count, holder)
                     return RValue.to_wrapper(out)
                 end
 
