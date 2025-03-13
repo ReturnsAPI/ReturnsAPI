@@ -20,7 +20,7 @@ Creates and returns an instance of the specified object.
 Also exists as a $method of Object, Object#create$.
 ]]
 Instance.create = function(x, y, object)
-    local holder = ffi.new("struct RValue[3]")
+    local holder = ffi.new("struct RValue*[3]")
     holder[0] = RValue.new(x)
     holder[1] = RValue.new(y)
     holder[2] = RValue.from_wrapper(object)
