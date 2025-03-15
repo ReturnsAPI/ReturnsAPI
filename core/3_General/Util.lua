@@ -156,6 +156,7 @@ end
 --$optional     ...     |           | A variable number of arguments to pass.
 --[[
 Benchmarks a function and prints the results (in milliseconds, up to 5 decimal places).
+The amount of milliseconds per frame is 16.66~ ms.
 ]]
 Util.benchmark = function(n, fn, ...)
     -- Adapted from here:
