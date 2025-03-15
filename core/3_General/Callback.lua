@@ -103,7 +103,7 @@ Callback.Priority = ReadOnly.new({
 Returns the string name of the callback type with the given ID.
 ]]
 Callback.get_type_name = function(num_id)
-    if num_id < 0 or num_id >= #callback_constants then log.error("Invalid Callback numID", 2) end
+    if num_id < 0 or num_id >= #callback_constants then return nil end
     return callback_constants[num_id + 1]
 end
 
@@ -268,10 +268,9 @@ end
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.callback_execute))),
+memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.callback_execute),
     -- Pre-hook
-    function(ret_val, self, other, result, arg_count, args)
-    end,
+    {nil,
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
@@ -321,7 +320,7 @@ memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*"
                 fn_table.fn(table.unpack(wrapped_args))
             end
         end
-    end
+    end}
 )
 
 

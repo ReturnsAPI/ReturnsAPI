@@ -94,16 +94,15 @@ local hooks = {
     {gmf.survivor_log_create,      "class_survivor_log"}
 }
 for _, hook in ipairs(hooks) do
-    memory.dynamic_hook("RAPI.Class."..hook[2], "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", hook[1]))),
+    memory.dynamic_hook("RAPI.Class."..hook[2], "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook[1]]),
         -- Pre-hook
-        function(ret_val, self, other, result, arg_count, args)
-        end,
+        {nil,
 
         -- Post-hook
         function(ret_val, self, other, result, arg_count, args)
             if not allow_find_repopulate then return end
             Class.internal.find_repopulate(hook[2])
-        end
+        end}
     )
 end
 

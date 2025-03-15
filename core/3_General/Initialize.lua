@@ -59,10 +59,9 @@ setmetatable(Initialize, metatable_initialize)
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.__input_system_tick))),
+memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__input_system_tick),
     -- Pre-hook
-    function(ret_val, self, other, result, arg_count, args)
-    end,
+    {nil,
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
@@ -84,7 +83,7 @@ memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int
             end
             init_hotloaded = true
         end
-    end
+    end}
 )
 
 

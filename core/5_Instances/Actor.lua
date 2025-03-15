@@ -97,9 +97,9 @@ metatable_actor = {
 
 -- Reset cache when an item is given/taken
 
-memory.dynamic_hook("RAPI.Actor.item_give_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.item_give_internal))),
+memory.dynamic_hook("RAPI.Actor.item_give_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.item_give_internal),
     -- Pre-hook
-    function(ret_val, self, other, result, arg_count, args)
+    {function(ret_val, self, other, result, arg_count, args)
         local arg_count = arg_count:get()
         local args_typed = ffi.cast("struct RValue**", args:get_address())
 
@@ -115,13 +115,12 @@ memory.dynamic_hook("RAPI.Actor.item_give_internal", "void*", {"void*", "void*",
     end,
 
     -- Post-hook
-    function(ret_val, self, other, result, arg_count, args)
-    end
+    nil}
 )
 
-memory.dynamic_hook("RAPI.Actor.item_take_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.item_take_internal))),
+memory.dynamic_hook("RAPI.Actor.item_take_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.item_take_internal),
     -- Pre-hook
-    function(ret_val, self, other, result, arg_count, args)
+    {function(ret_val, self, other, result, arg_count, args)
         local arg_count = arg_count:get()
         local args_typed = ffi.cast("struct RValue**", args:get_address())
 
@@ -137,8 +136,7 @@ memory.dynamic_hook("RAPI.Actor.item_take_internal", "void*", {"void*", "void*",
     end,
 
     -- Post-hook
-    function(ret_val, self, other, result, arg_count, args)
-    end
+    nil}
 )
 
 
