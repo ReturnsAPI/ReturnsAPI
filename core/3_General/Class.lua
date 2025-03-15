@@ -72,29 +72,29 @@ end
 -- if a new piece of content is added to it
 local allow_find_repopulate = false
 local hooks = {
-    {gmf.achievement_create,       "class_achievement"},
-    {gmf.actor_skin_create,        "class_actor_skin"},
-    {gmf.actor_state_create,       "class_actor_state"},
-    {gmf.artifact_create,          "class_artifact"},
-    {gmf.buff_create,              "class_buff"},
-    {gmf.difficulty_create,        "class_difficulty"},
-    {gmf.elite_type_create,        "class_elite"},
-    {gmf.ending_create,            "class_ending_type"},
-    {gmf.environment_log_create,   "class_environment_log"},
-    {gmf.equipment_create,         "class_equipment"},
-    {gmf.gamemode_create,          "class_game_mode"},
-    {gmf.interactable_card_create, "class_interactable_card"},
-    {gmf.item_create,              "class_item"},
-    {gmf.item_log_create,          "class_item_log"},
-    {gmf.monster_card_create,      "class_monster_card"},
-    {gmf.monster_log_create,       "class_monster_log"},
-    {gmf.skill_create,             "class_skill"},
-    {gmf.stage_create,             "class_stage"},
-    {gmf.survivor_create,          "class_survivor"},
-    {gmf.survivor_log_create,      "class_survivor_log"}
+    {gm.constants.achievement_create,       "class_achievement"},
+    {gm.constants.actor_skin_create,        "class_actor_skin"},
+    {gm.constants.actor_state_create,       "class_actor_state"},
+    {gm.constants.artifact_create,          "class_artifact"},
+    {gm.constants.buff_create,              "class_buff"},
+    {gm.constants.difficulty_create,        "class_difficulty"},
+    {gm.constants.elite_type_create,        "class_elite"},
+    {gm.constants.ending_create,            "class_ending_type"},
+    {gm.constants.environment_log_create,   "class_environment_log"},
+    {gm.constants.equipment_create,         "class_equipment"},
+    {gm.constants.gamemode_create,          "class_game_mode"},
+    {gm.constants.interactable_card_create, "class_interactable_card"},
+    {gm.constants.item_create,              "class_item"},
+    {gm.constants.item_log_create,          "class_item_log"},
+    {gm.constants.monster_card_create,      "class_monster_card"},
+    {gm.constants.monster_log_create,       "class_monster_log"},
+    {gm.constants.skill_create,             "class_skill"},
+    {gm.constants.stage_create,             "class_stage"},
+    {gm.constants.survivor_create,          "class_survivor"},
+    {gm.constants.survivor_log_create,      "class_survivor_log"}
 }
 for _, hook in ipairs(hooks) do
-    memory.dynamic_hook("RAPI.Class."..hook[2], "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook[1]]),
+    memory.dynamic_hook("RAPI.Class."..hook[2], "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(hook[1]),
         -- Pre-hook
         {nil,
 
