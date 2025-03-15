@@ -157,6 +157,9 @@ end
 --[[
 Benchmarks a function and prints the results (in milliseconds, up to 5 decimal places).
 The amount of milliseconds per frame is 16.66~ ms.
+
+"Leeway" is a measure of how many times the function can be called
+per frame *in a vacuum* before stuttering starts to occur.
 ]]
 Util.benchmark = function(n, fn, ...)
     -- Adapted from here:
