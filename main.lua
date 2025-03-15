@@ -13,8 +13,8 @@ envy = mods["LuaENVY-ENVY"]
 
 -- Load core
 _CLASS = {}         -- All public classes should self-populate these two tables
-_CLASS_MT = {}      -- The metatable to set for the class (if applicable) when copying in envy.lua
-_CLASS_MT_MAKE = {} -- The metatable builder to call when copying in envy.lua; first argument should be `namespace`
+_CLASS_MT = {}      -- Optional: The metatable to set for the class when copying in envy.lua
+_CLASS_MT_MAKE = {} -- Optional: The metatable builder to call when copying in envy.lua; first argument should be `namespace`
 
 local ignore_these = {
     ["data"]            = true,
