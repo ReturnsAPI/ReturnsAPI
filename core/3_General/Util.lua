@@ -155,7 +155,7 @@ end
 --$param        fn      | function  | The function to call.
 --$optional     ...     |           | A variable number of arguments to pass.
 --[[
-Benchmarks a function and prints the results.
+Benchmarks a function and prints the results (in milliseconds, up to 5 decimal places).
 ]]
 Util.benchmark = function(n, fn, ...)
     -- Adapted from here:
