@@ -84,7 +84,7 @@ memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int
                     for _, init_table in ipairs(ibank_priority) do
                         local status, err = pcall(init_table.fn)
                         if not status then
-                            log.warning("\n"..init_table.namespace.." : Initialize failed to execute fully.\n"..err)
+                            log.warning("\n"..init_table.namespace..": Initialize failed to execute fully.\n"..err)
                         end
                     end
                 end
