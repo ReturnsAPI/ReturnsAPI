@@ -93,6 +93,6 @@ function public.auto(properties)
 
     -- Clear callbacks associated with namespace
     local namespace = properties.namespace or env["!guid"]
-    Callback.remove_all(namespace)
-    -- RecalculateStats.remove_all(namespace)
+    if Callback then Callback.remove_all(namespace) end
+    if RecalculateStats then RecalculateStats.remove_all(namespace) end
 end

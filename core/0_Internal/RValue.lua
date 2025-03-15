@@ -2,6 +2,14 @@
 
 RValue = new_class()
 
+_HOLDER = ffi.new("struct RValue[0]")
+local holder_size = 0
+_HOLDER_SCR = ffi.new("struct RValue*[0]")
+local holder_size_scr = 0
+_RVALUE = {}
+for i = 1, 100 do _RVALUE[i] = ffi.new("struct RValue") end
+local rvalue_current = 0
+
 
 
 -- ========== Enums ==========
@@ -64,7 +72,7 @@ RValue.to_wrapper = function(rvalue)
     elseif  rvalue_type == RValue.Type.INT32        then return tonumber(rvalue.i32)  -- Don't see any immediate consequences of doing this
     elseif  rvalue_type == RValue.Type.INT64        then return tonumber(rvalue.i64)
     elseif  rvalue_type == RValue.Type.BOOL         then return (rvalue.value ~= nil and rvalue.value ~= 0)
-    elseif  rvalue_type == RValue.Type.REF          then return Instance.wrap(rvalue.i32)
+    elseif  rvalue_type == RValue.Type.REF          then return rvalue.i32 --Instance.wrap(rvalue.i32)
     end
 
     return nil  -- Unset
@@ -110,9 +118,15 @@ end
 
 
 RValue.new = function(val, rvalue_type)
+    rvalue_current = rvalue_current + 1
+    if rvalue_current > #_RVALUE then rvalue_current = 1 end
+
+    local rvalue = _RVALUE[rvalue_current]
+    rvalue.type = 0
+
     -- Return RValue.Type.UNDEFINED if `val` is nil
     if val == nil then
-        local rvalue = ffi.new("struct RValue")
+        -- local rvalue = ffi.new("struct RValue")
         rvalue.type = RValue.Type.UNDEFINED
         rvalue.i64 = 0
         return rvalue
@@ -122,7 +136,7 @@ RValue.new = function(val, rvalue_type)
     if not rvalue_type then
         local type_val = type(val)
         if type_val == "number" then
-            local rvalue = ffi.new("struct RValue")
+            -- local rvalue = ffi.new("struct RValue")
             rvalue.value = val
             return rvalue
         elseif type_val == "string" then
@@ -130,7 +144,7 @@ RValue.new = function(val, rvalue_type)
             gmf.yysetstring(rvalue, val)
             return rvalue[0]
         elseif type_val == "boolean" then
-            local rvalue = ffi.new("struct RValue")
+            -- local rvalue = ffi.new("struct RValue")
             rvalue.type = RValue.Type.BOOL
             rvalue.value = val
             return rvalue
@@ -147,7 +161,7 @@ RValue.new = function(val, rvalue_type)
     end
     
     -- Other RValue.Type
-    local rvalue = ffi.new("struct RValue")
+    -- local rvalue = ffi.new("struct RValue")
 	rvalue.type = rvalue_type
     if      rvalue_type == RValue.Type.REAL         then rvalue.value = val
     elseif  rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
@@ -161,6 +175,24 @@ RValue.new = function(val, rvalue_type)
     else    return nil
     end
 	return rvalue
+end
+
+
+RValue.new_holder = function(new_size)
+    if holder_size ~= new_size then
+        holder_size = new_size
+        _HOLDER = ffi.new("struct RValue["..new_size.."]")
+    end
+    return _HOLDER
+end
+
+
+RValue.new_holder_scr = function(new_size)
+    if holder_size_scr ~= new_size then
+        holder_size_scr = new_size
+        _HOLDER_SCR = ffi.new("struct RValue*["..new_size.."]")
+    end
+    return _HOLDER_SCR
 end
 
 

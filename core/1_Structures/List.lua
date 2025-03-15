@@ -10,7 +10,7 @@ List.new = function(table)
     if type(table) == "table" then
         local out = RValue.new(0)
         gmf.ds_list_create(out, nil, nil, 0, nil)
-        local list = List.wrap(out)
+        local list = List.wrap(out.value)
 
         -- Add elements from table to list
         for _, v in ipairs(table) do
@@ -21,11 +21,11 @@ List.new = function(table)
 
     local out = RValue.new(0)
     gmf.ds_list_create(out, nil, nil, 0, nil)
-    return List.wrap(out)
+    return List.wrap(out.value)
 end
 
 
-List.wrap = function(list)
+List.wrap = function(list)  -- Stores 'real RValue.value'
     return Proxy.new(Wrap.unwrap(list), metatable_list)
 end
 
@@ -36,16 +36,16 @@ end
 methods_list = {
 
     destroy = function(self)
-        local holder = ffi.new("struct RValue[1]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.new(self.value)
         gmf.ds_list_destroy(RValue.new(0), nil, nil, 1, holder)
     end,
 
 
     get = function(self, index)
         if index >= self:size() then log.error("List index out of bounds", 2) end
-        local holder = ffi.new("struct RValue[2]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value)
         holder[1] = RValue.new(index)
         local out = RValue.new(0)
         gmf.ds_list_find_value(out, nil, nil, 2, holder)
@@ -54,8 +54,8 @@ methods_list = {
 
 
     set = function(self, index, value)
-        local holder = ffi.new("struct RValue[3]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.value)
         holder[1] = RValue.new(index)
         holder[2] = RValue.from_wrapper(value)
         gmf.ds_list_set(RValue.new(0), nil, nil, 3, holder)
@@ -63,8 +63,8 @@ methods_list = {
 
 
     size = function(self)
-        local holder = ffi.new("struct RValue[1]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.new(self.value)
         local out = RValue.new(0)
         gmf.ds_list_size(out, nil, nil, 1, holder)
         return RValue.to_wrapper(out)
@@ -75,8 +75,8 @@ methods_list = {
         local values = {...}
         local count = #values + 1
 
-        local holder = ffi.new("struct RValue["..count.."]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(count)
+        holder[0] = RValue.new(self.value)
 
         for i, v in ipairs(values) do
             holder[i] = RValue.from_wrapper(v)
@@ -87,8 +87,8 @@ methods_list = {
 
 
     insert = function(self, index, value)
-        local holder = ffi.new("struct RValue[3]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.value)
         holder[1] = RValue.from_wrapper(index)
         holder[2] = RValue.from_wrapper(value)
         gmf.ds_list_insert(RValue.new(0), nil, nil, 3, holder)
@@ -96,8 +96,8 @@ methods_list = {
 
 
     delete = function(self, index)
-        local holder = ffi.new("struct RValue[2]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value)
         holder[1] = RValue.from_wrapper(index)
         gmf.ds_list_delete(RValue.new(0), nil, nil, 2, holder)
     end,
@@ -106,23 +106,23 @@ methods_list = {
     delete_value = function(self, value)
         local index = self:find(value)
         if not index then return end
-        local holder = ffi.new("struct RValue[2]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value)
         holder[1] = RValue.new(index)
         gmf.ds_list_delete(RValue.new(0), nil, nil, 2, holder)
     end,
 
 
     clear = function(self)
-        local holder = ffi.new("struct RValue[1]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.new(self.value)
         gmf.ds_list_clear(RValue.new(0), nil, nil, 1, holder)
     end,
 
 
     contains = function(self, value)
-        local holder = ffi.new("struct RValue[2]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value)
         holder[1] = RValue.from_wrapper(value)
         local out = RValue.new(0)
         gmf.ds_list_find_index(out, nil, nil, 2, holder)
@@ -132,8 +132,8 @@ methods_list = {
 
 
     find = function(self, value)
-        local holder = ffi.new("struct RValue[2]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value)
         holder[1] = RValue.from_wrapper(value)
         local out = RValue.new(0)
         gmf.ds_list_find_index(out, nil, nil, 2, holder)
@@ -144,8 +144,8 @@ methods_list = {
 
 
     sort = function(self, descending)
-        local holder = ffi.new("struct RValue[2]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value)
         holder[1] = RValue.new(not descending, RValue.Type.BOOL)
         gmf.ds_list_sort(RValue.new(0), nil, nil, 2, holder)
     end

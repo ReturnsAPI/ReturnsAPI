@@ -3,6 +3,7 @@
 PATH = _ENV["!plugins_mod_folder_path"].."/"
 
 gmf = require("ReturnOfModding-GLOBAL/gmf")
+require("./jit_safe")
 
 
 -- ENVY initial setup
@@ -14,17 +15,17 @@ envy = mods["LuaENVY-ENVY"]
 _CLASS = {}     -- All public classes should self-populate these two tables
 _CLASS_MT = {}  -- The metatable to set for the class (if applicable) when copying in envy.lua
 
-local skip = {
+local ignore_these = {
     ["data"]            = true,
     -- ["2_GM"]            = true,
     -- ["3_General"]       = true,
-    -- ["4_Class_Arrays"]  = true,
-    -- ["5_Instances"]     = true
+    ["4_Class_Arrays"]  = true,     -- TODO reenable and test these
+    ["5_Instances"]     = true
 }
 
 local dirs = path.get_directories(PATH.."core")
 for _, dir in ipairs(dirs) do
-    if not skip[path.filename(dir)] then
+    if not ignore_these[path.filename(dir)] then
         local files = path.get_files(dir)
         for _, file in ipairs(files) do
             require(file)

@@ -27,7 +27,7 @@ methods_GM = {
                 function_cache[k] = function(...)
                     local args = {...}
                     local count = #args
-                    local holder = ffi.new("struct RValue["..count.."]")
+                    local holder = RValue.new_holder(count)
 
                     -- Populate holder
                     for i = 1, count do
@@ -49,7 +49,7 @@ methods_GM = {
                 function_cache[k] = function(...)
                     local args = {...}
                     local count = #args
-                    local holder = ffi.new("struct RValue*["..count.."]")
+                    local holder = RValue.new_holder_scr(count)
 
                     -- Populate holder
                     for i = 1, count do
@@ -76,7 +76,7 @@ methods_GM = {
                 function_cache_callso[k] = function(self, other, ...)
                     local args = {...}
                     local count = #args
-                    local holder = ffi.new("struct RValue["..count.."]")
+                    local holder = RValue.new_holder(count)
 
                     -- Populate holder
                     for i = 1, count do
@@ -98,7 +98,7 @@ methods_GM = {
                 function_cache_callso[k] = function(self, other, ...)
                     local args = {...}
                     local count = #args
-                    local holder = ffi.new("struct RValue*["..count.."]")
+                    local holder = RValue.new_holder_scr(count)
 
                     -- Populate holder
                     for i = 1, count do

@@ -18,11 +18,6 @@ function setmetatable_gc(t, mt)
 end
 
 
-function print2(text)
-    print(text)
-end
-
-
 
 if __ref_list then
     -- clear it when hot reloading, this will garbage-collect all the old structs

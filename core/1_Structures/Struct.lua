@@ -12,19 +12,20 @@ Struct.new = function()
 end
 
 
-Struct.wrap = function(struct)
-    struct = Wrap.unwrap(struct)
+Struct.wrap = function(struct)  -- Stores 'object RValue.yy_object_base (type 0)'
+    -- `struct` is either an `object RValue` or a Struct wrapper
     if not Struct.is(struct) then log.error("Value is not a struct", 2) end
-    __ref_list:add(struct)
-    return Proxy.new_gc(struct, metatable_struct)
+    local proxy = Proxy.new_gc(struct.yy_object_base, metatable_struct)
+    __ref_list:add(proxy)
+    return proxy
 end
 
 
 Struct.is = function(value)
-    value = Wrap.unwrap(value)
-    if type(value) == "cdata"
-    and value.type == RValue.Type.OBJECT
-    and value.yy_object_base.type == 0 then return true end
+    -- `value` is either an `object RValue` or a Struct wrapper
+    local _type = type(value)
+    if (_type == "cdata" and value.type == RValue.Type.OBJECT)
+    or (_type == "table" and value.RAPI and value.RAPI == "Struct") then return true end
     return false
 end
 
@@ -35,8 +36,8 @@ end
 methods_struct = {
 
     get_keys = function(self)
-        local holder = ffi.new("struct RValue[1]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.new(self.value, RValue.Type.OBJECT)
         local out = RValue.new(0)
         gmf.variable_struct_get_names(out, nil, nil, 1, holder)
         local arr = Array.wrap(out)
@@ -54,7 +55,7 @@ methods_struct = {
 metatable_struct = {
     __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return Proxy.get(t) end
+        if k == "value" or k == "yy_object_base" then return Proxy.get(t) end
         if k == "RAPI" then return getmetatable(t):sub(14, -1) end
 
         -- Methods
@@ -63,8 +64,8 @@ metatable_struct = {
         end
         
         -- Getter
-        local holder = ffi.new("struct RValue[2]")
-        holder[0] = Proxy.get(t)
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(Proxy.get(t), RValue.Type.OBJECT)
         holder[1] = RValue.new(k)
         local out = RValue.new(0)
         gmf.variable_struct_get(out, nil, nil, 2, holder)
@@ -74,8 +75,8 @@ metatable_struct = {
 
     __newindex = function(t, k, v)
         -- Setter
-        local holder = ffi.new("struct RValue[3]")
-        holder[0] = Proxy.get(t)
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(Proxy.get(t), RValue.Type.OBJECT)
         holder[1] = RValue.new(k)
         holder[2] = RValue.from_wrapper(v)
         gmf.variable_struct_set(RValue.new(0), nil, nil, 3, holder)
@@ -96,7 +97,8 @@ metatable_struct = {
 
 
     __gc = function(t)
-        __ref_list:delete_value(t.value)
+        -- print("Struct __gc: ", t.value)
+        __ref_list:delete_value(t)
     end,
 
 

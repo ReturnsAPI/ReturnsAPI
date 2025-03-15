@@ -10,7 +10,7 @@ Array.new = function(arg1, arg2)
     -- Overload 1
     -- Create array from table
     if type(arg1) == "table" then
-        local holder = ffi.new("struct RValue[2]")
+        local holder = RValue.new_holder(2)
         holder[0] = RValue.new(0)
         holder[1] = RValue.new(0)
         local out = RValue.new(0)
@@ -26,7 +26,7 @@ Array.new = function(arg1, arg2)
 
     -- Overload 2
     -- Create array with optional size and default value
-    local holder = ffi.new("struct RValue[2]")
+    local holder = RValue.new_holder(2)
     holder[0] = RValue.new(arg1 or 0)
     holder[1] = RValue.new(arg2 or 0)
     local out = RValue.new(0)
@@ -35,18 +35,20 @@ Array.new = function(arg1, arg2)
 end
 
 
-Array.wrap = function(array)    -- Stores `array RValue`
-    array = Wrap.unwrap(array)
+Array.wrap = function(array)    -- Stores `array RValue.i64`
+    -- `array` is either an `array RValue` or an Array wrapper
     if not Array.is(array) then log.error("Value is not an array", 2) end
-    __ref_list:add(array)
-    return Proxy.new_gc(array, metatable_array)
+    local proxy = Proxy.new_gc(array.i64, metatable_array)
+    __ref_list:add(proxy)
+    return proxy
 end
 
 
 Array.is = function(value)
-    value = Wrap.unwrap(value)
-    if type(value) == "cdata"
-    and value.type == RValue.Type.ARRAY then return true end
+    -- `value` is either an `array RValue` or an Array wrapper
+    local _type = type(value)
+    if (_type == "cdata" and value.type == RValue.Type.ARRAY)
+    or (_type == "table" and value.RAPI and value.RAPI == "Array") then return true end
     return false
 end
 
@@ -58,8 +60,8 @@ methods_array = {
 
     get = function(self, index)
         if index >= self:size() then log.error("Array index out of bounds", 2) end
-        local holder = ffi.new("struct RValue[2]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         holder[1] = RValue.new(index)
         local out = RValue.new(0)
         gmf.array_get(out, nil, nil, 2, holder)
@@ -68,8 +70,8 @@ methods_array = {
 
 
     set = function(self, index, value)
-        local holder = ffi.new("struct RValue[3]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         holder[1] = RValue.new(index)
         holder[2] = RValue.from_wrapper(value)
         gmf.array_set(RValue.new(0), nil, nil, 3, holder)
@@ -77,8 +79,8 @@ methods_array = {
 
 
     size = function(self)
-        local holder = ffi.new("struct RValue[1]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         local out = RValue.new(0)
         gmf.array_length(out, nil, nil, 1, holder)
         return RValue.to_wrapper(out)
@@ -89,8 +91,8 @@ methods_array = {
         local values = {...}
         local count = #values + 1
 
-        local holder = ffi.new("struct RValue["..count.."]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(count)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
 
         for i, v in ipairs(values) do
             holder[i] = RValue.from_wrapper(v)
@@ -101,8 +103,8 @@ methods_array = {
 
 
     pop = function(self)
-        local holder = ffi.new("struct RValue[1]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         local out = RValue.new(0)
         gmf.array_pop(out, nil, nil, 1, holder)
         return RValue.to_wrapper(out)
@@ -110,8 +112,8 @@ methods_array = {
 
 
     insert = function(self, index, value)
-        local holder = ffi.new("struct RValue[3]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         holder[1] = RValue.from_wrapper(index)
         holder[2] = RValue.from_wrapper(value)
         gmf.array_insert(RValue.new(0), nil, nil, 3, holder)
@@ -119,8 +121,8 @@ methods_array = {
 
 
     delete = function(self, index, number)
-        local holder = ffi.new("struct RValue[3]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         holder[1] = RValue.from_wrapper(index)
         holder[2] = RValue.from_wrapper(number or 1)
         gmf.array_delete(RValue.new(0), nil, nil, 3, holder)
@@ -130,8 +132,8 @@ methods_array = {
     delete_value = function(self, value)
         local index = self:find(value)
         if not index then return end
-        local holder = ffi.new("struct RValue[3]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         holder[1] = RValue.new(index)
         holder[2] = RValue.new(1)
         gmf.array_delete(RValue.new(0), nil, nil, 3, holder)
@@ -139,8 +141,8 @@ methods_array = {
 
 
     clear = function(self)
-        local holder = ffi.new("struct RValue[3]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         holder[1] = RValue.new(0)
         holder[2] = RValue.new(self:size())
         gmf.array_delete(RValue.new(0), nil, nil, 3, holder)
@@ -148,8 +150,8 @@ methods_array = {
 
 
     contains = function(self, value, offset, length)
-        local holder = ffi.new("struct RValue[4]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(4)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         holder[1] = RValue.from_wrapper(value)
         holder[2] = RValue.new(offset or 0)
         holder[3] = RValue.new(length or self:size())
@@ -169,8 +171,8 @@ methods_array = {
 
 
     sort = function(self, descending)
-        local holder = ffi.new("struct RValue[2]")
-        holder[0] = self.value
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         holder[1] = RValue.new(not descending, RValue.Type.BOOL)
         gmf.array_sort(RValue.new(0), nil, nil, 2, holder)
     end
@@ -202,7 +204,7 @@ setmetatable(Array, metatable_array_class)
 metatable_array = {
     __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return Proxy.get(t) end
+        if k == "value" or k == "i64" then return Proxy.get(t) end
         if k == "RAPI" then return getmetatable(t):sub(14, -1) end
         
         -- Methods
@@ -248,7 +250,8 @@ metatable_array = {
 
 
     __gc = function(t)
-        __ref_list:delete_value(t.value)
+        -- print("Array __gc: ", t.value)
+        __ref_list:delete_value(t)
     end,
 
 
