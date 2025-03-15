@@ -34,26 +34,31 @@ end
 
 -- ========== Metatables ==========
 
-metatable_initialize = {
-    __call = function(t, func, priority)
-        -- Default priority is 0
-        priority = priority or 0
+local function make_metatable_initialize(namespace)
+    return {
+        __call = function(t, func, priority)
+            -- Default priority is 0
+            priority = priority or 0
 
-        -- Create initialize_bank priority subtable if it does not exist
-        if not initialize_bank[priority] then
-            initialize_bank[priority] = {}
-            table.insert(initialize_bank.priorities, priority)
-            table.sort(initialize_bank.priorities, function(a, b) return a > b end)
-        end
-        
-        -- Add to subtable
-        table.insert(initialize_bank[priority], func)
-    end,
+            -- Create initialize_bank priority subtable if it does not exist
+            if not initialize_bank[priority] then
+                initialize_bank[priority] = {}
+                table.insert(initialize_bank.priorities, priority)
+                table.sort(initialize_bank.priorities, function(a, b) return a > b end)
+            end
+            
+            -- Add to subtable
+            table.insert(initialize_bank[priority], {
+                namespace   = namespace,
+                fn          = func
+            })
+        end,
 
 
-    __metatable = "RAPI.Class.Initialize"
-}
-setmetatable(Initialize, metatable_initialize)
+        __metatable = "RAPI.Class.Initialize"
+    }
+end
+setmetatable(Initialize, make_metatable_initialize("RAPI"))
 
 
 
@@ -76,8 +81,11 @@ memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int
             if not init_hotloaded then
                 for _, priority in ipairs(initialize_bank.priorities) do
                     local ibank_priority = initialize_bank[priority]
-                    for _, fn in ipairs(ibank_priority) do
-                        fn()
+                    for _, init_table in ipairs(ibank_priority) do
+                        local status, err = pcall(init_table.fn)
+                        if not status then
+                            log.warning("\n"..init_table.namespace.." : Initialize failed to execute fully.\n"..err)
+                        end
                     end
                 end
             end
@@ -89,4 +97,4 @@ memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int
 
 
 _CLASS["Initialize"] = Initialize
-_CLASS_MT["Initialize"] = metatable_initialize
+_CLASS_MT_MAKE["Initialize"] = make_metatable_initialize
