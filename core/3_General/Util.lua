@@ -150,5 +150,28 @@ Util.mixed_hyperbolic = function(stack_count, chance, base_chance)
 end
 
 
+--$static
+--$param        n       | number    | The number of calls to make.
+--$param        fn      | function  | The function to call.
+--$optional     ...     |           | A variable number of arguments to pass.
+--[[
+Benchmarks a Lua function and prints the results.
+]]
+Util.benchmark = function(n, fn, ...)
+    -- Adapted from here:
+    -- https://docs.otland.net/lua-guide/auxiliary/benchmarking
+    local unit = 'milliseconds'
+    local multiplier = 1000
+    local decPlaces = 5
+    local elapsed = 0
+    for i = 1, n do
+        local now = os.clock()
+        fn(...)
+        elapsed = elapsed + (os.clock() - now)
+    end
+    print(string.format('\n  Benchmark results:\n  - %d function calls\n  - %.'..decPlaces..'f %s elapsed\n  - %.'..decPlaces..'f %s avg execution time.\n  - Leeway: '..(16.667 / ((elapsed / n) * multiplier)), n, elapsed * multiplier, unit, (elapsed / n) * multiplier, unit))
+end
+
+
 
 _CLASS["Util"] = Util
