@@ -14,9 +14,17 @@ envy = mods["LuaENVY-ENVY"]
 _CLASS = {}     -- All public classes should self-populate these two tables
 _CLASS_MT = {}  -- The metatable to set for the class (if applicable) when copying in envy.lua
 
+local skip = {
+    ["data"]            = true,
+    -- ["2_GM"]            = true,
+    -- ["3_General"]       = true,
+    -- ["4_Class_Arrays"]  = true,
+    -- ["5_Instances"]     = true
+}
+
 local dirs = path.get_directories(PATH.."core")
 for _, dir in ipairs(dirs) do
-    if path.filename(dir) ~= "data" then
+    if not skip[path.filename(dir)] then
         local files = path.get_files(dir)
         for _, file in ipairs(files) do
             require(file)
