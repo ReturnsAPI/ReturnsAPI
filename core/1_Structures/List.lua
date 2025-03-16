@@ -35,10 +35,24 @@ end
 
 methods_list = {
 
+    exists = function(self)
+        if self.value == -4 then return false end
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value)
+        holder[1] = RValue.new(2)
+        local out = RValue.new(0)
+        gmf.ds_exists(out, nil, nil, 2, holder)
+        local ret = (out.value == 1)
+        if not ret then Proxy.set(self, -4) end
+        return ret
+    end,
+
+
     destroy = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value)
         gmf.ds_list_destroy(RValue.new(0), nil, nil, 1, holder)
+        Proxy.set(self, -4)
     end,
 
 
@@ -189,6 +203,7 @@ metatable_list = {
         end
 
         -- Getter
+        if Proxy.get(t) == -4 then log.error("List does not exist", 2) end
         k = tonumber(Wrap.unwrap(k))
         if k and k >= 1 and k <= #t then
             return t:get(k - 1)
@@ -199,6 +214,7 @@ metatable_list = {
 
     __newindex = function(t, k, v)
         -- Setter
+        if Proxy.get(t) == -4 then log.error("List does not exist", 2) end
         k = tonumber(Wrap.unwrap(k))
         if k then t:set(k - 1, v) end
     end,

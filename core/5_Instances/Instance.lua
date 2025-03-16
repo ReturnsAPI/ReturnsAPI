@@ -84,39 +84,105 @@ Try not to call this too much.
 ]]
 Instance.find_all = function(object)
     local insts = {}
+    local room_size = 200000
 
     -- Single find
     if type(object) ~= "table" or object.RAPI then
         object = Wrap.unwrap(object)
-        local count = Instance.count(object)
 
-        -- local holder = RValue.new_holder(2)
-        -- holder[0] = RValue.new(object)
+        -- Check if object has a sprite (and therefore a collision mask)
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.new(object)
+        local out = RValue.new(0)
+        gmf.object_get_sprite(out, nil, nil, 1, holder)
+        local has_sprite = (out.value >= 0)
 
-        for n = 0, count - 1 do
-            local holder = RValue.new_holder(2)
-            holder[0] = RValue.new(object)
-            holder[1] = RValue.new(n)
+        -- No collision mask
+        if not has_sprite then
+            local count = Instance.count(object)
+            for n = 0, count - 1 do
+                local holder = RValue.new_holder(2)
+                holder[0] = RValue.new(object)
+                holder[1] = RValue.new(n)
+                local out = RValue.new(0)
+                gmf.instance_find(out, nil, nil, 2, holder)
+                local inst = RValue.to_wrapper(out)
+                if inst ~= -4 then table.insert(insts, inst) end
+            end
+
+        -- Collision mask; faster to use collision_rectangle_list
+        else
+            local list = List.new()
+
+            local holder = RValue.new_holder(9)
+            holder[0] = RValue.new(-room_size)
+            holder[1] = RValue.new(-room_size)
+            holder[2] = RValue.new(room_size)
+            holder[3] = RValue.new(room_size)
+            holder[4] = RValue.new(object)
+            holder[5] = RValue.new(false)
+            holder[6] = RValue.new(false)
+            holder[7] = RValue.new(list.value)
+            holder[8] = RValue.new(false)
             local out = RValue.new(0)
-            gmf.instance_find(out, nil, nil, 2, holder)
-            local inst = RValue.to_wrapper(out)
-            if inst ~= -4 then table.insert(insts, inst) end
+            gmf.collision_rectangle_list(out, nil, nil, 9, holder)
+
+            for i, v in ipairs(list) do
+                table.insert(insts, v)
+            end
+
+            list:destroy()
+        
         end
 
     -- Table
     else
         for _, obj in ipairs(object) do
             obj = Wrap.unwrap(obj)
-            local count = Instance.count(obj)
 
-            for n = 0, count - 1 do
-                local holder = RValue.new_holder(2)
-                holder[0] = RValue.new(obj)
-                holder[1] = RValue.new(n)
+            -- Check if object has a sprite (and therefore a collision mask)
+            local holder = RValue.new_holder(1)
+            holder[0] = RValue.new(obj)
+            local out = RValue.new(0)
+            gmf.object_get_sprite(out, nil, nil, 1, holder)
+            local has_sprite = (out.value >= 0)
+
+            -- No collision mask
+            if not has_sprite then
+                local count = Instance.count(obj)
+                for n = 0, count - 1 do
+                    local holder = RValue.new_holder(2)
+                    holder[0] = RValue.new(obj)
+                    holder[1] = RValue.new(n)
+                    local out = RValue.new(0)
+                    gmf.instance_find(out, nil, nil, 2, holder)
+                    local inst = RValue.to_wrapper(out)
+                    if inst ~= -4 then table.insert(insts, inst) end
+                end
+
+            -- Collision mask; faster to use collision_rectangle_list
+            else
+                local list = List.new()
+
+                local holder = RValue.new_holder(9)
+                holder[0] = RValue.new(-room_size)
+                holder[1] = RValue.new(-room_size)
+                holder[2] = RValue.new(room_size)
+                holder[3] = RValue.new(room_size)
+                holder[4] = RValue.new(obj)
+                holder[5] = RValue.new(false)
+                holder[6] = RValue.new(false)
+                holder[7] = RValue.new(list.value)
+                holder[8] = RValue.new(false)
                 local out = RValue.new(0)
-                gmf.instance_find(out, nil, nil, 2, holder)
-                local inst = RValue.to_wrapper(out)
-                if inst ~= -4 then table.insert(insts, inst) end
+                gmf.collision_rectangle_list(out, nil, nil, 9, holder)
+
+                for i, v in ipairs(list) do
+                    table.insert(insts, v)
+                end
+
+                list:destroy()
+
             end
         end
     end
