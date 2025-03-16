@@ -55,7 +55,7 @@ methods_actor = {
         holder[2] = RValue.new(kind or Item.StackKind.NORMAL)
         local out = RValue.new(0)
         gmf.item_count(nil, nil, out, 3, holder)
-        local ret = RValue.to_wrapper(out)
+        local ret = out.value
         item_count_cache[id][item][kind] = ret
         return ret
     end
