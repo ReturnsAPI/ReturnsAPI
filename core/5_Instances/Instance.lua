@@ -90,10 +90,12 @@ Instance.find_all = function(object)
         object = Wrap.unwrap(object)
         local count = Instance.count(object)
 
-        local holder = RValue.new_holder(2)
-        holder[0] = RValue.new(object)
+        -- local holder = RValue.new_holder(2)
+        -- holder[0] = RValue.new(object)
 
         for n = 0, count - 1 do
+            local holder = RValue.new_holder(2)
+            holder[0] = RValue.new(object)
             holder[1] = RValue.new(n)
             local out = RValue.new(0)
             gmf.instance_find(out, nil, nil, 2, holder)
@@ -107,10 +109,9 @@ Instance.find_all = function(object)
             obj = Wrap.unwrap(obj)
             local count = Instance.count(obj)
 
-            local holder = RValue.new_holder(2)
-            holder[0] = RValue.new(obj)
-
             for n = 0, count - 1 do
+                local holder = RValue.new_holder(2)
+                holder[0] = RValue.new(obj)
                 holder[1] = RValue.new(n)
                 local out = RValue.new(0)
                 gmf.instance_find(out, nil, nil, 2, holder)
@@ -135,7 +136,7 @@ Instance.count = function(object)
     holder[0] = RValue.from_wrapper(object)
     local out = RValue.new(0)
     gmf._mod_instance_number(nil, nil, out, 1, holder)
-    return RValue.to_wrapper(out)
+    return out.value
 end
 
 
@@ -205,6 +206,8 @@ Instance.wrap = function(id)
         wrapper_cache[id] = inst
         return inst
     end
+
+    return inst
 end
 
 
