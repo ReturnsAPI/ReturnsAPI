@@ -42,8 +42,9 @@ methods_list = {
     end,
 
 
-    get = function(self, index)
-        if index >= self:size() then log.error("List index out of bounds", 2) end
+    get = function(self, index, size)
+        size = size or self:size()
+        if index >= size then log.error("List index out of bounds", 2) end
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value)
         holder[1] = RValue.new(index)
@@ -212,7 +213,7 @@ metatable_list = {
         local n = #t
         return function(t, k)
             k = k + 1
-            if k <= n then return k, t[k] end
+            if k <= n then return k, t:get(k - 1, n) end
         end, t, 0
     end,
 
@@ -221,7 +222,7 @@ metatable_list = {
         local n = #t
         return function(t, k)
             k = k + 1
-            if k <= n then return k, t[k] end
+            if k <= n then return k, t:get(k - 1, n) end
         end, t, 0
     end,
 
