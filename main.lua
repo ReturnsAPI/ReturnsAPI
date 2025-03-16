@@ -20,8 +20,8 @@ local ignore_these = {
     ["data"]            = true,
     -- ["2_GM"]            = true,
     -- ["3_General"]       = true,
-    ["4_Class_Arrays"]  = true,     -- TODO reenable and test these
-    ["5_Instances"]     = true
+    -- ["4_Class_Arrays"]  = true,
+    -- ["5_Instances"]     = true
 }
 
 local dirs = path.get_directories(PATH.."core")

@@ -62,7 +62,7 @@ Object.find = function(identifier, namespace, default_namespace)
     end
 
     -- Search in namespace
-    local holder = ffi.new("struct RValue*[1]")
+    local holder = RValue.new_holder_scr(1)
     holder[0] = RValue.new(nsid)
     local out = RValue.new(0)
     gmf.object_find(nil, nil, out, 1, holder)
@@ -75,7 +75,7 @@ Object.find = function(identifier, namespace, default_namespace)
 
     -- Also search for object in "ror" and then gm.constants if no namespace arg
     if namespace == default_namespace then
-        local holder = ffi.new("struct RValue*[1]")
+        local holder = RValue.new_holder_scr(1)
         holder[0] = RValue.new(ror_nsid)
         local out = RValue.new(0)
         gmf.object_find(nil, nil, out, 1, holder)
@@ -109,7 +109,7 @@ end
 methods_object = {
 
     create = function(self, x, y)
-        local holder = ffi.new("struct RValue*[3]")
+        local holder = RValue.new_holder_scr(3)
         holder[0] = RValue.new(x or 0)
         holder[1] = RValue.new(y or 0)
         holder[2] = RValue.new(self.value)

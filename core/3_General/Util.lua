@@ -177,5 +177,25 @@ Util.benchmark = function(n, fn, ...)
 end
 
 
+Util.pad_string_left = function(str, length, char)
+    char = char or " "
+    local len = length - #str
+    for i = 1, len do
+        str = char..str
+    end
+    return str
+end
+
+
+Util.pad_string_right = function(str, length, char)
+    char = char or " "
+    local len = length - #str
+    for i = 1, len do
+        str = str..char
+    end
+    return str
+end
+
+
 
 _CLASS["Util"] = Util

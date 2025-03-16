@@ -11,7 +11,7 @@ Player.get_local = function()
 
     -- Return first oP to exist
     -- (which I think is always the local player)
-    local holder = ffi.new("struct RValue[2]")
+    local holder = RValue.new_holder(2)
     holder[0] = RValue.new(gm.constants.oP)
     holder[1] = RValue.new(0)
     local out = RValue.new(0)

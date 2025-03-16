@@ -25,18 +25,16 @@ methods_GM = {
 
             if GM.internal.builtin[k] then
                 function_cache[k] = function(...)
-                    local args = {...}
-                    local count = #args
-                    local holder = RValue.new_holder(count)
+                    local args = table.pack(...)
+                    local holder = RValue.new_holder(args.n)
 
                     -- Populate holder
-                    for i = 1, count do
+                    for i = 1, args.n do
                         holder[i - 1] = RValue.from_wrapper(args[i])
-                        -- print("holder "..(i-1)..": "..tostring(holder[i - 1]))
                     end
 
                     local out = RValue.new(0)
-                    gmf[k](out, nil, nil, count, holder)
+                    gmf[k](out, nil, nil, args.n, holder)
                     return RValue.to_wrapper(out)
                 end
 
@@ -47,18 +45,16 @@ methods_GM = {
 
             elseif GM.internal.script[k] then
                 function_cache[k] = function(...)
-                    local args = {...}
-                    local count = #args
-                    local holder = RValue.new_holder_scr(count)
+                    local args = table.pack(...)
+                    local holder = RValue.new_holder_scr(args.n)
 
                     -- Populate holder
-                    for i = 1, count do
+                    for i = 1, args.n do
                         holder[i - 1] = RValue.from_wrapper(args[i])
-                        -- print("holder "..(i-1)..": "..tostring(holder[i - 1]))
                     end
 
                     local out = RValue.new(0)
-                    gmf[k](nil, nil, out, count, holder)
+                    gmf[k](nil, nil, out, args.n, holder)
                     return RValue.to_wrapper(out)
                 end
 
@@ -74,18 +70,16 @@ methods_GM = {
 
             if GM.internal.builtin[k] then
                 function_cache_callso[k] = function(self, other, ...)
-                    local args = {...}
-                    local count = #args
-                    local holder = RValue.new_holder(count)
+                    local args = table.pack(...)
+                    local holder = RValue.new_holder(args.n)
 
                     -- Populate holder
-                    for i = 1, count do
+                    for i = 1, args.n do
                         holder[i - 1] = RValue.from_wrapper(args[i])
-                        -- print("holder "..(i-1)..": "..tostring(holder[i - 1]))
                     end
 
                     local out = RValue.new(0)
-                    gmf[k](out, self.CInstance, other.CInstance, count, holder)
+                    gmf[k](out, self.CInstance, other.CInstance, args.n, holder)
                     return RValue.to_wrapper(out)
                 end
 
@@ -96,18 +90,16 @@ methods_GM = {
 
             elseif GM.internal.script[k] then
                 function_cache_callso[k] = function(self, other, ...)
-                    local args = {...}
-                    local count = #args
-                    local holder = RValue.new_holder_scr(count)
+                    local args = table.pack(...)
+                    local holder = RValue.new_holder_scr(args.n)
 
                     -- Populate holder
-                    for i = 1, count do
+                    for i = 1, args.n do
                         holder[i - 1] = RValue.from_wrapper(args[i])
-                        -- print("holder "..(i-1)..": "..tostring(holder[i - 1]))
                     end
 
                     local out = RValue.new(0)
-                    gmf[k](self.CInstance, other.CInstance, out, count, holder)
+                    gmf[k](self.CInstance, other.CInstance, out, args.n, holder)
                     return RValue.to_wrapper(out)
                 end
 

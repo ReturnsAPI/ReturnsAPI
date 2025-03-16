@@ -18,7 +18,7 @@ methods_actor = {
 
     item_give = function(self, item, count, kind)
         if self.value == -4 then return end
-        local holder = ffi.new("struct RValue*[4]")
+        local holder = RValue.new_holder_scr(4)
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         holder[1] = RValue.from_wrapper(item)
         holder[2] = RValue.new(count or 1)
@@ -29,7 +29,7 @@ methods_actor = {
 
     item_take = function(self, item, count, kind)
         if self.value == -4 then return end
-        local holder = ffi.new("struct RValue*[4]")
+        local holder = RValue.new_holder_scr(4)
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         holder[1] = RValue.from_wrapper(item)
         holder[2] = RValue.new(count or 1)
@@ -49,7 +49,7 @@ methods_actor = {
         if not item_count_cache[id][item] then item_count_cache[id][item] = {} end
         if item_count_cache[id][item][kind] then return item_count_cache[id][item][kind] end
 
-        local holder = ffi.new("struct RValue*[3]")
+        local holder = RValue.new_holder_scr(3)
         holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.from_wrapper(item)
         holder[2] = RValue.new(kind or Item.StackKind.NORMAL)

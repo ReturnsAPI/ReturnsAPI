@@ -72,7 +72,7 @@ RValue.to_wrapper = function(rvalue)
     elseif  rvalue_type == RValue.Type.INT32        then return tonumber(rvalue.i32)  -- Don't see any immediate consequences of doing this
     elseif  rvalue_type == RValue.Type.INT64        then return tonumber(rvalue.i64)
     elseif  rvalue_type == RValue.Type.BOOL         then return (rvalue.value ~= nil and rvalue.value ~= 0)
-    elseif  rvalue_type == RValue.Type.REF          then return rvalue.i32 --Instance.wrap(rvalue.i32)
+    elseif  rvalue_type == RValue.Type.REF          then return Instance.wrap(rvalue.i32)
     end
 
     return nil  -- Unset
@@ -123,10 +123,10 @@ RValue.new = function(val, rvalue_type)
 
     local rvalue = _RVALUE[rvalue_current]
     rvalue.type = 0
+    rvalue.value = 0
 
     -- Return RValue.Type.UNDEFINED if `val` is nil
     if val == nil then
-        -- local rvalue = ffi.new("struct RValue")
         rvalue.type = RValue.Type.UNDEFINED
         rvalue.i64 = 0
         return rvalue
@@ -136,7 +136,6 @@ RValue.new = function(val, rvalue_type)
     if not rvalue_type then
         local type_val = type(val)
         if type_val == "number" then
-            -- local rvalue = ffi.new("struct RValue")
             rvalue.value = val
             return rvalue
         elseif type_val == "string" then
@@ -144,7 +143,6 @@ RValue.new = function(val, rvalue_type)
             gmf.yysetstring(rvalue, val)
             return rvalue[0]
         elseif type_val == "boolean" then
-            -- local rvalue = ffi.new("struct RValue")
             rvalue.type = RValue.Type.BOOL
             rvalue.value = val
             return rvalue
@@ -161,19 +159,21 @@ RValue.new = function(val, rvalue_type)
     end
     
     -- Other RValue.Type
-    -- local rvalue = ffi.new("struct RValue")
-	rvalue.type = rvalue_type
-    if      rvalue_type == RValue.Type.REAL         then rvalue.value = val
-    elseif  rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
-    elseif  rvalue_type == RValue.Type.PTR          then rvalue.i64 = val
-    elseif  rvalue_type == RValue.Type.UNDEFINED    then -- Nothing
-    elseif  rvalue_type == RValue.Type.OBJECT       then rvalue.yy_object_base = val
-    elseif  rvalue_type == RValue.Type.INT32        then rvalue.i32 = val
-    elseif  rvalue_type == RValue.Type.INT64        then rvalue.i64 = val
-    elseif  rvalue_type == RValue.Type.BOOL         then rvalue.value = val
-    elseif  rvalue_type == RValue.Type.REF          then rvalue.i32 = val
-    else    return nil
+    if type(val) ~= "table" then
+        rvalue.type = rvalue_type
+        if      rvalue_type == RValue.Type.REAL         then rvalue.value = val
+        elseif  rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
+        elseif  rvalue_type == RValue.Type.PTR          then rvalue.i64 = val
+        elseif  rvalue_type == RValue.Type.UNDEFINED    then -- Nothing
+        elseif  rvalue_type == RValue.Type.OBJECT       then rvalue.yy_object_base = val
+        elseif  rvalue_type == RValue.Type.INT32        then rvalue.i32 = val
+        elseif  rvalue_type == RValue.Type.INT64        then rvalue.i64 = val
+        elseif  rvalue_type == RValue.Type.BOOL         then rvalue.value = val
+        elseif  rvalue_type == RValue.Type.REF          then rvalue.i32 = val
+        else    return nil
+        end
     end
+
 	return rvalue
 end
 

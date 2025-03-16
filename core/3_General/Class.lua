@@ -151,7 +151,10 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
     local class_table = new_class()
 
     local capitalized = {}
-    for k, v in pairs(properties[class_gm]) do capitalized[k:upper()] = v end
+    for k, v in pairs(properties[class_gm]) do
+        capitalized[k:upper()] = v
+        capitalized[v] = k  -- Don't capitalize this lol
+    end
     class_table.Property = ReadOnly.new(capitalized)
 
     class_table.find = function(identifier, namespace, default_namespace)

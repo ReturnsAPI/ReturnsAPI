@@ -159,7 +159,7 @@ methods_class[rapi_name] = {
         if object_id == nil or object_id == -1 then return nil end
 
         -- This function spawns the item 40 px above, so add 40 to y in the call
-        local holder = ffi.new("struct RValue*[5]")
+        local holder = RValue.new_holder_scr(5)
         holder[0] = RValue.new(object_id)
         holder[1] = RValue.new(x)
         holder[2] = RValue.new(y + 40)
@@ -218,6 +218,16 @@ methods_class[rapi_name] = {
         for _, tag in ipairs(args) do tags = tags + tag end
 
         self.loot_tags = tags
+    end,
+
+
+    show_properties = function(self)
+        local array = Class.ITEM:get(self.value)
+        local str = ""
+        for i, v in ipairs(array) do
+            str = str.."\n"..Util.pad_string_right(Item.Property[i - 1], 32)..tostring(v)
+        end
+        print(str)
     end
 
 }

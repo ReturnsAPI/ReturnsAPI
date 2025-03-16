@@ -20,7 +20,7 @@ Creates and returns an instance of the specified object.
 Also exists as a $method of Object, Object#create$.
 ]]
 Instance.create = function(x, y, object)
-    local holder = ffi.new("struct RValue*[3]")
+    local holder = RValue.new_holder_scr(3)
     holder[0] = RValue.new(x)
     holder[1] = RValue.new(y)
     holder[2] = RValue.from_wrapper(object)
@@ -40,7 +40,7 @@ or an invalid instance (value of `-4`).
 Instance.find = function(object)
     -- Single find
     if type(object) ~= "table" or object.RAPI then
-        local holder = ffi.new("struct RValue[2]")
+        local holder = RValue.new_holder(2)
         holder[0] = RValue.from_wrapper(object)
         holder[1] = RValue.new(0)
         local out = RValue.new(0)
@@ -52,7 +52,7 @@ Instance.find = function(object)
     -- Table
     else
         for _, obj in ipairs(object) do
-            local holder = ffi.new("struct RValue[2]")
+            local holder = RValue.new_holder(2)
             holder[0] = RValue.from_wrapper(obj)
             holder[1] = RValue.new(0)
             local out = RValue.new(0)
@@ -90,7 +90,7 @@ Instance.find_all = function(object)
         object = Wrap.unwrap(object)
         local count = Instance.count(object)
 
-        local holder = ffi.new("struct RValue[2]")
+        local holder = RValue.new_holder(2)
         holder[0] = RValue.new(object)
 
         for n = 0, count - 1 do
@@ -107,7 +107,7 @@ Instance.find_all = function(object)
             obj = Wrap.unwrap(obj)
             local count = Instance.count(obj)
 
-            local holder = ffi.new("struct RValue[2]")
+            local holder = RValue.new_holder(2)
             holder[0] = RValue.new(obj)
 
             for n = 0, count - 1 do
@@ -131,7 +131,7 @@ end
 Returns the instance count of the specified object.
 ]]
 Instance.count = function(object)
-    local holder = ffi.new("struct RValue*[1]")
+    local holder = RValue.new_holder_scr(1)
     holder[0] = RValue.from_wrapper(object)
     local out = RValue.new(0)
     gmf._mod_instance_number(nil, nil, out, 1, holder)
@@ -195,7 +195,7 @@ Instance.wrap = function(id)
     end
 
     -- Actor
-    local holder = ffi.new("struct RValue[2]")
+    local holder = RValue.new_holder(2)
     holder[0] = RValue.new(obj_index)
     holder[1] = RValue.new(gm.constants.pActor)
     local out = RValue.new(0)
@@ -205,6 +205,21 @@ Instance.wrap = function(id)
         wrapper_cache[id] = inst
         return inst
     end
+end
+
+
+local inst_wrappers = {
+    "Instance",
+    "Actor",
+    "Player"
+}
+
+Instance.is = function(value)
+    -- `value` is either a `ref RValue` or an Instance wrapper
+    local _type = type(value)
+    if (_type == "cdata" and value.type == RValue.Type.REF)
+    or (_type == "table" and inst_wrappers[value.RAPI]) then return true end
+    return false
 end
 
 
@@ -220,7 +235,7 @@ methods_instance = {
     ]]
     exists = function(self)
         if self.value == -4 then return false end
-        local holder = ffi.new("struct RValue[1]")
+        local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         local out = RValue.new(0)
         gmf.instance_exists(out, nil, nil, 1, holder)
@@ -235,7 +250,7 @@ methods_instance = {
     Destroys the instance.
     ]]
     destroy = function(self)
-        local holder = ffi.new("struct RValue[1]")
+        local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         gmf.instance_destroy(RValue.new(0), nil, nil, 1, holder)
         instance_data[self.value] = nil
@@ -290,7 +305,7 @@ metatable_instance = {
         -- Getter
         local id = Proxy.get(t)
         if id == -4 then log.error("Instance does not exist", 2) end
-        local holder = ffi.new("struct RValue[2]")
+        local holder = RValue.new_holder(2)
         holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.new(k)
         local out = RValue.new(0)
@@ -303,7 +318,7 @@ metatable_instance = {
         -- Setter
         local id = Proxy.get(t)
         if id == -4 then log.error("Instance does not exist", 2) end
-        local holder = ffi.new("struct RValue[3]")
+        local holder = RValue.new_holder(3)
         holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.new(k)
         holder[2] = RValue.from_wrapper(v)
