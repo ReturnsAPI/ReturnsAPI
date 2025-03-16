@@ -19,5 +19,16 @@ local safe = {
 
     gmf.item_give_internal, -- internal versions of these are also not called directly by us
     gmf.item_take_internal,
+
+    gmf.array_create,
+    gmf.array_get,
+    gmf.array_set,
+    gmf.array_length,
+    gmf.array_push,
+    gmf.array_pop,
+    gmf.array_insert,
+    gmf.array_delete,
+    gmf.array_contains,
+    gmf.array_sort,
 }
 for _, v in ipairs(safe) do jit.on(v) end
