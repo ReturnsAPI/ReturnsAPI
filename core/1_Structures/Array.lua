@@ -251,6 +251,7 @@ metatable_array = {
 
     __gc = function(t)
         -- print("Array __gc: ", t.value)
+        if not t.value then return end
         __ref_list:delete_value(t)
     end,
 

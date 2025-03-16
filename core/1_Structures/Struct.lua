@@ -98,6 +98,7 @@ metatable_struct = {
 
     __gc = function(t)
         -- print("Struct __gc: ", t.value)
+        if not t.value then return end
         __ref_list:delete_value(t)
     end,
 
