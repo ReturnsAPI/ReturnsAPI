@@ -30,5 +30,21 @@ local safe = {
     gmf.array_delete,
     gmf.array_contains,
     gmf.array_sort,
+
+    gmf.ds_list_create,
+    gmf.ds_list_destroy,
+    gmf.ds_list_find_value,
+    gmf.ds_list_find_index,
+    gmf.ds_list_set,
+    gmf.ds_list_size,
+    gmf.ds_list_add,
+    gmf.ds_list_insert,
+    gmf.ds_list_delete,
+    gmf.ds_list_clear,
+    gmf.ds_list_sort,
+
+    gmf.variable_struct_get,
+    gmf.variable_struct_set,
+    gmf.variable_struct_get_names,
 }
 for _, v in ipairs(safe) do jit.on(v) end
