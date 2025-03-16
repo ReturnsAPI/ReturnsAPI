@@ -155,7 +155,7 @@ end
 --$param        fn      | function  | The function to call.
 --$optional     ...     |           | A variable number of arguments to pass.
 --[[
-Benchmarks a function and prints the results (in milliseconds, up to 5 decimal places).
+Benchmarks a function and prints the results (in milliseconds, up to 7 decimal places).
 The amount of milliseconds per frame is 16.66~ ms.
 
 "Leeway" here is a measure of how many times the function can be called
@@ -166,7 +166,7 @@ Util.benchmark = function(n, fn, ...)
     -- https://docs.otland.net/lua-guide/auxiliary/benchmarking
     local unit = 'milliseconds'
     local multiplier = 1000
-    local decPlaces = 5
+    local decPlaces = 7
     local elapsed = 0
     for i = 1, n do
         local now = os.clock()

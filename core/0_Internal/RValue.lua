@@ -86,10 +86,11 @@ RValue.from_wrapper = function(value)
     local rvalue_type = lua_type_lookup[type_value]
     if type_value == "table" and value.RAPI then
         rvalue_type = rvalue_type_lookup[value.RAPI]
+        value = Proxy.get(value) or value.value
     end
 
     -- Get raw value and make an RValue from it
-    return RValue.new(Proxy.get(value) or value, rvalue_type)
+    return RValue.new(value, rvalue_type)
 end
 
 

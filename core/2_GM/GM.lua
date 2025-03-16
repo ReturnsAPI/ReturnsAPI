@@ -9,9 +9,9 @@ local function_cache_callso = {}
 
 -- ========== Lookup Tables ==========
 
-GM.internal.builtin = require("./core/data/gmfBuiltin")
-GM.internal.object  = require("./core/data/gmfObject")
-GM.internal.script  = require("./core/data/gmfScript")
+GM.internal.builtin = require("./core/data/gmfBuiltin.lua")
+GM.internal.object  = require("./core/data/gmfObject.lua")
+GM.internal.script  = require("./core/data/gmfScript.lua")
 
 
 

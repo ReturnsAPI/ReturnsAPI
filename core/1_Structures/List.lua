@@ -67,7 +67,7 @@ methods_list = {
         holder[0] = RValue.new(self.value)
         local out = RValue.new(0)
         gmf.ds_list_size(out, nil, nil, 1, holder)
-        return RValue.to_wrapper(out)
+        return out.value
     end,
 
 
@@ -209,17 +209,19 @@ metatable_list = {
 
 
     __pairs = function(t)
+        local n = #t
         return function(t, k)
             k = k + 1
-            if k <= #t then return k, t[k] end
+            if k <= n then return k, t[k] end
         end, t, 0
     end,
 
 
     __ipairs = function(t)
+        local n = #t
         return function(t, k)
             k = k + 1
-            if k <= #t then return k, t[k] end
+            if k <= n then return k, t[k] end
         end, t, 0
     end,
 
