@@ -7,7 +7,7 @@ local holder_size = 0
 _HOLDER_SCR = ffi.new("struct RValue*[0]")
 local holder_size_scr = 0
 _RVALUE = {}
-for i = 1, 100 do _RVALUE[i] = ffi.new("struct RValue") end
+for i = 1, 100000 do _RVALUE[i] = ffi.new("struct RValue") end
 local rvalue_current = 0
 
 
