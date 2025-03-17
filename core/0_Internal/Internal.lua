@@ -19,11 +19,11 @@ end
 
 
 
-if __ref_list then
+if __ref_map then
     -- clear it when hot reloading, this will garbage-collect all the old structs
-    __ref_list:destroy()
+    __ref_map:destroy()
 end
-__ref_list = nil    -- Created in List.lua (sorry for weird placement)
+__ref_map = nil    -- Created in Map.lua (sorry for weird placement)
 
 
 -- -- The Gamemaker garbage collector frees anything that doesn't appear to be used.

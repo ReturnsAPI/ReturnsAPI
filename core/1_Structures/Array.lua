@@ -39,7 +39,7 @@ Array.wrap = function(array)    -- Stores `array RValue.i64`
     -- `array` is either an `array RValue` or an Array wrapper
     if not Array.is(array) then log.error("Value is not an array", 2) end
     local proxy = Proxy.new_gc(array.i64, metatable_array)
-    __ref_list:add(proxy)
+    __ref_map:set(proxy, true)
     return proxy
 end
 
@@ -253,9 +253,9 @@ metatable_array = {
 
 
     __gc = function(t)
-        -- print("Array __gc: ", t.value)
-        if not t.value then return end
-        __ref_list:delete_value(t)
+        -- print("Array __gc: ", Proxy.get(t))
+        if not Proxy.get(t) then return end
+        __ref_map:delete(t)
     end,
 
 

@@ -16,7 +16,7 @@ Struct.wrap = function(struct)  -- Stores 'object RValue.yy_object_base (type 0)
     -- `struct` is either an `object RValue` or a Struct wrapper
     if not Struct.is(struct) then log.error("Value is not a struct", 2) end
     local proxy = Proxy.new_gc(struct.yy_object_base, metatable_struct)
-    __ref_list:add(proxy)
+    __ref_map:set(proxy, true)
     return proxy
 end
 
@@ -97,9 +97,9 @@ metatable_struct = {
 
 
     __gc = function(t)
-        -- print("Struct __gc: ", t.value)
-        if not t.value then return end
-        __ref_list:delete_value(t)
+        -- print("Struct __gc: ", Proxy.get(t))
+        if not Proxy.get(t) then return end
+        __ref_map:delete(t)
     end,
 
 

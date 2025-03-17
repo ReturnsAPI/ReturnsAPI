@@ -7,7 +7,7 @@ local holder_scr = ffi.new("struct RValue*[0]")
 local holder_size = 0
 local holder_size_scr = 0
 local rvalue_cache = {}
-for i = 1, 100 do rvalue_cache[i] = ffi.new("struct RValue") end
+for i = 1, 50000 do rvalue_cache[i] = ffi.new("struct RValue") end     -- This must be a high value
 local rvalue_current = 0
 
 
@@ -100,7 +100,7 @@ RValue.peek = function(rvalue)
     local rvalue_type = rvalue.type
     local str = ""
 
-    if      rvalue_type == RValue.Type.REAL         then str = "Value: "..tostring(rvalue.value)
+    if      rvalue_type == RValue.Type.REAL         then str = "value: "..tostring(rvalue.value)
     elseif  rvalue_type == RValue.Type.STRING       then str = "m_str: "..tostring(rvalue.ref_string.m_str)
     elseif  rvalue_type == RValue.Type.ARRAY        then str = "i64: "..tostring(rvalue.i64)
     elseif  rvalue_type == RValue.Type.PTR          then str = "i64: "..tostring(rvalue.i64)
@@ -114,7 +114,7 @@ RValue.peek = function(rvalue)
     elseif  rvalue_type == RValue.Type.REF          then str = "i32: "..tostring(rvalue.i32)
     end
 
-    print("Type: "..RValue.Type[rvalue_type], str)
+    print("type: "..RValue.Type[rvalue_type], str, "__flags: "..tostring(rvalue.__flags))
 end
 
 
@@ -125,6 +125,7 @@ RValue.new = function(val, rvalue_type)
     local rvalue = rvalue_cache[rvalue_current]
     rvalue.type = 0
     rvalue.value = 0
+    rvalue.__flags = 0
 
     -- local rvalue = ffi.new("struct RValue")
 

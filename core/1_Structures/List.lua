@@ -248,8 +248,5 @@ metatable_list = {
 
 
 
--- Create __ref_list
-__ref_list = List.new()
-
 _CLASS["List"] = List
 _CLASS_MT["List"] = metatable_list_class
