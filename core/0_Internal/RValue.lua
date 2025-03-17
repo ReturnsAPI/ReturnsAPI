@@ -2,12 +2,12 @@
 
 RValue = new_class()
 
-_HOLDER = ffi.new("struct RValue[0]")
+local holder = ffi.new("struct RValue[0]")
+local holder_scr = ffi.new("struct RValue*[0]")
 local holder_size = 0
-_HOLDER_SCR = ffi.new("struct RValue*[0]")
 local holder_size_scr = 0
-_RVALUE = {}
-for i = 1, 100000 do _RVALUE[i] = ffi.new("struct RValue") end
+local rvalue_cache = {}
+for i = 1, 100000 do rvalue_cache[i] = ffi.new("struct RValue") end
 local rvalue_current = 0
 
 
@@ -120,11 +120,12 @@ end
 
 RValue.new = function(val, rvalue_type)
     rvalue_current = rvalue_current + 1
-    if rvalue_current > #_RVALUE then rvalue_current = 1 end
+    if rvalue_current > #rvalue_cache then rvalue_current = 1 end
 
-    local rvalue = _RVALUE[rvalue_current]
+    local rvalue = rvalue_cache[rvalue_current]
     rvalue.type = 0
     rvalue.value = 0
+    -- rvalue.__flags = 0
 
     -- Return RValue.Type.UNDEFINED if `val` is nil
     if val == nil then
@@ -182,18 +183,23 @@ end
 RValue.new_holder = function(new_size)
     if holder_size ~= new_size then
         holder_size = new_size
-        _HOLDER = ffi.new("struct RValue["..new_size.."]")
+        holder = ffi.new("struct RValue["..new_size.."]")
     end
-    return _HOLDER
+    return holder
 end
 
 
 RValue.new_holder_scr = function(new_size)
     if holder_size_scr ~= new_size then
         holder_size_scr = new_size
-        _HOLDER_SCR = ffi.new("struct RValue*["..new_size.."]")
+        holder_scr = ffi.new("struct RValue*["..new_size.."]")
     end
-    return _HOLDER_SCR
+    return holder_scr
+end
+
+
+RValue.debug_get_current = function()
+    return rvalue_current
 end
 
 

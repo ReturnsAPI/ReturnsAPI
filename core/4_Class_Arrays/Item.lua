@@ -209,8 +209,8 @@ methods_class[rapi_name] = {
         end
 
         -- Add to new loot pool (if it exists)
-        -- local pool = ItemTier.wrap(tier).item_pool_for_reroll
-        -- if pool ~= -1 then LootPool.wrap(pool):add(self) end
+        local pool = ItemTier.wrap(tier).item_pool_for_reroll
+        if pool ~= -1 then LootPool.wrap(pool):add(self) end
     end,
 
 

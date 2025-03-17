@@ -255,23 +255,38 @@ Instance.wrap = function(id)
     local obj_index = inst.object_index
 
     -- Player
-    if obj_index == gm.constants.oP then
-        inst = Proxy.new(id, metatable_player)
-        wrapper_cache[id] = inst
-        return inst
+    -- print("Instance.wrap")
+    if obj_index then
+        if obj_index == gm.constants.oP then
+            inst = Proxy.new(id, metatable_player)
+            wrapper_cache[id] = inst
+
+            -- print(inst, inst.value, inst.RAPI)
+            return inst
+        end
+
+        -- Actor
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(obj_index)
+        holder[1] = RValue.new(gm.constants.pActor)
+        local out = RValue.new(0)
+
+        -- print(obj_index)
+        -- RValue.peek(holder[0])
+        -- RValue.peek(holder[1])
+
+        gmf.object_is_ancestor(out, nil, nil, 2, holder)
+        if RValue.to_wrapper(out) == 1 then
+            inst = Proxy.new(id, metatable_actor)
+            wrapper_cache[id] = inst
+
+            -- print(inst, inst.value, inst.RAPI)
+            return inst
+        end
+    else print("Instance.wrap", inst, inst.value, inst.RAPI)
     end
 
-    -- Actor
-    local holder = RValue.new_holder(2)
-    holder[0] = RValue.new(obj_index)
-    holder[1] = RValue.new(gm.constants.pActor)
-    local out = RValue.new(0)
-    gmf.object_is_ancestor(out, nil, nil, 2, holder)
-    if RValue.to_wrapper(out) == 1 then
-        inst = Proxy.new(id, metatable_actor)
-        wrapper_cache[id] = inst
-        return inst
-    end
+    -- print(inst, inst.value, inst.RAPI)
 
     return inst
 end
@@ -409,33 +424,33 @@ metatable_instance = {
 
 -- TODO replace with memory.dynamic_hook
 
-gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
-    -- On room change, remove non-existent instances from `instance_data`
-    for k, v in pairs(instance_data) do
-        if gm.instance_exists(k) == 0 then
-            instance_data[k] = nil
-        end
-    end
-end)
+-- gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+--     -- On room change, remove non-existent instances from `instance_data`
+--     for k, v in pairs(instance_data) do
+--         if gm.instance_exists(k) == 0 then
+--             instance_data[k] = nil
+--         end
+--     end
+-- end)
 
 
-gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
-    -- Remove `instance_data` on non-player kill
-    local actor = args[1].value
-    if actor.object_index ~= gm.constants.oP then
-        instance_data[actor.id] = nil
-    end
-end)
+-- gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
+--     -- Remove `instance_data` on non-player kill
+--     local actor = args[1].value
+--     if actor.object_index ~= gm.constants.oP then
+--         instance_data[actor.id] = nil
+--     end
+-- end)
 
 
-gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
-    -- Move `instance_data` to new instance
-    local id = args[1].value.id
-    if instance_data[id] then
-        instance_data[args[2].value.id] = instance_data[id]
-        instance_data[id] = nil
-    end
-end)
+-- gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
+--     -- Move `instance_data` to new instance
+--     local id = args[1].value.id
+--     if instance_data[id] then
+--         instance_data[args[2].value.id] = instance_data[id]
+--         instance_data[id] = nil
+--     end
+-- end)
 
 
 

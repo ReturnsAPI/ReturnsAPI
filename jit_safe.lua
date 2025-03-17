@@ -47,4 +47,4 @@ local safe = {
     gmf.variable_struct_set,
     gmf.variable_struct_get_names,
 }
-for _, v in ipairs(safe) do jit.on(v) end
+-- for _, v in ipairs(safe) do jit.on(v) end

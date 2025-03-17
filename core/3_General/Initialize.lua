@@ -24,8 +24,8 @@ end
 
 
 Initialize.internal.remove_all = function(namespace)
-    local priorities_to_remove = {}
-    for _, priority in ipairs(initialize_bank.priorities) do
+    for j = #initialize_bank.priorities, 1, -1 do
+        local priority = initialize_bank.priorities[j]
         local ibank_priority = initialize_bank[priority]
         for i = #ibank_priority, 1, -1 do
             local init_table = ibank_priority[i]
@@ -35,11 +35,8 @@ Initialize.internal.remove_all = function(namespace)
         end
         if #ibank_priority <= 0 then
             initialize_bank[priority] = nil
-            table.insert(priorities_to_remove, priority)
+            table.remove(initialize_bank.priorities, j)
         end
-    end
-    for _, priority in ipairs(priorities_to_remove) do
-        Util.table_remove_value(initialize_bank.priorities, priority)
     end
 end
 

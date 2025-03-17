@@ -182,7 +182,7 @@ metatable_loot_pool = {
 
         -- Getter
         local loot_struct = Global.treasure_loot_pools:get(Proxy.get(t))
-        return Wrap.wrap(loot_struct[k])
+        return loot_struct[k]
     end,
 
 
@@ -201,11 +201,9 @@ metatable_loot_pool = {
 -- ========== Hooks ==========
 
 -- Custom loot pools are not auto-populated by the game
-memory.dynamic_hook("RAPI.loot_pool_populate", "void*", {"void*", "void*", "void*", "int", "void*"}, memory.pointer.new(tonumber(ffi.cast("int64_t", gmf.run_create))),
+memory.dynamic_hook("RAPI.loot_pool_populate", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.run_create),
     -- Pre-hook
-    function(ret_val, self, other, result, arg_count, args)
-        
-    end,
+    {nil,
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
@@ -227,7 +225,7 @@ memory.dynamic_hook("RAPI.loot_pool_populate", "void*", {"void*", "void*", "void
                 available_drop_pool:add(item_obj)
             end
         end
-    end
+    end}
 )
 
 

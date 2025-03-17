@@ -103,7 +103,7 @@ metatable_item_tier = {
 
         -- Getter
         local tier_struct = Global.item_tiers:get(Proxy.get(t))
-        return Wrap.wrap(tier_struct[k])
+        return tier_struct[k]
     end,
 
 

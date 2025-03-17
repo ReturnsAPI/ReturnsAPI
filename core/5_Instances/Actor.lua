@@ -145,33 +145,33 @@ memory.dynamic_hook("RAPI.Actor.item_take_internal", "void*", {"void*", "void*",
 
 -- TODO replace with memory.dynamic_hook
 
-gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
-    -- On room change, remove non-existent instances from cache
-    for k, v in pairs(item_count_cache) do
-        if gm.instance_exists(k) == 0 then
-            item_count_cache[k] = nil
-        end
-    end
-end)
+-- gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+--     -- On room change, remove non-existent instances from cache
+--     for k, v in pairs(item_count_cache) do
+--         if gm.instance_exists(k) == 0 then
+--             item_count_cache[k] = nil
+--         end
+--     end
+-- end)
 
 
-gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
-    -- Remove cache on non-player kill
-    local actor = args[1].value
-    if actor.object_index ~= gm.constants.oP then
-        item_count_cache[actor.id] = nil
-    end
-end)
+-- gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
+--     -- Remove cache on non-player kill
+--     local actor = args[1].value
+--     if actor.object_index ~= gm.constants.oP then
+--         item_count_cache[actor.id] = nil
+--     end
+-- end)
 
 
-gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
-    -- Move cache to new instance
-    local id = args[1].value.id
-    if item_count_cache[id] then
-        item_count_cache[args[2].value.id] = item_count_cache[id]
-        item_count_cache[id] = nil
-    end
-end)
+-- gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
+--     -- Move cache to new instance
+--     local id = args[1].value.id
+--     if item_count_cache[id] then
+--         item_count_cache[args[2].value.id] = item_count_cache[id]
+--         item_count_cache[id] = nil
+--     end
+-- end)
 
 
 
