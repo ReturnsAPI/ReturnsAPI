@@ -96,18 +96,18 @@ memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int
     
             -- Call functions
             -- Do not call them again on hotload
-            -- if not init_hotloaded then
-            --     for _, priority in ipairs(initialize_bank.priorities) do
-            --         local ibank_priority = initialize_bank[priority]
-            --         for _, init_table in ipairs(ibank_priority) do
-            --             local status, err = pcall(init_table.fn)
-            --             if not status then
-            --                 log.warning("\n"..init_table.namespace..": Initialize failed to execute fully.\n"..err)
-            --             end
-            --         end
-            --     end
-            -- end
-            -- init_hotloaded = true
+            if not init_hotloaded then
+                for _, priority in ipairs(initialize_bank.priorities) do
+                    local ibank_priority = initialize_bank[priority]
+                    for _, init_table in ipairs(ibank_priority) do
+                        local status, err = pcall(init_table.fn)
+                        if not status then
+                            log.warning("\n"..init_table.namespace..": Initialize failed to execute fully.\n"..err)
+                        end
+                    end
+                end
+            end
+            init_hotloaded = true
         end
     end}
 )
