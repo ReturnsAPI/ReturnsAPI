@@ -40,7 +40,7 @@ ItemTier.new = function(namespace, identifier)
     tier = #tiers_array
 
     -- Create new struct for tier
-    local tier_struct = gm.struct_create()
+    local tier_struct = Struct.new()
     tier_struct.namespace                   = namespace     -- RAPI custom variable
     tier_struct.identifier                  = identifier    -- RAPI custom variable
     tier_struct.index                       = tier

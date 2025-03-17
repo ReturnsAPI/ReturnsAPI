@@ -38,7 +38,7 @@ metatable_hitinfo = {
         end
 
         -- Getter
-        local ret = metatable_struct_getset.__index(t, k)
+        local ret = metatable_struct.__index(t, k)
         if k == "attack_info" then ret = AttackInfo.wrap(ret) end
         return ret
     end,
@@ -46,7 +46,7 @@ metatable_hitinfo = {
 
     __newindex = function(t, k, v)
         -- Setter
-        return metatable_struct_getset.__newindex(t, k, v)
+        return metatable_struct.__newindex(t, k, v)
     end,
 
     

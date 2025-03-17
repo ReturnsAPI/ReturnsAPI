@@ -15,17 +15,22 @@ Sprite.new = function(namespace, identifier, path, image_number, x_origin, y_ori
 
     path = path:gsub("~", NAMESPACE_PATH[namespace])
 
-    local sprite = gm.sprite_find(namespace.."-"..identifier)
+    -- Search for existing sprite
+    local holder = RValue.new_holder_scr(1)
+    holder[0] = RValue.new(namespace.."-"..identifier)
+    local out = RValue.new(0)
+    gmf.sprite_find(nil, nil, out, 1, holder)
+    local sprite = RValue.to_wrapper(out)
+
     if sprite then
         -- Modify sprite origin
-        if x_origin and y_origin then
-            gm.sprite_set_offset(sprite, x_origin or 0, y_origin or 0)
-        end
-        return Sprite.wrap(sprite)
+        local sprite = Sprite.wrap(sprite)
+        if x_origin and y_origin then sprite:set_origin(x_origin or 0, y_origin or 0) end
+        return sprite
     end
 
     -- Create sprite
-    sprite = gm.sprite_add_w(
+    sprite = GM.sprite_add_w(
         namespace,
         identifier,
         path,
@@ -55,7 +60,12 @@ Sprite.find = function(identifier, namespace, default_namespace)
     end
 
     -- Look in mod namespace
-    local sprite = gm.sprite_find(nsid)
+    local holder = RValue.new_holder_scr(1)
+    holder[0] = RValue.new(nsid)
+    local out = RValue.new(0)
+    gmf.sprite_find(nil, nil, out, 1, holder)
+    local sprite = RValue.to_wrapper(out)
+
     if sprite then
         sprite = Sprite.wrap(sprite)
         find_cache[nsid] = sprite
@@ -64,7 +74,12 @@ Sprite.find = function(identifier, namespace, default_namespace)
 
     -- Also look in "ror" namespace if user passed no `namespace` arg
     if namespace == default_namespace then
-        sprite = gm.sprite_find(ror_nsid)
+        local holder = RValue.new_holder_scr(1)
+        holder[0] = RValue.new(ror_nsid)
+        local out = RValue.new(0)
+        gmf.sprite_find(nil, nil, out, 1, holder)
+        local sprite = RValue.to_wrapper(out)
+        
         if sprite then
             sprite = Sprite.wrap(sprite)
             find_cache[ror_nsid] = sprite
@@ -87,24 +102,51 @@ end
 methods_sprite = {
 
     set_origin = function(self, x_origin, y_origin)
-        gm.sprite_set_offset(self.value, x_origin or 0, y_origin or 0)
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.value)
+        holder[1] = RValue.new(x_origin or 0)
+        holder[2] = RValue.new(y_origin or 0)
+        gmf.sprite_set_offset(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
     set_speed = function(self, speed)
-        gm.sprite_set_speed(self.value, speed, 1)   -- Using `spritespeed_framespergameframe`
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.value)
+        holder[1] = RValue.new(speed)
+        holder[2] = RValue.new(1)   -- Using `spritespeed_framespergameframe`
+        gmf.sprite_set_speed(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
     set_collision_mask = function(self, bbox_left, bbox_top, bbox_right, bbox_bottom)
         -- Arguments are relative to the origin (i.e., `bbox_left < 0` means to the left of the origin)
-        local x_origin = gm.sprite_get_xoffset(self.value)
-        local y_origin = gm.sprite_get_yoffset(self.value)
 
-        -- arg3 : `2` is user-defined
-        -- arg8 : `0` is `bboxkind_rectangular`
-        -- arg9 : `0` transparency tolerance
-        gm.sprite_collision_mask(self.value, false, 2, bbox_left + x_origin, bbox_top + y_origin, bbox_right + x_origin, bbox_bottom + y_origin, 0, 0)
+        -- Get x and y origin
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.new(self.value)
+        local out = RValue.new(0)
+        gmf.sprite_get_xoffset(out, nil, nil, 1, holder)
+        local x_origin = out.value
+
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.new(self.value)
+        local out = RValue.new(0)
+        gmf.sprite_get_yoffset(out, nil, nil, 1, holder)
+        local y_origin = out.value
+
+        -- Set collision mask properties
+        local holder = RValue.new_holder(9)
+        holder[0] = RValue.new(self.value)
+        holder[1] = RValue.new(false)
+        holder[2] = RValue.new(2)   -- `2` is user-defined
+        holder[3] = RValue.new(bbox_left    + x_origin)
+        holder[4] = RValue.new(bbox_top     + y_origin)
+        holder[5] = RValue.new(bbox_right   + x_origin)
+        holder[6] = RValue.new(bbox_bottom  + y_origin)
+        holder[7] = RValue.new(0)   -- `0` is `bboxkind_rectangular`
+        holder[8] = RValue.new(0)   -- `0` transparency tolerance
+        gmf.sprite_collision_mask(RValue.new(0), nil, nil, 9, holder)
     end
 
 }

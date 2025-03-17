@@ -41,13 +41,13 @@ LootPool.new = function(namespace, identifier)
     pool = #loot_pools_array
 
     -- Create new struct for pool
-    local loot_struct = gm.struct_create()
+    local loot_struct = Struct.new()
     loot_struct.namespace                   = namespace     -- RAPI custom variable
     loot_struct.identifier                  = identifier    -- RAPI custom variable
     loot_struct.index                       = pool
     loot_struct.item_tier                   = pool
-    loot_struct.drop_pool                   = gm.ds_list_create()
-    loot_struct.available_drop_pool         = gm.ds_list_create()
+    loot_struct.drop_pool                   = List.new()
+    loot_struct.available_drop_pool         = List.new()
     loot_struct.is_equipment_pool           = false
     loot_struct.command_crate_object_id     = 800   -- White crate
 
@@ -115,14 +115,12 @@ end
 methods_loot_pool = {
 
     add = function(self, item)
-        gm.ds_list_add(self.drop_pool, Item.wrap(item).object_id)
+        List.wrap(self.drop_pool):add(Item.wrap(item).object_id)
     end,
 
 
     remove = function(self, item)
-        local pool = self.drop_pool
-        local pos = gm.ds_list_find_index(pool, Item.wrap(item).object_id)
-        if pos then gm.ds_list_delete(pool, pos) end
+        List.wrap(self.drop_pool):delete_value(Item.wrap(item).object_id)
     end,
 
 
@@ -142,9 +140,21 @@ methods_loot_pool = {
                 disallowed_sum = disallowed_sum + v
             end
         end
+        
+        local holder = RValue.new_holder_scr(3)
+        holder[0] = RValue.new(self.value)
+        holder[1] = RValue.new(required_sum)
+        holder[2] = RValue.new(disallowed_sum)
+        local out = RValue.new(0)
+        gmf.treasure_loot_pool_roll(nil, nil, out, 3, holder)
+        local obj_id = out.value
 
-        local obj_id = gm.treasure_loot_pool_roll(self.value, required_sum, disallowed_sum)
-        local item = gm.object_to_item(obj_id)
+        local holder = RValue.new_holder_scr(1)
+        holder[0] = RValue.new(obj_id)
+        local out = RValue.new(0)
+        gmf.object_to_item(nil, nil, out, 1, holder)
+        local item = out.value
+
         if item ~= -1 then item = Item.wrap(item)
         else item = nil
         end

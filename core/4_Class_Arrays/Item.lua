@@ -184,10 +184,15 @@ methods_class[rapi_name] = {
     end,
 
 
-    set_sprite = function(self, sprite) -- TODO
+    set_sprite = function(self, sprite)
         sprite = Wrap.unwrap(sprite)
         self.sprite_id = sprite
-        gm.object_set_sprite_w(self.object_id, sprite)  -- Set item object sprite
+    
+        -- Set item object sprite
+        local holder = RValue.new_holder_scr(2)
+        holder[0] = RValue.new(self.object_id)
+        holder[1] = RValue.new(sprite)
+        gmf.object_set_sprite_w(nil, nil, RValue.new(0), 2, holder)
     end,
 
 
@@ -200,13 +205,12 @@ methods_class[rapi_name] = {
         for i = 1, #pools do
             local struct = pools[i]
             local drop_pool = List.wrap(struct.drop_pool)
-            local pos = drop_pool:find(self.object_id)
-            if pos then drop_pool:delete(pos) end
+            drop_pool:delete_value(self.object_id)
         end
 
         -- Add to new loot pool (if it exists)
-        local pool = ItemTier.wrap(tier).item_pool_for_reroll
-        if pool ~= -1 then LootPool.wrap(pool):add(self) end
+        -- local pool = ItemTier.wrap(tier).item_pool_for_reroll
+        -- if pool ~= -1 then LootPool.wrap(pool):add(self) end
     end,
 
 
@@ -222,7 +226,7 @@ methods_class[rapi_name] = {
 
 
     show_properties = function(self)
-        local array = Class.ITEM:get(self.value)
+        local array = Class.Item:get(self.value)
         local str = ""
         for i, v in ipairs(array) do
             str = str.."\n"..Util.pad_string_right(Item.Property[i - 1], 32)..tostring(v)

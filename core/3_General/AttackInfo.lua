@@ -38,13 +38,13 @@ metatable_attackinfo = {
         end
 
         -- Getter
-        return metatable_struct_getset.__index(t, k)
+        return metatable_struct.__index(t, k)
     end,
 
 
     __newindex = function(t, k, v)
         -- Setter
-        return metatable_struct_getset.__newindex(t, k, v)
+        return metatable_struct.__newindex(t, k, v)
     end,
 
     

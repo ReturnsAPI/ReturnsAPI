@@ -35,7 +35,7 @@ ItemLog.new = function(namespace, identifier)
 
     -- Create new
     -- TODO: Pass proper args for this
-    item_log = ItemLog.wrap(gm.item_log_create(
+    item_log = ItemLog.wrap(GM.item_log_create(
         namespace,
         identifier,
         0,  -- group
@@ -62,7 +62,7 @@ ItemLog.new_from_item = function(namespace, item)
     local item_log = ItemLog.find(item.identifier, namespace)
     if not item_log then
         -- Create new
-        item_log = ItemLog.wrap(gm.item_log_create(
+        item_log = ItemLog.wrap(GM.item_log_create(
             namespace,
             item.identifier,
             0,
@@ -95,8 +95,7 @@ methods_class[rapi_name] = {
 
         -- Remove previous item log position (if found)
         local item_log_order = Global.item_log_display_list
-        local pos = item_log_order:find(self.value)
-        if pos then item_log_order:delete(pos) end
+        item_log_order:delete_value(self.value)
 
         -- Set new item log position
         local pos = 0
