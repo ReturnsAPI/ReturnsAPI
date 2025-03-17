@@ -6,9 +6,9 @@ local holder = ffi.new("struct RValue[0]")
 local holder_scr = ffi.new("struct RValue*[0]")
 local holder_size = 0
 local holder_size_scr = 0
-local rvalue_cache = {}
-for i = 1, 50000 do rvalue_cache[i] = ffi.new("struct RValue") end     -- This must be a high value
-local rvalue_current = 0
+-- local rvalue_cache = {}
+-- for i = 1, 40000 do rvalue_cache[i] = ffi.new("struct RValue") end     -- This must be a high value
+-- local rvalue_current = 0
 
 
 
@@ -119,15 +119,15 @@ end
 
 
 RValue.new = function(val, rvalue_type)
-    rvalue_current = rvalue_current + 1
-    if rvalue_current > #rvalue_cache then rvalue_current = 1 end
+    -- rvalue_current = rvalue_current + 1
+    -- if rvalue_current > #rvalue_cache then rvalue_current = 1 end
 
-    local rvalue = rvalue_cache[rvalue_current]
-    rvalue.type = 0
-    rvalue.value = 0
-    rvalue.__flags = 0
+    -- local rvalue = rvalue_cache[rvalue_current]
+    -- rvalue.type = 0
+    -- rvalue.value = 0
+    -- rvalue.__flags = 0
 
-    -- local rvalue = ffi.new("struct RValue")
+    local rvalue = ffi.new("struct RValue")
 
     -- Return RValue.Type.UNDEFINED if `val` is nil
     if val == nil then

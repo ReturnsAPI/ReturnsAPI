@@ -277,9 +277,6 @@ memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*"
         local arg_count = arg_count:get()
         local args_typed = ffi.cast("struct RValue**", args:get_address())
 
-        print("Callback args_typed[0]")
-        RValue.peek(args_typed[0])
-
         local callback = tonumber(args_typed[0].i64)
         local cbank_callback = callback_bank[callback]
         if not cbank_callback then return end
