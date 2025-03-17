@@ -7,7 +7,7 @@ local holder_scr = ffi.new("struct RValue*[0]")
 local holder_size = 0
 local holder_size_scr = 0
 local rvalue_cache = {}
-for i = 1, 100000 do rvalue_cache[i] = ffi.new("struct RValue") end
+for i = 1, 100 do rvalue_cache[i] = ffi.new("struct RValue") end
 local rvalue_current = 0
 
 
@@ -125,7 +125,8 @@ RValue.new = function(val, rvalue_type)
     local rvalue = rvalue_cache[rvalue_current]
     rvalue.type = 0
     rvalue.value = 0
-    -- rvalue.__flags = 0
+
+    -- local rvalue = ffi.new("struct RValue")
 
     -- Return RValue.Type.UNDEFINED if `val` is nil
     if val == nil then

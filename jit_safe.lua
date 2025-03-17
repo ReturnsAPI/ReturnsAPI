@@ -16,6 +16,7 @@ local safe = {
     gmf._mod_net_isClient,
 
     gmf.callback_execute,   -- Apparently this is fine, since we don't call `callback_execute` directly
+    gmf.__input_system_tick,
 
     gmf.item_give_internal, -- internal versions of these are also not called directly by us
     gmf.item_take_internal,
