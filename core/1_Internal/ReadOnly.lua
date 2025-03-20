@@ -5,7 +5,7 @@
 
 -- Additionally, ReadOnly.new should be called to *finalize* the lock
 
-local __metatable_readonly = {
+local metatable_readonly = {
     __index = function(proxy, k)
         if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
         return Proxy.get(proxy)[k]
@@ -36,7 +36,7 @@ local __metatable_readonly = {
 
 ReadOnly = {
     new = function(t)
-        return Proxy.new(t, __metatable_readonly)
+        return Proxy.new(t, metatable_readonly)
     end
 }
 

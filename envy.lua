@@ -94,9 +94,13 @@ function public.auto(properties)
     local wrapper = public.setup(env, properties.namespace)
     envy.import_all(env, wrapper)
 
+    -- Override `print` and `type` with Util's versions
+    env.print = Util.print
+    env.type = Util.type
+
     -- Clear callbacks and other stuff associated with namespace
     local namespace = properties.namespace or env["!guid"]
-    if Callback then Callback.remove_all(namespace) end
-    if Initialize then Initialize.internal.remove_all(namespace) end
+    if Callback         then Callback.remove_all(namespace) end
+    if Initialize       then Initialize.internal.remove_all(namespace) end
     if RecalculateStats then RecalculateStats.remove_all(namespace) end
 end

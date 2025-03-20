@@ -50,8 +50,7 @@ RValue.to_wrapper = function(rvalue)
 
     if      rvalue_type == RValue.Type.REAL         then return rvalue.value
     elseif  rvalue_type == RValue.Type.STRING       then return ffi.string(rvalue.ref_string.m_str)
-    -- elseif  rvalue_type == RValue.Type.ARRAY        then return Array.wrap(rvalue)
-    elseif  rvalue_type == RValue.Type.ARRAY        then return rvalue.i64
+    elseif  rvalue_type == RValue.Type.ARRAY        then return Array.wrap(rvalue)
     elseif  rvalue_type == RValue.Type.PTR          then return rvalue.i64
     elseif  rvalue_type == RValue.Type.UNDEFINED    then return nil
     elseif  rvalue_type == RValue.Type.OBJECT then
@@ -172,12 +171,12 @@ end
 
 
 RValue.new_holder = function(size)
-    return ffi.new("struct RValue["..new_size.."]")
+    return ffi.new("struct RValue["..size.."]")
 end
 
 
 RValue.new_holder_scr = function(size)
-    return ffi.new("struct RValue*["..new_size.."]")
+    return ffi.new("struct RValue*["..size.."]")
 end
 
 
