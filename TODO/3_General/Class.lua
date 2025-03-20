@@ -111,16 +111,20 @@ end
 -- ========== Initialize ==========
 
 Class.internal.initialize = function()
+    print("Flag A")
     -- Populate class_wrappers
     for class_rapi, class_gm in pairs(class_rapi_to_gm) do
         class_wrappers[class_rapi:upper()] = Global[class_gm]
     end
 
+    print("Flag B")
     -- Populate find table
     for _, class_gm in pairs(class_rapi_to_gm) do
         Class.internal.find_repopulate(class_gm)
     end
     allow_find_repopulate = true
+
+    print("Flag C") -- TODO Not reached!
 end
 
 

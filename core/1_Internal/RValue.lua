@@ -2,14 +2,6 @@
 
 RValue = new_class()
 
-local holder = ffi.new("struct RValue[0]")
-local holder_scr = ffi.new("struct RValue*[0]")
-local holder_size = 0
-local holder_size_scr = 0
--- local rvalue_cache = {}
--- for i = 1, 40000 do rvalue_cache[i] = ffi.new("struct RValue") end     -- This must be a high value
--- local rvalue_current = 0
-
 
 
 -- ========== Enums ==========
@@ -34,13 +26,11 @@ end
 RValue.Type = ReadOnly.new(RValue.Type)
 
 
-local lua_type_lookup = {
+local rvalue_type_lookup = {
     number      = RValue.Type.REAL,
     string      = RValue.Type.STRING,
-    boolean     = RValue.Type.BOOL
-}
+    boolean     = RValue.Type.BOOL,
 
-local rvalue_type_lookup = {
     Array       = RValue.Type.ARRAY,
     Struct      = RValue.Type.OBJECT,
 
@@ -60,7 +50,8 @@ RValue.to_wrapper = function(rvalue)
 
     if      rvalue_type == RValue.Type.REAL         then return rvalue.value
     elseif  rvalue_type == RValue.Type.STRING       then return ffi.string(rvalue.ref_string.m_str)
-    elseif  rvalue_type == RValue.Type.ARRAY        then return Array.wrap(rvalue)
+    -- elseif  rvalue_type == RValue.Type.ARRAY        then return Array.wrap(rvalue)
+    elseif  rvalue_type == RValue.Type.ARRAY        then return rvalue.i64
     elseif  rvalue_type == RValue.Type.PTR          then return rvalue.i64
     elseif  rvalue_type == RValue.Type.UNDEFINED    then return nil
     elseif  rvalue_type == RValue.Type.OBJECT then
@@ -68,11 +59,13 @@ RValue.to_wrapper = function(rvalue)
         if      yyobjectbase.type == 1  then return rvalue.cinstance
         elseif  yyobjectbase.type == 3  then return rvalue.cscriptref
         end
-        return Struct.wrap(rvalue)
+        -- return Struct.wrap(rvalue)
+        return yyobjectbase
     elseif  rvalue_type == RValue.Type.INT32        then return tonumber(rvalue.i32)  -- Don't see any immediate consequences of doing this
     elseif  rvalue_type == RValue.Type.INT64        then return tonumber(rvalue.i64)
     elseif  rvalue_type == RValue.Type.BOOL         then return (rvalue.value ~= nil and rvalue.value ~= 0)
-    elseif  rvalue_type == RValue.Type.REF          then return Instance.wrap(rvalue.i32)
+    -- elseif  rvalue_type == RValue.Type.REF          then return Instance.wrap(rvalue.i32)
+    elseif  rvalue_type == RValue.Type.REF          then return tonumber(rvalue.i32)
     end
 
     return nil  -- Unset
@@ -82,15 +75,14 @@ end
 -- Variant of Wrap.unwrap that places it into and returns an RValue
 RValue.from_wrapper = function(value)
     -- Get correct RValue.Type
-    local type_value = type(value)
-    local rvalue_type = lua_type_lookup[type_value]
-    if type_value == "table" and value.RAPI then
-        rvalue_type = rvalue_type_lookup[value.RAPI]
-        value = Proxy.get(value) or value.value
+    local _type = Util.type(value)
+    local _type_rvalue = rvalue_type_lookup[_type]
+    if _type == "table" and value.RAPI then
+        value = Proxy.get(value)
     end
 
-    -- Get raw value and make an RValue from it
-    return RValue.new(value, rvalue_type)
+    -- Make an RValue
+    return RValue.new(value, _type_rvalue)
 end
 
 
@@ -119,18 +111,9 @@ end
 
 
 RValue.new = function(val, rvalue_type)
-    -- rvalue_current = rvalue_current + 1
-    -- if rvalue_current > #rvalue_cache then rvalue_current = 1 end
-
-    -- local rvalue = rvalue_cache[rvalue_current]
-    -- rvalue.type = 0
-    -- rvalue.value = 0
-    -- rvalue.__flags = 0
-
-    local rvalue = ffi.new("struct RValue")
-
     -- Return RValue.Type.UNDEFINED if `val` is nil
     if val == nil then
+        local rvalue = ffi.new("struct RValue")
         rvalue.type = RValue.Type.UNDEFINED
         rvalue.i64 = 0
         return rvalue
@@ -140,6 +123,8 @@ RValue.new = function(val, rvalue_type)
     if not rvalue_type then
         local type_val = type(val)
         if type_val == "number" then
+            local rvalue = ffi.new("struct RValue")
+            rvalue.type = RValue.Type.REAL
             rvalue.value = val
             return rvalue
         elseif type_val == "string" then
@@ -147,6 +132,7 @@ RValue.new = function(val, rvalue_type)
             gmf.yysetstring(rvalue, val)
             return rvalue[0]
         elseif type_val == "boolean" then
+            local rvalue = ffi.new("struct RValue")
             rvalue.type = RValue.Type.BOOL
             rvalue.value = val
             return rvalue
@@ -164,11 +150,12 @@ RValue.new = function(val, rvalue_type)
     
     -- Other RValue.Type
     if type(val) ~= "table" then
+        local rvalue = ffi.new("struct RValue")
         rvalue.type = rvalue_type
         if      rvalue_type == RValue.Type.REAL         then rvalue.value = val
         elseif  rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
         elseif  rvalue_type == RValue.Type.PTR          then rvalue.i64 = val
-        elseif  rvalue_type == RValue.Type.UNDEFINED    then -- Nothing
+        elseif  rvalue_type == RValue.Type.UNDEFINED    then rvalue.i64 = 0
         elseif  rvalue_type == RValue.Type.OBJECT       then rvalue.yy_object_base = val
         elseif  rvalue_type == RValue.Type.INT32        then rvalue.i32 = val
         elseif  rvalue_type == RValue.Type.INT64        then rvalue.i64 = val
@@ -176,34 +163,23 @@ RValue.new = function(val, rvalue_type)
         elseif  rvalue_type == RValue.Type.REF          then rvalue.i32 = val
         else    return nil
         end
+        return rvalue
     end
 
-	return rvalue
+    -- Should not happen, so log it
+    log.error("RValue.new: Table passed in, val = "..tostring(val)..", rvalue_type = "..tostring(rvalue_type), 2)
 end
 
 
-RValue.new_holder = function(new_size)
-    if holder_size ~= new_size then
-        holder_size = new_size
-        holder = ffi.new("struct RValue["..new_size.."]")
-    end
-    return holder
+RValue.new_holder = function(size)
+    return ffi.new("struct RValue["..new_size.."]")
 end
 
 
-RValue.new_holder_scr = function(new_size)
-    if holder_size_scr ~= new_size then
-        holder_size_scr = new_size
-        holder_scr = ffi.new("struct RValue*["..new_size.."]")
-    end
-    return holder_scr
-end
-
-
-RValue.debug_get_current = function()
-    return rvalue_current
+RValue.new_holder_scr = function(size)
+    return ffi.new("struct RValue*["..new_size.."]")
 end
 
 
 
-_CLASS["RValue"] = RValue
+__class.RValue = RValue

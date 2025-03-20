@@ -12,7 +12,7 @@ function public.setup(env, namespace)
     NAMESPACE_PATH[namespace] = env["!plugins_mod_folder_path"]
 
     local wrapper = {}
-    for name, class_ref in pairs(_CLASS) do
+    for name, class_ref in pairs(__class) do
         -- Create copy
         local copy = {}
 
@@ -75,10 +75,10 @@ function public.setup(env, namespace)
         end
 
         -- Copy metatable over (if applicable)
-        if _CLASS_MT[name] then setmetatable(copy, _CLASS_MT[name]) end
+        if __class_mt[name] then setmetatable(copy, __class_mt[name]) end
 
         -- Make new metatable
-        if _CLASS_MT_MAKE[name] then setmetatable(copy, _CLASS_MT_MAKE[name](namespace)) end
+        if __class_mt_builder[name] then setmetatable(copy, __class_mt_builder[name](namespace)) end
 
         wrapper[name] = copy
     end

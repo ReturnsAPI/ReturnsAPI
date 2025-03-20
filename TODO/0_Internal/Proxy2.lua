@@ -1,11 +1,13 @@
 -- Proxy
 
+-- if true then return end
+
 -- This does not create read-only tables, only proxies
 -- This class is also private
 
 local originals = setmetatable({}, {__mode = "k"})
 
-Proxy = {
+Proxy2 = {
     new = function(t, mt)
         local proxy = {}
         originals[proxy] = t or {}
@@ -13,12 +15,12 @@ Proxy = {
         return proxy
     end,
 
-    new_gc = function(t, mt)
-        local proxy = {}
-        originals[proxy] = t or {}
-        setmetatable_gc(proxy, mt)
-        return proxy
-    end,
+    -- new_gc = function(t, mt)
+    --     local proxy = {}
+    --     originals[proxy] = t or {}
+    --     setmetatable_gc(proxy, mt)
+    --     return proxy
+    -- end,
 
     get = function(proxy)
         return originals[proxy]
@@ -28,3 +30,5 @@ Proxy = {
         originals[proxy] = value
     end
 }
+
+_CLASS["Proxy2"] = Proxy2
