@@ -80,7 +80,6 @@ for _, hook in ipairs(hooks) do
 
         -- Post-hook
         function(ret_val, self, other, result, arg_count, args)
-            local arg_count = arg_count:get()
             local args_typed = ffi.cast("struct RValue**", args:get_address())
 
             local namespace = RValue.to_wrapper(args_typed[0])
