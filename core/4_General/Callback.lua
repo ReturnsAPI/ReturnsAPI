@@ -3,8 +3,8 @@
 Callback = new_class()
 
 if not __callback_bank then __callback_bank = {} end    -- Preserve on hotload
-local id_counter = 0
-local id_lookup = {}
+if not __callback_id_counter then __callback_id_counter = 0 end
+if not __callback_id_lookup then __callback_id_lookup = {} end
 
 local callback_arg_types = {}
 
@@ -195,19 +195,19 @@ Callback.add = function(namespace, callback, fn, priority)
     end
 
     -- Add to subtable
-    id_counter = id_counter + 1
+    __callback_id_counter = __callback_id_counter + 1
 
     local fn_table = {
-        id          = id_counter,
+        id          = __callback_id_counter,
         namespace   = namespace,
         fn          = fn,
         priority    = priority
     }
     local lookup_table = {callback, fn_table}
-    id_lookup[id_counter] = lookup_table
+    __callback_id_lookup[__callback_id_counter] = lookup_table
     table.insert(__callback_bank[callback][priority], fn_table)
 
-    return id_counter
+    return __callback_id_counter
 end
 
 
@@ -218,9 +218,9 @@ Removes a registered callback function.
 The ID is the one from $`Callback.add`, Callback#add$.
 ]]
 Callback.remove = function(id)
-    local lookup_table = id_lookup[id]
+    local lookup_table = __callback_id_lookup[id]
     if not lookup_table then return end
-    id_lookup[id] = nil
+    __callback_id_lookup[id] = nil
 
     local cbank_callback = __callback_bank[lookup_table[1]]
     for priority, cbank_priority in pairs(cbank_callback) do
@@ -251,7 +251,7 @@ Callback.remove_all = function(namespace)
                 for i = #cbank_priority, 1, -1 do
                     local fn_table = cbank_priority[i]
                     if fn_table.namespace == namespace then
-                        id_lookup[fn_table.id] = nil
+                        __callback_id_lookup[fn_table.id] = nil
                         table.remove(cbank_priority, i)
                     end
                 end
