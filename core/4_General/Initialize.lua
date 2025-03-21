@@ -2,7 +2,7 @@
 
 Initialize = new_class()
 
-local initialize_bank = {
+if not __initialize_bank then __initialize_bank = { -- Preserve on hotload
     priorities = {}
 }
 
@@ -24,9 +24,9 @@ end
 
 
 Initialize.internal.remove_all = function(namespace)
-    for j = #initialize_bank.priorities, 1, -1 do
-        local priority = initialize_bank.priorities[j]
-        local ibank_priority = initialize_bank[priority]
+    for j = #__initialize_bank.priorities, 1, -1 do
+        local priority = __initialize_bank.priorities[j]
+        local ibank_priority = __initialize_bank[priority]
         for i = #ibank_priority, 1, -1 do
             local init_table = ibank_priority[i]
             if init_table.namespace == namespace then
@@ -34,8 +34,8 @@ Initialize.internal.remove_all = function(namespace)
             end
         end
         if #ibank_priority <= 0 then
-            initialize_bank[priority] = nil
-            table.remove(initialize_bank.priorities, j)
+            __initialize_bank[priority] = nil
+            table.remove(__initialize_bank.priorities, j)
         end
     end
 end
@@ -58,15 +58,15 @@ local function make_metatable_initialize(namespace)
             -- Default priority is 0
             priority = priority or 0
 
-            -- Create initialize_bank priority subtable if it does not exist
-            if not initialize_bank[priority] then
-                initialize_bank[priority] = {}
-                table.insert(initialize_bank.priorities, priority)
-                table.sort(initialize_bank.priorities, function(a, b) return a > b end)
+            -- Create __initialize_bank priority subtable if it does not exist
+            if not __initialize_bank[priority] then
+                __initialize_bank[priority] = {}
+                table.insert(__initialize_bank.priorities, priority)
+                table.sort(__initialize_bank.priorities, function(a, b) return a > b end)
             end
             
             -- Add to subtable
-            table.insert(initialize_bank[priority], {
+            table.insert(__initialize_bank[priority], {
                 namespace   = namespace,
                 fn          = func
             })
@@ -97,8 +97,8 @@ memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int
             -- Call functions
             -- Do not call them again on hotload
             if not init_hotloaded then
-                for _, priority in ipairs(initialize_bank.priorities) do
-                    local ibank_priority = initialize_bank[priority]
+                for _, priority in ipairs(__initialize_bank.priorities) do
+                    local ibank_priority = __initialize_bank[priority]
                     for _, init_table in ipairs(ibank_priority) do
                         local status, err = pcall(init_table.fn)
                         if not status then
