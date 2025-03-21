@@ -58,11 +58,9 @@ Sprite.find = function(identifier, namespace, default_namespace)
     end
 
     -- Look in mod namespace
-    local holder = RValue.new_holder_scr(1)
-    holder[0] = RValue.new(nsid)
-    local out = RValue.new(0)
-    gmf.sprite_find(nil, nil, out, 1, holder)
-    local sprite = RValue.to_wrapper(out)
+    local sprite
+    local namespace_struct = Global.ResourceManager_sprite.__namespacedAssetLookup[namespace]
+    if namespace_struct then sprite = namespace_struct[identifier] end
 
     if sprite then
         sprite = Sprite.wrap(sprite)
@@ -72,11 +70,9 @@ Sprite.find = function(identifier, namespace, default_namespace)
 
     -- Also look in "ror" namespace if user passed no `namespace` arg
     if namespace == default_namespace then
-        local holder = RValue.new_holder_scr(1)
-        holder[0] = RValue.new(ror_nsid)
-        local out = RValue.new(0)
-        gmf.sprite_find(nil, nil, out, 1, holder)
-        local sprite = RValue.to_wrapper(out)
+        local sprite
+        local namespace_struct = Global.ResourceManager_sprite.__namespacedAssetLookup["ror"]
+        if namespace_struct then sprite = namespace_struct[identifier] end
         
         if sprite then
             sprite = Sprite.wrap(sprite)
