@@ -9,52 +9,50 @@ local item_count_cache = {}
 -- ========== Instance Methods ==========
 
 methods_actor = {
-
-    -- TODO
-
-    -- item_give = function(self, item, count, kind)
-    --     if self.value == -4 then return end
-    --     local holder = RValue.new_holder_scr(4)
-    --     holder[0] = RValue.new(self.value, RValue.Type.REF)
-    --     holder[1] = RValue.from_wrapper(item)
-    --     holder[2] = RValue.new(count or 1)
-    --     holder[3] = RValue.new(kind or Item.StackKind.NORMAL)
-    --     gmf.item_give(nil, nil, RValue.new(0), 4, holder)
-    -- end,
+    
+    item_give = function(self, item, count, kind)
+        if self.value == -4 then return end
+        local holder = RValue.new_holder_scr(4)
+        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        holder[1] = RValue.from_wrapper(item)
+        holder[2] = RValue.new(count or 1)
+        holder[3] = RValue.new(kind or Item.StackKind.NORMAL)
+        gmf.item_give(nil, nil, RValue.new(0), 4, holder)
+    end,
 
 
-    -- item_take = function(self, item, count, kind)
-    --     if self.value == -4 then return end
-    --     local holder = RValue.new_holder_scr(4)
-    --     holder[0] = RValue.new(self.value, RValue.Type.REF)
-    --     holder[1] = RValue.from_wrapper(item)
-    --     holder[2] = RValue.new(count or 1)
-    --     holder[3] = RValue.new(kind or Item.StackKind.NORMAL)
-    --     gmf.item_take(nil, nil, RValue.new(0), 4, holder)
-    -- end,
+    item_take = function(self, item, count, kind)
+        if self.value == -4 then return end
+        local holder = RValue.new_holder_scr(4)
+        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        holder[1] = RValue.from_wrapper(item)
+        holder[2] = RValue.new(count or 1)
+        holder[3] = RValue.new(kind or Item.StackKind.NORMAL)
+        gmf.item_take(nil, nil, RValue.new(0), 4, holder)
+    end,
 
 
-    -- item_count = function(self, item, kind)
-    --     local id = self.value
-    --     if id == -4 then return 0 end
+    item_count = function(self, item, kind)
+        local id = self.value
+        if id == -4 then return 0 end
 
-    --     -- Build cache subtable if existn't
-    --     local item = Wrap.unwrap(item)
-    --     local kind = kind or Item.StackKind.ANY
-    --     if not item_count_cache[id] then item_count_cache[id] = {} end
-    --     if not item_count_cache[id][item] then item_count_cache[id][item] = {} end
-    --     if item_count_cache[id][item][kind] then return item_count_cache[id][item][kind] end
+        -- Build cache subtable if existn't
+        local item = Wrap.unwrap(item)
+        local kind = kind or Item.StackKind.ANY
+        if not item_count_cache[id] then item_count_cache[id] = {} end
+        if not item_count_cache[id][item] then item_count_cache[id][item] = {} end
+        if item_count_cache[id][item][kind] then return item_count_cache[id][item][kind] end
 
-    --     local holder = RValue.new_holder_scr(3)
-    --     holder[0] = RValue.new(id, RValue.Type.REF)
-    --     holder[1] = RValue.from_wrapper(item)
-    --     holder[2] = RValue.new(kind or Item.StackKind.NORMAL)
-    --     local out = RValue.new(0)
-    --     gmf.item_count(nil, nil, out, 3, holder)
-    --     local ret = out.value
-    --     item_count_cache[id][item][kind] = ret
-    --     return ret
-    -- end
+        local holder = RValue.new_holder_scr(3)
+        holder[0] = RValue.new(id, RValue.Type.REF)
+        holder[1] = RValue.from_wrapper(item)
+        holder[2] = RValue.new(kind or Item.StackKind.NORMAL)
+        local out = RValue.new(0)
+        gmf.item_count(nil, nil, out, 3, holder)
+        local ret = out.value
+        item_count_cache[id][item][kind] = ret
+        return ret
+    end
 
 }
 

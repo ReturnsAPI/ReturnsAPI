@@ -58,8 +58,7 @@ RValue.to_wrapper = function(rvalue)
         if      yyobjectbase.type == 1  then return rvalue.cinstance
         elseif  yyobjectbase.type == 3  then return rvalue.cscriptref
         end
-        -- return Struct.wrap(rvalue)
-        return yyobjectbase
+        return Struct.wrap(rvalue)
     elseif  rvalue_type == RValue.Type.INT32        then return tonumber(rvalue.i32)  -- Don't see any immediate consequences of doing this
     elseif  rvalue_type == RValue.Type.INT64        then return tonumber(rvalue.i64)
     elseif  rvalue_type == RValue.Type.BOOL         then return (rvalue.value ~= nil and rvalue.value ~= 0)
