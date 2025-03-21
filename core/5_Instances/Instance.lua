@@ -277,6 +277,24 @@ Instance.wrap = function(id)
             return inst
         end
 
+    -- Debug
+    -- Just leave this here; it should never run
+    else
+        print("Instance.wrap error:", inst, inst.value, inst.RAPI)
+
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.from_wrapper(inst)
+        local out = RValue.new(0)
+        gmf.instance_exists(out, nil, nil, 1, holder)
+        RValue.peek(out)
+
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.from_wrapper(inst)
+        holder[1] = RValue.new("object_index")
+        local out = RValue.new(0)
+        gmf.variable_instance_get(out, nil, nil, 2, holder)
+        RValue.peek(out)
+
     end
 
     return inst
