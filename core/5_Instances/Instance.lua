@@ -257,15 +257,13 @@ Instance.wrap = function(id)
 
     local obj_index = inst.object_index
     if obj_index then
-
-        -- TODO
-
+        
         -- Player
-        -- if obj_index == gm.constants.oP then
-        --     inst = Proxy.new(id, metatable_player)
-        --     wrapper_cache[id] = inst
-        --     return inst
-        -- end
+        if obj_index == gm.constants.oP then
+            inst = Proxy.new(id, metatable_player)
+            wrapper_cache[id] = inst
+            return inst
+        end
 
         -- Actor
         local holder = RValue.new_holder(2)
