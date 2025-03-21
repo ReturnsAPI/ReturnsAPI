@@ -291,12 +291,7 @@ memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*"
                 local arg = RValue.to_wrapper(args_typed[i])
 
                 -- Wrap as invalid Instance if -4
-                if (arg_type:match("Instance_oP")
-                or arg_type:match("Instance_pActor")
-                or arg_type:match("Instance"))
-                and arg == -4 then
-                   arg = Instance.wrap(-4)
-                end
+                if arg_type:match("Instance") and arg == -4 then arg = Instance.wrap(-4) end
                 
                 if arg then
                     if      arg_type:match("AttackInfo")    then arg = AttackInfo.wrap(arg)     -- Assuming `arg` is a Struct wrapper
