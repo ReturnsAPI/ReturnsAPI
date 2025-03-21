@@ -49,7 +49,7 @@ LootPool.new = function(namespace, identifier)
     loot_struct.drop_pool                   = List.new()
     loot_struct.available_drop_pool         = List.new()
     loot_struct.is_equipment_pool           = false
-    loot_struct.command_crate_object_id     = 800   -- White crate
+    loot_struct.command_crate_object_id     = 800           -- White crate
 
     -- Push onto array
     loot_pools_array:push(loot_struct)
