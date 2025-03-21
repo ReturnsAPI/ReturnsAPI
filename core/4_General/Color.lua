@@ -106,7 +106,7 @@ Color.Text = ReadOnly.new({
 -- end
 
 
--- -- from lua hex to gamemaker (switch most significant bit)
+-- -- from lua hex to gamemaker (switch most significant bit)c
 -- Color.from_hex = function(hex)
 --     return (hex >> 16) | (hex & 0xff00) | ((hex % 0x100) << 16)
 -- end
