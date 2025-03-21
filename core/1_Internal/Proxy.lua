@@ -25,5 +25,3 @@ Proxy = {
         __proxy_originals[proxy] = value
     end
 }
-
-__class.Proxy = Proxy
