@@ -17,12 +17,19 @@ Util.print = function(...)
 end
 
 
+--$static
+--$return       string, bool
+--$param        value       |           | The value to check.
+--[[
+Returns the type of the value as a string,
+and `true` as a second argument if the value is a RAPI wrapper.
+]]
 Util.type = function(value)
     local _type = type(value)
     if _type == "table" and value.RAPI then
-        return value.RAPI
+        return value.RAPI, true
     end
-    return _type
+    return _type, false
 end
 
 

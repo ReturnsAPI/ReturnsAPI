@@ -74,11 +74,9 @@ end
 -- Variant of Wrap.unwrap that places it into and returns an RValue
 RValue.from_wrapper = function(value)
     -- Get correct RValue.Type
-    local _type = Util.type(value)
+    local _type, is_RAPI = Util.type(value)
     local _type_rvalue = rvalue_type_lookup[_type]
-    if _type == "table" and value.RAPI then
-        value = Proxy.get(value)
-    end
+    if is_RAPI then value = Proxy.get(value) end
 
     -- Make an RValue
     return RValue.new(value, _type_rvalue)

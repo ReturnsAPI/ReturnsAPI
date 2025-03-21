@@ -30,6 +30,12 @@ Map.wrap = function(map)    -- Stores 'real RValue.value'
 end
 
 
+-- Debug
+Map.print_refmap_count = function()
+    print(#__ref_map)
+end
+
+
 
 -- ========== Instance Methods ==========
 
