@@ -32,8 +32,8 @@ end
 
 -- Debug
 -- Don't really need to remove this
-Map.print_refmap_count = function()
-    print(#__ref_map)
+Map.get_refmap_count = function()
+    return #__ref_map
 end
 
 
