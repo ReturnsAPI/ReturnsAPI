@@ -298,10 +298,11 @@ memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*"
                    arg = Instance.wrap(-4)
                 end
                 
-                -- TODO uncomment after re-adding these
-                -- if      arg_type:match("AttackInfo")        then arg = AttackInfo.wrap(arg.value)   -- Assuming `arg` is a Struct wrapper
-                -- elseif  arg_type:match("HitInfo")           then arg = HitInfo.wrap(arg.value)
-                -- end
+                if arg then
+                    if      arg_type:match("AttackInfo")    then arg = AttackInfo.wrap(arg)     -- Assuming `arg` is a Struct wrapper
+                    elseif  arg_type:match("HitInfo")       then arg = HitInfo.wrap(arg)
+                    end
+                end
                 
                 table.insert(wrapped_args, arg)
             end
