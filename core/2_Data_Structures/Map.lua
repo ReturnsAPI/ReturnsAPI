@@ -182,7 +182,7 @@ metatable_map = {
 
 
 -- Create __ref_map
-if __ref_map then __ref_map:destroy() end
+if __ref_map then __ref_map:destroy() end   -- Clear on hotload
 __ref_map = Map.new()
 
 __class.Map = Map
