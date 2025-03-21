@@ -142,13 +142,13 @@ Util.string_to_table = function(string_)
 end
 
 
-local gc_proxies = setmetatable({}, {__mode = "kv"})
+if not __gc_proxies then __gc_proxies = setmetatable({}, {__mode = "kv"}) end
 
 Util.setmetatable_gc = function(t, mt)
     -- `setmetatable` but with `__gc` metamethod enabled
     if mt.__gc then
-        gc_proxies[t] = newproxy(true)
-        getmetatable(gc_proxies[t]).__gc = function()
+        __gc_proxies[t] = newproxy(true)
+        getmetatable(__gc_proxies[t]).__gc = function()
             mt.__gc(t)
         end
     end

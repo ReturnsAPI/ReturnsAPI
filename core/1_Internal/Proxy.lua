@@ -2,12 +2,12 @@
 
 -- This class is private to prevent outside tampering
 
-local originals = setmetatable({}, {__mode = "k"})
+if not __proxy_originals then __proxy_originals = setmetatable({}, {__mode = "k"}) end
 
 Proxy = {
     new = function(t, mt)
         local proxy = {}
-        originals[proxy] = t or {}
+        __proxy_originals[proxy] = t or {}
         Util.setmetatable_gc(proxy, mt or { __index = function(t, k)
                                                 if k == "RAPI" then return getmetatable(t):sub(14, -1) end
                                                 return Proxy.get(t)[k]
@@ -18,11 +18,11 @@ Proxy = {
     end,
 
     get = function(proxy)
-        return originals[proxy]
+        return __proxy_originals[proxy]
     end,
 
     set = function(proxy, value)
-        originals[proxy] = value
+        __proxy_originals[proxy] = value
     end
 }
 
