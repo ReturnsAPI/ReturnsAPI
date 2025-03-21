@@ -31,6 +31,7 @@ end
 
 
 -- Debug
+-- Don't really need to remove this
 Map.print_refmap_count = function()
     print(#__ref_map)
 end
