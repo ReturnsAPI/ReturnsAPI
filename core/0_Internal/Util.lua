@@ -23,6 +23,7 @@ end
 --[[
 Returns the type of the value as a string,
 and `true` as a second argument if the value is a RAPI wrapper.
+Wrappers (which are just tables) will have their type returned.
 ]]
 Util.type = function(value)
     local _type = type(value)
