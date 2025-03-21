@@ -161,11 +161,11 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
     methods_class[class_rapi] = {}  -- Populate in class file
 
     metatable_class_arrays[class_rapi] = {
-        __index = function(t, k)
+        __index = function(proxy, k)
             -- Get wrapped value
-            local value = Proxy.get(t)
+            local value = Proxy.get(proxy)
             if k == "value" then return value end
-            if k == "RAPI" then return getmetatable(t):sub(14, -1) end
+            if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
 
             -- Methods
             if methods_class[class_rapi][k] then
@@ -182,11 +182,11 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
         end,
 
 
-        __newindex = function(t, k, v)
+        __newindex = function(proxy, k, v)
             -- Setter
             local index = class_table.Property[k:upper()]
             if index then
-                Class[class_rapi]:get(Proxy.get(t)):set(index, Wrap.unwrap(v))
+                Class[class_rapi]:get(Proxy.get(proxy)):set(index, Wrap.unwrap(v))
                 return
             end
             log.error("Non-existent "..class_rapi.." property", 2)

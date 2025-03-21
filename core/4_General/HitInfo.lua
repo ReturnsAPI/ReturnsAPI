@@ -27,10 +27,10 @@ methods_hitinfo = {
 -- ========== Metatables ==========
 
 metatable_hitinfo = {
-    __index = function(t, k)
+    __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return Proxy.get(t) end
-        if k == "RAPI" then return getmetatable(t):sub(14, -1) end
+        if k == "value" then return Proxy.get(proxy) end
+        if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
 
         -- Methods
         if methods_hitinfo[k] then
@@ -38,15 +38,25 @@ metatable_hitinfo = {
         end
 
         -- Getter
-        local ret = metatable_struct.__index(t, k)
+        local ret = metatable_struct.__index(proxy, k)
         if k == "attack_info" then ret = AttackInfo.wrap(ret) end
         return ret
     end,
 
 
-    __newindex = function(t, k, v)
+    __newindex = function(proxy, k, v)
         -- Setter
-        return metatable_struct.__newindex(t, k, v)
+        return metatable_struct.__newindex(proxy, k, v)
+    end,
+
+
+    __len = function(proxy)
+        return metatable_struct.__len(proxy)
+    end,
+
+
+    __pairs = function(proxy)
+        return metatable_struct.__pairs(proxy)
     end,
 
     

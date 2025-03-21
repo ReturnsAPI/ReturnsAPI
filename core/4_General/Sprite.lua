@@ -150,10 +150,10 @@ methods_sprite = {
 -- ========== Metatables ==========
 
 metatable_sprite = {
-    __index = function(t, k)
+    __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return Proxy.get(t) end
-        if k == "RAPI" then return getmetatable(t):sub(14, -1) end
+        if k == "value" then return Proxy.get(proxy) end
+        if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
         
         -- Methods
         if methods_sprite[k] then
@@ -164,7 +164,7 @@ metatable_sprite = {
     end,
     
 
-    __newindex = function(t, k, v)
+    __newindex = function(proxy, k, v)
         -- Setter
         log.error("Sprite has no properties to set")
     end,

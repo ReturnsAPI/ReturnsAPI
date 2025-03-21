@@ -175,10 +175,10 @@ methods_loot_pool = {
 -- ========== Metatables ==========
 
 metatable_loot_pool = {
-    __index = function(t, k)
+    __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return Proxy.get(t) end
-        if k == "RAPI" then return getmetatable(t):sub(14, -1) end
+        if k == "value" then return Proxy.get(proxy) end
+        if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
 
         -- Methods
         if methods_loot_pool[k] then
@@ -186,14 +186,14 @@ metatable_loot_pool = {
         end
 
         -- Getter
-        local loot_struct = Global.treasure_loot_pools:get(Proxy.get(t))
+        local loot_struct = Global.treasure_loot_pools:get(Proxy.get(proxy))
         return loot_struct[k]
     end,
 
 
-    __newindex = function(t, k, v)
+    __newindex = function(proxy, k, v)
         -- Setter
-        local loot_struct = Global.treasure_loot_pools:get(Proxy.get(t))
+        local loot_struct = Global.treasure_loot_pools:get(Proxy.get(proxy))
         loot_struct[k] = Wrap.unwrap(v)
     end,
 
