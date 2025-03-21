@@ -161,7 +161,12 @@ methods_loot_pool = {
 
         -- Return both the Item wrapper and item object_index
         return item, obj_id
-    end
+    end,
+
+
+    new_command_crate = function(self)
+        -- TODO generates a new command crate object for the loot pool
+    end,
 
 }
 
