@@ -1,6 +1,6 @@
 -- ENVY
 
-if not NAMESPACE_PATH then NAMESPACE_PATH = {} end  -- Do not reset this on hotload
+if not NAMESPACE_PATH then NAMESPACE_PATH = {} end  -- Preserve on hotload
 
 
 function public.setup(env, namespace)

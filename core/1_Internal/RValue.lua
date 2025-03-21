@@ -63,8 +63,7 @@ RValue.to_wrapper = function(rvalue)
     elseif  rvalue_type == RValue.Type.INT32        then return tonumber(rvalue.i32)  -- Don't see any immediate consequences of doing this
     elseif  rvalue_type == RValue.Type.INT64        then return tonumber(rvalue.i64)
     elseif  rvalue_type == RValue.Type.BOOL         then return (rvalue.value ~= nil and rvalue.value ~= 0)
-    -- elseif  rvalue_type == RValue.Type.REF          then return Instance.wrap(rvalue.i32)
-    elseif  rvalue_type == RValue.Type.REF          then return tonumber(rvalue.i32)
+    elseif  rvalue_type == RValue.Type.REF          then return Instance.wrap(rvalue.i32)
     end
 
     return nil  -- Unset
@@ -74,7 +73,7 @@ end
 -- Variant of Wrap.unwrap that places it into and returns an RValue
 RValue.from_wrapper = function(value)
     -- Get correct RValue.Type
-    local _type, is_RAPI = Util.type(value)
+    local _type, is_RAPI = Util.type(value, true)
     local _type_rvalue = rvalue_type_lookup[_type]
     if is_RAPI then value = Proxy.get(value) end
 

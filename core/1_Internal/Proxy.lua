@@ -2,7 +2,7 @@
 
 -- This class is private to prevent outside tampering
 
-if not __proxy_originals then __proxy_originals = setmetatable({}, {__mode = "k"}) end
+if not __proxy_originals then __proxy_originals = setmetatable({}, {__mode = "k"}) end  -- Preserve on hotload
 
 Proxy = {
     new = function(t, mt)

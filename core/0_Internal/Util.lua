@@ -18,19 +18,22 @@ end
 
 
 --$static
---$return       string, bool
+--$return       string, [bool]
 --$param        value       |           | The value to check.
+--$optional     is_RAPI?    | bool      | If `true`, will return a bool as a second argument. <br>It will be `true` if the type is a RAPI wrapper, and `false` otherwise.
 --[[
-Returns the type of the value as a string,
-and `true` as a second argument if the value is a RAPI wrapper.
+Returns the type of the value as a string
 Wrappers (which are just tables) will have their type returned instead of "table".
 ]]
-Util.type = function(value)
+Util.type = function(value, is_RAPI)
     local _type = type(value)
+    arg2 = false
     if _type == "table" and value.RAPI then
-        return value.RAPI, true
+        _type = value.RAPI
+        arg2 = true
     end
-    return _type, false
+    if is_RAPI then return _type, arg2 end
+    return _type
 end
 
 
@@ -150,7 +153,7 @@ Util.string_to_table = function(string_)
 end
 
 
-if not __gc_proxies then __gc_proxies = setmetatable({}, {__mode = "kv"}) end
+if not __gc_proxies then __gc_proxies = setmetatable({}, {__mode = "kv"}) end   -- Preserve on hotload
 
 Util.setmetatable_gc = function(t, mt)
     -- `setmetatable` but with `__gc` metamethod enabled
