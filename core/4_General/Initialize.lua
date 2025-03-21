@@ -2,9 +2,11 @@
 
 Initialize = new_class()
 
-if not __initialize_bank then __initialize_bank = { -- Preserve on hotload
-    priorities = {}
-}
+if not __initialize_bank then   -- Preserve on hotload
+    __initialize_bank = {
+        priorities = {}
+    }
+end
 
 local initialized = false
 
