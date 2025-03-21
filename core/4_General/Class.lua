@@ -17,10 +17,13 @@ end
 
 -- ========== Metatables ==========
 
--- Populate class_wrappers
 local class_wrappers = {}
-for class_rapi, class_gm in pairs(class_rapi_to_gm) do
-    class_wrappers[class_rapi:upper()] = Global[class_gm]
+
+Class.internal.initialize = function()
+    -- Populate class_wrappers on initialize
+    for class_rapi, class_gm in pairs(class_rapi_to_gm) do
+        class_wrappers[class_rapi:upper()] = Global[class_gm]
+    end
 end
 
 

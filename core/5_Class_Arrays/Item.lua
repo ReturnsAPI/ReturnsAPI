@@ -85,7 +85,7 @@ Creates a new item with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 Item.new = function(namespace, identifier)
-    -- Initialize.internal.check_if_done()  -- TODO
+    Initialize.internal.check_if_done()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing item if found
@@ -196,25 +196,24 @@ methods_class[rapi_name] = {
     end,
 
 
-    set_tier = function(self, tier) -- TODO
+    set_tier = function(self, tier)
         tier = Wrap.unwrap(tier)
         self.tier = tier
 
         -- Remove from all loot pools that the item is in
-        local pools = Global.treasure_loot_pools
-        for i = 1, #pools do
-            local struct = pools[i]
+        local pools = Global.treasure_loot_pools    -- Array
+        for _, struct in ipairs(pools) do
             local drop_pool = List.wrap(struct.drop_pool)
             drop_pool:delete_value(self.object_id)
         end
 
-        -- Add to new loot pool (if it exists)  -- TODO
-        -- local pool = ItemTier.wrap(tier).item_pool_for_reroll
-        -- if pool ~= -1 then LootPool.wrap(pool):add(self) end
+        -- Add to new loot pool (if it exists)
+        local pool = ItemTier.wrap(tier).item_pool_for_reroll
+        if pool ~= -1 then LootPool.wrap(pool):add(self) end
     end,
 
 
-    set_loot_tags = function(self, ...) -- TODO
+    set_loot_tags = function(self, ...)
         local args = {...}
         if type(args[1]) == "table" then args = args[1] end
 
