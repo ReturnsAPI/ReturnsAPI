@@ -165,7 +165,7 @@ methods_loot_pool = {
 
 
     new_command_crate = function(self)
-        -- TODO generates a new command crate object for the loot pool
+        -- TODO generates a new command crate object for the loot pool and sets `command_crate_object_id`
     end,
 
 }
