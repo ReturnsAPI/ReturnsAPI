@@ -1,6 +1,6 @@
 -- ENVY
 
-if not NAMESPACE_PATH then NAMESPACE_PATH = {} end  -- Preserve on hotload
+if not __namespace_path then __namespace_path = {} end  -- Preserve on hotload
 
 
 function public.setup(env, namespace)
@@ -9,7 +9,7 @@ function public.setup(env, namespace)
     end
 
     local namespace = namespace or env["!guid"]
-    NAMESPACE_PATH[namespace] = env["!plugins_mod_folder_path"]
+    __namespace_path[namespace] = env["!plugins_mod_folder_path"]
 
     local wrapper = {}
     for name, class_ref in pairs(__class) do

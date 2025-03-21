@@ -13,7 +13,7 @@ Sprite.new = function(namespace, identifier, path, image_number, x_origin, y_ori
     if not identifier then log.error("No identifier provided", 2) end
     if not path then log.error("No image path provided", 2) end
 
-    path = path:gsub("~", NAMESPACE_PATH[namespace])
+    path = path:gsub("~", __namespace_path[namespace])
 
     -- Search for existing sprite
     local sprite
