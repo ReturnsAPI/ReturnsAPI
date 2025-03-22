@@ -201,7 +201,7 @@ memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*
         if Initialize.is_done() then
             local buff = Buff.wrap(RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address())))
 
-            table.insert(__buff_cache_callbacks, Callback.add("RAPI", buff.on_remove, function(actor)
+            table.insert(__buff_cache_callbacks, Callback.add(_ENV["!guid"], buff.on_remove, function(actor)
                 local id = actor.value
                 if not buff_count_cache[id] then buff_count_cache[id] = {} end
                 buff_count_cache[id][buff.value] = nil
@@ -218,7 +218,7 @@ Actor.internal.initialize = function()
     __buff_cache_callbacks = {}
 
     for buff_id, buff in ipairs(Class.Buff) do
-        table.insert(__buff_cache_callbacks, Callback.add("RAPI", buff:get(11), function(actor)
+        table.insert(__buff_cache_callbacks, Callback.add(_ENV["!guid"], buff:get(11), function(actor)
             local id = actor.value
             if not buff_count_cache[id] then buff_count_cache[id] = {} end
             buff_count_cache[id][buff_id - 1] = nil

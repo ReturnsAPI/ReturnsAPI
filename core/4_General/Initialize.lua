@@ -79,7 +79,7 @@ local function make_metatable_initialize(namespace)
         __metatable = "RAPI.Class.Initialize"
     }
 end
-setmetatable(Initialize, make_metatable_initialize("RAPI"))
+setmetatable(Initialize, make_metatable_initialize(_ENV["!guid"]))
 
 
 
