@@ -1,5 +1,7 @@
 -- Language
 
+-- TODO convert to `Language.english( ...` syntax proposal
+
 Language = new_class()
 
 if not __language_bank then __language_bank = {} end    -- Preserve on hotload
