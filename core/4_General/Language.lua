@@ -10,6 +10,16 @@ if not __language_bank then __language_bank = {} end    -- Preserve on hotload
 
 local language_constants = {
     ENGLISH     = "english",
+    FRENCH      = "french",
+    GERMAN      = "german",
+    ITALIAN     = "italian",
+    JAPANESE    = "japanese",
+    KOREANA     = "koreana",
+    PORTUGUESE  = "portuguese",
+    RUSSIAN     = "russian",
+    SCHINESE    = "schinese",
+    SPANISH     = "spanish",
+    TURKISH     = "turkish"
 }
 
 -- Add to Language directly (e.g., Language.ENGLISH)
