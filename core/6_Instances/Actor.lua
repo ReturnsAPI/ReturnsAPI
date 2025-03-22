@@ -3,6 +3,7 @@
 Actor = new_class()
 
 local item_count_cache = {}
+local buff_count_cache = {}
 
 
 
@@ -52,6 +53,57 @@ methods_actor = {
         local ret = out.value
         item_count_cache[id][item][kind] = ret
         return ret
+    end,
+
+
+    buff_apply = function(self, buff, duration, count)
+        if self.value == -4 then return end
+        if not duration then log.error("buff_apply: duration is missing", 2) end
+        local holder = RValue.new_holder_scr(4)
+        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        holder[1] = RValue.from_wrapper(buff)
+        holder[2] = RValue.new(duration)
+        holder[3] = RValue.new(count or 1)
+        gmf.apply_buff(nil, nil, RValue.new(0), 4, holder)
+
+        -- Clamp to max stack or under
+        -- Funny stuff happens if this is exceeded
+        self.buff_stack:set(buff, math.min(self:buff_count(buff), Buff.wrap(buff).max_stack))
+    end,
+
+
+    buff_remove = function(self, buff, count)
+        if self.value == -4 then return end
+        local current_count = self:buff_count(buff)
+
+        -- Remove buff entirely if count >= current_count
+        if (not count) or count >= current_count then
+            local holder = RValue.new_holder_scr(2)
+            holder[0] = RValue.new(self.value, RValue.Type.REF)
+            holder[1] = RValue.from_wrapper(buff)
+            gmf.remove_buff(nil, nil, RValue.new(0), 2, holder)
+            return
+        end
+
+        -- Decrease count in array
+        self.buff_stack:set(buff, current_count - count)
+        self:recalculate_stats()
+    end,
+
+
+    buff_count = function(self, buff)
+        local id = self.value
+        if id == -4 then return 0 end
+
+        -- Build cache subtable if existn't
+        local buff = Wrap.unwrap(buff)
+        if not buff_count_cache[id] then buff_count_cache[id] = {} end
+        if buff_count_cache[id][buff] then return buff_count_cache[id][buff] end
+
+        local count = self.buff_stack:get(buff)
+        buff_count_cache[id][buff] = count
+        if count == nil then return 0 end
+        return count
     end
 
 }
@@ -109,6 +161,32 @@ for _, hook in ipairs(hooks) do
             local id = actor.value
             if not item_count_cache[id] then item_count_cache[id] = {} end
             item_count_cache[id][item] = {}
+        end,
+
+        -- Post-hook
+        nil}
+    )
+end
+
+
+-- Reset cache when a buff is applied/removed
+
+local hooks = {"apply_buff", "remove_buff"}
+
+for _, hook in ipairs(hooks) do
+    memory.dynamic_hook("RAPI.Actor."..hook, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook]),
+        -- Pre-hook
+        {function(ret_val, self, other, result, arg_count, args)
+            local arg_count = arg_count:get()
+            local args_typed = ffi.cast("struct RValue**", args:get_address())
+
+            -- Get args
+            local actor = RValue.to_wrapper(args_typed[0])
+            local buff  = RValue.to_wrapper(args_typed[1])
+
+            local id = actor.value
+            if not buff_count_cache[id] then buff_count_cache[id] = {} end
+            buff_count_cache[id][buff] = nil
         end,
 
         -- Post-hook
