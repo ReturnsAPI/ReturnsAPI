@@ -168,7 +168,7 @@ end
 
 -- Reset cache when a buff is applied/removed
 
-local hooks = {"apply_buff_internal", "remove_buff_internal"}
+local hooks = {"apply_buff_internal"} --, "remove_buff_internal"}
 
 for _, hook in ipairs(hooks) do
     memory.dynamic_hook("RAPI.Actor."..hook, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook]),
@@ -190,61 +190,33 @@ for _, hook in ipairs(hooks) do
     )
 end
 
--- TODO find hook to reset cache when buff naturally expires
+memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.buff_create),
+    -- Pre-hook
+    {nil,
 
--- memory.dynamic_hook("RAPI.Actor.update_buff_time", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.update_buff_time),
---     -- Pre-hook
---     {nil,
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        if Initialize.is_done() then
+            local buff = Buff.wrap(RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address())))
 
---     -- Post-hook
---     function(ret_val, self, other, result, arg_count, args)
---         local arg_count = arg_count:get()
---         local args_typed = ffi.cast("struct RValue**", args:get_address())
+            Callback.add("RAPI", buff.on_remove, function(actor)
+                local id = actor.value
+                if not buff_count_cache[id] then buff_count_cache[id] = {} end
+                buff_count_cache[id][buff.value] = nil
+            end, 1000000000)    -- Make sure this runs first
+        end
+    end}
+)
 
---         print("update_buff_time")
-
---         -- Get args
---         for i = 0, arg_count - 1 do
---             Util.print(RValue.to_wrapper(args_typed[i]))
---         end
---     end}
--- )
-
--- memory.dynamic_hook("RAPI.Actor.get_buff_time", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.get_buff_time),
---     -- Pre-hook
---     {nil,
-
---     -- Post-hook
---     function(ret_val, self, other, result, arg_count, args)
---         local arg_count = arg_count:get()
---         local args_typed = ffi.cast("struct RValue**", args:get_address())
-
---         print("get_buff_time")
-
---         -- Get args
---         for i = 0, arg_count - 1 do
---             Util.print(RValue.to_wrapper(args_typed[i]))
---         end
---     end}
--- )
-
--- memory.dynamic_hook("RAPI.Actor.set_buff_time_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.set_buff_time_internal),
---     -- Pre-hook
---     {nil,
-
---     -- Post-hook
---     function(ret_val, self, other, result, arg_count, args)
---         local arg_count = arg_count:get()
---         local args_typed = ffi.cast("struct RValue**", args:get_address())
-
---         print("set_buff_time_internal")
-
---         -- Get args
---         for i = 0, arg_count - 1 do
---             Util.print(RValue.to_wrapper(args_typed[i]))
---         end
---     end}
--- )
+Actor.internal.initialize = function()
+    for buff_id, buff in ipairs(Class.Buff) do
+        Callback.add("RAPI", buff:get(11), function(actor)
+            local id = actor.value
+            if not buff_count_cache[id] then buff_count_cache[id] = {} end
+            buff_count_cache[id][buff_id - 1] = nil
+        end, 1000000000)    -- Make sure this runs first
+    end
+end
 
 
 

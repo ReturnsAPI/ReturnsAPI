@@ -17,6 +17,7 @@ local initialized = false
 local function RAPI_initialize()
     Global.internal.initialize()
     Class.internal.initialize()
+    Actor.internal.initialize()
 end
 
 
