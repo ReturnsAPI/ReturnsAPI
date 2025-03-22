@@ -1,7 +1,5 @@
 -- Particle
 
--- TODO actually test
-
 Particle = new_class()
 
 local find_cache = {}
@@ -125,7 +123,7 @@ methods_particle = {
 
     create = function(self, x, y, count, system)
         local holder = RValue.new_holder(5)
-        holder[0] = RValue.new(system or Particle.SYSTEM.above)
+        holder[0] = RValue.new(system or Particle.System.ABOVE)
         holder[1] = RValue.new(x)
         holder[2] = RValue.new(y)
         holder[3] = RValue.new(self.value)
@@ -136,7 +134,7 @@ methods_particle = {
 
     create_color = function(self, x, y, color, count, system)
         local holder = RValue.new_holder(6)
-        holder[0] = RValue.new(system or Particle.SYSTEM.above)
+        holder[0] = RValue.new(system or Particle.System.ABOVE)
         holder[1] = RValue.new(x)
         holder[2] = RValue.new(y)
         holder[3] = RValue.new(self.value)
@@ -146,6 +144,12 @@ methods_particle = {
     end,
     create_colour = function(self, x, y, color, count, system)
         self:create_color(x, y, color, count, system)
+    end,
+
+
+    get_identifier = function(self)
+        local lookup_struct = Global.ResourceManager_particleTypes.__assetName
+        return lookup_struct[self.value]
     end
 
 }
