@@ -20,6 +20,8 @@ local safe = {
 
     gmf.item_give_internal, -- internal versions of these are also not called directly by us
     gmf.item_take_internal,
+    gmf.apply_buff_internal,
+    gmf.remove_buff_internal,
 
     gmf.array_create,
     gmf.array_get,

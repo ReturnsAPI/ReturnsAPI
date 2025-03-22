@@ -186,7 +186,7 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
             -- Setter
             local index = class_table.Property[k:upper()]
             if index then
-                Class[class_rapi]:get(Proxy.get(proxy)):set(index, Wrap.unwrap(v))
+                Class[class_rapi]:get(Proxy.get(proxy)):set(index, v)
                 return
             end
             log.error("Non-existent "..class_rapi.." property", 2)
