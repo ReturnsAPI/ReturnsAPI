@@ -9,7 +9,9 @@ if not __language_registered then __language_registered = {} end    -- Preserve 
 -- ========== Static Methods ==========
 
 Language.translate_token = function(token)
-    local text = Map.wrap(Global._language_map):get(token)
+    local language_map = Global._language_map
+    if type(language_map) == "number" then language_map = Map.wrap(language_map) end
+    local text = language_map:get(token)
     if text then return text end
     return token
 end
