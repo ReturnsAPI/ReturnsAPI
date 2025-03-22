@@ -59,11 +59,10 @@ memory.dynamic_hook("RAPI.Buff.init_actor_default", "void*", {"CInstance*", "voi
     function(ret_val, self, other, result, arg_count, args)
         -- This is pretty bad ngl
         -- but also this only runs once per actor so whatever
-        local array_i64 = Instance.wrap(self.id).buff_stack.value
-
-        if array_i64 then
+        local array = Instance.wrap(self.id).buff_stack
+        if array then
             local holder = RValue.new_holder(2)
-            holder[0] = RValue.new(array_i64, RValue.Type.ARRAY)
+            holder[0] = RValue.from_wrapper(array)
             holder[1] = RValue.new(Global.count_buff)
             gmf.array_resize(RValue.new(0), nil, nil, 2, holder)
         end

@@ -63,7 +63,7 @@ methods_array = {
         if index >= size then log.error("Array index out of bounds", 2) end
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
-        holder[1] = RValue.new(index)
+        holder[1] = RValue.from_wrapper(index)
         local out = RValue.new(0)
         gmf.array_get(out, nil, nil, 2, holder)
         return RValue.to_wrapper(out)
@@ -73,7 +73,7 @@ methods_array = {
     set = function(self, index, value)
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
-        holder[1] = RValue.new(index)
+        holder[1] = RValue.from_wrapper(index)
         holder[2] = RValue.from_wrapper(value)
         gmf.array_set(RValue.new(0), nil, nil, 3, holder)
     end,
@@ -135,7 +135,7 @@ methods_array = {
         if not index then return end
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
-        holder[1] = RValue.new(index)
+        holder[1] = RValue.from_wrapper(index)
         holder[2] = RValue.new(1)
         gmf.array_delete(RValue.new(0), nil, nil, 3, holder)
     end,
@@ -154,8 +154,8 @@ methods_array = {
         local holder = RValue.new_holder(4)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         holder[1] = RValue.from_wrapper(value)
-        holder[2] = RValue.new(offset or 0)
-        holder[3] = RValue.new(length or self:size())
+        holder[2] = RValue.from_wrapper(offset or 0)
+        holder[3] = RValue.from_wrapper(length or self:size())
         local out = RValue.new(0)
         gmf.array_contains(out, nil, nil, 4, holder)
         return RValue.to_wrapper(out)
@@ -174,7 +174,7 @@ methods_array = {
     sort = function(self, descending)
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
-        holder[1] = RValue.new(not descending, RValue.Type.BOOL)
+        holder[1] = RValue.from_wrapper(not descending, RValue.Type.BOOL)
         gmf.array_sort(RValue.new(0), nil, nil, 2, holder)
     end
     
