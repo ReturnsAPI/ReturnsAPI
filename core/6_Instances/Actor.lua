@@ -5,6 +5,8 @@ Actor = new_class()
 local item_count_cache = {}
 local buff_count_cache = {}
 
+if not __buff_cache_callbacks then __buff_cache_callbacks = {} end  -- Preserve on hotload
+
 
 
 -- ========== Instance Methods ==========
@@ -199,22 +201,28 @@ memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*
         if Initialize.is_done() then
             local buff = Buff.wrap(RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address())))
 
-            Callback.add("RAPI", buff.on_remove, function(actor)
+            table.insert(__buff_cache_callbacks, Callback.add("RAPI", buff.on_remove, function(actor)
                 local id = actor.value
                 if not buff_count_cache[id] then buff_count_cache[id] = {} end
                 buff_count_cache[id][buff.value] = nil
-            end, 1000000000)    -- Make sure this runs first
+            end, 1000000000))   -- Make sure this runs first
         end
     end}
 )
 
 Actor.internal.initialize = function()
+    -- Remove previous callbacks
+    for _, id in ipairs(__buff_cache_callbacks) do
+        Callback.remove(id)
+    end
+    __buff_cache_callbacks = {}
+
     for buff_id, buff in ipairs(Class.Buff) do
-        Callback.add("RAPI", buff:get(11), function(actor)
+        table.insert(__buff_cache_callbacks, Callback.add("RAPI", buff:get(11), function(actor)
             local id = actor.value
             if not buff_count_cache[id] then buff_count_cache[id] = {} end
             buff_count_cache[id][buff_id - 1] = nil
-        end, 1000000000)    -- Make sure this runs first
+        end, 1000000000))   -- Make sure this runs first
     end
 end
 
