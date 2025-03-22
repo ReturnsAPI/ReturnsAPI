@@ -89,14 +89,23 @@ end
 
 
 Particle.find_all = function(namespace, _namespace)
-    -- Check only mod namespace by default
+    -- Check mod namespace and "ror" by default if unspecified
+    local specified
+    if _namespace then specified = true end
     local _namespace = _namespace or namespace
+    
     local lookup_struct = Global.ResourceManager_particleTypes.__namespacedAssetLookup
-    if not lookup_struct[_namespace] then return {}, 0 end
 
     local parts = {}
-    for _, part in pairs(lookup_struct[_namespace]) do
-        table.insert(parts, Particle.wrap(part))
+    if lookup_struct[_namespace] then
+        for _, part in pairs(lookup_struct[_namespace]) do
+            table.insert(parts, Particle.wrap(part))
+        end
+    end
+    if not specified then
+        for _, part in pairs(lookup_struct["ror"]) do
+            table.insert(parts, Particle.wrap(part))
+        end
     end
     
     return parts, #parts > 0
