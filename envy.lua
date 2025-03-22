@@ -106,5 +106,6 @@ function public.auto(properties)
     local namespace = properties.namespace or env["!guid"]
     if Callback         then Callback.remove_all(namespace) end
     if Initialize       then Initialize.internal.remove_all(namespace) end
+    if Language         then Language.internal.remove_all(namespace) end
     if RecalculateStats then RecalculateStats.remove_all(namespace) end
 end

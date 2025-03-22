@@ -85,7 +85,7 @@ setmetatable(Initialize, make_metatable_initialize(_ENV["!guid"]))
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__input_system_tick),
+memory.dynamic_hook("RAPI.Initialize.__input_system_tick", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__input_system_tick),
     -- Pre-hook
     {nil,
 
@@ -102,7 +102,7 @@ memory.dynamic_hook("RAPI.initialize", "void*", {"void*", "void*", "void*", "int
             if not init_hotloaded then
                 for _, priority in ipairs(__initialize_bank.priorities) do
                     local ibank_priority = __initialize_bank[priority]
-                    for _, init_table in ipairs(ibank_priority) do
+                    for __, init_table in ipairs(ibank_priority) do
                         local status, err = pcall(init_table.fn)
                         if not status then
                             log.warning("\n"..init_table.namespace..": Initialize failed to execute fully.\n"..err)
