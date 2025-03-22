@@ -50,13 +50,15 @@ end
 
 
 Object.find = function(identifier, namespace, default_namespace)
+    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
+
     local nsid = namespace.."-"..identifier
     local ror_nsid = "ror-"..identifier
 
     -- Check in cache (both mod namespace and "ror")
     local cached = find_cache[nsid]
     if cached then return cached end
-    if namespace == default_namespace then
+    if not is_specified then
         local cached = find_cache[ror_nsid]
         if cached then return cached end
     end
@@ -74,7 +76,7 @@ Object.find = function(identifier, namespace, default_namespace)
     end
 
     -- Also search for object in "ror" and then gm.constants if no namespace arg
-    if namespace == default_namespace then
+    if not is_specified then
         local holder = RValue.new_holder_scr(1)
         holder[0] = RValue.new(ror_nsid)
         local out = RValue.new(0)

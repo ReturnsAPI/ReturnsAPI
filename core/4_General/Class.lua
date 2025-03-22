@@ -134,6 +134,8 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
     class_table.Property = ReadOnly.new(capitalized)
 
     class_table.find = function(identifier, namespace, default_namespace)
+        local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
+
         -- Search in namespace
         local namespace_table = __class_find_tables[class_gm][namespace]
         if namespace_table then
@@ -141,8 +143,8 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
             if element then return class_table.wrap(element) end
         end
 
-        -- Also search in "ror" namespace if default namespace (i.e., No namespace arg)
-        if namespace == default_namespace then
+        -- Also search in "ror" namespace by default if unspecified
+        if not is_specified then
             element = __class_find_tables[class_gm]["ror"][identifier]
             if element then return class_table.wrap(element) end
         end

@@ -46,13 +46,15 @@ end
 
 
 Sprite.find = function(identifier, namespace, default_namespace)
+    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
+
     local nsid = namespace.."-"..identifier
     local ror_nsid = "ror-"..identifier
 
     -- Check in cache (both mod namespace and "ror")
     local cached = find_cache[nsid]
     if cached then return cached end
-    if namespace == default_namespace then
+    if not is_specified then
         local cached = find_cache[ror_nsid]
         if cached then return cached end
     end
@@ -69,7 +71,7 @@ Sprite.find = function(identifier, namespace, default_namespace)
     end
 
     -- Also look in "ror" namespace if user passed no `namespace` arg
-    if namespace == default_namespace then
+    if not is_specified then
         local sprite
         local namespace_struct = Global.ResourceManager_sprite.__namespacedAssetLookup["ror"]
         if namespace_struct then sprite = namespace_struct[identifier] end

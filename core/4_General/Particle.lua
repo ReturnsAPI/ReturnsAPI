@@ -52,13 +52,15 @@ end
 
 
 Particle.find = function(identifier, namespace, default_namespace)
+    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
+    
     local nsid = namespace.."-"..identifier
     local ror_nsid = "ror-"..identifier
 
     -- Check in cache (both mod namespace and "ror")
     local cached = find_cache[nsid]
     if cached then return cached end
-    if namespace == default_namespace then
+    if not is_specified then
         local cached = find_cache[ror_nsid]
         if cached then return cached end
     end
@@ -74,7 +76,7 @@ Particle.find = function(identifier, namespace, default_namespace)
     end
 
     -- Search in "ror" as well if no namespace provided
-    if namespace == default_namespace then
+    if not is_specified then
         if lookup_struct["ror"] then
             if lookup_struct["ror"][identifier] then
                 local part = Particle.wrap(lookup_struct["ror"][identifier])
@@ -89,20 +91,19 @@ end
 
 
 Particle.find_all = function(namespace, _namespace)
-    -- Check mod namespace and "ror" by default if unspecified
-    local specified
-    if _namespace then specified = true end
-    local _namespace = _namespace or namespace
+    local namespace, is_specified = parse_optional_namespace(_namespace, namespace)
     
+    local parts = {}
     local lookup_struct = Global.ResourceManager_particleTypes.__namespacedAssetLookup
 
-    local parts = {}
-    if lookup_struct[_namespace] then
-        for _, part in pairs(lookup_struct[_namespace]) do
+    if lookup_struct[namespace] then
+        for _, part in pairs(lookup_struct[namespace]) do
             table.insert(parts, Particle.wrap(part))
         end
     end
-    if not specified then
+
+    -- Check mod namespace and "ror" by default if unspecified
+    if not is_specified then
         for _, part in pairs(lookup_struct["ror"]) do
             table.insert(parts, Particle.wrap(part))
         end

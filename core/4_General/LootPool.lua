@@ -87,6 +87,8 @@ end
 
 
 LootPool.find = function(identifier, namespace, default_namespace)
+    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
+
     -- Search in namespace
     local namespace_table = loot_pool_find_table[namespace]
     if namespace_table then
@@ -95,7 +97,7 @@ LootPool.find = function(identifier, namespace, default_namespace)
     end
 
     -- Also check vanilla tiers if no namespace arg
-    if namespace == default_namespace then
+    if not is_specified then
         local id = pool_constants[identifier:upper()]
         if id then return LootPool.wrap(id) end
     end

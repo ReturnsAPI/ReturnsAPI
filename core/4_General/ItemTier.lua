@@ -70,6 +70,8 @@ end
 
 
 ItemTier.find = function(identifier, namespace, default_namespace)
+    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
+
     -- Search in namespace
     local namespace_table = item_tier_find_table[namespace]
     if namespace_table then
@@ -78,7 +80,7 @@ ItemTier.find = function(identifier, namespace, default_namespace)
     end
 
     -- Also check vanilla tiers if no namespace arg
-    if namespace == default_namespace then
+    if not is_specified then
         local id = tier_constants[identifier:upper()]
         if id then return ItemTier.wrap(id) end
     end
