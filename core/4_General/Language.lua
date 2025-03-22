@@ -44,7 +44,8 @@ end
 
 local function load_from_folder(folder_path)
     local language = GM._mod_language_getLanguageName()
-    local language_map = Map.wrap(Global._language_map)
+    local language_map = Global._language_map
+    if type(language_map) == "number" then language_map = Map.wrap(language_map) end
 
     local eng_file = nil
     local eng_folder = nil
