@@ -91,6 +91,17 @@ setmetatable(Language, make_metatable_language(_ENV["!guid"]))
 
 -- ========== Hooks ==========
 
+local function parse_keys(map, t, key)
+    for k, v in pairs(t) do
+        if not key then key = k
+        else key = key.."."..k
+        end
+        if type(v) == "table" then parse_keys(map, v, key)
+        else map:set(key, tostring(v))
+        end
+    end
+end
+
 memory.dynamic_hook("RAPI.Language.translate_load_active_language", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.translate_load_active_language),
     -- Pre-hook
     {nil,
@@ -103,9 +114,7 @@ memory.dynamic_hook("RAPI.Language.translate_load_active_language", "void*", {"v
         if __language_bank[language] then
             for _, priority in ipairs(__language_bank[language].priorities) do
                 for __, lang_table in ipairs(__language_bank[language][priority]) do
-                    local key_table = lang_table.table
-
-                    -- TODO recursively parse key_table and add to _language_map
+                    parse_keys(language_map, lang_table.table)
                 end
             end
         end
