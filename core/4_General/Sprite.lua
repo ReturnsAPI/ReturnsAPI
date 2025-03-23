@@ -61,7 +61,8 @@ Sprite.find = function(identifier, namespace, default_namespace)
 
     -- Look in mod namespace
     local sprite
-    local namespace_struct = Global.ResourceManager_sprite.__namespacedAssetLookup[namespace]
+    local resource_manager = Global.ResourceManager_sprite.__namespacedAssetLookup
+    local namespace_struct = resource_manager[namespace]
     if namespace_struct then sprite = namespace_struct[identifier] end
 
     if sprite then
@@ -73,7 +74,7 @@ Sprite.find = function(identifier, namespace, default_namespace)
     -- Also look in "ror" namespace if user passed no `namespace` arg
     if not is_specified then
         local sprite
-        local namespace_struct = Global.ResourceManager_sprite.__namespacedAssetLookup["ror"]
+        local namespace_struct = resource_manager["ror"]
         if namespace_struct then sprite = namespace_struct[identifier] end
         
         if sprite then

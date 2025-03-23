@@ -53,7 +53,8 @@ Sound.find = function(identifier, namespace, default_namespace)
 
     -- Look in mod namespace
     local sound
-    local namespace_struct = Global.ResourceManager_audio.__namespacedAssetLookup[namespace]
+    local resource_manager = Global.ResourceManager_audio.__namespacedAssetLookup
+    local namespace_struct = resource_manager[namespace]
     if namespace_struct then sound = namespace_struct[identifier] end
 
     if sound then
@@ -65,7 +66,7 @@ Sound.find = function(identifier, namespace, default_namespace)
     -- Also look in "ror" namespace if user passed no `namespace` arg
     if not is_specified then
         local sound
-        local namespace_struct = Global.ResourceManager_audio.__namespacedAssetLookup["ror"]
+        local namespace_struct = resource_manager["ror"]
         if namespace_struct then sound = namespace_struct[identifier] end
         
         if sound then
