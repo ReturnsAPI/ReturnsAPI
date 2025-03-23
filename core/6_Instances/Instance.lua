@@ -376,13 +376,13 @@ methods_instance = {
 for scr, _ in pairs(GM.internal.builtin) do
     methods_instance[scr] = function(self, ...)
         if self.value == -4 then log.error("Instance does not exist", 2) end
-        methods_GM.callso(scr)(self, self, ...)
+        return methods_GM.callso(scr)(self, self, ...)
     end
 end
 for scr, _ in pairs(GM.internal.script) do
     methods_instance[scr] = function(self, ...)
         if self.value == -4 then log.error("Instance does not exist", 2) end
-        methods_GM.callso(scr)(self, self, ...)
+        return methods_GM.callso(scr)(self, self, ...)
     end
 end
 
