@@ -52,4 +52,4 @@ local safe = {
 
     gmf.instance_number,
 }
--- for _, v in ipairs(safe) do jit.on(v) end    -- TODO reenable when everything is fine
+for _, v in ipairs(safe) do jit.on(v) end    -- TODO reenable when everything is fine

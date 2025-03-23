@@ -153,7 +153,31 @@ for class_rapi, class_gm in pairs(class_rapi_to_gm) do
     end
 
     class_table.find_all = function(filter, property)
-        -- TODO
+        local elements = {}
+        local filter = Wrap.unwrap(filter) or "ror"
+        local property = property or 0  -- Namespace filter by default
+
+        -- Namespace filter
+        if property == 0 then
+            local namespace_table = __class_find_tables[class_gm][filter]
+            if namespace_table then
+                for identifier, element in pairs(namespace_table) do
+                    table.insert(elements, class_table.wrap(element))
+                end
+            end
+
+        -- Other filter
+        else
+            local class_array = Class[class_rapi]
+            for id, element in ipairs(class_array) do
+                if Util.type(element) == "Array"
+                and element:get(property) == filter then
+                    table.insert(elements, class_table.wrap(id - 1))
+                end
+            end
+        end
+
+        return elements, #elements > 0
     end
 
     class_table.wrap = function(value)
