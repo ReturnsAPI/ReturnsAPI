@@ -70,7 +70,7 @@ is_hidden       | bool      |
 effect_display  |           | 
 actor_component |           | 
 loot_tags       | number    | The sum of all loot tags applied to the item.
-is_new_item     | bool      | `true` for new vanilla items added in *Returns*, and for new modded items.
+is_new_item     | bool      | `true` for new vanilla items added in *Returns*.
 ]]
 
 
