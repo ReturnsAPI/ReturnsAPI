@@ -11,12 +11,14 @@ local structures = {}
 Global.internal.initialize = function()
     -- Cache for some globals; add to it if needed
     structures = {
-        artifact_cognation_enemy_blacklist = Map.wrap(GM.variable_global_get("artifact_cognation_enemy_blacklist")),
-        item_log_display_list   = List.wrap(GM.variable_global_get("item_log_display_list")),
-        item_tiers              = GM.variable_global_get("item_tiers"),
-        custom_object           = GM.variable_global_get("custom_object"),
-        treasure_loot_pools     = GM.variable_global_get("treasure_loot_pools"),
-        _language_map           = Map.wrap(GM.variable_global_get("_language_map")),
+        artifact_cognation_enemy_blacklist  = Map.wrap(GM.variable_global_get("artifact_cognation_enemy_blacklist")),
+        custom_object                   = GM.variable_global_get("custom_object"),
+        environment_log_display_list    = List.wrap(GM.variable_global_get("environment_log_display_list")),
+        item_log_display_list           = List.wrap(GM.variable_global_get("item_log_display_list")),
+        item_tiers                      = GM.variable_global_get("item_tiers"),
+        stage_progression_order         = GM.variable_global_get("stage_progression_order"),
+        treasure_loot_pools             = GM.variable_global_get("treasure_loot_pools"),
+        _language_map                   = Map.wrap(GM.variable_global_get("_language_map")),
     }
 end
 
