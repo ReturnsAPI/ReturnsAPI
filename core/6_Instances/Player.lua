@@ -7,7 +7,7 @@ Player = new_class()
 -- ========== Static Methods ==========
 
 Player.get_local = function()
-    if Net.online() then return Global.my_player end
+    if Net.is_online() then return Global.my_player end
 
     -- Return first oP to exist
     -- (which I think is always the local player)

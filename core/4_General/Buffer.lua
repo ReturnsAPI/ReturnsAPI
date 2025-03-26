@@ -3,6 +3,8 @@
 -- TODO read comments below and figure out
 if true then return end
 
+-- TODO test if everything still works
+
 Buffer = new_class()
 
 
@@ -47,6 +49,7 @@ methods_buffer = {
         holder[1] = RValue.from_wrapper(instance)
         gmf.write_instance_direct(nil, nil, RValue.new(0), 2, holder)
     end,
+
     read_instance = function(self)
         -- TODO test if read_instance_direct is an instance ID here (or RValue.Type.REF)
         -- if not, will have to get .id
@@ -54,6 +57,7 @@ methods_buffer = {
         holder[0] = RValue.new(self.value)  -- TODO figure out what type RValue type to wrap `self.value` as
         local out = RValue.new(0)
         gmf.read_instance_direct(nil, nil, out, 1, holder)
+        RValue.peek(out)    -- TODO get the result of this
         local inst = RValue.to_wrapper(out)
         return Instance.wrap(inst)
     end,
@@ -106,6 +110,8 @@ metatable_buffer = {
 
     __metatable = "RAPI.Wrapper.Buffer"
 }
+
+
 
 -- No reason to export this since there are zero static methods the user can call (if .wrap is in `internal`)
 -- __class.Buffer = Buffer
