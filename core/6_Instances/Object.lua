@@ -45,7 +45,24 @@ Object.CUSTOM_START = 800
 -- ========== Static Methods ==========
 
 Object.new = function(namespace, identifier, parent)
-    
+    Initialize.internal.check_if_done()
+    if not identifier then log.error("No identifier provided", 2) end
+
+    -- Return existing object if found
+    local obj = Object.find(identifier, namespace)
+    if obj then return obj end
+
+    -- Create new object
+    obj = GM.object_add_w(
+        namespace,
+        identifier,
+        Wrap.unwrap(parent)
+    )
+
+    -- Add to Cognition artifact blacklist
+    Global.artifact_cognation_enemy_blacklist:set(obj, true)
+
+    return Object.wrap(obj)
 end
 
 
