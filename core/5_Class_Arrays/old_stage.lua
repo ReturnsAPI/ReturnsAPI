@@ -1,5 +1,9 @@
 -- Stage
 
+if true then return end
+
+
+
 Stage = class_refs["Stage"]
 
 local populate_biome = {}
