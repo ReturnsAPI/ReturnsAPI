@@ -55,6 +55,6 @@ local safe = {
 }
 -- for _, v in ipairs(safe) do jit.on(v) end    -- TODO reenable when everything is fine
 
-for k, v in pairs(gmf) do
-    if type(v) == "function" and (not safe[k]) then jit.off(v) end
-end
+-- for k, v in pairs(gmf) do
+--     if type(v) == "function" and (not safe[k]) then jit.off(v) end
+-- end
