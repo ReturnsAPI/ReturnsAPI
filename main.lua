@@ -66,6 +66,9 @@ gui.add_imgui(function()
             Util.benchmark(100000, gm.instance_number, gm.constants.oP)
             Util.benchmark(100000, GM.instance_number, gm.constants.oP)
             Util.benchmark(100000, foo, gm.constants.oP)
+
+            print(gm.instance_number(gm.constants.oP))
+            print(GM.instance_number(gm.constants.oP))
         end
 
     end

@@ -28,8 +28,9 @@ Wrappers (which are just tables) will have their type returned instead of "table
 Util.type = function(value, is_RAPI)
     local _type = type(value)
     arg2 = false
-    if _type == "table" and value.RAPI then
-        _type = value.RAPI
+    if _type == "table" then
+        local RAPI = value.RAPI
+        if RAPI then _type = RAPI end
         arg2 = true
     end
     if is_RAPI then return _type, arg2 end

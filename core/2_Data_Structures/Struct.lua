@@ -21,8 +21,8 @@ Struct.wrap = function(struct)  -- Stores 'object RValue.yy_object_base (type 0)
 end
 
 
-Struct.internal.wrap_yyobjectbase = function(struct)  -- Stores 'object RValue.yy_object_base (type 0)'
-    -- `struct` is an 'object RValue.yy_object_base (type 0)'
+Struct.wrap_yyobjectbase = function(struct)  -- Stores 'object RValue.yy_object_base (type 0)'
+    -- `struct` is an 'object RValue.yy_object_base (type 0)' / 'struct YYObjectBase*'
     local proxy = Proxy.new(struct, metatable_struct)
     __ref_map:set(proxy, true)
     return proxy

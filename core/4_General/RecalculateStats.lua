@@ -234,9 +234,9 @@ memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"YYObje
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        local lua_number = gm.gmf_convert_yyobjectbase(self)
+        local lua_number = memory.get_usertype_pointer(self)
         local self_cdata = ffi.cast("YYObjectBase*", lua_number)
-        local self_struct = Struct.internal.wrap_yyobjectbase(self_cdata)
+        local self_struct = Struct.wrap_yyobjectbase(self_cdata)
 
         -- Get skill_id
         local skill_id = self_struct.skill_id or 0

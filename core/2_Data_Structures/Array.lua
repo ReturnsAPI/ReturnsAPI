@@ -44,6 +44,14 @@ Array.wrap = function(array)    -- Stores `array RValue.i64`
 end
 
 
+Array.wrap_i64 = function(array)    -- Stores `array RValue.i64`
+    -- `array` is a number
+    local proxy = Proxy.new(array, metatable_array)
+    __ref_map:set(proxy, true)
+    return proxy
+end
+
+
 Array.is = function(value)
     -- `value` is either an `array RValue` or an Array wrapper
     local _type = Util.type(value)

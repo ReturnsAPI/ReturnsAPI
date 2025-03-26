@@ -26,16 +26,13 @@ methods_GM = {
             if GM.internal.builtin[k] then
                 function_cache[k] = function(...)
                     local args = table.pack(...)
-                    local holder = RValue.new_holder(args.n)
 
-                    -- Populate holder
+                    -- Convert args to sol where applicable
                     for i = 1, args.n do
-                        holder[i - 1] = RValue.from_wrapper(args[i])
+                        args[i] = Wrap.unwrap_to_sol(args[i])
                     end
 
-                    local out = RValue.new(0)
-                    gmf[k](out, nil, nil, args.n, holder)
-                    return RValue.to_wrapper(out)
+                    return RValue.sol_to_wrapper(gm.call(k, nil, nil, table.unpack(args)))
                 end
 
             elseif GM.internal.object[k] then
@@ -71,16 +68,13 @@ methods_GM = {
             if GM.internal.builtin[k] then
                 function_cache_callso[k] = function(self, other, ...)
                     local args = table.pack(...)
-                    local holder = RValue.new_holder(args.n)
 
-                    -- Populate holder
+                    -- Convert args to sol where applicable
                     for i = 1, args.n do
-                        holder[i - 1] = RValue.from_wrapper(args[i])
+                        args[i] = Wrap.unwrap_to_sol(args[i])
                     end
 
-                    local out = RValue.new(0)
-                    gmf[k](out, self.CInstance, other.CInstance, args.n, holder)
-                    return RValue.to_wrapper(out)
+                    return RValue.sol_to_wrapper(gm.call(k, Wrap.unwrap_to_sol(self), Wrap.unwrap_to_sol(other), table.unpack(args)))
                 end
 
             elseif GM.internal.object[k] then

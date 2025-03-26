@@ -75,7 +75,7 @@ RValue.to_wrapper = function(rvalue)
                 end
 
                 local out = RValue.new(0)
-                gmf[script_name](ffi.cast("struct CInstance *", self), ffi.cast("struct CInstance *", other), out, args.n, holder)
+                gmf[script_name](ffi.cast("struct CInstance*", self), ffi.cast("struct CInstance*", other), out, args.n, holder)
                 return RValue.to_wrapper(out)
             end
         end
@@ -87,6 +87,20 @@ RValue.to_wrapper = function(rvalue)
     end
 
     return nil  -- Unset
+end
+
+
+RValue.sol_to_wrapper = function(value)
+    if type(value) == "userdata" then
+        local rvalue
+        local _type = getmetatable(value).__name
+        if      _type == "sol.RefDynamicArrayOfRValue*" then rvalue = RValue.new(memory.get_usertype_pointer(value), RValue.Type.ARRAY)
+        elseif  _type == "sol.YYObjectBase*"            then rvalue = RValue.new(ffi.cast("struct YYObjectBase*", memory.get_usertype_pointer(value)), RValue.Type.OBJECT)
+        elseif  _type == "sol.CInstance*"               then rvalue = RValue.new(value.id, RValue.Type.REF)
+        end
+        return RValue.to_wrapper(rvalue)
+    end
+    return value
 end
 
 
