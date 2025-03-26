@@ -56,7 +56,28 @@ RValue.to_wrapper = function(rvalue)
     elseif  rvalue_type == RValue.Type.OBJECT then
         local yyobjectbase = rvalue.yy_object_base
         if      yyobjectbase.type == 1  then return rvalue.cinstance
-        elseif  yyobjectbase.type == 3  then return rvalue.cscriptref
+        elseif  yyobjectbase.type == 3  then
+            -- return rvalue.cscriptref
+
+            -- return function(self, other, ...)
+            --     return methods_GM.callso(ffi.string(rvalue.cscriptref.m_call_script.m_script_name):sub(12, -1))(self, other, ...)
+            -- end
+
+            local script_name = ffi.string(rvalue.cscriptref.m_call_script.m_script_name):sub(12, -1)
+
+            return function(self, other, ...)
+                local args = table.pack(...)
+                local holder = RValue.new_holder_scr(args.n)
+
+                -- Populate holder
+                for i = 1, args.n do
+                    holder[i - 1] = RValue.from_wrapper(args[i])
+                end
+
+                local out = RValue.new(0)
+                gmf[script_name](ffi.cast("struct CInstance *", self), ffi.cast("struct CInstance *", other), out, args.n, holder)
+                return RValue.to_wrapper(out)
+            end
         end
         return Struct.wrap(rvalue)
     elseif  rvalue_type == RValue.Type.INT32        then return tonumber(rvalue.i32)  -- Don't see any immediate consequences of doing this

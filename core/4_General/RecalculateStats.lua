@@ -1,7 +1,5 @@
 -- RecalculateStats
 
-if true then return end -- TODO fix and remove
-
 RecalculateStats = new_class()
 
 if not __recalc_stats_callbacks then __recalc_stats_callbacks = {} end  -- Preserve on hotload
@@ -116,14 +114,20 @@ end
 api = ReadOnly.new(api)
 
 local function gather_params(self)
-    Util.print(self)
     reset_params()
 
-    local inst = Instance.internal.wrap(self, metatable_actor, true)
+    -- local inst = Instance.wrap(self)     -- self is already 'Actor' or 'Player'
+
+    -- Debug
+    -- Just leave this here; it should never run
+    if type(self) == "userdata" then
+        print("gather_params: userdata detected")
+        print(getmetatable(self).__name)
+    end
 
     for namespace, funcs in pairs(__recalc_stats_callbacks) do
         for _, fn in ipairs(funcs) do
-            fn(inst, api)
+            fn(self, api)
         end
     end
 end
@@ -135,8 +139,7 @@ end
 memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"CInstance*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.recalculate_stats),
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
-        print("recalc stats", self)
-        gather_params(self)
+        gather_params(Instance.wrap(self.id))   -- TODO use converter when iDeath is done
     end,
 
     -- Post-hook
@@ -231,10 +234,9 @@ memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"YYObje
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        Util.print("self", self)    -- TODO
-        Util.print(self.yy_object_base, self.value, getmetatable(self).__name)
-        self_struct = RValue.to_wrapper(self)
-        Util.print("self_struct", self_struct)
+        local lua_number = gm.gmf_convert_yyobjectbase(self)
+        local self_cdata = ffi.cast("YYObjectBase*", lua_number)
+        local self_struct = Struct.internal.wrap_yyobjectbase(self_cdata)
 
         -- Get skill_id
         local skill_id = self_struct.skill_id or 0
@@ -242,7 +244,7 @@ memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"YYObje
         -- Check if skill is primary
         local is_primary = class_skill:get(skill_id):get(17) or false
         if is_primary then return end
-
+        
         gather_params(self_struct.parent)
 
         local skill_index = self_struct.slot_index or 1
@@ -263,7 +265,9 @@ memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"YYObje
         local auto_restock = class_skill:get(skill_id):get(10) or false
         if auto_restock then
             local skill_start_cooldown = self_struct.skill_start_cooldown
-            skill_start_cooldown(self_struct, self_struct)
+
+            -- TODO verify that this actually works
+            skill_start_cooldown(self_struct.value, self_struct.value)
         end
     end}
 )

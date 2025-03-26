@@ -21,6 +21,14 @@ Struct.wrap = function(struct)  -- Stores 'object RValue.yy_object_base (type 0)
 end
 
 
+Struct.internal.wrap_yyobjectbase = function(struct)  -- Stores 'object RValue.yy_object_base (type 0)'
+    -- `struct` is an 'object RValue.yy_object_base (type 0)'
+    local proxy = Proxy.new(struct, metatable_struct)
+    __ref_map:set(proxy, true)
+    return proxy
+end
+
+
 Struct.is = function(value)
     -- `value` is either an `object RValue` or a Struct wrapper
     local _type = Util.type(value)

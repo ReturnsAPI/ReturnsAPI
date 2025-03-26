@@ -1,9 +1,9 @@
 -- JIT Safe
 
 -- Disable JIT for all gmf
-for k, v in pairs(gmf) do
-    if type(v) == "function" then jit.off(v) end
-end
+-- for k, v in pairs(gmf) do
+--     if type(v) == "function" then jit.off(v) end
+-- end
 
 -- Manually reenable for safe ones
 -- * A function is "unsafe" if it manages to call a hooked function, either directly or through a chain reaction
@@ -11,45 +11,50 @@ end
 --  Meanwhile `callback_execute` itself is safe, since nobody calls it directly)
 -- The "forbidden loop" is Lua FFI -> C -> Lua
 local safe = {
-    gmf._mod_net_isOnline,
-    gmf._mod_net_isHost,
-    gmf._mod_net_isClient,
+    _mod_net_isOnline = true,
+    _mod_net_isHost = true,
+    _mod_net_isClient = true,
 
-    gmf.callback_execute,   -- Apparently this is fine, since we don't call `callback_execute` directly
-    gmf.__input_system_tick,
+    callback_execute = true,   -- Apparently this is fine, since we don't call `callback_execute` directly
+    __input_system_tick = true,
 
-    gmf.item_give_internal, -- internal versions of these are also not called directly by us
-    gmf.item_take_internal,
-    gmf.apply_buff_internal,
-    gmf.remove_buff_internal,
+    item_give_internal = true, -- internal versions of these are also not called directly by us
+    item_take_internal = true,
+    apply_buff_internal = true,
+    remove_buff_internal = true,
 
-    gmf.array_create,
-    gmf.array_get,
-    gmf.array_set,
-    gmf.array_length,
-    gmf.array_push,
-    gmf.array_pop,
-    gmf.array_insert,
-    gmf.array_delete,
-    gmf.array_contains,
-    gmf.array_sort,
+    array_create = true,
+    array_get = true,
+    array_set = true,
+    array_length = true,
+    array_push = true,
+    array_pop = true,
+    array_insert = true,
+    array_delete = true,
+    array_contains = true,
+    array_sort = true,
 
-    gmf.ds_list_create,
-    gmf.ds_list_destroy,
-    gmf.ds_list_find_value,
-    gmf.ds_list_find_index,
-    gmf.ds_list_set,
-    gmf.ds_list_size,
-    gmf.ds_list_add,
-    gmf.ds_list_insert,
-    gmf.ds_list_delete,
-    gmf.ds_list_clear,
-    gmf.ds_list_sort,
+    ds_list_create = true,
+    ds_list_destroy = true,
+    ds_list_find_value = true,
+    ds_list_find_index = true,
+    ds_list_set = true,
+    ds_list_size = true,
+    ds_list_add = true,
+    ds_list_insert = true,
+    ds_list_delete = true,
+    ds_list_clear = true,
+    ds_list_sort = true,
 
-    gmf.variable_struct_get,
-    gmf.variable_struct_set,
-    gmf.variable_struct_get_names,
+    variable_struct_get = true,
+    variable_struct_set = true,
+    variable_struct_get_names = true,
 
-    gmf.instance_number,
+    instance_number = true,
+    _mod_instance_number = true,
 }
-for _, v in ipairs(safe) do jit.on(v) end    -- TODO reenable when everything is fine
+-- for _, v in ipairs(safe) do jit.on(v) end    -- TODO reenable when everything is fine
+
+for k, v in pairs(gmf) do
+    if type(v) == "function" and (not safe[k]) then jit.off(v) end
+end

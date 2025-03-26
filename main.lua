@@ -33,3 +33,41 @@ end
 
 -- ENVY public setup
 require("./envy")
+
+
+-- DEBUG
+gui.add_imgui(function()
+    if ImGui.Begin("ReturnsAPI Debug") then
+
+        if ImGui.Button("_mod_instance_number benchmark") then
+            local foo = function(obj)
+                local holder = RValue.new_holder_scr(1)
+                holder[0] = RValue.new(obj)
+                local out = RValue.new(0)
+                gmf._mod_instance_number(nil, nil, out, 1, holder)
+                return RValue.to_wrapper(out)
+            end
+
+            Util.benchmark(100000, gm._mod_instance_number, gm.constants.oP)
+            Util.benchmark(100000, GM._mod_instance_number, gm.constants.oP)
+            Util.benchmark(100000, foo, gm.constants.oP)
+            Util.benchmark(100000, Instance.count, gm.constants.oP)
+        end
+
+        if ImGui.Button("instance_number benchmark") then
+            local foo = function(obj)
+                local holder = RValue.new_holder(1)
+                holder[0] = RValue.new(obj)
+                local out = RValue.new(0)
+                gmf.instance_number(out, nil, nil, 1, holder)
+                return RValue.to_wrapper(out)
+            end
+
+            Util.benchmark(100000, gm.instance_number, gm.constants.oP)
+            Util.benchmark(100000, GM.instance_number, gm.constants.oP)
+            Util.benchmark(100000, foo, gm.constants.oP)
+        end
+
+    end
+    ImGui.End()
+end)
