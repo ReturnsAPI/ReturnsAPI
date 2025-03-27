@@ -31,7 +31,6 @@ Stage.show_tiers = function()
     local order = Global.stage_progression_order    -- Array of Lists
     local str = ""
 
-    -- Remove from existing tier(s)
     for tier, list_id in ipairs(order) do
         if tier > 1 then str = str.."\n" end
             
