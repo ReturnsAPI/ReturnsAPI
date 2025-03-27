@@ -73,6 +73,12 @@ methods_class[rapi_name] = {
 
             GM._mod_stage_register(tier, self.value)
         end
+
+        -- Remove empty tiers
+        for i = #order - 1, 1, -1 do
+            local tier_list = order[i]
+            if #tier_list <= 0 then order:delete(i) end
+        end
     end,
 
     -- TODO populate rest of methods
