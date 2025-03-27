@@ -32,6 +32,16 @@ end
 
 methods_class[rapi_name] = {
 
+    --$instance
+    --$optional     ...     |           | A variable number of tiers. <br>Alternatively, a table may be provided.
+    --[[
+    Adds the stage to the specified tiers after removing it from its previous ones.
+    If no arguments are provided, removes the stage from progression.
+    
+    A new tier may be created by providing a tier 1 higher than the current count.
+    (E.g., By default, there are 5 tiers of progression;
+    assigning the stage to tier 6 will add another one.)
+    ]]
     set_tier = function(self, ...)
         local order = Global.stage_progression_order    -- Array of Lists
 
