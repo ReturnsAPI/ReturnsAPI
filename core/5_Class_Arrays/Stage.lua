@@ -27,6 +27,29 @@ Stage.new = function(namespace, identifier)
 end
 
 
+Stage.show_tiers = function()
+    local order = Global.stage_progression_order    -- Array of Lists
+    local str = ""
+
+    -- Remove from existing tier(s)
+    for tier, list_id in ipairs(order) do
+        if tier > 1 then str = str.."\n" end
+            
+        if tier < #order then str = str.."\n[Tier "..tier.."]"
+        else str = str.."\n[Final Stage]"
+        end
+
+        local list = List.wrap(list_id)
+        for _, stage in ipairs(list) do
+            local stage = Stage.wrap(stage)
+            str = str.."\n"..stage.namespace.."-"..stage.identifier
+        end
+    end
+
+    print(str)
+end
+
+
 
 -- ========== Instance Methods ==========
 
@@ -46,9 +69,12 @@ methods_class[rapi_name] = {
         local order = Global.stage_progression_order    -- Array of Lists
 
         -- Remove from existing tier(s)
-        for _, list_id in ipairs(order) do
+        for tier, list_id in ipairs(order) do
             local list = List.wrap(list_id)
-            list:delete_value(self.value)
+            if tier <= 5 and #list == 1 and list:contains(self) then
+                log.warning("set_tier: Could not remove "..self.namespace.."-"..self.identifier.." from tier "..tier.."; tiers 1 to 5 must have at least 1 stage each")
+            else list:delete_value(self)
+            end
         end
 
         -- Add to target tier(s)
@@ -71,12 +97,12 @@ methods_class[rapi_name] = {
                 order[cap] = List.new() -- Create new List in previous space
             end
 
-            GM._mod_stage_register(tier, self.value)
+            GM._mod_stage_register(tier, self)
         end
 
         -- Remove empty tiers
         for i = #order - 1, 1, -1 do
-            local list = order[i]
+            local list = List.wrap(order[i])
             if #list <= 0 then
                 list:destroy()
                 order:delete(i)
