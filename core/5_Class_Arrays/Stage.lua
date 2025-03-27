@@ -39,7 +39,7 @@ methods_class[rapi_name] = {
     If no arguments are provided, removes the stage from progression.
     
     A new tier may be created by providing a tier 1 higher than the current count.
-    (E.g., By default, there are 5 tiers of progression;
+    (E.g., By default, there are 5 tiers of progression, excluding the final stage;
     assigning the stage to tier 6 will add another one.)
     ]]
     set_tier = function(self, ...)
