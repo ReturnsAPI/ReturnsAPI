@@ -62,7 +62,7 @@ methods_class[rapi_name] = {
         for _, tier in ipairs(t) do
             local cap = #order
             if type(tier) ~= "number" or tier < 1 or tier > cap then
-                log.error("set_tier: Stage tier should be between 1 and "..(cap - 1).." (inclusive), or "..cap.." to add a new tier.", 2)
+                log.error("set_tier: Stage tier should be between 1 and "..(cap - 1).." (current count, inclusive), or "..cap.." to add a new tier.", 2)
             end
 
             -- Add a new tier
