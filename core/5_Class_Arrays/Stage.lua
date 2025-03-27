@@ -1,8 +1,5 @@
 -- Stage
 
--- TODO populate methods
-if true then return end
-
 local rapi_name = class_gm_to_rapi["class_stage"]
 Stage = __class[rapi_name]
 
@@ -33,9 +30,42 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_stage = {    
+methods_class[rapi_name] = {
 
-    
+    set_tier = function(self, ...)
+        local order = Global.stage_progression_order    -- Array of Lists
+
+        -- Remove from existing tier(s)
+        for _, list_id in ipairs(order) do
+            local list = List.wrap(list_id)
+            list:delete_value(self.value)
+        end
+
+        -- Add to target tier(s)
+        -- The last List will always contain the final stage,
+        -- so to create a new tier, move the List containing the
+        -- final stage 1 slot foward, and then create a new List
+        -- into where it was previously
+        -- The game actually handles these new additions automatically
+        local t = {...}
+        if type(t[1]) == "table" then t = t[1] end
+        for _, tier in ipairs(t) do
+            local cap = #order
+            if type(tier) ~= "number" or tier < 1 or tier > cap then
+                log.error("set_tier: Stage tier should be between 1 and "..(cap - 1).." (inclusive), or "..cap.." to add a new tier.", 2)
+            end
+
+            -- Add a new tier
+            if tier == cap then
+                order:push(order[cap])  -- Push final stage List 1 slot forward
+                order[cap] = List.new() -- Create new List in previous space
+            end
+
+            GM._mod_stage_register(tier, self.value)
+        end
+    end,
+
+    -- TODO populate rest of methods
 
 }
 
