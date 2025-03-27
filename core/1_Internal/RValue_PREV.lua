@@ -1,7 +1,8 @@
 -- RValue
 
-RValue = new_class()
+if true then return end
 
+RValue = new_class()
 
 if not __holder_struct then     -- Preserve on hotload
     __holder_struct = {}
@@ -15,34 +16,6 @@ end
 
 if not __rvalue_struct      then __rvalue_struct = ffi.typeof("struct RValue") end
 if not __rvalue_struct_str  then __rvalue_struct_str = ffi.typeof("struct RValue[1]") end
-
-
--- Cache
-local bulk_size = 100000
-
-if not __holder_cache then
-    __holder_cache = {}
-    __holder_current = {}
-    for size = 0, 16 do
-        __holder_cache[size] = {}
-        __holder_current[size] = 0
-        for i = 1, bulk_size do __holder_cache[size][i] = ffi.new(__holder_struct[size]) end
-    end
-end
-
-if not __holder_cache_scr then
-    __holder_cache_scr = {}
-    __holder_current_scr = {}
-    for size = 0, 16 do
-        __holder_cache_scr[size] = {}
-        __holder_current_scr[size] = 0
-        for i = 1, bulk_size do __holder_cache_scr[size][i] = ffi.new(__holder_struct_scr[size]) end
-    end
-end
-
-if not __rvalue_cache then __rvalue_cache = {} end
-for i = 1, bulk_size do __rvalue_cache[i] = ffi.new(__rvalue_struct) end
-if not __rvalue_current then __rvalue_current = 0 end
 
 
 
@@ -183,18 +156,9 @@ end
 
 
 RValue.new = function(val, rvalue_type)
-    __rvalue_current = __rvalue_current + 1
-    if __rvalue_current > #__rvalue_cache then
-        __rvalue_current = 1
-
-        -- Rebuild cache
-        for i = 1, bulk_size do __rvalue_cache[i] = ffi.new(__rvalue_struct) end
-    end
-    local rvalue = __rvalue_cache[__rvalue_current]
-
     -- Return RValue.Type.UNDEFINED if `val` is nil
     if val == nil then
-        -- local rvalue = ffi.new(__rvalue_struct)
+        local rvalue = ffi.new(__rvalue_struct)
         rvalue.type = RValue.Type.UNDEFINED
         rvalue.i64 = 0
         return rvalue
@@ -204,7 +168,7 @@ RValue.new = function(val, rvalue_type)
     if not rvalue_type then
         local type_val = type(val)
         if type_val == "number" then
-            -- local rvalue = ffi.new(__rvalue_struct)
+            local rvalue = ffi.new(__rvalue_struct)
             rvalue.type = RValue.Type.REAL
             rvalue.value = val
             return rvalue
@@ -213,7 +177,7 @@ RValue.new = function(val, rvalue_type)
             gmf.yysetstring(rvalue, val)
             return rvalue[0]
         elseif type_val == "boolean" then
-            -- local rvalue = ffi.new(__rvalue_struct)
+            local rvalue = ffi.new(__rvalue_struct)
             rvalue.type = RValue.Type.BOOL
             rvalue.value = val
             return rvalue
@@ -231,7 +195,7 @@ RValue.new = function(val, rvalue_type)
     
     -- Other RValue.Type
     if type(val) ~= "table" then
-        -- local rvalue = ffi.new(__rvalue_struct)
+        local rvalue = ffi.new(__rvalue_struct)
         rvalue.type = rvalue_type
         if      rvalue_type == RValue.Type.REAL         then rvalue.value = val
         elseif  rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
@@ -254,31 +218,13 @@ end
 
 RValue.new_holder = function(size)
     -- return ffi.new("struct RValue["..size.."]")
-    -- return ffi.new(__holder_struct[size])
-
-    __holder_current[size] = __holder_current[size] + 1
-    if __holder_current[size] > #__holder_cache[size] then
-        __holder_current[size] = 1
-
-        -- Rebuild cache
-        for i = 1, bulk_size do __holder_cache[size][i] = ffi.new(__holder_struct[size]) end
-    end
-    return __holder_cache[size][__holder_current[size]]
+    return ffi.new(__holder_struct[size])
 end
 
 
 RValue.new_holder_scr = function(size)
     -- return ffi.new("struct RValue*["..size.."]")
-    -- return ffi.new(__holder_struct_scr[size])
-
-    __holder_current_scr[size] = __holder_current_scr[size] + 1
-    if __holder_current_scr[size] > #__holder_cache_scr[size] then
-        __holder_current_scr[size] = 1
-
-        -- Rebuild cache
-        for i = 1, bulk_size do __holder_cache_scr[size][i] = ffi.new(__holder_struct_scr[size]) end
-    end
-    return __holder_cache_scr[size][__holder_current_scr[size]]
+    return ffi.new(__holder_struct_scr[size])
 end
 
 
