@@ -76,7 +76,11 @@ methods_class[rapi_name] = {
 
         -- Remove empty tiers
         for i = #order - 1, 1, -1 do
-            if #order[i] <= 0 then order:delete(i) end
+            local list = order[i]
+            if #list <= 0 then
+                list:destroy()
+                order:delete(i)
+            end
         end
     end,
 
