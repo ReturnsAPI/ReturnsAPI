@@ -58,30 +58,30 @@ end
 memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "RValue*", "int", "void*"}, gm.get_script_function_address(gm.constants.function_dummy),
     -- Pre-hook
     {function(return_val, self, other, result, arg_count, args)
-        -- TODO convert to gmf usage (maybe)
-        
-        if gm.is_struct(self) then
-            local arg_count = arg_count:get()
-            local args_typed = ffi.cast("struct RValue**", args:get_address())
+        -- TODO convert to gmf usage (maybe; only if it's actually faster)
 
-            --local fn = __bind_id_to_func[gm.variable_struct_get(self, STRUCT_VARIABLE_NAME)]
-            local fn = __bind_id_to_func[gm.struct_get_from_hash(self, STRUCT_VARIABLE_HASH)]
-            if fn then
-                local arg_table = {}
-                for i=0, arg_count-1 do
-                    -- local arg, is_instance_id = rvalue_to_lua(args_typed[i])
-                    -- if is_instance_id then
-                    --     arg = Instance.wrap(arg)
-                    -- else
-                    --     arg = Wrap.wrap(arg)
-                    -- end
-                    -- table.insert(arg_table, arg)
+        -- if gm.is_struct(self) then   -- Not needed I think
 
-                    table.insert(arg_table, RValue.to_wrapper(args_typed[i]))
-                end
-                local ret = fn(table.unpack(arg_table))
-                if ret then result.value = ret end  -- What's the point of this exactly?
+        local arg_count = arg_count:get()
+        local args_typed = ffi.cast("struct RValue**", args:get_address())
+
+        --local fn = __bind_id_to_func[gm.variable_struct_get(self, STRUCT_VARIABLE_NAME)]
+        local fn = __bind_id_to_func[gm.struct_get_from_hash(self, STRUCT_VARIABLE_HASH)]
+        if fn then
+            local arg_table = {}
+            for i=0, arg_count-1 do
+                -- local arg, is_instance_id = rvalue_to_lua(args_typed[i])
+                -- if is_instance_id then
+                --     arg = Instance.wrap(arg)
+                -- else
+                --     arg = Wrap.wrap(arg)
+                -- end
+                -- table.insert(arg_table, arg)
+
+                table.insert(arg_table, RValue.to_wrapper(args_typed[i]))
             end
+            local ret = fn(table.unpack(arg_table))
+            if ret then result.value = ret end  -- What's the point of this exactly?
         end
     end,
 

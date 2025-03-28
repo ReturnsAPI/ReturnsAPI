@@ -39,6 +39,8 @@ require("./envy")
 gui.add_imgui(function()
     if ImGui.Begin("ReturnsAPI Debug") then
 
+        ImGui.Text("__rvalue_current: "..__rvalue_current)
+
         if ImGui.Button("_mod_instance_number benchmark") then
             local foo = function(obj)
                 local holder = RValue.new_holder_scr(1)

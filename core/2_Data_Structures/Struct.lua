@@ -52,6 +52,16 @@ methods_struct = {
         local keys = {}
         for i, v in ipairs(arr) do keys[i] = v end
         return keys
+    end,
+
+
+    get_from_hash = function(self, hash)
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value, RValue.Type.OBJECT)
+        holder[1] = RValue.new(hash)
+        local out = RValue.new(0)
+        gmf.struct_get_from_hash(out, nil, nil, 2, holder)
+        return RValue.to_wrapper(out)
     end
 
 }
