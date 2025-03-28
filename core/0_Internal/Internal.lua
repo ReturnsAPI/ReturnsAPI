@@ -28,8 +28,6 @@ function parse_optional_namespace(namespace, default_namespace)
 end
 
 
--- TODO convert to gmf usage (maybe)
-
 if not __bind_id_count then __bind_id_count = 0 end     -- Preserve on hotload
 if not __bind_id_to_func then __bind_id_to_func = {} end
 
@@ -60,6 +58,8 @@ end
 memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "RValue*", "int", "void*"}, gm.get_script_function_address(gm.constants.function_dummy),
     -- Pre-hook
     {function(return_val, self, other, result, arg_count, args)
+        -- TODO convert to gmf usage (maybe)
+        
         if gm.is_struct(self) then
             local arg_count = arg_count:get()
             local args_typed = ffi.cast("struct RValue**", args:get_address())
