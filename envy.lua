@@ -48,27 +48,33 @@ function public.setup(env, namespace)
                         if pos then
                             if pos == 2 then
                                 copy[k] = function(arg1, ns)
-                                    return v(arg1, ns:gsub("-", "."), namespace)
+                                    if ns then ns = ns:gsub("-", ".") end
+                                    return v(arg1, ns, namespace)
                                 end
                             elseif pos == 3 then
                                 copy[k] = function(arg1, arg2, ns)
-                                    return v(arg1, arg2, ns:gsub("-", "."), namespace)
+                                    if ns then ns = ns:gsub("-", ".") end
+                                    return v(arg1, arg2, ns, namespace)
                                 end
                             elseif pos == 4 then
                                 copy[k] = function(arg1, arg2, arg3, ns)
-                                    return v(arg1, arg2, arg3, ns:gsub("-", "."), namespace)
+                                    if ns then ns = ns:gsub("-", ".") end
+                                    return v(arg1, arg2, arg3, ns, namespace)
                                 end
                             elseif pos == 5 then
                                 copy[k] = function(arg1, arg2, arg3, arg4, ns)
-                                    return v(arg1, arg2, arg3, arg4, ns:gsub("-", "."), namespace)
+                                    if ns then ns = ns:gsub("-", ".") end
+                                    return v(arg1, arg2, arg3, arg4, ns, namespace)
                                 end
                             elseif pos == 6 then
                                 copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns)
-                                    return v(arg1, arg2, arg3, arg4, arg5, ns:gsub("-", "."), namespace)
+                                    if ns then ns = ns:gsub("-", ".") end
+                                    return v(arg1, arg2, arg3, arg4, arg5, ns, namespace)
                                 end
                             elseif pos == 7 then
                                 copy[k] = function(arg1, arg2, arg3, arg4, arg5, arg6, ns)
-                                    return v(arg1, arg2, arg3, arg4, arg5, arg6, ns:gsub("-", "."), namespace)
+                                    if ns then ns = ns:gsub("-", ".") end
+                                    return v(arg1, arg2, arg3, arg4, arg5, arg6, ns, namespace)
                                 end
                             end
                         end
