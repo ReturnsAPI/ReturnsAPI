@@ -172,7 +172,7 @@ end
 
 Draw.text = function()
     -- TODO
-    -- Also describe Scribble text formatting in desc
+    -- Also describe Scribble text formatting in description
 end
 
 
