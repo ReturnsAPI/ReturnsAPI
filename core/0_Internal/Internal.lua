@@ -46,8 +46,9 @@ function bind_lua_to_cscriptref(func)
     -- bind a struct to a dummy function, so the struct is the self when this CScriptRef is executed
     local method = gm.method(struct, gm.constants.function_dummy)
 
-    -- add_to_ref_list(method)
-    __ref_map:set(method, true)
+    -- Hope this doesn't get GC'd
+    local pointer = memory.get_usertype_pointer(method)
+    __ref_map:set(pointer, true)
 
     return method
 end
@@ -57,8 +58,8 @@ end
 -- * If the given function call relies on accessing `self` to be useful, then it likely won't be useful from this context
 
 memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "RValue*", "int", "void*"}, gm.get_script_function_address(gm.constants.function_dummy),
-    -- pre hook
-    function(return_val, self, other, result, arg_count, args)
+    -- Pre-hook
+    {function(return_val, self, other, result, arg_count, args)
         if gm.is_struct(self) then
             local arg_count = arg_count:get()
             local args_typed = ffi.cast("struct RValue**", args:get_address())
@@ -83,6 +84,7 @@ memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "
             end
         end
     end,
-    -- post hook
-    nil
+
+    -- Post-hook
+    nil}
 )
