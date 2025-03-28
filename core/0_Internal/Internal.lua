@@ -31,15 +31,15 @@ end
 if not __bind_id_count then __bind_id_count = 0 end     -- Preserve on hotload
 if not __bind_id_to_func then __bind_id_to_func = {} end
 
-if not STRUCT_VARIABLE_NAME then
-    STRUCT_VARIABLE_NAME = "__id"
-    STRUCT_VARIABLE_HASH = gm.variable_get_hash(STRUCT_VARIABLE_NAME)
+if not __bind_struct_variable_name then
+    __bind_struct_variable_name = "__id"
+    __bind_struct_variable_hash = gm.variable_get_hash(__bind_struct_variable_name)
 end
 
 --- this function takes a lua function and uses black magic to wrap it in a CScriptRef which you can give to things that accept a gamemaker function
 function bind_lua_to_cscriptref(func)
     local struct = gm.struct_create()
-    gm.variable_struct_set(struct, STRUCT_VARIABLE_NAME, __bind_id_count)
+    gm.variable_struct_set(struct, __bind_struct_variable_name, __bind_id_count)
 
     __bind_id_to_func[__bind_id_count] = func
     __bind_id_count = __bind_id_count + 1
@@ -67,8 +67,8 @@ memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "
         local arg_count = arg_count:get()
         local args_typed = ffi.cast("struct RValue**", args:get_address())
 
-        --local fn = __bind_id_to_func[gm.variable_struct_get(self, STRUCT_VARIABLE_NAME)]
-        local fn = __bind_id_to_func[gm.struct_get_from_hash(self, STRUCT_VARIABLE_HASH)]
+        --local fn = __bind_id_to_func[gm.variable_struct_get(self, __bind_struct_variable_name)]
+        local fn = __bind_id_to_func[gm.struct_get_from_hash(self, __bind_struct_variable_hash)]
         if fn then
             local arg_table = {}
             for i=0, arg_count-1 do
