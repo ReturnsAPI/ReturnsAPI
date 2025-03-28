@@ -31,8 +31,10 @@ end
 if not __bind_id_count then __bind_id_count = 0 end     -- Preserve on hotload
 if not __bind_id_to_func then __bind_id_to_func = {} end
 
-local STRUCT_VARIABLE_NAME = "__id"
-local STRUCT_VARIABLE_HASH = gm.variable_get_hash(STRUCT_VARIABLE_NAME)
+if not STRUCT_VARIABLE_NAME then
+    STRUCT_VARIABLE_NAME = "__id"
+    STRUCT_VARIABLE_HASH = gm.variable_get_hash(STRUCT_VARIABLE_NAME)
+end
 
 --- this function takes a lua function and uses black magic to wrap it in a CScriptRef which you can give to things that accept a gamemaker function
 function bind_lua_to_cscriptref(func)
