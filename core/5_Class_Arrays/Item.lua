@@ -98,7 +98,7 @@ Item.new = function(namespace, identifier)
         namespace,
         identifier,
         nil,    -- item ID; if nil, it is auto-set
-        7,      -- tier; TODO use ItemTier.NOTIER
+        ItemTier.NOTIER,
         GM.object_add_w(namespace, identifier, gm.constants.pPickupItem),
         0       -- loot_tags (?)
     ))
