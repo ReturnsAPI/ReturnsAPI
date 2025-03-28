@@ -1,8 +1,6 @@
 -- EffectDisplay
 
--- TODO convert to gmf usage
-if true then return end
-
+-- TODO test if this still works
 
 EffectDisplay = new_class()
 
@@ -29,26 +27,26 @@ EffectDisplay.DrawPriority = ReadOnly.new({
 EffectDisplay.sprite = function(sprite_id, priority, anim_speed, x_offset, y_offset)
 	local struct = gm["@@NewGMLObject@@"](gm.constants.EffectDisplaySprite, sprite_id, priority or -200, anim_speed or 0, x_offset or 0, y_offset or 0)
 
-	return struct
+	return RValue.sol_to_wrapper(struct)
 end
 
 EffectDisplay.func = function(func, priority)
 	local bind = bind_lua_to_cscriptref(func)
 	local struct = gm["@@NewGMLObject@@"](gm.constants.EffectDisplayFunction, bind, priority or 0)
 
-	return struct
+	return RValue.sol_to_wrapper(struct)
 end
 
 EffectDisplay.instance = function(object, host_only)
 	local struct = gm["@@NewGMLObject@@"](gm.constants.EffectDisplayInstance, Wrap.unwrap(object), nil, host_only or false)
 
-	return struct
+	return RValue.sol_to_wrapper(struct)
 end
 
 EffectDisplay.particles = function(particle_type, rate, amount, partlayer, xrand, yrand, color)
 	local struct = gm["@@NewGMLObject@@"](gm.constants.EffectDisplayParticles, Wrap.unwrap(particle_type), rate, amount, partlayer, color or Color.WHITE, xrand or 0, yrand or 0)
 
-	return struct
+	return RValue.sol_to_wrapper(struct)
 end
 
-_CLASS["EffectDisplay"] = EffectDisplay
+__class.EffectDisplay = EffectDisplay
