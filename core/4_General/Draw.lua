@@ -170,6 +170,12 @@ Draw.surface = function()
 end
 
 
+Draw.text = function()
+    -- TODO
+    -- Also describe Scribble text formatting in desc
+end
+
+
 Draw.color = function(color)
     -- Get
     if not color then
