@@ -8,7 +8,7 @@ function public.setup(env, namespace)
         env = envy.getfenv(2)
     end
 
-    local namespace = namespace or env["!guid"]
+    local namespace = namespace or env["!guid"]:gsub("-", ".")
     __namespace_path[namespace] = env["!plugins_mod_folder_path"]
 
     local wrapper = {}
