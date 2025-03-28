@@ -160,6 +160,16 @@ Draw.point = function(x, y, color)
 end
 
 
+Draw.sprite = function()
+    -- TODO
+end
+
+
+Draw.surface = function()
+    -- TODO
+end
+
+
 Draw.color = function(color)
     -- Get
     if not color then
