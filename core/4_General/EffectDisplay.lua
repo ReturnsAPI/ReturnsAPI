@@ -1,7 +1,5 @@
 -- EffectDisplay
 
--- TODO test if this still works
-
 EffectDisplay = new_class()
 
 EffectDisplay.DrawPriority = ReadOnly.new({
