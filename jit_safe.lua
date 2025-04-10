@@ -1,5 +1,7 @@
 -- JIT Safe
 
+-- NO LONGER REQUIRED
+
 -- Disable JIT for all gmf
 -- for k, v in pairs(gmf) do
 --     if type(v) == "function" then jit.off(v) end

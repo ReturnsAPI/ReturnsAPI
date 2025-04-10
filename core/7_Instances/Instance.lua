@@ -23,8 +23,8 @@ local inst_wrappers = {
 --$static
 --$return       Instance
 --$param        object      | Object    | The object to spawn.
---$param        x           | number    | The x spawn coordinate.
---$param        y           | number    | The y spawn coordinate.
+--$param        x           | number    | The x spawn coordinate. <br>`0` by default.
+--$param        y           | number    | The y spawn coordinate. <br>`0` by default.
 --[[
 Creates and returns an instance of the specified object.
 
@@ -32,8 +32,8 @@ Also exists as a $method of Object, Object#create$.
 ]]
 Instance.create = function(x, y, object)
     local holder = RValue.new_holder_scr(3)
-    holder[0] = RValue.new(x)
-    holder[1] = RValue.new(y)
+    holder[0] = RValue.new(x or 0)
+    holder[1] = RValue.new(y or 0)
     holder[2] = RValue.from_wrapper(object)
     local out = RValue.new(0)
     gmf.instance_create(nil, nil, out, 3, holder)
@@ -91,7 +91,7 @@ Returns a table of all instances of the specified object,
 and a boolean that is `true` if the table is *not* empty.
 
 **NOTE:** The execution time scales with the number of
-instances of the object, and can be very expensive at high numbers.
+instances of the object, and can be *very* expensive at high numbers.
 Try not to call this too much.
 ]]
 Instance.find_all = function(object)

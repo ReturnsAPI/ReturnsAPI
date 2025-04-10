@@ -120,7 +120,7 @@ metatable_GM = {
 
 
     __newindex = function(t, k, v)
-        log.error("GM has nothing to set", 2)
+        log.error("GM has no properties to set", 2)
     end,
 
 
@@ -136,7 +136,7 @@ metatable_callso = {
 
 
     __newindex = function(t, k, v)
-        log.error("GM.SO has nothing to set", 2)
+        log.error("GM.SO has no properties to set", 2)
     end,
 
 

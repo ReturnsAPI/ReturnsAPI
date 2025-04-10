@@ -287,6 +287,11 @@ memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
+
+        -- TODO can probably just preserve caches and skip the initialize above
+        -- local buff = Buff.wrap(RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address())))
+        -- print("buff", buff.value, buff.on_remove)
+
         if Initialize.has_started() then
             local buff = Buff.wrap(RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address())))
 

@@ -17,12 +17,12 @@ local initialized = false
 
 local function RAPI_initialize()
     Global.internal.initialize()
-    -- Class.internal.initialize()
+    Class.internal.initialize()
     -- Actor.internal.initialize()
 end
 
 
-Initialize.internal.check_if_done = function()
+Initialize.internal.check_if_started = function()
     if not initialized_started then log.error("Cannot call method before game initialization has started; try placing the call within Initialize()", 3) end
 end
 
