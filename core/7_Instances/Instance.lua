@@ -2,9 +2,9 @@
 
 Instance = new_class()
 
-if not __instance_data then __instance_data = {} end    -- Preserve on hotload
-local wrapper_cache = setmetatable({}, {__mode = "v"})
-local object_index_cache = {}
+if not __instance_data then __instance_data = {} end        -- Preserve on hotload
+local wrapper_cache = setmetatable({}, {__mode = "v"})      -- Cache for Instance.wrap
+local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for inst.CInstance
 
 -- `__invalid_instance` created at the bottom
 
@@ -207,39 +207,35 @@ Instance.wrap = function(id)
     -- Check cache
     if wrapper_cache[id] then return wrapper_cache[id] end
 
-    -- Instance
+    -- Wrap as Instance
+    -- and get object_index
     local inst = Proxy.new(id, metatable_instance)
-
-    -- Get object_index
-    local obj_index = object_index_cache[id]
-    if not obj_index then
-        obj_index = inst.object_index
-        object_index_cache[id] = obj_index
-    end
+    local obj_index = inst.object_index
 
     -- Check object_index to determine if
     -- "child" metatables should be used instead
     if obj_index then
         
-        -- -- Player
-        -- if obj_index == gm.constants.oP then
-        --     inst = Proxy.new(id, metatable_player)
-        --     wrapper_cache[id] = inst
-        --     return inst
-        -- end
+        -- Player
+        if obj_index == gm.constants.oP then
+            inst = Proxy.new(id, metatable_player)
+            wrapper_cache[id] = inst
+            return inst
+        end
 
-        -- -- Actor
-        -- local holder = RValue.new_holder(2)
-        -- holder[0] = RValue.new(obj_index)
-        -- holder[1] = RValue.new(gm.constants.pActor)
-        -- local out = RValue.new(0)
-        -- gmf.object_is_ancestor(out, nil, nil, 2, holder)
-        -- if out.value == 1 then
-        --     inst = Proxy.new(id, metatable_actor)
-        --     wrapper_cache[id] = inst
-        --     return inst
-        -- end
+        -- Actor
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(obj_index)
+        holder[1] = RValue.new(gm.constants.pActor)
+        local out = RValue.new(0)
+        gmf.object_is_ancestor(out, nil, nil, 2, holder)
+        if out.value == 1 then
+            inst = Proxy.new(id, metatable_actor)
+            wrapper_cache[id] = inst
+            return inst
+        end
 
+        -- Instance
         wrapper_cache[id] = inst
         return inst
 
@@ -294,7 +290,7 @@ methods_instance = {
     Also exists as a $static method, Instance#exists-static$.
     ]]
     exists = function(self)
-        -- Return false if wrapper is invalid
+        -- Return `false` if wrapper is invalid
         if self.value == -4 then return false end
 
         local holder = RValue.new_holder(1)
@@ -315,6 +311,9 @@ methods_instance = {
     Destroys the instance.
     ]]
     destroy = function(self)
+        -- Return if wrapper is invalid
+        if self.value == -4 then return end
+
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         gmf.instance_destroy(RValue.new(0), nil, nil, 1, holder)
@@ -335,7 +334,7 @@ methods_instance = {
     Returns `true` if this instance is colliding with *any* instance of the specified object.
     ]]
     is_colliding = function(self, object, x, y)
-        -- Return false if wrapper is invalid
+        -- Return `false` if wrapper is invalid
         if self.value == -4 then return false end
 
         local holder = RValue.new_holder_scr(3)
@@ -372,7 +371,16 @@ metatable_instance = {
         -- Get wrapped value
         if k == "value" or k == "id" then return Proxy.get(proxy) end
         if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
-        if k == "CInstance" then return ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Proxy.get(proxy)]) end
+        if k == "CInstance" then
+            -- Check cache
+            local cinstance = cinstance_cache[proxy]
+            if not cinstance then
+                cinstance = ffi.cast("struct CInstance*", gm.CInstance.instance_id_to_CInstance_ffi[Proxy.get(proxy)])
+                cinstance_cache[proxy] = cinstance
+            end
+            
+            return cinstance
+        end
 
         -- Methods
         if methods_instance[k] then

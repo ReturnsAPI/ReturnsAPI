@@ -4,6 +4,8 @@
 
 Script = {}
 
+local name_cache = setmetatable({}, {__mode = "k"}) -- Cache for script.name
+
 
 
 -- ========== Static Methods ==========
@@ -23,7 +25,16 @@ metatable_script = {
         -- Get wrapped value
         if k == "value" or k == "yy_object_base" then return Proxy.get(proxy) end
         if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
-        if k == "name" then return ffi.string(Proxy.get(proxy).cscriptref.m_call_script.m_script_name):sub(12, -1) end
+        if k == "name" then
+            -- Check cache
+            local name = name_cache[proxy]
+            if not name then
+                name = ffi.string(Proxy.get(proxy).cscriptref.m_call_script.m_script_name):sub(12, -1)
+                name_cache[proxy] = name
+            end
+            
+            return name
+        end
     end,
 
 
