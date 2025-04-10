@@ -2,21 +2,10 @@
 
 Util = new_class()
 
-if not __gc_proxies then __gc_proxies = setmetatable({}, {__mode = "kv"}) end   -- Preserve on hotload
-
 
 
 -- ========== Static Methods ==========
 
---$static
---$param        ...         |           | A variable amount of arguments to print.
---[[
-Prints a variable number of arguments.
-Works just like regular `print`, but prints wrapper types instead of "table".
-
-Automatically replaces `print()` with this on `.auto()` import;
-the original is saved as `lua_print()`.
-]]
 Util.print = function(...)
     local args = table.pack(...)
     for i = 1, args.n do
@@ -35,13 +24,10 @@ end
 --[[
 Returns the type of the value as a string
 Wrappers (which are just tables) will have their type returned instead of "table".
-
-Automatically replaces `type()` with this on `.auto()` import;
-the original is saved as `lua_type()`.
 ]]
 Util.type = function(value, is_RAPI)
     local _type = type(value)
-    arg2 = false    -- is_RAPI? bool
+    arg2 = false
     if _type == "table" then
         local RAPI = value.RAPI
         if RAPI then _type = RAPI end
@@ -52,68 +38,27 @@ Util.type = function(value, is_RAPI)
 end
 
 
---$static
---$return       bool
---$param        value       |           | The value to convert.
---[[
-Converts a numerical value into a bool,
-returning `true` if > 0.5, and `false` otherwise.
-
-Other cases:
-Non-numerical, non-bool values will return `true`.
-`nil` will return `false`.
-
-Works just like [`GM.bool`](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Variable_Functions/bool.htm).
-]]
 Util.bool = function(value)
     if type(value) == "number" then return value > 0.5 end
-    return (value and true) or false
+    return value
 end
 
 
---$static
---$return       bool
---$param        n           | number    | The chance to succeed, between `0` and `1`.
---[[
-Rolls for a binary outcome.
-Returns `true` on success, and `false` otherwise.
-]]
 Util.chance = function(n)
     return math.random() <= n
 end
 
 
---$static
---$return       number
---$param        x           | number    | The value to ease, between `0` and `1`.
---$optional     n           | number    | The easing power. <br>`2` (quadratic) by default.
---[[
-Returns an ease-in value for a given value `x` between `0` and `1`.
-]]
 Util.ease_in = function(x, n)
     return x^(n or 2)
 end
 
 
---$static
---$return       number
---$param        x           | number    | The value to ease, between `0` and `1`.
---$optional     n           | number    | The easing power. <br>`2` (quadratic) by default.
---[[
-Returns an ease-out value for a given value `x` between `0` and `1`.
-]]
 Util.ease_out = function(x, n)
     return 1 - (1 - x)^(n or 2)
 end
 
 
---$static
---$return       bool
---$param        table       | table     | The table to search through.
---$param        value       |           | The value to search for.
---[[
-Returns `true` if the table contains the value, and `false` otherwise.
-]]
 Util.table_has = function(t, value)
     for k, v in pairs(t) do
         if v == value then return true end
@@ -122,13 +67,6 @@ Util.table_has = function(t, value)
 end
 
 
---$static
---$return       string
---$param        table       | table     | The table to search through.
---$param        value       |           | The value to search for.
---[[
-Returns the key of the value to search for.
-]]
 Util.table_find = function(t, value)
     for k, v in pairs(t) do
         if v == value then return k end
@@ -137,12 +75,6 @@ Util.table_find = function(t, value)
 end
 
 
---$static
---$param        table       | table     | The table to search through.
---$param        value       |           | The value to remove.
---[[
-Removes the first occurence of the specified value from the table.
-]]
 Util.table_remove_value = function(t, value)
     for k, v in pairs(t) do
         if v == value then
@@ -153,12 +85,6 @@ Util.table_remove_value = function(t, value)
 end
 
 
---$static
---$return       table
---$param        table       | table     | The table to get the keys of.
---[[
-Returns a table of keys of the specified table.
-]]
 Util.table_get_keys = function(t)
     local keys = {}
     for k, v in pairs(t) do
@@ -168,15 +94,6 @@ Util.table_get_keys = function(t)
 end
 
 
---$static
---$return       table
---$param        ...         |           | A variable amount of tables to combine.
---[[
-Returns a new table containing the values from input tables.
-
-Combining two number indexed tables will order them in the order that they were inputted.
-When mixing number indexed and string keys, the indexed values will come first in order, while string keys will come after unordered.
-]]
 Util.table_merge = function(...)
     local new = {}
     for _, t in ipairs{...} do
@@ -191,13 +108,6 @@ Util.table_merge = function(...)
 end
 
 
---$static
---$return       string
---$param        table       | table     | The table to encode.
---[[
-Returns a string encoding of a *numerically-indexed* table.
-The table should contain only basic Lua types (`bool`, `number`, `string`, `table`, `nil`).
-]]
 Util.table_to_string = function(table_)
     local str = ""
     for i = 1, #table_ do
@@ -210,12 +120,6 @@ Util.table_to_string = function(table_)
 end
 
 
---$static
---$return       table
---$param        string      | string     | The string to decode.
---[[
-Returns the table from a $string encoding, Util#table_to_string$.
-]]
 Util.string_to_table = function(string_)
     local raw = gm.string_split(string_, "||")
     local parsed = {}
@@ -250,13 +154,8 @@ Util.string_to_table = function(string_)
 end
 
 
---$static
---$return       table
---$param        table       | table     | 
---$param        metatable   | table     | The metatable to assign to the table.
---[[
-A version of `setmetatable()` that allows for Lua 5.2's `__gc` metamethod.
-]]
+if not __gc_proxies then __gc_proxies = setmetatable({}, {__mode = "kv"}) end   -- Preserve on hotload
+
 Util.setmetatable_gc = function(t, mt)
     -- `setmetatable` but with `__gc` metamethod enabled
     if mt.__gc then
@@ -269,15 +168,6 @@ Util.setmetatable_gc = function(t, mt)
 end
 
 
---$static
---$return       number
---$param        stack_count | number    | The stack count.
---$param        chance      | number    | The proc chance/scaling/etc. *per stack*, between `0` and `1`.
---$optional     base_chance | number    | A base value (between `0` and `1`), should the additional <br>stack value be different from the first stack.
---[[
-Returns the % chance (between `0` and `1`) of the stack count using a variant of hyperbolic scaling.
-The first stack will always equal the stack %, and not slightly under (as is with the normal hyperbolic formula used).
-]]
 Util.mixed_hyperbolic = function(stack_count, chance, base_chance)
     -- Allows for calculating hyperbolic scaling with a different 1st-stack chance
     -- Also makes the 1st-stack equal the provided chance instead of being slightly under
@@ -316,15 +206,6 @@ Util.benchmark = function(n, fn, ...)
 end
 
 
---$static
---$return       strings
---$param        str         | string    | The string to pad.
---$param        length      | number    | The desired string length.
---$optional     char        | string    | The character to use. <br>`" "` (space) by default.
---[[
-Returns a string with character padding on the
-left side to match the desired string length.
-]]
 Util.pad_string_left = function(str, length, char)
     char = char or " "
     local len = length - #str
@@ -335,15 +216,6 @@ Util.pad_string_left = function(str, length, char)
 end
 
 
---$static
---$return       strings
---$param        str         | string    | The string to pad.
---$param        length      | number    | The desired string length.
---$optional     char        | string    | The character to use. <br>`" "` (space) by default.
---[[
-Returns a string with character padding on the
-right side to match the desired string length.
-]]
 Util.pad_string_right = function(str, length, char)
     char = char or " "
     local len = length - #str

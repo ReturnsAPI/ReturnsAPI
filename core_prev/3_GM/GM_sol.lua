@@ -1,5 +1,7 @@
 -- GM
 
+if true then return end
+
 GM = new_class()
 
 local function_cache = {}

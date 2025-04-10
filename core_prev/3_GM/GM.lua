@@ -1,6 +1,6 @@
 -- GM
 
-if true then return end
+-- if true then return end
 
 GM = new_class()
 

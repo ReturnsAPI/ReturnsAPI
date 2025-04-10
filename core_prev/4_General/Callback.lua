@@ -175,7 +175,12 @@ Callback                            | Parameters
 Callback.add = function(namespace, callback, fn, priority)
     -- Throw error if not numerical ID
     if type(callback) ~= "number" then
-        log.error("Invalid Callback type", 2)
+        log.error("Callback.add: Invalid Callback type", 2)
+    end
+
+    -- Throw error if not function
+    if type(fn) ~= "function" then
+        log.error("Callback.add: No function provided", 2)
     end
 
     -- All callbacks have the same priority (0) unless specified

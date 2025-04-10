@@ -1,18 +1,15 @@
 -- Internal
 
-__class = {}                -- Every public class
-__class_mt = {}             -- Metatable for public class (optional, should be the same key as in __class)
-__class_mt_builder = {}     -- Function to run to build metatable for public class (optional, should be the same key as in __class)
+__class = {}
+__class_mt = {}
+__class_mt_builder = {}
 
 -- __ref_map created in Map.lua
 
 
 
--- ========== Functions ==========
+-- Functions
 
--- Returns a table with a subtable called `internal`
--- Methods in `internal` will *not* be exported to users,
--- and are meant for internal use within RAPI
 function new_class()
     return {
         internal = {}
@@ -20,8 +17,6 @@ function new_class()
 end
 
 
--- Returns the namespace to use, and `true`
--- if the user actually provided an optional name
 function parse_optional_namespace(namespace, default_namespace)
     local is_specified = false
     if namespace then
@@ -32,9 +27,6 @@ function parse_optional_namespace(namespace, default_namespace)
     return namespace, is_specified
 end
 
-
-
--- ========== Script Binding ==========
 
 if not __bind_id_count then __bind_id_count = 0 end     -- Preserve on hotload
 if not __bind_id_to_func then __bind_id_to_func = {} end

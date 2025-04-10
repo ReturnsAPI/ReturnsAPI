@@ -136,10 +136,11 @@ end
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"CInstance*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.recalculate_stats),
+memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.recalculate_stats),
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
-        gather_params(Instance.wrap(self.id))   -- TODO use converter when iDeath is done
+        local inst = ffi.cast("CInstance*", self:get_address())
+        gather_params(Instance.wrap(inst.id))
     end,
 
     -- Post-hook
@@ -228,13 +229,13 @@ local index_to_table = {
 }
 
 -- this gets called extremely frequently -- 12 times when an actor spawns, and 4 times each time stats are recaculated. needs to be optimal as possible
-memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"YYObjectBase*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(ActorSkill_recalculate_stats),
+memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(ActorSkill_recalculate_stats),
     -- Pre-hook
     {nil,
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        local self_cdata = ffi.cast("YYObjectBase*", memory.get_usertype_pointer(self))
+        local self_cdata = ffi.cast("YYObjectBase*", self:get_address())
         local self_struct = Struct.wrap_yyobjectbase(self_cdata)
 
         -- Get skill_id

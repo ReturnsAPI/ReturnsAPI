@@ -104,7 +104,9 @@ function public.auto(properties)
     local wrapper = public.setup(env, properties.namespace)
     envy.import_all(env, wrapper)
 
-    -- Override `print` and `type` with Util's versions
+    -- Override default `print` and `type` with Util's versions
+    env.lua_print = env.print
+    env.lua_type = env.type
     env.print = Util.print
     env.type = Util.type
 
@@ -115,5 +117,5 @@ function public.auto(properties)
     if RecalculateStats then RecalculateStats.remove_all(namespace) end
 
     -- Autoregister to Language
-    Language.register_autoload(env)
+    if Language         then Language.register_autoload(env) end
 end
