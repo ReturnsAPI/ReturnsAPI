@@ -33,7 +33,7 @@ end
 --$param        value       |           | The value to check.
 --$optional     is_RAPI?    | bool      | If `true`, will return a bool as a second argument. <br>It will be `true` if the type is a RAPI wrapper, and `false` otherwise.
 --[[
-Returns the type of the value as a string
+Returns the type of the value as a string.
 Wrappers (which are just tables) will have their type returned instead of "table".
 
 Automatically replaces `type()` with this on `.auto()` import;
@@ -49,6 +49,25 @@ Util.type = function(value, is_RAPI)
     end
     if is_RAPI then return _type, arg2 end
     return _type
+end
+
+
+--$static
+--$return       string, [bool]
+--$param        value       |           | The value to check.
+--$optional     is_RAPI?    | bool      | If `true`, will return a bool as a second argument. <br>It will be `true` if the type is a RAPI wrapper, and `false` otherwise.
+--[[
+Returns the string representation of the value.
+Works just like regular `tostring`, but returns wrapper types instead of "table".
+
+Automatically replaces `tostring()` with this on `.auto()` import;
+the original is saved as `lua_tostring()`.
+]]
+Util.tostring = function(value)
+    if type(value) == "table" and value.RAPI then
+        return value.RAPI..tostring(value):sub(6, -1)
+    end
+    return tostring(value)
 end
 
 

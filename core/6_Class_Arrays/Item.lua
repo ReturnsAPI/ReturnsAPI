@@ -62,8 +62,8 @@ token_text      | string    | The localization token for the item's pickup text.
 on_acquired     | number    | The ID of the callback that runs when the item is acquired.
 on_removed      | number    | The ID of the callback that runs when the item is removed.
 tier            | number    | The tier of the item.
-sprite_id       | number    | The sprite ID of the item.
-object_id       | number    | The object ID of the item.
+sprite_id       | sprite    | The sprite ID of the item.
+object_id       | object    | The object ID of the item.
 item_log_id     | number    | The item log ID of the item.
 achievement_id  | number    | The achievement ID of the item. <br>If *not* `-1`, the item will be locked until the achievement is unlocked.
 is_hidden       | bool      | 
@@ -93,7 +93,6 @@ Item.new = function(namespace, identifier)
     if item then return item end
 
     -- Create new
-    -- TODO: Pass proper args for this
     item = Item.wrap(GM.item_create(
         namespace,
         identifier,

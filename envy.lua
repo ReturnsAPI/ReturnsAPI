@@ -104,11 +104,13 @@ function public.auto(properties)
     local wrapper = public.setup(env, properties.namespace)
     envy.import_all(env, wrapper)
 
-    -- Override default `print` and `type` with Util's versions
+    -- Override default `print`, `type`, and `tostring` with Util's versions
     env.lua_print = env.print
     env.lua_type = env.type
+    env.lua_tostring = env.tostring
     env.print = Util.print
     env.type = Util.type
+    env.tostring = Util.tostring
 
     -- Clear callbacks and other stuff associated with namespace
     local namespace = properties.namespace or env["!guid"]:gsub("-", ".")

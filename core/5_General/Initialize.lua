@@ -18,6 +18,8 @@ local initialized = false
 local function RAPI_initialize()
     Global.internal.initialize()
     Class.internal.initialize()
+    ItemTier.internal.initialize()
+    LootPool.internal.initialize()
     -- Actor.internal.initialize()
 end
 
