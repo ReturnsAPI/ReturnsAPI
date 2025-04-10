@@ -264,6 +264,13 @@ metatable_array = {
     
 
     __newindex = function(proxy, k, v)
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "i64"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+        
         -- Setter
         k = tonumber(Wrap.unwrap(k))
         if k then proxy:set(k - 1, v) end

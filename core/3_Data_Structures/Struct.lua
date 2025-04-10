@@ -117,6 +117,13 @@ metatable_struct = {
 
 
     __newindex = function(proxy, k, v)
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "yy_object_base"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+
         -- Setter
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(Proxy.get(proxy), RValue.Type.OBJECT)

@@ -38,6 +38,11 @@ metatable_script = {
     end,
 
 
+    __newindex = function(proxy, k, v)
+        log.error("Script has no properties to set", 2)
+    end,
+
+
     __call = function(proxy, self, other, ...)
         -- Get `struct CInstance` for self and other if not nil
         -- Assumes self and other are Instance wrappers

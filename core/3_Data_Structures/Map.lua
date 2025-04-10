@@ -154,6 +154,12 @@ metatable_map = {
     
 
     __newindex = function(proxy, k, v)
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+
         -- Setter
         if Proxy.get(proxy) == -4 then log.error("Map does not exist", 2) end
         proxy:set(k, v)

@@ -227,6 +227,12 @@ metatable_list = {
     
 
     __newindex = function(proxy, k, v)
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+
         -- Setter
         if Proxy.get(proxy) == -4 then log.error("List does not exist", 2) end
         k = tonumber(Wrap.unwrap(k))
