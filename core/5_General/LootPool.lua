@@ -51,6 +51,11 @@ LootPool.internal.initialize = function()
         __loot_pool_find_table[namespace][identifier] = element_table
         __loot_pool_find_table[pool] = element_table
     end
+
+    -- Update cached wrappers
+    for tier, element_table in pairs(__loot_pool_find_table) do
+        element_table.wrapper = LootPool.wrap(element_table.pool)
+    end
 end
 
 

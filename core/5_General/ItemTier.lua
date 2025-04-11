@@ -53,6 +53,11 @@ ItemTier.internal.initialize = function()
         __item_tier_find_table[namespace][identifier] = element_table
         __item_tier_find_table[tier] = element_table
     end
+
+    -- Update cached wrappers
+    for tier, element_table in pairs(__item_tier_find_table) do
+        element_table.wrapper = ItemTier.wrap(element_table.tier)
+    end
 end
 
 

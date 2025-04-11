@@ -30,6 +30,12 @@ Class.internal.initialize = function()
     -- since some class arrays existn't before then
     for name_rapi, name_global in pairs(class_name_r2g) do
         class_wrappers[name_rapi:upper()] = Global[name_global]
+
+        -- Update cached wrappers in __class_find_tables
+        local find_table = __class_find_tables[name_global]
+        for id, element_table in pairs(find_table) do
+            element_table.wrapper = __class[name_rapi].wrap(element_table.id)
+        end
     end
 end
 
