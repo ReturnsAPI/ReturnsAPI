@@ -6,7 +6,7 @@ RValue = new_class()
 -- Typeof:
 -- Seems to be faster to run ffi.new with predefined types
 -- instead of passing "struct RValue", etc.
-local holder_size_count = 12
+local holder_size_count = 10
 
 if not __holder_struct then     -- Preserve on hotload
     __holder_struct = {}
@@ -181,16 +181,23 @@ end
 Returns a new RValue holder of the specified size (for builtin functions).
 ]]
 RValue.new_holder = function(size)
+    local cache = __holder_cache[size]
+
+    -- Size out-of-range of cache
+    if not cache then
+        return ffi.new("struct RValue["..size.."]")
+    end
+
     -- Retrieve fresh holder from cache
     __holder_current[size] = __holder_current[size] + 1
-    if __holder_current[size] > #__holder_cache[size] then
+    if __holder_current[size] > #cache then
         __holder_current[size] = 1
 
         -- Rebuild cache
-        for i = 1, bulk_size do __holder_cache[size][i] = ffi.new(__holder_struct[size]) end
+        for i = 1, bulk_size do cache[i] = ffi.new(__holder_struct[size]) end
     end
 
-    return __holder_cache[size][__holder_current[size]]
+    return cache[__holder_current[size]]
 end
 
 
@@ -201,16 +208,23 @@ end
 Returns a new RValue* holder of the specified size (for script functions).
 ]]
 RValue.new_holder_scr = function(size)
+    local cache = __holder_cache_scr[size]
+
+    -- Size out-of-range of cache
+    if not cache then
+        return ffi.new("struct RValue*["..size.."]")
+    end
+
     -- Retrieve fresh holder from cache
     __holder_current_scr[size] = __holder_current_scr[size] + 1
-    if __holder_current_scr[size] > #__holder_cache_scr[size] then
+    if __holder_current_scr[size] > #cache then
         __holder_current_scr[size] = 1
 
         -- Rebuild cache
-        for i = 1, bulk_size do __holder_cache_scr[size][i] = ffi.new(__holder_struct_scr[size]) end
+        for i = 1, bulk_size do cache[i] = ffi.new(__holder_struct_scr[size]) end
     end
 
-    return __holder_cache_scr[size][__holder_current_scr[size]]
+    return cache[__holder_current_scr[size]]
 end
 
 

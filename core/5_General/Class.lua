@@ -193,9 +193,10 @@ for name_rapi, name_global in pairs(class_name_r2g) do
         return nil
     end
 
-    class_table.find_all = function(filter, property)
+    class_table.find_all = function(namespace, filter, property)
         local elements = {}
-        local filter = Wrap.unwrap(filter) or "ror"
+        local filter_arg = filter
+        local filter = Wrap.unwrap(filter) or namespace
         local property = property or 0  -- Namespace filter by default
 
         -- Namespace filter
@@ -204,6 +205,17 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             if namespace_table then
                 for _, element_table in pairs(namespace_table) do
                     table.insert(elements, element_table.wrapper)
+                end
+            end
+
+            -- Also search in "ror" namespace if passed no `filter` arg
+            if not filter_arg then
+                filter = "ror"
+                local namespace_table = __class_find_tables[name_global][filter]
+                if namespace_table then
+                    for _, element_table in pairs(namespace_table) do
+                        table.insert(elements, element_table.wrapper)
+                    end
                 end
             end
 

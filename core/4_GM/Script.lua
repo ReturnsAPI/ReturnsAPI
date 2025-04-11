@@ -12,8 +12,8 @@ local name_cache = setmetatable({}, {__mode = "k"}) -- Cache for script.name
 
 Script.wrap = function(script)
     -- Input:   `object RValue` or Script wrapper
-    -- Wraps:   `yy_object_base` of `.type` 3 (`.cscriptref`)
-    return Proxy.new(struct.yy_object_base, metatable_script)
+    -- Wraps:   { `yy_object_base` of `.type` 3, `cscriptref` }
+    return Proxy.new({ script.yy_object_base, script.cscriptref }, metatable_script)
 end
 
 
@@ -23,13 +23,14 @@ end
 metatable_script = {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" or k == "yy_object_base" then return Proxy.get(proxy) end
+        if k == "value" or k == "yy_object_base" then return Proxy.get(proxy)[1] end
         if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
+        if k == "cscriptref" then return Proxy.get(proxy)[2] end
         if k == "name" then
             -- Check cache
             local name = name_cache[proxy]
             if not name then
-                name = ffi.string(Proxy.get(proxy).cscriptref.m_call_script.m_script_name):sub(12, -1)
+                name = ffi.string(Proxy.get(proxy)[2].m_call_script.m_script_name):sub(12, -1)
                 name_cache[proxy] = name
             end
             
@@ -39,18 +40,39 @@ metatable_script = {
 
 
     __newindex = function(proxy, k, v)
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "yy_object_base"
+        or k == "RAPI"
+        or k == "cscriptref"
+        or k == "name" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+
         log.error("Script has no properties to set", 2)
     end,
 
 
     __call = function(proxy, self, other, ...)
-        -- Get `struct CInstance` for self and other if not nil
-        -- Assumes self and other are Instance wrappers
-        if self then self = self.CInstance end
-        if other then other = other.CInstance end
+        -- Cast `self` to `struct CInstance *` (if applicable)
+        if self then
+            local _type = Util.type(self)
+            if      _type == "Struct"           then self = ffi.cast("struct CInstance *", self.value)
+            elseif  instance_wrappers[_type]    then self = self.CInstance
+            end
+        end
+
+        -- Cast `other` to `struct CInstance *` (if applicable)
+        if other then
+            local _type = Util.type(other)
+            if      _type == "Struct"           then other = ffi.cast("struct CInstance *", other.value)
+            elseif  instance_wrappers[_type]    then other = other.CInstance
+            end
+        end
 
         local args = table.pack(...)
-        local holder = RValue.new_holder_scr(args.n)
+        local holder = nil
+        if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
 
         -- Populate holder
         for i = 1, args.n do

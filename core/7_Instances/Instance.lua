@@ -10,7 +10,7 @@ local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for inst.CI
 
 
 -- Internal lookup table for Instance.is
-local inst_wrappers = {
+instance_wrappers = {
     Instance    = true,
     Actor       = true,
     Player      = true

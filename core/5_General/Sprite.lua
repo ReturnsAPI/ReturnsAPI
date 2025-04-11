@@ -46,10 +46,13 @@ Sprite.new = function(namespace, identifier, path, image_number, x_origin, y_ori
     )
 
     if sprite == -1 then
-        log.error("Could not load sprite at "..path, 2)
+        log.error("Could not load sprite at '"..path.."'", 2)
     end
 
-    return Sprite.wrap(sprite)
+    -- Add to cache and return
+    local wrapper = Sprite.wrap(sprite)
+    find_cache[namespace.."-"..identifier] = wrapper
+    return wrapper
 end
 
 
@@ -105,8 +108,40 @@ end
 
 
 --$static
+--$return       table, bool
+--$optional     namespace   | string    | The namespace to check.
+--[[
+Returns a table of all sprites in the specified namespace,
+and a boolean that is `true` if the table is *not* empty.
+If no namespace is provided, retrieves from both your mod's namespace and "ror".
+]]
+Sprite.find_all = function(namespace, _namespace)
+    local namespace, is_specified = parse_optional_namespace(_namespace, namespace)
+    
+    local sprites = {}
+    local resource_manager = Global.ResourceManager_sprite.__namespacedAssetLookup
+
+    -- Search in namespace
+    if resource_manager[namespace] then
+        for _, sprite in pairs(resource_manager[namespace]) do
+            table.insert(sprites, Sprite.wrap(sprite))
+        end
+    end
+
+    -- Also search in "ror" namespace if passed no `namespace` arg
+    if not is_specified then
+        for _, sprite in pairs(resource_manager["ror"]) do
+            table.insert(sprites, Sprite.wrap(sprite))
+        end
+    end
+    
+    return sprites, #sprites > 0
+end
+
+
+--$static
 --$return       Sprite
---$param        sprite      | sprite    | The sprite ID to wrap.
+--$param        sprite      | number    | The sprite ID to wrap.
 --[[
 Returns a Sprite wrapper containing the provided sprite ID.
 ]]
@@ -214,8 +249,13 @@ metatable_sprite = {
     
 
     __newindex = function(proxy, k, v)
-        -- Setter
-        log.error("Sprite has no properties to set")
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+        
+        log.error("Sprite has no properties to set", 2)
     end,
 
 
