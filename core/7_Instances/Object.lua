@@ -8,6 +8,7 @@ local find_cache = {}
 
 -- ========== Constants and Enums ==========
 
+--$enum
 Object.Property = ReadOnly.new({
     BASE        = 0,
     OBJ_DEPTH   = 1,
@@ -21,6 +22,7 @@ Object.Property = ReadOnly.new({
 })
 
 
+--$enum
 Object.Parent = ReadOnly.new({
     ACTOR               = gm.constants.pActor,
     ENEMY_CLASSIC       = gm.constants.pEnemyClassic,
@@ -107,7 +109,7 @@ Object.find = function(identifier, namespace, default_namespace)
         return object
     end
 
-    -- Also search for object in "ror" and then gm.constants if no namespace arg
+    -- Also search in "ror" and then gm.constants if passed no `namespace` arg
     if not is_specified then
         local holder = RValue.new_holder_scr(1)
         holder[0] = RValue.new(ror_nsid)
@@ -133,7 +135,6 @@ end
 
 
 --$static
---$name         wrap
 --$return       Object
 --$param        object      | number    | The object index to wrap.
 --[[
@@ -149,7 +150,7 @@ end
 
 methods_object = {
 
-    --$static
+    --$instance
     --$return       Instance
     --$param        x           | number    | The x spawn coordinate. <br>`0` by default.
     --$param        y           | number    | The y spawn coordinate. <br>`0` by default.

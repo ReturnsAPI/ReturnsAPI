@@ -86,7 +86,7 @@ end
 
 -- ========== Instance Methods ==========
 
-Util.table_merge(methods_class[name_rapi], {
+methods_class[name_rapi] = Util.table_merge(methods_class[name_rapi], {
 
     
 
