@@ -20,7 +20,6 @@ local function RAPI_initialize()
     Class.internal.initialize()
     ItemTier.internal.initialize()
     LootPool.internal.initialize()
-    -- Actor.internal.initialize()
 end
 
 

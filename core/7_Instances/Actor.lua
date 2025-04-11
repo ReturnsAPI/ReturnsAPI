@@ -4,13 +4,9 @@
 
 Actor = new_class()
 
-local item_count_cache = {}  -- Stores results from `item_count` for each item and stack kind
-local buff_count_cache = {}  -- Stores results from `buff_count` for each buff
-
--- Stores callback IDs of `on_remove` callbacks added to every buff
--- This is for tracking when a buff passively expires for cache resetting
--- Hotloading removes these stored callbacks before adding them again
-if not __buff_cache_onremove then __buff_cache_onremove = {} end    -- Preserve on hotload
+-- Preserve on hotload
+if not __item_count_cache then __item_count_cache = {} end  -- Stores results from `item_count` for each item and stack kind
+if not __buff_count_cache then __buff_count_cache = {} end  -- Stores results from `buff_count` for each buff
 
 
 
@@ -74,11 +70,11 @@ methods_actor = {
         -- Build cache subtable if existn't
         local item = Wrap.unwrap(item)
         local kind = kind or Item.StackKind.ANY
-        if not item_count_cache[id] then item_count_cache[id] = {} end
-        if not item_count_cache[id][item] then item_count_cache[id][item] = {} end
+        if not __item_count_cache[id] then __item_count_cache[id] = {} end
+        if not __item_count_cache[id][item] then __item_count_cache[id][item] = {} end
 
         -- Return from cache if stored
-        if item_count_cache[id][item][kind] then return item_count_cache[id][item][kind] end
+        if __item_count_cache[id][item][kind] then return __item_count_cache[id][item][kind] end
 
         local holder = RValue.new_holder_scr(3)
         holder[0] = RValue.new(id, RValue.Type.REF)
@@ -89,7 +85,7 @@ methods_actor = {
         local ret = out.value
 
         -- Store in cache and return
-        item_count_cache[id][item][kind] = ret
+        __item_count_cache[id][item][kind] = ret
         return ret
     end,
 
@@ -106,6 +102,7 @@ methods_actor = {
         if self.value == -4 then return end
 
         -- Arg check
+        if not buff then log.error("buff_apply: buff is invalid", 2) end
         if not duration then log.error("buff_apply: duration is missing", 2) end
 
         local holder = RValue.new_holder_scr(4)
@@ -163,16 +160,16 @@ methods_actor = {
 
         -- Build cache subtable if existn't
         local buff = Wrap.unwrap(buff)
-        if not buff_count_cache[id] then buff_count_cache[id] = {} end
+        if not __buff_count_cache[id] then __buff_count_cache[id] = {} end
         
         -- Return from cache if stored
-        if buff_count_cache[id][buff] then return buff_count_cache[id][buff] end
+        if __buff_count_cache[id][buff] then return __buff_count_cache[id][buff] end
 
         -- Get buff count from array
         local count = self.buff_stack:get(buff)
 
         -- Store in cache and return
-        buff_count_cache[id][buff] = count
+        __buff_count_cache[id][buff] = count
         if count == nil then return 0 end
         return count
     end,
@@ -228,8 +225,8 @@ for _, hook in ipairs(hooks) do
 
             -- Reset cached table for that item of the actor
             -- (The table contains cached values for every stack kind)
-            if not item_count_cache[actor_id] then item_count_cache[actor_id] = {} end
-            item_count_cache[actor_id][item_id] = {}
+            if not __item_count_cache[actor_id] then __item_count_cache[actor_id] = {} end
+            __item_count_cache[actor_id][item_id] = {}
         end,
 
         -- Post-hook
@@ -250,8 +247,8 @@ memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*"
         local buff_id   = args_typed[1].value
 
         -- Reset cached value for that buff of the actor
-        if not buff_count_cache[actor_id] then buff_count_cache[actor_id] = {} end
-        buff_count_cache[actor_id][buff_id] = nil
+        if not __buff_count_cache[actor_id] then __buff_count_cache[actor_id] = {} end
+        __buff_count_cache[actor_id][buff_id] = nil
     end,
 
     -- Post-hook
@@ -260,26 +257,8 @@ memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*"
 
 
 -- Reset cache when a buff is removed
--- Adds an `on_remove` callback to every buff to detect this
-
-Actor.internal.initialize = function()
-    -- Remove previously added callbacks
-    for _, id in ipairs(__buff_cache_onremove) do
-        Callback.remove(id)
-    end
-    __buff_cache_onremove = {}
-
-
-    -- For all buffs, add an `on_remove` callback
-    -- to reset the cached value for that buff of the actor
-    for buff_id, buff in ipairs(Class.Buff) do
-        table.insert(__buff_cache_onremove, Callback.add(_ENV["!guid"], buff:get(11), function(actor)
-            local id = actor.value
-            if not buff_count_cache[id] then buff_count_cache[id] = {} end
-            buff_count_cache[id][buff_id - 1] = nil
-        end, 1000000000))   -- Make sure this runs first
-    end
-end
+-- Adds an `on_remove` callback to every buff for this,
+-- which allows for detecting passive buff expiry
 
 memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.buff_create),
     -- Pre-hook
@@ -287,22 +266,15 @@ memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
+        local buff = Buff.wrap(RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address())))
 
-        -- TODO can probably just preserve caches and skip the initialize above
-        -- local buff = Buff.wrap(RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address())))
-        -- print("buff", buff.value, buff.on_remove)
-
-        if Initialize.has_started() then
-            local buff = Buff.wrap(RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address())))
-
-            -- For newly created buffs, add an `on_remove` callback
-            -- to reset the cached value for that buff of the actor
-            table.insert(__buff_cache_onremove, Callback.add(_ENV["!guid"], buff.on_remove, function(actor)
-                local id = actor.value
-                if not buff_count_cache[id] then buff_count_cache[id] = {} end
-                buff_count_cache[id][buff.value] = nil
-            end, 1000000000))   -- Make sure this runs first
-        end
+        -- Add an `on_remove` callback to reset the
+        -- cached value for that buff of the actor
+        Callback.add(_ENV["!guid"], buff.on_remove, function(actor)
+            local id = actor.value
+            if not __buff_count_cache[id] then __buff_count_cache[id] = {} end
+            __buff_count_cache[id][buff.value] = nil
+        end, 1000000000)    -- Make sure this runs first
     end}
 )
 
@@ -318,16 +290,16 @@ memory.dynamic_hook("RAPI.Actor.room_goto", "void*", {"void*", "void*", "void*",
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
         -- Item
-        for id, _ in pairs(item_count_cache) do
+        for id, _ in pairs(__item_count_cache) do
             if not Instance.exists(id) then
-                item_count_cache[id] = nil
+                __item_count_cache[id] = nil
             end
         end
 
         -- Buff
-        for id, _ in pairs(buff_count_cache) do
+        for id, _ in pairs(__buff_count_cache) do
             if not Instance.exists(id) then
-                buff_count_cache[id] = nil
+                __buff_count_cache[id] = nil
             end
         end
     end}
@@ -354,8 +326,8 @@ memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", 
 
         -- Do not clear for player deaths
         if out.value ~= gm.constants.oP then
-            item_count_cache[actor_id] = nil
-            buff_count_cache[actor_id] = nil
+            __item_count_cache[actor_id] = nil
+            __buff_count_cache[actor_id] = nil
         end
     end}
 )
@@ -374,15 +346,15 @@ memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*",
         local new_id = args_typed[1].i32
 
         -- Move item cache
-        if item_count_cache[actor_id] then
-            item_count_cache[new_id] = item_count_cache[actor_id]
-            item_count_cache[actor_id] = nil
+        if __item_count_cache[actor_id] then
+            __item_count_cache[new_id] = __item_count_cache[actor_id]
+            __item_count_cache[actor_id] = nil
         end
 
         -- Move buff cache
-        if buff_count_cache[actor_id] then
-            buff_count_cache[new_id] = buff_count_cache[actor_id]
-            buff_count_cache[actor_id] = nil
+        if __buff_count_cache[actor_id] then
+            __buff_count_cache[new_id] = __buff_count_cache[actor_id]
+            __buff_count_cache[actor_id] = nil
         end
     end}
 )

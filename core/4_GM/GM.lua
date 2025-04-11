@@ -26,7 +26,8 @@ local call = function(k)
         if GM.internal.builtin[k] then
             function_cache[k] = function(...)
                 local args = table.pack(...)
-                local holder = RValue.new_holder(args.n)
+                local holder = nil
+                if args.n > 0 then holder = RValue.new_holder(args.n) end
 
                 -- Populate holder
                 for i = 1, args.n do
@@ -46,7 +47,8 @@ local call = function(k)
         elseif GM.internal.script[k] then
             function_cache[k] = function(...)
                 local args = table.pack(...)
-                local holder = RValue.new_holder_scr(args.n)
+                local holder = nil
+                if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
 
                 -- Populate holder
                 for i = 1, args.n do
@@ -71,7 +73,8 @@ local callso = function(k)
         if GM.internal.builtin[k] then
             function_cache_callso[k] = function(self, other, ...)
                 local args = table.pack(...)
-                local holder = RValue.new_holder(args.n)
+                local holder = nil
+                if args.n > 0 then holder = RValue.new_holder(args.n) end
 
                 -- Populate holder
                 for i = 1, args.n do
@@ -91,7 +94,8 @@ local callso = function(k)
         elseif GM.internal.script[k] then
             function_cache_callso[k] = function(self, other, ...)
                 local args = table.pack(...)
-                local holder = RValue.new_holder_scr(args.n)
+                local holder = nil
+                if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
 
                 -- Populate holder
                 for i = 1, args.n do

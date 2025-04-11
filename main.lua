@@ -3,7 +3,7 @@
 PATH = _ENV["!plugins_mod_folder_path"].."/"
 
 gmf = require("ReturnOfModding-GLOBAL/gmf")
-require("./jit_safe.lua")
+-- require("./jit_safe.lua")
 
 
 -- ENVY initial setup
@@ -71,6 +71,14 @@ gui.add_imgui(function()
 
             print(gm.instance_number(gm.constants.oP))
             print(GM.instance_number(gm.constants.oP))
+        end
+
+        if ImGui.Button("Spawn 100 Lemurians on player") then
+            local p = Player.get_local()
+            if p:exists() then
+                local obj = Object.find("lizard", nil, "RAPI")
+                for i = 1, 100 do obj:create(p.x, p.y) end
+            end
         end
 
     end

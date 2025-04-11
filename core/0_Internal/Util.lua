@@ -20,9 +20,7 @@ the original is saved as `lua_print()`.
 Util.print = function(...)
     local args = table.pack(...)
     for i = 1, args.n do
-        if type(args[i]) == "table" and args[i].RAPI then
-            args[i] = args[i].RAPI..tostring(args[i]):sub(6, -1)
-        end
+        args[i] = Util.tostring(args[i])
     end
     print(table.unpack(args))
 end
@@ -53,12 +51,12 @@ end
 
 
 --$static
---$return       string, [bool]
---$param        value       |           | The value to check.
---$optional     is_RAPI?    | bool      | If `true`, will return a bool as a second argument. <br>It will be `true` if the type is a RAPI wrapper, and `false` otherwise.
+--$return       string
+--$param        value       |           | The value to make a string representation of.
 --[[
 Returns the string representation of the value.
-Works just like regular `tostring`, but returns wrapper types instead of "table".
+Works just like regular `tostring`, but "table" substrings
+are replaced with the appropriate wrapper type (if applicable).
 
 Automatically replaces `tostring()` with this on `.auto()` import;
 the original is saved as `lua_tostring()`.

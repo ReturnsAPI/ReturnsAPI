@@ -6,16 +6,16 @@ RValue = new_class()
 -- Typeof:
 -- Seems to be faster to run ffi.new with predefined types
 -- instead of passing "struct RValue", etc.
-local holder_size_count = 16
+local holder_size_count = 12
 
 if not __holder_struct then     -- Preserve on hotload
     __holder_struct = {}
-    for i = 0, holder_size_count do __holder_struct[i] = ffi.typeof("struct RValue["..i.."]") end
+    for i = 1, holder_size_count do __holder_struct[i] = ffi.typeof("struct RValue["..i.."]") end
 end
 
 if not __holder_struct_scr then
     __holder_struct_scr = {}
-    for i = 0, holder_size_count do __holder_struct_scr[i] = ffi.typeof("struct RValue*["..i.."]") end
+    for i = 1, holder_size_count do __holder_struct_scr[i] = ffi.typeof("struct RValue*["..i.."]") end
 end
 
 if not __rvalue_struct      then __rvalue_struct = ffi.typeof("struct RValue") end
@@ -30,7 +30,7 @@ local bulk_size = 100000
 if not __holder_cache then
     __holder_cache = {}
     __holder_current = {}
-    for size = 0, holder_size_count do
+    for size = 1, holder_size_count do
         __holder_cache[size] = {}
         __holder_current[size] = 0
         for i = 1, bulk_size do __holder_cache[size][i] = ffi.new(__holder_struct[size]) end
@@ -40,7 +40,7 @@ end
 if not __holder_cache_scr then
     __holder_cache_scr = {}
     __holder_current_scr = {}
-    for size = 0, holder_size_count do
+    for size = 1, holder_size_count do
         __holder_cache_scr[size] = {}
         __holder_current_scr[size] = 0
         for i = 1, bulk_size do __holder_cache_scr[size][i] = ffi.new(__holder_struct_scr[size]) end
