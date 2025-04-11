@@ -8,7 +8,7 @@ AttackInfo = new_class()
 
 --$static
 --$return       AttackInfo
---$param        attack_info  | Struct   | The `attack_info` struct to wrap.
+--$param        attack_info | Struct    | The `attack_info` struct to wrap.
 --[[
 Returns an AttackInfo wrapper containing the provided `attack_info` struct.
 ]]

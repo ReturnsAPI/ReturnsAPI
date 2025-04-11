@@ -8,12 +8,32 @@ Struct = new_class()
 
 --$static
 --$return       Struct
+--$optional     constructor | number    | The constructor to use.
+--$optional     ...         |           | Arguments to pass to the constructor.
 --[[
 Returns a newly created GameMaker struct.
+Can also create one from a constructor.
 ]]
-Struct.new = function()
-    local rvalue_struct = RValue.new(ffi.cast("struct YYObjectBase*", gm.gmf_struct_create()), RValue.Type.OBJECT)
-    return Struct.wrap(rvalue_struct)
+Struct.new = function(constructor, ...)
+    -- Blank struct
+    if not constructor then
+        local rvalue_struct = RValue.new(ffi.cast("struct YYObjectBase*", gm.gmf_struct_create()), RValue.Type.OBJECT)
+        return Struct.wrap(rvalue_struct)
+    end
+
+    -- From constructor
+    local args = table.pack(...)
+    local holder = RValue.new_holder(1 + args.n)
+    holder[0] = RValue.new(constructor)
+
+    -- Populate holder
+    for i = 1, args.n do
+        holder[i] = RValue.from_wrapper(args[i])
+    end
+
+    local out = RValue.new(0)
+    gmf["@@NewGMLObject@@"](out, nil, nil, args.n, holder)
+    return Struct.wrap(out)
 end
 
 

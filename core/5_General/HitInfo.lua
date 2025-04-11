@@ -13,7 +13,7 @@ local attackinfo_cache = setmetatable({}, {__mode = "k"})
 
 --$static
 --$return       HitInfo
---$param        hit_info    | Struct   | The `hit_info` struct to wrap.
+--$param        hit_info    | Struct    | The `hit_info` struct to wrap.
 --[[
 Returns a HitInfo wrapper containing the provided `hit_info` struct.
 ]]
