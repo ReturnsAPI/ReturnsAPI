@@ -5,7 +5,7 @@ Script = {}
 if not __bind_id_count then __bind_id_count = 0 end     -- Preserve on hotload
 if not __bind_id_to_func then __bind_id_to_func = {} end
 
-local name_cache = setmetatable({}, {__mode = "k"}) -- Cache for script.name
+local name_cache = setmetatable({}, {__mode = "k"})     -- Cache for script.name
 
 
 
@@ -113,8 +113,9 @@ metatable_script = {
 
     __call = function(proxy, ...)
         -- Get stored self/other
-        self    = Proxy.get(proxy)[3]
-        other   = Proxy.get(proxy)[4]
+        local actual = Proxy.get(proxy)
+        self    = actual[3]
+        other   = actual[4]
 
         local args = table.pack(...)
         local holder = nil
