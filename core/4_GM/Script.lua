@@ -1,8 +1,9 @@
 -- Script
 
--- This class is private, but Script wrappers are accessible by users.
-
 Script = {}
+
+if not __bind_id_count then __bind_id_count = 0 end     -- Preserve on hotload
+if not __bind_id_to_func then __bind_id_to_func = {} end
 
 local name_cache = setmetatable({}, {__mode = "k"}) -- Cache for script.name
 
@@ -10,10 +11,50 @@ local name_cache = setmetatable({}, {__mode = "k"}) -- Cache for script.name
 
 -- ========== Static Methods ==========
 
+--$static
+--$return       Script
+--$param        func        | function  | The function to bind.
+--[[
+Binds a Lua function to a GML script function and returns it.
+]]
+Script.bind = function(func)
+    -- Create a new struct
+    local struct = Struct.new()
+    struct.__id = __bind_id_count
+
+    -- Bind "dummy" function to struct
+    -- When called, the struct will be the `self` parameter
+    local method = GM.method(struct, gm.constants.function_dummy)
+    method.self, method.other = struct, struct  -- Allows for the user to
+                                                -- call the returned method
+
+    -- Store `func`, which will be called
+    -- when the binded dummy function is called
+    __bind_id_to_func[__bind_id_count] = func
+    __bind_id_count = __bind_id_count + 1
+
+    -- Add to `__ref_map` to prevent GC
+    __ref_map:set(method, true)
+
+    return method
+end
+
+
+--$static
+--$return       Script
+--$param        script      | RValue or Script wrapper  | The script to wrap.
+--[[
+Returns a Script wrapper containing the provided script.
+]]
 Script.wrap = function(script)
     -- Input:   `object RValue` or Script wrapper
-    -- Wraps:   { `yy_object_base` of `.type` 3, `cscriptref` }
-    return Proxy.new({ script.yy_object_base, script.cscriptref }, metatable_script)
+    -- Wraps:   { `cscriptref`, `yy_object_base` of `.type` 3 }
+    return Proxy.new({
+        script.cscriptref,
+        script.yy_object_base,
+        nil,    -- Stored `self`
+        nil,    -- Stored `other`
+    }, metatable_script)
 end
 
 
@@ -23,19 +64,23 @@ end
 metatable_script = {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" or k == "yy_object_base" then return Proxy.get(proxy)[1] end
+        if k == "value" or k == "cscriptref" then return Proxy.get(proxy)[1] end
         if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
-        if k == "cscriptref" then return Proxy.get(proxy)[2] end
+        if k == "yy_object_base" then return Proxy.get(proxy)[2] end
         if k == "name" then
             -- Check cache
             local name = name_cache[proxy]
             if not name then
-                name = ffi.string(Proxy.get(proxy)[2].m_call_script.m_script_name):sub(12, -1)
+                name = ffi.string(Proxy.get(proxy)[1].m_call_script.m_script_name):sub(12, -1)
                 name_cache[proxy] = name
             end
             
             return name
         end
+
+        -- Get stored self/other
+        if k == "self"  then return Proxy.get(proxy)[3] end
+        if k == "other" then return Proxy.get(proxy)[4] end
     end,
 
 
@@ -49,26 +94,27 @@ metatable_script = {
             log.error("Key '"..k.."' is read-only", 2)
         end
 
-        log.error("Script has no properties to set", 2)
+        -- Store self/other
+        if k == "self"
+        or k == "other" then
+            local index = 3
+            if k == "other" then index = 4 end
+
+            local _type = Util.type(v)
+            if      _type == "Struct"           then Proxy.get(proxy)[index] = ffi.cast("struct CInstance *", v.value)
+            elseif  instance_wrappers[_type]    then Proxy.get(proxy)[index] = v.CInstance
+            end
+            return
+        end
+
+        log.error("Non-existent Script property '"..k.."'", 2)
     end,
 
 
-    __call = function(proxy, self, other, ...)
-        -- Cast `self` to `struct CInstance *` (if applicable)
-        if self then
-            local _type = Util.type(self)
-            if      _type == "Struct"           then self = ffi.cast("struct CInstance *", self.value)
-            elseif  instance_wrappers[_type]    then self = self.CInstance
-            end
-        end
-
-        -- Cast `other` to `struct CInstance *` (if applicable)
-        if other then
-            local _type = Util.type(other)
-            if      _type == "Struct"           then other = ffi.cast("struct CInstance *", other.value)
-            elseif  instance_wrappers[_type]    then other = other.CInstance
-            end
-        end
+    __call = function(proxy, ...)
+        -- Get stored self/other
+        self    = Proxy.get(proxy)[3]
+        other   = Proxy.get(proxy)[4]
 
         local args = table.pack(...)
         local holder = nil
@@ -87,3 +133,37 @@ metatable_script = {
     
     __metatable = "RAPI.Wrapper.Script"
 }
+
+
+
+-- ========== Hooks ==========
+
+-- BIND LIMITATIONS:
+-- * If `method` is called by game code against your bound CScriptRef, then the `self` argument will no longer be the custom struct, therefore stopping it from being recognized by the hook
+-- * If the given function call relies on accessing `self` to be useful, then it likely won't be useful from this context
+
+memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "RValue*", "int", "void*"}, gm.get_script_function_address(gm.constants.function_dummy),
+    -- Pre-hook
+    {function(ret_val, self, other, result, arg_count, args)
+        local arg_count = arg_count:get()
+        local args_typed = ffi.cast("struct RValue**", args:get_address())
+
+        local wrapped_args = {}
+
+        -- Wrap args
+        for i = 0, arg_count - 1 do
+            table.insert(wrapped_args, RValue.to_wrapper(args_typed[i]))
+        end
+
+        -- Call bound Lua function
+        local fn = __bind_id_to_func[self.__id]
+        fn(table.unpack(wrapped_args))
+    end,
+
+    -- Post-hook
+    nil}
+)
+
+
+
+__class.Script = Script

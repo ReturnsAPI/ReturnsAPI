@@ -240,7 +240,6 @@ Callback.add = function(namespace, callback, fn, priority)
     end
 
     -- Add to subtable
-    __callback_id_counter = __callback_id_counter + 1
     local fn_table = {
         id          = __callback_id_counter,
         namespace   = namespace,
@@ -250,6 +249,8 @@ Callback.add = function(namespace, callback, fn, priority)
     local lookup_table = {callback, fn_table}
     __callback_id_lookup[__callback_id_counter] = lookup_table
     table.insert(__callback_bank[callback][priority], fn_table)
+    
+    __callback_id_counter = __callback_id_counter + 1
 
     -- Return numerical ID for removability
     return __callback_id_counter

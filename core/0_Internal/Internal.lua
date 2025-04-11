@@ -36,6 +36,12 @@ end
 
 -- ========== Script Binding ==========
 
+-- Moved to Script class
+
+if true then return end
+
+
+
 if not __bind_id_count then __bind_id_count = 0 end     -- Preserve on hotload
 if not __bind_id_to_func then __bind_id_to_func = {} end
 

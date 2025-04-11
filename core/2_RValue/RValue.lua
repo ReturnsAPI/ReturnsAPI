@@ -153,13 +153,22 @@ RValue.new = function(val, rvalue_type)
     end
     
     -- Other RValue.Type
-    if type(val) ~= "table" then
+    if (type(val) ~= "table")
+    or (rvalue_type == RValue.Type.OBJECT) then
         rvalue.type = rvalue_type
         if      rvalue_type == RValue.Type.REAL         then rvalue.value = val
         elseif  rvalue_type == RValue.Type.ARRAY        then rvalue.i64 = val
         elseif  rvalue_type == RValue.Type.PTR          then rvalue.i64 = val
         elseif  rvalue_type == RValue.Type.UNDEFINED    then rvalue.i64 = 0
-        elseif  rvalue_type == RValue.Type.OBJECT       then rvalue.yy_object_base = val
+        elseif  rvalue_type == RValue.Type.OBJECT       then
+            -- Script
+            if type(val) == "table" then
+                rvalue.cscriptref       = val[1]
+                rvalue.yy_object_base   = val[2]
+
+            -- Struct
+            else rvalue.yy_object_base  = val
+            end
         elseif  rvalue_type == RValue.Type.INT32        then rvalue.i32 = val
         elseif  rvalue_type == RValue.Type.INT64        then rvalue.i64 = val
         elseif  rvalue_type == RValue.Type.BOOL         then rvalue.value = val

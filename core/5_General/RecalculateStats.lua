@@ -284,7 +284,9 @@ memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"void*"
             local skill_start_cooldown = self_struct.skill_start_cooldown
 
             -- TODO verify that this actually works
-            skill_start_cooldown(self_struct, self_struct)
+            skill_start_cooldown.self = self_struct
+            skill_start_cooldown.other = self_struct
+            skill_start_cooldown()
         end
     end}
 )

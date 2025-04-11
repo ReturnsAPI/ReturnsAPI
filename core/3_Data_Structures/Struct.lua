@@ -19,7 +19,7 @@ end
 
 --$static
 --$return       Struct
---$param        struct      | RValue or Struct wrapper   | The struct to wrap.
+--$param        struct      | RValue or Struct wrapper  | The struct to wrap.
 --[[
 Returns a Struct wrapper containing the provided struct.
 ]]
