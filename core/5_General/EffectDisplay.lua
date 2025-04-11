@@ -100,7 +100,7 @@ EffectDisplay.particles = function(particle_type, rate, amount, system, xrand, y
 		particle_type,
 		rate,
 		amount,
-		system		or Particle.System.ABOVE,	-- Originally named "partlayer", but I assume that meant particle system
+		system		or Particle.System.ABOVE,
 		color		or Color.WHITE,
 		xrand 		or 0,
 		yrand 		or 0
