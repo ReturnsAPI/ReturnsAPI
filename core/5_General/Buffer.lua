@@ -77,7 +77,7 @@ for _, type_name in ipairs(primitive_types) do
         methods_buffer[method_name] = function(self, value)
             local holder = RValue.new_holder_scr(2)
             holder[0] = RValue.new(self.value)
-            holder[1] = RValue.new(value)
+            holder[1] = RValue.new(Wrap.unwrap(value))
             gmf[gm_name](nil, nil, RValue.new(0), 2, holder)
         end
     end
