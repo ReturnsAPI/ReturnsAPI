@@ -155,7 +155,7 @@ end
 --$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`0` by default.
 --[[
 Registers a function under a callback type.
-Returns the unique ID of the registered callback.
+Returns the unique ID of the registered function.
 
 **Priority Convention**
 To allow for a decent amount of space between priorities,
@@ -229,8 +229,7 @@ Callback.add = function(namespace, callback, fn, priority)
 
     -- Create __callback_bank subtables if they do not exist
     if not __callback_bank[callback] then
-        __callback_bank[callback] = {}
-        __callback_bank[callback].priorities = {}
+        __callback_bank[callback] = { priorities = {} }
     end
     local cbank_callback = __callback_bank[callback]
     if not cbank_callback[priority] then
@@ -258,7 +257,7 @@ end
 
 
 --$static
---$param        id          | number    | The unique ID of the registered callback to remove.
+--$param        id          | number    | The unique ID of the registered function to remove.
 --[[
 Removes a registered callback function.
 The ID is the one from $`Callback.add`, Callback#add$.
@@ -311,62 +310,59 @@ end
 
 -- ========== Hooks ==========
 
-local callback_execute_fn = function(ret_val, self, other, result, arg_count, args)
-    local arg_count = arg_count:get()
-    local args_typed = ffi.cast("struct RValue**", args:get_address())
-
-    -- Check if any registered callbacks
-    -- exist for the current callback
-    local callback = tonumber(args_typed[0].i64)
-    local cbank_callback = __callback_bank[callback]
-    if not cbank_callback then return end
-
-    local wrapped_args = {}
-
-    -- Wrap args (standard callbacks, e.g., `Callback.ON_LOAD`)
-    if callback < #callback_constants then
-        local arg_types = callback_arg_types[callback]  -- From `Global.class_callback[callback]`
-        for i, arg_type in ipairs(arg_types) do
-
-            local arg = RValue.to_wrapper(args_typed[i])
-            
-            -- Wrap as certain wrappers depending on arg type
-            if arg then
-                if      arg_type:match("Instance") and arg == -4    then arg = __invalid_instance   -- Wrap as invalid Instance if -4
-                elseif  arg_type:match("AttackInfo")                then arg = AttackInfo.wrap(arg) -- Assuming `arg` is a Struct wrapper
-                elseif  arg_type:match("HitInfo")                   then arg = HitInfo.wrap(arg)
-                end
-            end
-            
-            table.insert(wrapped_args, arg)
-        end
-
-    -- Wrap args (content callbacks, e.g., `<item>.on_acquired`)
-    else
-        for i = 1, arg_count - 1 do  
-            table.insert(wrapped_args, RValue.to_wrapper(args_typed[i]))
-        end
-    end
-
-    -- Loop through each priority table of the callback type
-    for _, priority in ipairs(cbank_callback.priorities) do
-        local cbank_priority = cbank_callback[priority]
-
-        -- Loop through priority table
-        -- and call registered functions with wrapped args
-        for _, fn_table in ipairs(cbank_priority) do
-            fn_table.fn(table.unpack(wrapped_args))
-        end
-    end
-end
-jit.off(callback_execute_fn)    -- Required or crash
-
 memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.callback_execute),
     -- Pre-hook
     {nil,
 
     -- Post-hook
-    callback_execute_fn}
+    function(ret_val, self, other, result, arg_count, args)
+        local arg_count = arg_count:get()
+        local args_typed = ffi.cast("struct RValue**", args:get_address())
+    
+        -- Check if any registered callbacks
+        -- exist for the current callback
+        local callback = tonumber(args_typed[0].i64)
+        local cbank_callback = __callback_bank[callback]
+        if not cbank_callback then return end
+    
+        local wrapped_args = {}
+    
+        -- Wrap args (standard callbacks, e.g., `Callback.ON_LOAD`)
+        if callback < #callback_constants then
+            local arg_types = callback_arg_types[callback]  -- From `Global.class_callback[callback]`
+            for i, arg_type in ipairs(arg_types) do
+    
+                local arg = RValue.to_wrapper(args_typed[i])
+                
+                -- Wrap as certain wrappers depending on arg type
+                if arg then
+                    if      arg_type:match("Instance") and arg == -4    then arg = __invalid_instance   -- Wrap as invalid Instance if -4
+                    elseif  arg_type:match("AttackInfo")                then arg = AttackInfo.wrap(arg) -- Assuming `arg` is a Struct wrapper
+                    elseif  arg_type:match("HitInfo")                   then arg = HitInfo.wrap(arg)
+                    end
+                end
+                
+                table.insert(wrapped_args, arg)
+            end
+    
+        -- Wrap args (content callbacks, e.g., `<item>.on_acquired`)
+        else
+            for i = 1, arg_count - 1 do  
+                table.insert(wrapped_args, RValue.to_wrapper(args_typed[i]))
+            end
+        end
+    
+        -- Loop through each priority table of the callback type
+        for _, priority in ipairs(cbank_callback.priorities) do
+            local cbank_priority = cbank_callback[priority]
+    
+            -- Loop through priority table
+            -- and call registered functions with wrapped args
+            for _, fn_table in ipairs(cbank_priority) do
+                fn_table.fn(table.unpack(wrapped_args))
+            end
+        end
+    end}
 )
 
 

@@ -3,7 +3,6 @@
 PATH = _ENV["!plugins_mod_folder_path"].."/"
 
 gmf = require("ReturnOfModding-GLOBAL/gmf")
--- require("./jit_safe.lua")
 
 
 -- ENVY initial setup

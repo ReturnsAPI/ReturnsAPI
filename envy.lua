@@ -115,6 +115,7 @@ function public.auto(properties)
     -- Clear callbacks and other stuff associated with namespace
     local namespace = properties.namespace or env["!guid"]:gsub("-", ".")
     if Callback         then Callback.remove_all(namespace) end
+    if Hook             then Hook.remove_all(namespace) end
     if Initialize       then Initialize.internal.remove_all(namespace) end
     if RecalculateStats then RecalculateStats.remove_all(namespace) end
 
