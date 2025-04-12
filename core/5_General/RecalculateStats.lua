@@ -73,6 +73,14 @@ local function reset_params()
     params.maxshield_add = 0 -- additional layer of hp that instantly recovers after 7 seconds spent untouched
     params.maxshield_mult = 1
 
+    -- Health-Shield interactions
+    -- Don't really like this but can't think of a better idea
+    -- This should exist though since it's already an established thing from RoR2
+    -- Both of these are additive, and can go over 1.0
+    --      * E.g., Transcendence would add `1.5 + 0.25*(stack-1)`
+    params.maxshield_from_maxhp = 0 -- Adds maxshield based on x% of maxhp; e.g., 1.0 adds maxshield equal to maxhp
+    params.maxhp_to_maxshield   = 0 -- Converts x% of maxhp to maxshield
+
     params.armor_add = 0 -- damage reduction using a special non-linear formula -- negative values result in increased damage up to +100%
     params.armor_mult = 1
 
@@ -176,7 +184,14 @@ memory.dynamic_hook_mid("RAPI.RecalculateStats.cdr", {"rdi"}, {"RValue*"}, 0, pt
 end)
 memory.dynamic_hook_mid("RAPI.RecalculateStats.maxhp", {"rcx"}, {"RValue*"}, 0, ptr:add(0xd7e), function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
-    args[1].value = (args[1].value + params.maxhp_add) * params.maxhp_mult
+    local finalized = (args[1].value + params.maxhp_add) * params.maxhp_mult
+    params.__original_finalized_hp = finalized
+
+    -- Reduce maxhp from Health -> Shield conversion
+    -- Don't have to worry about <= 0 since it's handled later
+    finalized = finalized * (1 - params.maxhp_to_maxshield)
+
+    args[1].value = finalized
 end)
 -- added to hp every step/frame
 memory.dynamic_hook_mid("RAPI.RecalculateStats.hp_regen", {"rax"}, {"RValue*"}, 0, ptr:add(0x22e7), function(args)
@@ -191,8 +206,15 @@ end)
 
 memory.dynamic_hook_mid("RAPI.RecalculateStats.maxshield", {"rax"}, {"RValue*"}, 0, ptr:add(0x1bdf), function(args)
     -- no multiplicative shield modifiers in vanilla
+    local finalized = (
+        args[1].value
+        + params.maxshield_add
+        + (params.maxshield_from_maxhp * params.__original_finalized_hp)
+        + (params.maxhp_to_maxshield * params.__original_finalized_hp)
+    ) * params.maxshield_mult
+
     -- prevent value from going below 0 because vanilla doesn't protect against it
-    args[1].value = math.max(0, (args[1].value + params.maxshield_add) * params.maxshield_mult)
+    args[1].value = math.max(0, finalized)
 end)
 
 memory.dynamic_hook_mid("RAPI.RecalculateStats.critical_chance", {"rdx"}, {"RValue*"}, 0, ptr:add(0x28c7), function(args)

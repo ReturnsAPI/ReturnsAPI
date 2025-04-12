@@ -159,6 +159,8 @@ memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "
         -- Call bound Lua function
         local fn = __bind_id_to_func[self.__id]
         fn(table.unpack(wrapped_args))
+
+        -- TODO pass return value from fn to function_dummy? dunno if that's needed though
     end,
 
     -- Post-hook
