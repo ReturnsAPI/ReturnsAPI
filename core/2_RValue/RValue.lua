@@ -184,6 +184,36 @@ end
 
 
 --$static
+--$param        rvalue_dest | RValue    | The RValue to copy to.
+--$param        rvalue_src  | RValue    | The RValue to copy from.
+--[[
+Copies the contents of `src` RValue to `dest` RValue.
+]]
+RValue.copy = function(rvalue_dest, rvalue_src)
+    if type(rvalue_dest) ~= "cdata" then log.error("RValue.copy: rvalue_dest is not an RValue", 2) end
+    if type(rvalue_src)  ~= "cdata" then log.error("RValue.copy: rvalue_src is not an RValue", 2) end
+
+    local rvalue_type = rvalue_src.type
+    rvalue_dest.type = rvalue_src.type
+
+    if      rvalue_type == RValue.Type.REAL         then rvalue_dest.value = rvalue_src.value
+    elseif  rvalue_type == RValue.Type.STRING       then rvalue_dest.ref_string = rvalue_src.ref_string
+    elseif  rvalue_type == RValue.Type.ARRAY        then rvalue_dest.i64 = rvalue_src.i64
+    elseif  rvalue_type == RValue.Type.PTR          then rvalue_dest.i64 = rvalue_src.i64
+    elseif  rvalue_type == RValue.Type.UNDEFINED    then rvalue_dest.i64 = rvalue_src.i64
+    elseif  rvalue_type == RValue.Type.OBJECT then
+        rvalue_dest.yy_object_base  = rvalue_src.yy_object_base
+        rvalue_dest.cinstance       = rvalue_src.cinstance
+        rvalue_dest.cscriptref      = rvalue_src.cscriptref
+    elseif  rvalue_type == RValue.Type.INT32        then rvalue_dest.i32 = rvalue_src.i32
+    elseif  rvalue_type == RValue.Type.INT64        then rvalue_dest.i64 = rvalue_src.i64
+    elseif  rvalue_type == RValue.Type.BOOL         then rvalue_dest.value = rvalue_src.value
+    elseif  rvalue_type == RValue.Type.REF          then rvalue_dest.i32 = rvalue_src.i32
+    end
+end
+
+
+--$static
 --$return       RValue[]
 --$param        size        | number    | The size of the holder.
 --[[

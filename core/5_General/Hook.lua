@@ -164,10 +164,11 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 -- This will always be `nil` for pre-hooks
                 local result_wrapped = nil
                 local result_address = result:get_address()
+                local result_rvalue = nil
                 if result_address ~= 0 then
                     -- If not `nil`, cast to RValue -> wrapper
-                    local rvalue = ffi.cast("RValue *", result_address)
-                    result_wrapped = RValue.to_wrapper(rvalue)
+                    result_rvalue = ffi.cast("RValue *", result_address)
+                    result_wrapped = RValue.to_wrapper(result_rvalue)
                 end
 
                 -- Wrap args
@@ -181,6 +182,7 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 end
 
                 -- Loop through each priority table
+                local result_table = { value = result_wrapped } -- Allows for detecting result modification
                 local prehook_return = true
                 for _, priority in ipairs(hbank_script.priorities) do
                     local hbank_priority = hbank_script[priority]
@@ -188,9 +190,15 @@ Hook.add = function(namespace, script, _type, fn, priority)
                     -- Call registered functions with wrapped args
                     for _, fn_table in ipairs(hbank_priority) do
                         -- `return false` in `fn` skips normal script execution
-                        local _return = fn_table.fn(self_wrapped, other_wrapped, result_wrapped, wrapped_args)
+                        local _return = fn_table.fn(self_wrapped, other_wrapped, result_table, wrapped_args)
                         if _return == false then prehook_return = false end
                     end
+                end
+
+                -- Result modification
+                if result_rvalue
+                and (result_table.value ~= result_wrapped) then
+                    RValue.copy(result_rvalue, RValue.from_wrapper(result_table.value))
                 end
 
                 -- Args modification:
@@ -206,7 +214,7 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 -- If `false`, skips normal script execution
                 return prehook_return
             end
-            -- jit.off(hook_func)  -- No idea which ones will be JIT-safe, so disable all
+            jit.off(hook_func)  -- No idea which ones will be JIT-safe, so disable all
 
             -- Add as pre-hook
             if _type == Hook.PRE then
@@ -283,7 +291,7 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 -- If `false`, skips normal script execution
                 return prehook_return
             end
-            -- jit.off(hook_func)  -- No idea which ones will be JIT-safe, so disable all
+            jit.off(hook_func)  -- No idea which ones will be JIT-safe, so disable all
 
             -- Add as pre-hook
             if _type == Hook.PRE then
