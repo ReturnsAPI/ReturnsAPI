@@ -84,7 +84,8 @@ Hook.add = function(namespace, script, _type, fn, priority)
     if type(script) ~= "string" then
         log.error("Hook.add: script should be a string", 2)
     end
-    if not gm.constants[script] then
+    if  (not gm.constants[script])
+    and (not GM.internal.object[script]) then
         log.error("Hook.add: script '"..script.."' does not exist", 2)
     end
 
@@ -206,37 +207,109 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 return prehook_return
             end
             -- jit.off(hook_func)  -- No idea which ones will be JIT-safe, so disable all
+
+            -- Add as pre-hook
+            if _type == Hook.PRE then
+                print("Hook: Added pre-hook for '"..script.."'")
+
+                memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
+                    -- Pre-hook
+                    {hook_func,
+
+                    -- Post-hook
+                    nil}
+                )
+
+            -- Add as post-hook
+            elseif _type == Hook.POST then
+                print("Hook: Added post-hook for '"..script.."'")
+
+                memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
+                    -- Pre-hook
+                    {nil,
+
+                    -- Post-hook
+                    hook_func}
+                )
+            end
         
         -- Create object hook function
-        -- TODO
         elseif GM.internal.object[script] then
-            
+            hook_func = function(ret_val, self, other)
+                -- Check if any registered functions
+                -- exist for the current game function
+                local hbank_script = __hook_bank[script][_type]
+                if #hbank_script.priorities <= 0 then return end
 
-        end
+                -- Cast and wrap `self`
+                local self_wrapped = nil
+                local self_address = self:get_address()
+                if self_address ~= 0 then
+                    -- If not `nil`, wrap as either Struct or Instance
+                    local self_cdata = ffi.cast("YYObjectBase *", self_address)
+                    if self_cdata.type == 1 then
+                        self_cdata = ffi.cast("CInstance *", self_address)
+                        self_wrapped = Instance.wrap(self_cdata.id)
+                    else self_wrapped = Struct.wrap_yyobjectbase(self_cdata)
+                    end
+                end
 
-        -- Add as pre-hook
-        if _type == Hook.PRE then
-            print("Hook: Added pre-hook for '"..script.."'")
+                -- Cast and wrap `other`
+                local other_wrapped = nil
+                local other_address = other:get_address()
+                if other_address ~= 0 then
+                    -- If not `nil`, wrap as either Struct or Instance
+                    local other_cdata = ffi.cast("YYObjectBase *", other_address)
+                    if other_cdata.type == 1 then
+                        other_cdata = ffi.cast("CInstance *", other_address)
+                        other_wrapped = Instance.wrap(other_cdata.id)
+                    else other_wrapped = Struct.wrap_yyobjectbase(other_cdata)
+                    end
+                end
 
-            memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
-                -- Pre-hook
-                {hook_func,
+                -- Loop through each priority table
+                local prehook_return = true
+                for _, priority in ipairs(hbank_script.priorities) do
+                    local hbank_priority = hbank_script[priority]
 
-                -- Post-hook
-                nil}
-            )
+                    -- Call registered functions with wrapped args
+                    for _, fn_table in ipairs(hbank_priority) do
+                        -- `return false` in `fn` skips normal script execution
+                        local _return = fn_table.fn(self_wrapped, other_wrapped)
+                        if _return == false then prehook_return = false end
+                    end
+                end
 
-        -- Add as post-hook
-        elseif _type == Hook.POST then
-            print("Hook: Added post-hook for '"..script.."'")
+                -- If `false`, skips normal script execution
+                return prehook_return
+            end
+            -- jit.off(hook_func)  -- No idea which ones will be JIT-safe, so disable all
 
-            memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
-                -- Pre-hook
-                {nil,
+            -- Add as pre-hook
+            if _type == Hook.PRE then
+                print("Hook: Added pre-hook for '"..script.."'")
 
-                -- Post-hook
-                hook_func}
-            )
+                memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
+                    -- Pre-hook
+                    {hook_func,
+
+                    -- Post-hook
+                    nil}
+                )
+
+            -- Add as post-hook
+            elseif _type == Hook.POST then
+                print("Hook: Added post-hook for '"..script.."'")
+
+                memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
+                    -- Pre-hook
+                    {nil,
+
+                    -- Post-hook
+                    hook_func}
+                )
+            end
+
         end
     end
     local hbank_script = __hook_bank[script][_type]
