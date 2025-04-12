@@ -335,6 +335,14 @@ local callback_execute_func = function(ret_val, self, other, result, arg_count, 
                 if      arg_type:match("Instance") and arg == -4    then arg = __invalid_instance   -- Wrap as invalid Instance if -4
                 elseif  arg_type:match("AttackInfo")                then arg = AttackInfo.wrap(arg) -- Assuming `arg` is a Struct wrapper
                 elseif  arg_type:match("HitInfo")                   then arg = HitInfo.wrap(arg)
+                elseif  arg_type:match("Equipment")                 then arg = Equipment.wrap(arg)
+                end
+            end
+
+            -- Packet and Message edge cases (41 - net_message_onReceived)
+            if callback == Callback.NET_MESSAGE_ON_RECEIVED then
+                if      i == 1 then arg = Packet.wrap(arg)
+                elseif  i == 2 then arg = Buffer.wrap(arg)
                 end
             end
             
