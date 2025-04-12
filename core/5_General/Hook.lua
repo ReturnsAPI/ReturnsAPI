@@ -161,7 +161,6 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 end
 
                 -- Cast and wrap `result`
-                -- This will always be `nil` for pre-hooks
                 local result_wrapped = nil
                 local result_address = result:get_address()
                 local result_rvalue = nil
