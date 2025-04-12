@@ -1,6 +1,6 @@
 -- Buffer
 
--- The class is private, but the wrappers are publicly accessible
+-- The class table is private, but the wrappers are publicly accessible
 
 Buffer = new_class()
 
