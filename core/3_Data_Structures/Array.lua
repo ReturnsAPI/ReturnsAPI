@@ -217,6 +217,15 @@ methods_array = {
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
         holder[1] = RValue.from_wrapper(not descending, RValue.Type.BOOL)
         gmf.array_sort(RValue.new(0), nil, nil, 2, holder)
+    end,
+
+    
+    print = function(self)
+        local str = ""
+        for i, v in ipairs(self) do
+            str = str.."\n"..Util.pad_string_right(i - 1, 32).." = "..Util.tostring(v)
+        end
+        print(str)
     end
     
 }

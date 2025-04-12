@@ -100,13 +100,13 @@ methods_struct = {
     end,
 
 
-    get_from_hash = function(self, hash)
-        local holder = RValue.new_holder(2)
-        holder[0] = RValue.new(self.value, RValue.Type.OBJECT)
-        holder[1] = RValue.new(hash)
-        local out = RValue.new(0)
-        gmf.struct_get_from_hash(out, nil, nil, 2, holder)
-        return RValue.to_wrapper(out)
+    print = function(self)
+        local str = ""
+        local keys = self:get_keys()
+        for _, key in ipairs(keys) do
+            str = str.."\n"..Util.pad_string_right(key, 32).." = "..Util.tostring(self[key])
+        end
+        print(str)
     end
 
 }

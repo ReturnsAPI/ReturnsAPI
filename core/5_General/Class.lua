@@ -243,7 +243,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             local array = __class_find_tables[name_global][self.value].array
             local str = ""
             for i, v in ipairs(array) do
-                str = str.."\n"..Util.pad_string_right(class_table.Property[i - 1], 32)..Util.tostring(v)
+                str = str.."\n"..Util.pad_string_right(class_table.Property[i - 1], 32).." = "..Util.tostring(v)
             end
             print(str)
         end

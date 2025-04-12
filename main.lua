@@ -39,7 +39,8 @@ require("./envy")
 gui.add_imgui(function()
     if ImGui.Begin("ReturnsAPI Debug") then
 
-        ImGui.Text("__rvalue_current: "..__rvalue_current)
+        ImGui.Text("__rvalue_current:   "..__rvalue_current)
+        ImGui.Text("#__ref_map:         "..#__ref_map)
 
         if ImGui.Button("_mod_instance_number benchmark") then
             local foo = function(obj)

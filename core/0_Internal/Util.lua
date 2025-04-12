@@ -343,6 +343,7 @@ Returns a string with character padding on the
 left side to match the desired string length.
 ]]
 Util.pad_string_left = function(str, length, char)
+    str = tostring(str)
     char = char or " "
     local len = length - #str
     for i = 1, len do
@@ -362,6 +363,7 @@ Returns a string with character padding on the
 right side to match the desired string length.
 ]]
 Util.pad_string_right = function(str, length, char)
+    str = tostring(str)
     char = char or " "
     local len = length - #str
     for i = 1, len do
