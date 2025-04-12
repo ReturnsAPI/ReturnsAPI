@@ -61,13 +61,6 @@ Hook.PRE    = 0
 Hook.POST   = 1
 
 
---$enum
-Hook.Priority = ReadOnly.new({
-    BEFORE  = 1000,
-    AFTER   = -1000
-})
-
-
 
 -- ========== Static Methods ==========
 
@@ -76,14 +69,14 @@ Hook.Priority = ReadOnly.new({
 --$param        script      | string    | The game function to hook.
 --$param        type        | number    | Either `Hook.PRE` or `Hook.POST`.
 --$param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
---$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`0` by default.
+--$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --[[
 Registers a function under a game function hook.
 Returns the unique ID of the registered function.
 
 **Priority Convention**
 To allow for a decent amount of space between priorities,
-use the enum values in $`Hook.Priority`, Hook#Priority$.
+use the enum values in $`Callback.Priority`, Callback#Priority$.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 Hook.add = function(namespace, script, _type, fn, priority)
@@ -213,6 +206,12 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 return prehook_return
             end
             -- jit.off(hook_func)  -- No idea which ones will be JIT-safe, so disable all
+        
+        -- Create object hook function
+        -- TODO
+        elseif GM.internal.object[script] then
+            
+
         end
 
         -- Add as pre-hook
@@ -275,23 +274,15 @@ Hook.remove = function(id)
     if not lookup_table then return end
     __hook_id_lookup[id] = nil
 
-    -- TODO
-
-    -- local cbank_callback = __hook_bank[lookup_table[1]]
-    -- for priority, cbank_priority in pairs(cbank_callback) do
-    --     if type(priority) == "number" then
-    --         for i, v in ipairs(cbank_priority) do
-    --             if v == lookup_table[2] then
-    --                 table.remove(cbank_priority, i)
-    --                 break
-    --             end
-    --         end
-    --         if #cbank_priority <= 0 then
-    --             cbank_callback[priority] = nil
-    --             Util.table_remove_value(cbank_callback.priorities, priority)
-    --         end
-    --     end
-    -- end
+    -- Remove from relevant table
+    local priority = lookup_table[3].priority
+    local hbank_script = __hook_bank[lookup_table[1]][lookup_table[2]]
+    local hbank_priority = hbank_script[priority]
+    Util.table_remove_value(hbank_priority, lookup_table[3])
+    if #hbank_priority <= 0 then
+        hbank_script[priority] = nil
+        Util.table_remove_value(hbank_script.priorities, priority)
+    end
 end
 
 
@@ -302,25 +293,25 @@ Removes all registered hook functions from your namespace.
 Automatically called when you hotload your mod.
 ]]
 Hook.remove_all = function(namespace)
-    -- TODO
-
-    -- for _, cbank_callback in pairs(__hook_bank) do
-    --     for priority, cbank_priority in pairs(cbank_callback) do
-    --         if type(priority) == "number" then
-    --             for i = #cbank_priority, 1, -1 do
-    --                 local fn_table = cbank_priority[i]
-    --                 if fn_table.namespace == namespace then
-    --                     __hook_id_lookup[fn_table.id] = nil
-    --                     table.remove(cbank_priority, i)
-    --                 end
-    --             end
-    --             if #cbank_priority <= 0 then
-    --                 cbank_callback[priority] = nil
-    --                 Util.table_remove_value(cbank_callback.priorities, priority)
-    --             end
-    --         end
-    --     end
-    -- end
+    for _, hbank_script_name in pairs(__hook_bank) do
+        for _, hbank_script_type in pairs(hbank_script_name) do
+            for priority, hbank_priority in pairs(hbank_script_type) do
+                if type(priority) == "number" then
+                    for i = #hbank_priority, 1, -1 do
+                        local fn_table = hbank_priority[i]
+                        if fn_table.namespace == namespace then
+                            __hook_id_lookup[fn_table.id] = nil
+                            table.remove(hbank_priority, i)
+                        end
+                    end
+                    if #hbank_priority <= 0 then
+                        hbank_script_type[priority] = nil
+                        Util.table_remove_value(hbank_script_type.priorities, priority)
+                    end
+                end
+            end
+        end
+    end
 end
 
 

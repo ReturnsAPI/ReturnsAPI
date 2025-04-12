@@ -128,6 +128,7 @@ end
 
 --$enum
 Callback.Priority = ReadOnly.new({
+    NORMAL  = 0,
     BEFORE  = 1000,
     AFTER   = -1000
 })
@@ -152,7 +153,7 @@ end
 --$return       number
 --$param        callback    | number    | The $callback type, Callback#constants$ to register under.
 --$param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
---$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`0` by default.
+--$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --[[
 Registers a function under a callback type.
 Returns the unique ID of the registered function.

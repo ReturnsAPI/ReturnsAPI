@@ -1,1 +1,3 @@
 - Maybe come up with standardized behavior for `find` and `find_all`
+- Should probably move callback/hook priority to be second-last arg
+    - More visible
