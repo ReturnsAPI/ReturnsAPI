@@ -395,7 +395,13 @@ metatable_instance = {
         holder[1] = RValue.new(k)
         local out = RValue.new(0)
         gmf.variable_instance_get(out, nil, nil, 2, holder)
-        return RValue.to_wrapper(out)
+        local ret = RValue.to_wrapper(out)
+
+        -- For attack instances from `actor:fire_` methods, wrap `attack_info`
+        if k == "attack_info" then return AttackInfo.wrap(ret) end
+
+        -- Standard return
+        return ret
     end,
 
 

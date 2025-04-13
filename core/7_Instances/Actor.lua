@@ -13,6 +13,89 @@ if not __buff_count_cache then __buff_count_cache = {} end  -- Stores results fr
 -- ========== Instance Methods ==========
 
 methods_actor = {
+
+    --$instance
+    --$return       bool
+    --[[
+    Returns `true` if the actor is on the
+    ground and is *not* climbing on a rope.
+    ]]
+    is_grounded = function(self)
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.x)
+        holder[1] = RValue.new(self.y + 1)
+        holder[2] = RValue.new(gm.constants.oB)
+        local out = RValue.new(0)
+        gmf.place_meeting(out, self.CInstance, nil, 3, holder)
+        return (out.value == 1) and (not self:is_climbing())
+    end,
+
+
+    --$instance
+    --$return       bool
+    --[[
+    Returns `true` if the actor is climbing on a rope.
+    ]]
+    is_climbing = function(self)
+        local holder = RValue.new_holder_scr(1)
+        holder[0] = RValue.new(self.actor_state_current_id)
+        local out = RValue.new(0)
+        gmf.actor_state_is_climb_state(nil, nil, out, 1, holder)
+        return RValue.to_wrapper(out)
+    end,
+
+
+    --$instance
+    --$return       Instance
+    --$param        x                   | number    | The x coordinate of the origin.
+    --$param        y                   | number    | The y coordinate of the origin.
+    --$param        range               | number    | The range of the bullet (in pixels).
+    --$param        direction           | number    | The angle to fire the bullet (in degrees).
+    --$param        damage              | number    | The damage coefficient of the bullet, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+    --$optional     pierce_multiplier   | number    | Remaining damage is multiplied by this value per pierce. <br>If `nil` or `0`, no piercing happens.
+    --$optional     hit_sprite          | sprite    | The sprite to draw on collision with an actor or wall. <br>`nil` by default (no sprite).
+    --$optional     tracer              | number    | The bullet tracer to use. <br>$`AttackInfo.Tracer.NONE`, AttackInfo#Tracer$ by default.
+    --$optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
+    --[[
+    Fires a bullet from the actor, and returns the attack instance.
+    `.attack_info` will return an AttackInfo.
+    ]]
+    fire_bullet = function(self, x, y, range, direction, damage, pierce_multiplier, hit_sprite, tracer, can_proc)
+        -- Return if wrapper is invalid
+        local id = self.value
+        if id == -4 then return end
+        
+        -- If `pierce_multiplier` is a number > 0,
+        -- enable piercing for the attack
+        local can_pierce = false
+        if pierce_multiplier and (pierce_multiplier > 0) then can_pierce = true end
+
+        -- Attack will proc by default
+        if can_proc == nil then can_proc = true end
+
+        local holder = RValue.new_holder_scr(9)
+        holder[0] = RValue.new(id, RValue.Type.REF)
+        holder[1] = RValue.new(x)
+        holder[2] = RValue.new(y)
+        holder[3] = RValue.new(range)
+        holder[4] = RValue.new(direction)
+        holder[5] = RValue.new(damage)
+        holder[6] = RValue.new(hit_sprite or gm.constants.sNone)
+        holder[7] = RValue.new(can_pierce)
+        holder[8] = RValue.new(can_proc)
+        local out = RValue.new(0)
+        gmf._mod_attack_fire_bullet(nil, nil, out, 9, holder)
+        local inst = RValue.to_wrapper(out)
+
+        -- Set attack_info properties
+        local attack_info = inst.attack_info    -- Autowraps as AttackInfo
+        attack_info.damage_color = Color.WHITE_ALMOST
+        if pierce_multiplier    then attack_info.damage_degrade = (1 - pierce_multiplier) end
+        if tracer               then attack_info.tracer_kind = tracer end
+
+        return inst
+    end,
+
     
     --$instance
     --$param        item        | Item      | The item to give.
@@ -23,10 +106,11 @@ methods_actor = {
     ]]
     item_give = function(self, item, count, kind)
         -- Return if wrapper is invalid
-        if self.value == -4 then return end
+        local id = self.value
+        if id == -4 then return end
 
         local holder = RValue.new_holder_scr(4)
-        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.from_wrapper(item)
         holder[2] = RValue.new(count or 1)
         holder[3] = RValue.new(kind or Item.StackKind.NORMAL)
@@ -43,10 +127,11 @@ methods_actor = {
     ]]
     item_take = function(self, item, count, kind)
         -- Return if wrapper is invalid
-        if self.value == -4 then return end
+        local id = self.value
+        if id == -4 then return end
 
         local holder = RValue.new_holder_scr(4)
-        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.from_wrapper(item)
         holder[2] = RValue.new(count or 1)
         holder[3] = RValue.new(kind or Item.StackKind.NORMAL)
@@ -99,14 +184,15 @@ methods_actor = {
     ]]
     buff_apply = function(self, buff, duration, count)
         -- Return if wrapper is invalid
-        if self.value == -4 then return end
+        local id = self.value
+        if id == -4 then return end
 
         -- Arg check
         if not buff then log.error("buff_apply: buff is invalid", 2) end
         if not duration then log.error("buff_apply: duration is missing", 2) end
 
         local holder = RValue.new_holder_scr(4)
-        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.from_wrapper(buff)
         holder[2] = RValue.new(duration)
         holder[3] = RValue.new(count or 1)
@@ -126,14 +212,15 @@ methods_actor = {
     ]]
     buff_remove = function(self, buff, count)
         -- Return if wrapper is invalid
-        if self.value == -4 then return end
+        local id = self.value
+        if id == -4 then return end
 
         local current_count = self:buff_count(buff)
 
         -- Remove buff entirely if count >= current_count
         if (not count) or count >= current_count then
             local holder = RValue.new_holder_scr(2)
-            holder[0] = RValue.new(self.value, RValue.Type.REF)
+            holder[0] = RValue.new(id, RValue.Type.REF)
             holder[1] = RValue.from_wrapper(buff)
             gmf.remove_buff(nil, nil, RValue.new(0), 2, holder)
             return
