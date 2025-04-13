@@ -109,7 +109,7 @@ Hook.add = function(namespace, script, _type, fn, priority)
     if not __hook_bank[script][_type] then
         __hook_bank[script][_type] = { priorities = {} }
         
-        -- memory.dynamic_hook is only created once
+        -- Memory.dynamic_hook is only created once
         -- for each game function and hook type pair
         local hook_func = nil
         
@@ -213,13 +213,12 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 -- If `false`, skips normal script execution
                 return prehook_return
             end
-            jit.off(hook_func)  -- No idea which ones will be JIT-safe, so disable all
 
             -- Add as pre-hook
             if _type == Hook.PRE then
                 print("Hook: Added pre-hook for '"..script.."'")
 
-                memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
+                Memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
                     -- Pre-hook
                     {hook_func,
 
@@ -231,7 +230,7 @@ Hook.add = function(namespace, script, _type, fn, priority)
             elseif _type == Hook.POST then
                 print("Hook: Added post-hook for '"..script.."'")
 
-                memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
+                Memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
                     -- Pre-hook
                     {nil,
 
@@ -290,13 +289,12 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 -- If `false`, skips normal script execution
                 return prehook_return
             end
-            jit.off(hook_func)  -- No idea which ones will be JIT-safe, so disable all
 
             -- Add as pre-hook
             if _type == Hook.PRE then
                 print("Hook: Added pre-hook for '"..script.."'")
 
-                memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
+                Memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
                     -- Pre-hook
                     {hook_func,
 
@@ -308,7 +306,7 @@ Hook.add = function(namespace, script, _type, fn, priority)
             elseif _type == Hook.POST then
                 print("Hook: Added post-hook for '"..script.."'")
 
-                memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
+                Memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
                     -- Pre-hook
                     {nil,
 

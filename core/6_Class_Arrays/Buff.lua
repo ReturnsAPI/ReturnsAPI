@@ -99,7 +99,7 @@ methods_class[name_rapi] = Util.table_merge(methods_class[name_rapi], {
 -- Extend buff_stack to accommodate custom buffs
 -- The game does *not* automatically do this
 
-memory.dynamic_hook("RAPI.Buff.init_actor_default", "void*", {"CInstance*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.init_actor_default),
+Memory.dynamic_hook("RAPI.Buff.init_actor_default", "void*", {"CInstance*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.init_actor_default),
     -- Pre-hook
     {nil,
 

@@ -103,7 +103,7 @@ setmetatable(Initialize, make_metatable_initialize(_ENV["!guid"]))
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.Initialize.__input_system_tick", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__input_system_tick),
+Memory.dynamic_hook("RAPI.Initialize.__input_system_tick", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__input_system_tick),
     -- Pre-hook
     {nil,
 

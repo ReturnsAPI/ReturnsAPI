@@ -107,19 +107,19 @@ local hooks = {
 }
 for _, hook in ipairs(hooks) do
     local name_global = hook[2]
-    memory.dynamic_hook("RAPI.Class."..name_global, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(hook[1]),
+    Memory.dynamic_hook("RAPI.Class."..name_global, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(hook[1]),
         -- Pre-hook
         {nil,
 
         -- Post-hook
         function(ret_val, self, other, result, arg_count, args)
             local args_typed = ffi.cast("struct RValue**", args:get_address())
-
+    
             -- Get args
             local namespace = RValue.to_wrapper(args_typed[0])
             local identifier = RValue.to_wrapper(args_typed[1])
             local id = RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address()))
-
+    
             -- Add to find table
             if namespace then
                 local element_table = {

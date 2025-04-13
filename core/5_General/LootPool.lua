@@ -313,30 +313,31 @@ metatable_loot_pool = {
 -- ========== Hooks ==========
 
 -- Custom loot pools are not auto-populated by the game
-memory.dynamic_hook("RAPI.LootPool.run_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.run_create),
+
+Memory.dynamic_hook("RAPI.LootPool.run_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.run_create),
     -- Pre-hook
     {nil,
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
         local size = #Global.treasure_loot_pools
-
+    
         -- Loop through custom loot pools (ID 7+)
         for i = 7, size - 1 do
             local pool_struct = __loot_pool_find_table[i].struct
             local drop_pool = List.wrap(pool_struct.drop_pool)
-
+    
             -- Clear available_drop_pool
             local available_drop_pool = List.wrap(pool_struct.available_drop_pool)
             available_drop_pool:clear()
-
+    
             -- Insert item objects from drop_pool to available_drop_pool
             local list_size = #drop_pool
             for j = 0, list_size - 1 do
                 local item_obj = drop_pool:get(j)
-
+    
                 -- TODO check if item is unlocked first
-
+    
                 available_drop_pool:add(item_obj)
             end
         end

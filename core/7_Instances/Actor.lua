@@ -10,6 +10,15 @@ if not __buff_count_cache then __buff_count_cache = {} end  -- Stores results fr
 
 
 
+-- ========== Internal ==========
+
+-- For `fire_explosion_local`
+local explosion_mask        = gm.constants.sBite1Mask
+local explosion_mask_width  = GM.sprite_get_width(explosion_mask)
+local explosion_mask_height = GM.sprite_get_height(explosion_mask)
+
+
+
 -- ========== Instance Methods ==========
 
 methods_actor = {
@@ -51,14 +60,16 @@ methods_actor = {
     --$param        y                   | number    | The y coordinate of the origin.
     --$param        range               | number    | The range of the bullet (in pixels).
     --$param        direction           | number    | The angle to fire the bullet (in degrees).
-    --$param        damage              | number    | The damage coefficient of the bullet, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+    --$param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
     --$optional     pierce_multiplier   | number    | Remaining damage is multiplied by this value per pierce. <br>If `nil` or `0`, no piercing happens.
     --$optional     hit_sprite          | sprite    | The sprite to draw on collision with an actor or wall. <br>`nil` by default (no sprite).
     --$optional     tracer              | number    | The bullet tracer to use. <br>$`AttackInfo.Tracer.NONE`, AttackInfo#Tracer$ by default.
     --$optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
     --[[
-    Fires a bullet from the actor, and returns the attack instance.
+    Fires a bullet attack from the actor, and returns the attack instance.
     `.attack_info` will return an AttackInfo.
+    
+    This can be called from host or client, and automatically syncs.
     ]]
     fire_bullet = function(self, x, y, range, direction, damage, pierce_multiplier, hit_sprite, tracer, can_proc)
         -- Return if wrapper is invalid
@@ -92,6 +103,156 @@ methods_actor = {
         attack_info.damage_color = Color.WHITE_ALMOST
         if pierce_multiplier    then attack_info.damage_degrade = (1 - pierce_multiplier) end
         if tracer               then attack_info.tracer_kind = tracer end
+
+        return inst
+    end,
+
+
+    --$instance
+    --$return       Instance
+    --$param        x                   | number    | The x coordinate of the origin.
+    --$param        y                   | number    | The y coordinate of the origin.
+    --$param        width               | number    | The width of the explosion, centered at `x` (in pixels).
+    --$param        height              | number    | The height of the explosion, centered at `y` (in pixels).
+    --$param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+    --$optional     explosion_sprite    | sprite    | The sprite to use for the explosion. <br>`nil` by default (no sprite).
+    --$optional     sparks_sprite       | sprite    | The sprite to draw on hit actors. <br>`nil` by default (no sprite).
+    --$optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
+    --[[
+    Fires an explosion attack from the actor, and returns the attack instance.
+    `.attack_info` will return an AttackInfo.
+
+    This can be called from host or client, and automatically syncs.
+    ]]
+    fire_explosion = function(self, x, y, width, height, damage, explosion_sprite, sparks_sprite, can_proc)
+        -- Return if wrapper is invalid
+        local id = self.value
+        if id == -4 then return end
+
+        -- Attack will proc by default
+        if can_proc == nil then can_proc = true end
+
+        local holder = RValue.new_holder_scr(9)
+        holder[0] = RValue.new(id, RValue.Type.REF)
+        holder[1] = RValue.new(x)
+        holder[2] = RValue.new(y)
+        holder[3] = RValue.new(width)
+        holder[4] = RValue.new(height)
+        holder[5] = RValue.new(damage)
+        holder[6] = RValue.new(explosion_sprite or gm.constants.sNone)
+        holder[7] = RValue.new(sparks_sprite or gm.constants.sNone)
+        holder[8] = RValue.new(can_proc)
+        local out = RValue.new(0)
+        gmf._mod_attack_fire_explosion(nil, nil, out, 9, holder)
+        local inst = RValue.to_wrapper(out)
+
+        -- Set attack_info properties
+        local attack_info = inst.attack_info    -- Autowraps as AttackInfo
+        attack_info.damage_color = Color.WHITE_ALMOST
+
+        return inst
+    end,
+
+
+    --$instance
+    --$return       Instance
+    --$param        x                   | number    | The x coordinate of the origin.
+    --$param        y                   | number    | The y coordinate of the origin.
+    --$param        width               | number    | The width of the explosion, centered at `x` (in pixels).
+    --$param        height              | number    | The height of the explosion, centered at `y` (in pixels).
+    --$param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+    --$optional     explosion_sprite    | sprite    | The sprite to use for the explosion. <br>`nil` by default (no sprite).
+    --$optional     sparks_sprite       | sprite    | The sprite to draw on hit actors. <br>`nil` by default (no sprite).
+    --$optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
+    --[[
+    Fires an explosion attack from the actor, and returns the attack instance.
+    `.attack_info` will return an AttackInfo.
+
+    This attack is not synced.
+    ]]
+    fire_explosion_local = function(self, x, y, width, height, damage, explosion_sprite, sparks_sprite, can_proc)
+        -- Return if wrapper is invalid
+        local id = self.value
+        if id == -4 then return end
+
+        -- Attack will proc by default
+        if can_proc == nil then can_proc = true end
+
+        local holder = RValue.new_holder_scr(8)
+        holder[0] = RValue.new(0)
+        holder[1] = RValue.new(x)
+        holder[2] = RValue.new(y)
+        holder[3] = RValue.new(damage)
+        holder[4] = RValue.new(sparks_sprite or gm.constants.sNone)
+        holder[5] = RValue.new(2)
+        holder[6] = RValue.new(width / explosion_mask_width)
+        holder[7] = RValue.new(height / explosion_mask_height)
+        gmf.fire_explosion_local(self.CInstance, nil, RValue.new(0), 8, holder)
+        local inst = Global.attack_bullet   -- The function doesn't return anything
+
+        -- Set attack_info properties
+        local attack_info = inst.attack_info    -- Autowraps as AttackInfo
+        attack_info.damage_color = Color.WHITE_ALMOST
+        attack_info.proc = can_proc
+
+        -- Create explosion sprite manually
+        if explosion_sprite then
+            local holder = RValue.new_holder_scr(3)
+            holder[0] = RValue.new(x)
+            holder[1] = RValue.new(y)
+            holder[2] = RValue.new(gm.constants.oEfExplosion)
+            local out = RValue.new(0)
+            gmf.instance_create(nil, nil, out, 3, holder)
+            local ef_inst = RValue.to_wrapper(out)
+            ef_inst.sprite_index = explosion_sprite
+        end
+
+        return inst
+    end,
+
+
+    --$instance
+    --$return       Instance
+    --$param        target              | Instance  | The target instance of the attack.
+    --$param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+    --$optional     direction           | number    | The angle of the attack (in degrees). <br>`0` by default.
+    --$optional     x                   | number    | The x coordinate. <br>`target.x` by default.
+    --$optional     y                   | number    | The y coordinate. <br>`target.y` by default.
+    --$optional     hit_sprite          | sprite    | The sprite to draw on collision with an actor or wall. <br>`nil` by default (no sprite).
+    --$optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
+    --[[
+    Fires a direct attack from the actor, and returns the attack instance.
+    `.attack_info` will return an AttackInfo.
+
+    This can be called from host or client, and automatically syncs.
+    ]]
+    fire_direct = function(self, target, damage, direction, x, y, hit_sprite, can_proc)
+        -- Return if wrapper is invalid
+        local id = self.value
+        if id == -4 then return end
+
+        -- Make sure `target` is wrapped
+        if type(target) ~= "table" then target = Instance.wrap(target) end
+
+        -- Attack will proc by default
+        if can_proc == nil then can_proc = true end
+
+        local holder = RValue.new_holder_scr(8)
+        holder[0] = RValue.new(id, RValue.Type.REF)
+        holder[1] = RValue.from_wrapper(target)
+        holder[2] = RValue.new(x or target.x)
+        holder[3] = RValue.new(y or target.y)
+        holder[4] = RValue.new(direction or 0)
+        holder[5] = RValue.new(damage)
+        holder[6] = RValue.new(hit_sprite or gm.constants.sNone)
+        holder[7] = RValue.new(can_proc)
+        local out = RValue.new(0)
+        gmf._mod_attack_fire_direct(nil, nil, out, 8, holder)
+        local inst = RValue.to_wrapper(out)
+
+        -- Set attack_info properties
+        local attack_info = inst.attack_info    -- Autowraps as AttackInfo
+        attack_info.damage_color = Color.WHITE_ALMOST
 
         return inst
     end,
@@ -301,15 +462,15 @@ metatable_actor = {
 local hooks = {"item_give_internal", "item_take_internal"}
 
 for _, hook in ipairs(hooks) do
-    memory.dynamic_hook("RAPI.Actor."..hook, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook]),
+    Memory.dynamic_hook("RAPI.Actor."..hook, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook]),
         -- Pre-hook
         {function(ret_val, self, other, result, arg_count, args)
             local args_typed = ffi.cast("struct RValue**", args:get_address())
-
+    
             -- Get args
             local actor_id  = args_typed[0].i32
             local item_id   = args_typed[1].value
-
+    
             -- Reset cached table for that item of the actor
             -- (The table contains cached values for every stack kind)
             if not __item_count_cache[actor_id] then __item_count_cache[actor_id] = {} end
@@ -324,15 +485,15 @@ end
 
 -- Reset cache when a buff is applied
 
-memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.apply_buff_internal),
+Memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.apply_buff_internal),
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
         local args_typed = ffi.cast("struct RValue**", args:get_address())
-
+    
         -- Get args
         local actor_id  = args_typed[0].i32
         local buff_id   = args_typed[1].value
-
+    
         -- Reset cached value for that buff of the actor
         if not __buff_count_cache[actor_id] then __buff_count_cache[actor_id] = {} end
         __buff_count_cache[actor_id][buff_id] = nil
@@ -347,14 +508,14 @@ memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*"
 -- Adds an `on_remove` callback to every buff for this,
 -- which allows for detecting passive buff expiry
 
-memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.buff_create),
+Memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.buff_create),
     -- Pre-hook
     {nil,
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
         local buff = Buff.wrap(RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address())))
-
+    
         -- Add an `on_remove` callback to reset the
         -- cached value for that buff of the actor
         Callback.add(_ENV["!guid"], buff.on_remove, function(actor)
@@ -370,7 +531,8 @@ memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*
 -- ========== _count_cache GC ==========
 
 -- On room change, remove non-existent instances from `_count_cache`
-memory.dynamic_hook("RAPI.Actor.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto),
+
+Memory.dynamic_hook("RAPI.Actor.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto),
     -- Pre-hook
     {nil,
 
@@ -382,7 +544,7 @@ memory.dynamic_hook("RAPI.Actor.room_goto", "void*", {"void*", "void*", "void*",
                 __item_count_cache[id] = nil
             end
         end
-
+    
         -- Buff
         for id, _ in pairs(__buff_count_cache) do
             if not Instance.exists(id) then
@@ -394,23 +556,24 @@ memory.dynamic_hook("RAPI.Actor.room_goto", "void*", {"void*", "void*", "void*",
 
 
 -- Remove `_count_cache` on non-player kill
-memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead),
+
+Memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead),
     -- Pre-hook
     {nil,
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
         local args_typed = ffi.cast("struct RValue**", args:get_address())
-
+    
         local actor_id = args_typed[0].i32
-
+    
         -- Get object_index
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(actor_id, RValue.Type.REF)
         holder[1] = RValue.new("object_index")
         local out = RValue.new(0)
         gmf.variable_instance_get(out, nil, nil, 2, holder)
-
+    
         -- Do not clear for player deaths
         if out.value ~= gm.constants.oP then
             __item_count_cache[actor_id] = nil
@@ -421,23 +584,24 @@ memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", 
 
 
 -- Move `_count_cache` to new instance
-memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform),
+
+Memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform),
     -- Pre-hook
     {nil,
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
         local args_typed = ffi.cast("struct RValue**", args:get_address())
-
+    
         local actor_id = args_typed[0].i32
         local new_id = args_typed[1].i32
-
+    
         -- Move item cache
         if __item_count_cache[actor_id] then
             __item_count_cache[new_id] = __item_count_cache[actor_id]
             __item_count_cache[actor_id] = nil
         end
-
+    
         -- Move buff cache
         if __buff_count_cache[actor_id] then
             __buff_count_cache[new_id] = __buff_count_cache[actor_id]

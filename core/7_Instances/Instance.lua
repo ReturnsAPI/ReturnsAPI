@@ -438,7 +438,8 @@ metatable_instance = {
 -- ========== __instance_data GC ==========
 
 -- On room change, remove non-existent instances from `__instance_data`
-memory.dynamic_hook("RAPI.Instance.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto),
+
+Memory.dynamic_hook("RAPI.Instance.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto),
     -- Pre-hook
     {nil,
 
@@ -454,23 +455,24 @@ memory.dynamic_hook("RAPI.Instance.room_goto", "void*", {"void*", "void*", "void
 
 
 -- Remove `__instance_data` on non-player kill
-memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead),
+
+Memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead),
     -- Pre-hook
     {nil,
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
         local args_typed = ffi.cast("struct RValue**", args:get_address())
-
+    
         local actor_id = args_typed[0].i32
-
+    
         -- Get object_index
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(actor_id, RValue.Type.REF)
         holder[1] = RValue.new("object_index")
         local out = RValue.new(0)
         gmf.variable_instance_get(out, nil, nil, 2, holder)
-
+    
         -- Do not clear for player deaths
         if out.value ~= gm.constants.oP then
             __instance_data[actor_id] = nil
@@ -480,17 +482,18 @@ memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", 
 
 
 -- Move `__instance_data` to new instance
-memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform),
+
+Memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform),
     -- Pre-hook
     {nil,
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
         local args_typed = ffi.cast("struct RValue**", args:get_address())
-
+    
         local actor_id = args_typed[0].i32
         local new_id = args_typed[1].i32
-
+    
         -- Move data
         if __instance_data[actor_id] then
             __instance_data[new_id] = __instance_data[actor_id]
