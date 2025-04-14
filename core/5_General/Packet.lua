@@ -46,7 +46,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_packet", {
+methods_packet = {
 
     --$instance
     --$param        serializer      | function  | The serialization function.
@@ -137,7 +137,7 @@ make_table_once("methods_packet", {
         end
     end
 
-})
+}
 
 
 

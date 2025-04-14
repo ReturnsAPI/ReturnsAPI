@@ -132,7 +132,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_class_item_log", {
+methods_class_array[name_rapi] = {
 
     --$instance
     --$name         show_properties
@@ -169,4 +169,4 @@ make_table_once("methods_class_item_log", {
         item_log_order:insert(pos, self.value)
     end
 
-})
+}

@@ -33,7 +33,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_buffer", {
+methods_buffer = {
 
     write_instance = function(self, instance)
         local holder = RValue.new_holder_scr(2)
@@ -51,7 +51,7 @@ make_table_once("methods_buffer", {
         return RValue.to_wrapper(out)
     end
 
-})
+}
 
 
 -- Add instance methods for primitive types to `methods_buffer`

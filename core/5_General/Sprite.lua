@@ -153,7 +153,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_sprite", {
+methods_sprite = {
 
     --$instance
     --$optional     x_origin    | number    | The x coordinate of the origin (offset). <br>`0` by default.
@@ -227,7 +227,7 @@ make_table_once("methods_sprite", {
         gmf.sprite_collision_mask(RValue.new(0), nil, nil, 9, holder)
     end
 
-})
+}
 
 
 

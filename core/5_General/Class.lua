@@ -154,12 +154,13 @@ end
 -- Use __class[<RAPI name>] in their respective
 -- files instead of creating a new table
 -- 
--- Additionally, modify method_class[<RAPI name>] for instance methods
+-- Additionally, modify methods_class[<RAPI name>] for instance methods
+
+methods_class_array = {}
 
 run_once(function()
-    for name_global, _ in pairs(class_name_g2r) do
-        make_table_once("methods_"..name_global)
-        make_table_once("metatable_"..name_global)
+    for name_rapi, _ in pairs(class_name_r2g) do
+        make_table_once("metatable_"..name_rapi)
     end
 end)
 
@@ -169,8 +170,7 @@ local properties = file.array
 
 -- Create new class table for every class array
 for name_rapi, name_global in pairs(class_name_r2g) do
-    local methods_name_global = "methods_"..name_global
-    local metatable_name_global = "metatable_"..name_global
+    local metatable_name = "metatable_"..name_rapi
 
     local class_table = new_class()
 
@@ -242,10 +242,10 @@ for name_rapi, name_global in pairs(class_name_r2g) do
     end
 
     class_table.wrap = function(value)
-        return Proxy.new(Wrap.unwrap(value), private[metatable_name_global])
+        return Proxy.new(Wrap.unwrap(value), private[metatable_name])
     end
 
-    make_table_once(methods_name_global, {
+    methods_class_array[name_rapi] = {
         show_properties = function(self)
             local array = __class_find_tables[name_global][self.value].array
             local str = ""
@@ -254,9 +254,9 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             end
             print(str)
         end
-    })
+    }
 
-    make_table_once(metatable_name_global, {
+    make_table_once(metatable_name, {
         __index = function(proxy, k)
             -- Get wrapped value
             local value = Proxy.get(proxy)
@@ -264,7 +264,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
 
             -- Methods
-            local method = private[methods_name_global][k]
+            local method = methods_class_array[name_rapi][k]
             if method then return method end
 
             -- Getter

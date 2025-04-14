@@ -165,7 +165,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_item_tier", {
+methods_item_tier = {
 
     --$instance
     --[[
@@ -180,7 +180,7 @@ make_table_once("methods_item_tier", {
         print(str)
     end
 
-})
+}
 
 
 

@@ -161,7 +161,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_particle", {
+methods_particle = {
 
     --$instance
     --$param        x           | number    | The x coordinate to spawn at.
@@ -216,7 +216,7 @@ make_table_once("methods_particle", {
         return lookup_struct[self.value]
     end
 
-})
+}
 
 
 

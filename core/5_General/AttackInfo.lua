@@ -56,13 +56,13 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_attackinfo", {
+methods_attackinfo = {
 
     abc = function(self)
         
     end
 
-})
+}
 
 
 

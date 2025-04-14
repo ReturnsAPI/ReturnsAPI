@@ -282,7 +282,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_instance", {
+methods_instance = {
 
     --$instance
     --$aref         exists-instance
@@ -349,7 +349,7 @@ make_table_once("methods_instance", {
         return (out.value == 1)
     end
 
-})
+}
 
 -- Add GM scripts
 for scr, _ in pairs(GM.internal.builtin) do

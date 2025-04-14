@@ -25,7 +25,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_hitinfo", {
+methods_hitinfo = {
 
     -- Will contain all of AttackInfo's methods but with
     -- the necessary modifications to HitInfo struct as well
@@ -34,7 +34,7 @@ make_table_once("methods_hitinfo", {
         
     end
 
-})
+}
 
 
 

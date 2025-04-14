@@ -184,7 +184,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_loot_pool", {
+methods_loot_pool = {
 
     --$instance
     --[[
@@ -271,7 +271,7 @@ make_table_once("methods_loot_pool", {
         -- TODO generates a new command crate object for the loot pool and sets `command_crate_object_id`
     end
 
-})
+}
 
 
 

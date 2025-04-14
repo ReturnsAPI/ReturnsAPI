@@ -54,7 +54,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_map", {
+methods_map = {
 
     exists = function(self)
         if self.value == -4 then return false end
@@ -119,7 +119,7 @@ make_table_once("methods_map", {
         gmf.ds_map_clear(RValue.new(0), nil, nil, 1, holder)
     end
 
-})
+}
 
 
 

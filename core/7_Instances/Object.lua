@@ -148,7 +148,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_object", {
+methods_object = {
 
     --$instance
     --$return       Instance
@@ -169,7 +169,7 @@ make_table_once("methods_object", {
         return RValue.to_wrapper(out)
     end
 
-})
+}
 
 
 

@@ -86,7 +86,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_struct", {
+methods_struct = {
 
     get_keys = function(self)
         local holder = RValue.new_holder(1)
@@ -109,7 +109,7 @@ make_table_once("methods_struct", {
         print(str)
     end
 
-})
+}
 
 
 

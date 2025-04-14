@@ -30,7 +30,7 @@ end
 
 -- ========== Metatables ==========
 
-make_table_once("metatable_global", {
+metatable_global = {
     __index = function(t, k)
         -- Check cache
         if __global_cache[k] then return __global_cache[k] end
@@ -55,7 +55,7 @@ make_table_once("metatable_global", {
 
 
     __metatable = "RAPI.Class.Global"
-})
+}
 setmetatable(Global, metatable_global)
 
 

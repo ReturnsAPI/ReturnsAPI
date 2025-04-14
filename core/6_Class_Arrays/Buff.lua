@@ -86,11 +86,11 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_class_buff", {
+methods_class_array[name_rapi] = {
 
     
 
-})
+}
 
 
 

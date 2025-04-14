@@ -22,7 +22,7 @@ local explosion_mask_height = GM.sprite_get_height(explosion_mask)
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_actor", {
+methods_actor = {
 
     --$instance
     --$return       bool
@@ -423,7 +423,7 @@ make_table_once("methods_actor", {
         return count
     end
 
-})
+}
 
 
 

@@ -146,7 +146,7 @@ Returns an Item wrapper containing the provided item ID.
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_class_item", {
+methods_class_array[name_rapi] = {
 
     --$instance
     --$name         show_properties
@@ -249,4 +249,4 @@ make_table_once("methods_class_item", {
         self.loot_tags = tags
     end
 
-})
+}

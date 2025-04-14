@@ -47,7 +47,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_list", {
+methods_list = {
 
     exists = function(self)
         if self.value == -4 then return false end
@@ -189,7 +189,7 @@ make_table_once("methods_list", {
         print(str)
     end
 
-})
+}
 
 
 

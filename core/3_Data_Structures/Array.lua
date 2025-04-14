@@ -97,7 +97,7 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_array", {
+methods_array = {
 
     get = function(self, index, size)
         size = size or self:size()
@@ -229,7 +229,7 @@ make_table_once("methods_array", {
         print(str)
     end
     
-})
+}
 
 
 

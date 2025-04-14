@@ -143,11 +143,11 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_sound", {
+methods_sound = {
 
     
 
-})
+}
 
 
 

@@ -34,11 +34,11 @@ end
 
 -- ========== Instance Methods ==========
 
-make_table_once("methods_player", {
+methods_player = {
 
 
 
-})
+}
 
 
 
