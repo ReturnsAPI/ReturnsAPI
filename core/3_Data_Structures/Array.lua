@@ -97,7 +97,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_array = {
+make_table_once("methods_array", {
 
     get = function(self, index, size)
         size = size or self:size()
@@ -229,13 +229,13 @@ methods_array = {
         print(str)
     end
     
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_array_class = {
+make_table_once("metatable_array_class", {
     __call = function(t, arg1, arg2)
         arg1 = Wrap.unwrap(arg1)
         arg2 = Wrap.unwrap(arg2)
@@ -249,11 +249,11 @@ metatable_array_class = {
 
 
     __metatable = "RAPI.Class.Array"
-}
+})
 setmetatable(Array, metatable_array_class)
 
 
-metatable_array = {
+make_table_once("metatable_array", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" or k == "i64" then return Proxy.get(proxy) end
@@ -316,9 +316,10 @@ metatable_array = {
 
 
     __metatable = "RAPI.Wrapper.Array"
-}
+})
 
 
 
+-- Public export
 __class.Array = Array
 __class_mt.Array = metatable_array_class

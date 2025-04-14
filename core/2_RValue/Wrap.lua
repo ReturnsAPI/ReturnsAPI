@@ -19,4 +19,5 @@ end
 
 
 
+-- Public export
 __class.Wrap = Wrap

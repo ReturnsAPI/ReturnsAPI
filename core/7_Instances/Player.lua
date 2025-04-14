@@ -34,17 +34,17 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_player = {
+make_table_once("methods_player", {
 
 
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_player = {
+make_table_once("metatable_player", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" or k == "id" then return Proxy.get(proxy) end
@@ -67,8 +67,9 @@ metatable_player = {
 
     
     __metatable = "RAPI.Wrapper.Player"
-}
+})
 
 
 
+-- Public export
 __class.Player = Player

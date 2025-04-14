@@ -2,7 +2,9 @@
 
 RecalculateStats = new_class()
 
-if not __recalc_stats_callbacks then __recalc_stats_callbacks = {} end  -- Preserve on hotload
+run_once(function()
+    __recalc_stats_callbacks = {}
+end)
 
 
 
@@ -315,4 +317,5 @@ memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"void*"
 
 
 
+-- Public export
 __class.RecalculateStats = RecalculateStats

@@ -4,7 +4,9 @@
 
 Global = new_class()
 
-local structures = {}
+run_once(function()
+    __global_cache = {}
+end)
 
 
 
@@ -12,7 +14,7 @@ local structures = {}
 
 Global.internal.initialize = function()
     -- Cache for some globals; add to it if needed
-    structures = {
+    make_table_once("__global_cache", {
         artifact_cognation_enemy_blacklist  = Map.wrap(GM.variable_global_get("artifact_cognation_enemy_blacklist")),
         custom_object                       = GM.variable_global_get("custom_object"),
         environment_log_display_list        = List.wrap(GM.variable_global_get("environment_log_display_list")),
@@ -21,17 +23,17 @@ Global.internal.initialize = function()
         stage_progression_order             = GM.variable_global_get("stage_progression_order"),
         treasure_loot_pools                 = GM.variable_global_get("treasure_loot_pools"),
         _language_map                       = Map.wrap(GM.variable_global_get("_language_map")),
-    }
+    })
 end
 
 
 
 -- ========== Metatables ==========
 
-metatable_global = {
+make_table_once("metatable_global", {
     __index = function(t, k)
         -- Check cache
-        if structures[k] then return structures[k] end
+        if __global_cache[k] then return __global_cache[k] end
 
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(k)
@@ -43,7 +45,7 @@ metatable_global = {
 
     __newindex = function(t, k, v)
         -- Prevent setting any global that is in cache
-        if structures[k] then log.error("Do not set global variable '"..k.."'", 2) end
+        if __global_cache[k] then log.error("Do not set global variable '"..k.."'", 2) end
         
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(k)
@@ -53,10 +55,11 @@ metatable_global = {
 
 
     __metatable = "RAPI.Class.Global"
-}
+})
 setmetatable(Global, metatable_global)
 
 
 
+-- Public export
 __class.Global = Global
 __class_mt.Global = metatable_global

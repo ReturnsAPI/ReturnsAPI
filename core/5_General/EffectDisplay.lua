@@ -109,4 +109,5 @@ end
 
 
 
+-- Public export
 __class.EffectDisplay = EffectDisplay

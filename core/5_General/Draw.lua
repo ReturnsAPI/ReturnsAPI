@@ -278,4 +278,5 @@ end
 
 
 
+-- Public export
 __class.Draw = Draw

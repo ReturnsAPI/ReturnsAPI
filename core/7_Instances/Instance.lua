@@ -2,7 +2,10 @@
 
 Instance = new_class()
 
-if not __instance_data then __instance_data = {} end        -- Preserve on hotload
+run_once(function()
+    __instance_data = {}
+end)
+
 local wrapper_cache = setmetatable({}, {__mode = "v"})      -- Cache for Instance.wrap
 local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for inst.CInstance
 
@@ -279,7 +282,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_instance = {
+make_table_once("methods_instance", {
 
     --$instance
     --$aref         exists-instance
@@ -346,7 +349,7 @@ methods_instance = {
         return (out.value == 1)
     end
 
-}
+})
 
 -- Add GM scripts
 for scr, _ in pairs(GM.internal.builtin) do
@@ -366,7 +369,7 @@ end
 
 -- ========== Metatables ==========
 
-metatable_instance = {
+make_table_once("metatable_instance", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" or k == "id" then return Proxy.get(proxy) end
@@ -431,7 +434,7 @@ metatable_instance = {
 
     
     __metatable = "RAPI.Wrapper.Instance"
-}
+})
 
 
 
@@ -505,6 +508,7 @@ Memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*",
 
 
 -- Create invalid_instance
-__invalid_instance = Proxy.new(-4, metatable_instance)
+run_once(function() __invalid_instance = Proxy.new(-4, metatable_instance) end)
 
+-- Public export
 __class.Instance = Instance

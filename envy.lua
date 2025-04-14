@@ -87,9 +87,6 @@ function public.setup(env, namespace)
         -- Copy metatable over (if applicable)
         if __class_mt[name] then setmetatable(copy, __class_mt[name]) end
 
-        -- Make new metatable
-        if __class_mt_builder[name] then setmetatable(copy, __class_mt_builder[name](namespace)) end
-
         wrapper[name] = copy
     end
 

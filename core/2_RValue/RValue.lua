@@ -2,54 +2,48 @@
 
 RValue = new_class()
 
+run_once(function()
+    -- Typeof:
+    -- Seems to be faster to run ffi.new with predefined types
+    -- instead of passing "struct RValue", etc.
+    __holder_size_count = 10
 
--- Typeof:
--- Seems to be faster to run ffi.new with predefined types
--- instead of passing "struct RValue", etc.
-local holder_size_count = 10
-
-if not __holder_struct then     -- Preserve on hotload
     __holder_struct = {}
-    for i = 1, holder_size_count do __holder_struct[i] = ffi.typeof("struct RValue["..i.."]") end
-end
+    for i = 1, __holder_size_count do __holder_struct[i] = ffi.typeof("struct RValue["..i.."]") end
 
-if not __holder_struct_scr then
     __holder_struct_scr = {}
-    for i = 1, holder_size_count do __holder_struct_scr[i] = ffi.typeof("struct RValue*["..i.."]") end
-end
+    for i = 1, __holder_size_count do __holder_struct_scr[i] = ffi.typeof("struct RValue*["..i.."]") end
 
-if not __rvalue_struct      then __rvalue_struct = ffi.typeof("struct RValue") end
-if not __rvalue_struct_str  then __rvalue_struct_str = ffi.typeof("struct RValue[1]") end
+    __rvalue_struct = ffi.typeof("struct RValue")
+    __rvalue_struct_str = ffi.typeof("struct RValue[1]")
 
 
--- Cache:
--- Fresh RValues and holders are created in bulk after
--- they run out, which allows for faster general use
-local bulk_size = 100000
+    -- Cache:
+    -- Fresh RValues and holders are created in bulk after
+    -- they run out, which allows for faster general use
+    __bulk_size = 100000
 
-if not __holder_cache then
     __holder_cache = {}
     __holder_current = {}
-    for size = 1, holder_size_count do
+    for size = 1, __holder_size_count do
         __holder_cache[size] = {}
         __holder_current[size] = 0
-        for i = 1, bulk_size do __holder_cache[size][i] = ffi.new(__holder_struct[size]) end
+        for i = 1, __bulk_size do __holder_cache[size][i] = ffi.new(__holder_struct[size]) end
     end
-end
 
-if not __holder_cache_scr then
     __holder_cache_scr = {}
     __holder_current_scr = {}
-    for size = 1, holder_size_count do
+    for size = 1, __holder_size_count do
         __holder_cache_scr[size] = {}
         __holder_current_scr[size] = 0
-        for i = 1, bulk_size do __holder_cache_scr[size][i] = ffi.new(__holder_struct_scr[size]) end
+        for i = 1, __bulk_size do __holder_cache_scr[size][i] = ffi.new(__holder_struct_scr[size]) end
     end
-end
 
-if not __rvalue_cache then __rvalue_cache = {} end
-for i = 1, bulk_size do __rvalue_cache[i] = ffi.new(__rvalue_struct) end
-if not __rvalue_current then __rvalue_current = 0 end
+    __rvalue_cache = {}
+    for i = 1, __bulk_size do __rvalue_cache[i] = ffi.new(__rvalue_struct) end
+    
+    __rvalue_current = 0
+end)
 
 
 
@@ -114,7 +108,7 @@ RValue.new = function(val, rvalue_type)
         __rvalue_current = 1
 
         -- Rebuild cache
-        for i = 1, bulk_size do __rvalue_cache[i] = ffi.new(__rvalue_struct) end
+        for i = 1, __bulk_size do __rvalue_cache[i] = ffi.new(__rvalue_struct) end
     end
     local rvalue = __rvalue_cache[__rvalue_current]
 
@@ -233,7 +227,7 @@ RValue.new_holder = function(size)
         __holder_current[size] = 1
 
         -- Rebuild cache
-        for i = 1, bulk_size do cache[i] = ffi.new(__holder_struct[size]) end
+        for i = 1, __bulk_size do cache[i] = ffi.new(__holder_struct[size]) end
     end
 
     return cache[__holder_current[size]]
@@ -260,7 +254,7 @@ RValue.new_holder_scr = function(size)
         __holder_current_scr[size] = 1
 
         -- Rebuild cache
-        for i = 1, bulk_size do cache[i] = ffi.new(__holder_struct_scr[size]) end
+        for i = 1, __bulk_size do cache[i] = ffi.new(__holder_struct_scr[size]) end
     end
 
     return cache[__holder_current_scr[size]]
@@ -354,4 +348,5 @@ end
 
 
 
+-- Public export
 __class.RValue = RValue

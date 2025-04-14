@@ -56,19 +56,19 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_attackinfo = {
+make_table_once("methods_attackinfo", {
 
     abc = function(self)
         
     end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_attackinfo = {
+make_table_once("metatable_attackinfo", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" or k == "yy_object_base" then return Proxy.get(proxy) end
@@ -108,7 +108,7 @@ metatable_attackinfo = {
 
     
     __metatable = "RAPI.Wrapper.AttackInfo"
-}
+})
 
 
 

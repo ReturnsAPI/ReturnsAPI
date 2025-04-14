@@ -5,9 +5,14 @@
 
 Hook = new_class()
 
-if not __hook_bank then __hook_bank = {} end    -- Preserve on hotload
-if not __hook_id_counter then __hook_id_counter = 0 end
-if not __hook_id_lookup then __hook_id_lookup = {} end
+run_once(function()
+    __hook_bank = {}
+    __hook_id_counter = 0
+    __hook_id_lookup = {}
+
+    __hooks_script = {} -- {script, _type, hook_func}
+    __hooks_object = {}
+end)
 
 -- Table structures:
 
@@ -62,6 +67,71 @@ POST 1
 ]]
 Hook.PRE    = 0
 Hook.POST   = 1
+
+
+
+-- ========== Internal ==========
+
+Hook.internal.hook_script = function(script, _type, func)
+    if _type == Hook.PRE then
+        print("Hook: Added pre-hook for '"..script.."'")
+        Memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
+            -- Pre-hook
+            {func,
+
+            -- Post-hook
+            nil}
+        )
+
+    elseif _type == Hook.POST then
+        print("Hook: Added post-hook for '"..script.."'")
+        Memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
+            -- Pre-hook
+            {nil,
+
+            -- Post-hook
+            func}
+        )
+    
+    end
+end
+
+
+Hook.internal.hook_object = function(script, _type, func)
+    if _type == Hook.PRE then
+        print("Hook: Added pre-hook for '"..script.."'")
+        Memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
+            -- Pre-hook
+            {func,
+
+            -- Post-hook
+            nil}
+        )
+
+    elseif _type == Hook.POST then
+        print("Hook: Added post-hook for '"..script.."'")
+        Memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
+            -- Pre-hook
+            {nil,
+
+            -- Post-hook
+            func}
+        )
+
+    end
+end
+
+
+-- Re-add all hooks on hotload
+run_on_hotload(function()
+    for i, v in ipairs(__hooks_script) do
+        Hook.internal.hook_script(table.unpack(v))
+    end
+
+    for i, v in ipairs(__hooks_object) do
+        Hook.internal.hook_object(table.unpack(v))
+    end
+end)
 
 
 
@@ -217,30 +287,9 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 return prehook_return
             end
 
-            -- Add as pre-hook
-            if _type == Hook.PRE then
-                print("Hook: Added pre-hook for '"..script.."'")
-
-                Memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
-                    -- Pre-hook
-                    {hook_func,
-
-                    -- Post-hook
-                    nil}
-                )
-
-            -- Add as post-hook
-            elseif _type == Hook.POST then
-                print("Hook: Added post-hook for '"..script.."'")
-
-                Memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
-                    -- Pre-hook
-                    {nil,
-
-                    -- Post-hook
-                    hook_func}
-                )
-            end
+            -- Add hook
+            table.insert(__hooks_script, {script, _type, hook_func})
+            Hook.internal.hook_script(script, _type, hook_func)
         
         -- Create object hook function
         elseif GM.internal.object[script] then
@@ -293,30 +342,9 @@ Hook.add = function(namespace, script, _type, fn, priority)
                 return prehook_return
             end
 
-            -- Add as pre-hook
-            if _type == Hook.PRE then
-                print("Hook: Added pre-hook for '"..script.."'")
-
-                Memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
-                    -- Pre-hook
-                    {hook_func,
-
-                    -- Post-hook
-                    nil}
-                )
-
-            -- Add as post-hook
-            elseif _type == Hook.POST then
-                print("Hook: Added post-hook for '"..script.."'")
-
-                Memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
-                    -- Pre-hook
-                    {nil,
-
-                    -- Post-hook
-                    hook_func}
-                )
-            end
+            -- Add hook
+            table.insert(__hooks_object, {script, _type, hook_func})
+            Hook.internal.hook_object(script, _type, hook_func)
 
         end
     end
@@ -397,4 +425,5 @@ end
 
 
 
+-- Public export
 __class.Hook = Hook

@@ -86,7 +86,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_struct = {
+make_table_once("methods_struct", {
 
     get_keys = function(self)
         local holder = RValue.new_holder(1)
@@ -109,13 +109,13 @@ methods_struct = {
         print(str)
     end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_struct = {
+make_table_once("metatable_struct", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" or k == "yy_object_base" then return Proxy.get(proxy) end
@@ -177,8 +177,9 @@ metatable_struct = {
 
 
     __metatable = "RAPI.Wrapper.Struct"
-}
+})
 
 
 
+-- Public export
 __class.Struct = Struct

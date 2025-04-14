@@ -3,9 +3,12 @@
 -- RAPI version of `gm` that automatically wraps/unwraps values
 
 GM = new_class()
+GM_callso = new_class()
 
-local function_cache = {}
-local function_cache_callso = {}
+run_once(function()
+    __GM_function_cache = {}
+    __GM_function_cache_callso = {}
+end)
 
 
 
@@ -20,11 +23,11 @@ GM.internal.script  = require("./core/data/gmfScript.lua")
 -- ========== Methods ==========
 
 local call = function(k)
-    if not function_cache[k] then
+    if not __GM_function_cache[k] then
         if not gmf[k] then log.error("GM."..k.." does not exist", 2) end
 
         if GM.internal.builtin[k] then
-            function_cache[k] = function(...)
+            __GM_function_cache[k] = function(...)
                 local args = table.pack(...)
                 local holder = nil
                 if args.n > 0 then holder = RValue.new_holder(args.n) end
@@ -40,12 +43,12 @@ local call = function(k)
             end
 
         elseif GM.internal.object[k] then
-            function_cache[k] = function()
+            __GM_function_cache[k] = function()
                 gmf[k](nil, nil)
             end
 
         elseif GM.internal.script[k] then
-            function_cache[k] = function(...)
+            __GM_function_cache[k] = function(...)
                 local args = table.pack(...)
                 local holder = nil
                 if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
@@ -62,16 +65,16 @@ local call = function(k)
 
         end
     end
-    return function_cache[k]
+    return __GM_function_cache[k]
 end
 
 
 local callso = function(k)
-    if not function_cache_callso[k] then
+    if not __GM_function_cache_callso[k] then
         if not gmf[k] then log.error("GM."..k.." does not exist", 2) end
 
         if GM.internal.builtin[k] then
-            function_cache_callso[k] = function(self, other, ...)
+            __GM_function_cache_callso[k] = function(self, other, ...)
                 local args = table.pack(...)
                 local holder = nil
                 if args.n > 0 then holder = RValue.new_holder(args.n) end
@@ -87,12 +90,12 @@ local callso = function(k)
             end
 
         elseif GM.internal.object[k] then
-            function_cache_callso[k] = function(self, other)
+            __GM_function_cache_callso[k] = function(self, other)
                 gmf[k](self.CInstance, other.CInstance)
             end
 
         elseif GM.internal.script[k] then
-            function_cache_callso[k] = function(self, other, ...)
+            __GM_function_cache_callso[k] = function(self, other, ...)
                 local args = table.pack(...)
                 local holder = nil
                 if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
@@ -109,14 +112,14 @@ local callso = function(k)
 
         end
     end
-    return function_cache_callso[k]
+    return __GM_function_cache_callso[k]
 end
 
 
 
 -- ========== Metatables ==========
 
-metatable_GM = {
+make_table_once("metatable_GM", {
     __index = function(t, k)
         if k == "SO" then return GM_callso end
         return call(k)
@@ -129,11 +132,11 @@ metatable_GM = {
 
 
     __metatable = "RAPI.Class.GM"
-}
+})
 setmetatable(GM, metatable_GM)
 
 
-metatable_callso = {
+make_table_once("metatable_callso", {
     __index = function(t, k)
         return callso(k)
     end,
@@ -145,10 +148,11 @@ metatable_callso = {
 
 
     __metatable = "RAPI.Class.GM.SO"
-}
-GM_callso = setmetatable({}, metatable_callso)
+})
+setmetatable(GM_callso, metatable_callso)
 
 
 
+-- Public export
 __class.GM = GM
 __class_mt.GM = metatable_GM

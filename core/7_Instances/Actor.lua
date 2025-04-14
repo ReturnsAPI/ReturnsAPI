@@ -4,9 +4,10 @@
 
 Actor = new_class()
 
--- Preserve on hotload
-if not __item_count_cache then __item_count_cache = {} end  -- Stores results from `item_count` for each item and stack kind
-if not __buff_count_cache then __buff_count_cache = {} end  -- Stores results from `buff_count` for each buff
+run_once(function()
+    __item_count_cache = {} -- Stores results from `item_count` for each item and stack kind
+    __buff_count_cache = {} -- Stores results from `buff_count` for each buff
+end)
 
 
 
@@ -21,7 +22,7 @@ local explosion_mask_height = GM.sprite_get_height(explosion_mask)
 
 -- ========== Instance Methods ==========
 
-methods_actor = {
+make_table_once("methods_actor", {
 
     --$instance
     --$return       bool
@@ -420,15 +421,15 @@ methods_actor = {
         __buff_count_cache[id][buff] = count
         if count == nil then return 0 end
         return count
-    end,
+    end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_actor = {
+make_table_once("metatable_actor", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" or k == "id" then return Proxy.get(proxy) end
@@ -451,7 +452,7 @@ metatable_actor = {
 
     
     __metatable = "RAPI.Wrapper.Actor"
-}
+})
 
 
 
@@ -612,4 +613,5 @@ Memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*",
 
 
 
+-- Public export
 __class.Actor = Actor

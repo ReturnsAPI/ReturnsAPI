@@ -40,7 +40,7 @@ Class.internal.initialize = function()
 end
 
 
-metatable_class = {
+make_table_once("metatable_class", {
     -- Allows for accessing wrapped class arrays via Class.<class> (case-insensitive)
     __index = function(t, k)
         k = k:upper()
@@ -55,7 +55,7 @@ metatable_class = {
 
 
     __metatable = "RAPI.Class.Class"
-}
+})
 setmetatable(Class, metatable_class)
 
 
@@ -73,12 +73,12 @@ setmetatable(Class, metatable_class)
 -- __class_find_tables["class_item"]["ror"]["meatNugget"] = element_table
 -- __class_find_tables["class_item"][0] = element_table
 
-if not __class_find_tables then -- Preserve on hotload
+run_once(function()
     __class_find_tables = {}
     for name_global, _ in pairs(class_name_g2r) do
         __class_find_tables[name_global] = {}
     end
-end
+end)
 
 -- Detect if new content is added and add to find table
 -- All vanilla content is added through these as well
@@ -156,8 +156,12 @@ end
 -- 
 -- Additionally, modify method_class[<RAPI name>] for instance methods
 
-local metatable_class_arrays = {}
-methods_class = {}
+run_once(function()
+    for name_global, _ in pairs(class_name_g2r) do
+        make_table_once("methods_"..name_global)
+        make_table_once("metatable_"..name_global)
+    end
+end)
 
 -- Load property names from data
 local file = toml.decodeFromFile(PATH.."core/data/class_array.txt")
@@ -165,6 +169,9 @@ local properties = file.array
 
 -- Create new class table for every class array
 for name_rapi, name_global in pairs(class_name_r2g) do
+    local methods_name_global = "methods_"..name_global
+    local metatable_name_global = "metatable_"..name_global
+
     local class_table = new_class()
 
     local enum = {}
@@ -235,10 +242,10 @@ for name_rapi, name_global in pairs(class_name_r2g) do
     end
 
     class_table.wrap = function(value)
-        return Proxy.new(Wrap.unwrap(value), metatable_class_arrays[name_rapi])
+        return Proxy.new(Wrap.unwrap(value), private[metatable_name_global])
     end
 
-    methods_class[name_rapi] = {
+    make_table_once(methods_name_global, {
         show_properties = function(self)
             local array = __class_find_tables[name_global][self.value].array
             local str = ""
@@ -247,9 +254,9 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             end
             print(str)
         end
-    }
+    })
 
-    metatable_class_arrays[name_rapi] = {
+    make_table_once(metatable_name_global, {
         __index = function(proxy, k)
             -- Get wrapped value
             local value = Proxy.get(proxy)
@@ -257,7 +264,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
 
             -- Methods
-            local method = methods_class[name_rapi][k]
+            local method = private[methods_name_global][k]
             if method then return method end
 
             -- Getter
@@ -287,12 +294,13 @@ for name_rapi, name_global in pairs(class_name_r2g) do
 
         
         __metatable = "RAPI.Wrapper."..name_rapi
-    }
+    })
 
     __class[name_rapi] = class_table
 end
 
 
 
+-- Public export
 __class.Class = Class
 __class_mt.Class = metatable_class

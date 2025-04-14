@@ -2,7 +2,9 @@
 
 ItemTier = new_class()
 
-if not __item_tier_find_table then __item_tier_find_table = {} end  -- Preserve on hotload
+run_once(function()
+    __item_tier_find_table = {}
+end)
 
 
 
@@ -163,7 +165,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_item_tier = {
+make_table_once("methods_item_tier", {
 
     --$instance
     --[[
@@ -178,13 +180,13 @@ methods_item_tier = {
         print(str)
     end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_item_tier = {
+make_table_once("metatable_item_tier", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(proxy) end
@@ -215,8 +217,9 @@ metatable_item_tier = {
 
     
     __metatable = "RAPI.Wrapper.ItemTier"
-}
+})
 
 
 
+-- Public export
 __class.ItemTier = ItemTier

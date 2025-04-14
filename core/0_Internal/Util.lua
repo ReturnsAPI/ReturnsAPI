@@ -2,7 +2,9 @@
 
 Util = new_class()
 
-if not __gc_proxies then __gc_proxies = setmetatable({}, {__mode = "kv"}) end   -- Preserve on hotload
+run_once(function()
+    __gc_proxies = setmetatable({}, {__mode = "kv"})
+end)
 
 
 
@@ -203,9 +205,11 @@ end
 --$param        ...         |           | A variable amount of tables to combine.
 --[[
 Returns a new table containing the values from input tables.
+The tables are merged in order.
 
 Combining two number indexed tables will order them in the order that they were inputted.
 When mixing number indexed and string keys, the indexed values will come first in order, while string keys will come after unordered.
+Multiple tables with the same string key will take the value of the last table in argument order.
 ]]
 Util.table_merge = function(...)
     local new = {}
@@ -218,6 +222,21 @@ Util.table_merge = function(...)
         end
     end
     return new
+end
+
+
+--$static
+--$return       table
+--$param        original    | table     | The original table to append to.
+--$param        added       | table     | The table to append.
+--[[
+Appends keys from `added` to `original`.
+Existing keys will be overwritten.
+]]
+Util.table_append = function(original, added)
+    for k, v in pairs(added) do
+        original[k] = v
+    end
 end
 
 
@@ -387,4 +406,5 @@ end
 
 
 
+-- Public export
 __class.Util = Util

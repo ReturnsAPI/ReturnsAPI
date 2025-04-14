@@ -200,18 +200,19 @@ Color.Text = ReadOnly.new({
 
 -- ========== Metatables ==========
 
-metatable_color = {
+make_table_once("metatable_color", {
     -- __call = function(t, hex)
     --     return Color.from_hex(hex)
     -- end,
 
 
     __metatable = "RAPI.Class.Color"
-}
+})
 setmetatable(Color, metatable_color)
 
 
 
+-- Public export
 __class.Color = Color
 __class_mt.Color = metatable_color
 

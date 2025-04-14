@@ -47,7 +47,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_list = {
+make_table_once("methods_list", {
 
     exists = function(self)
         if self.value == -4 then return false end
@@ -189,13 +189,13 @@ methods_list = {
         print(str)
     end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_list_class = {
+make_table_once("metatable_list_class", {
     __call = function(t, value)
         value = Wrap.unwrap(value)
 
@@ -211,11 +211,11 @@ metatable_list_class = {
 
 
     __metatable = "RAPI.Class.List"
-}
+})
 setmetatable(List, metatable_list_class)
 
 
-metatable_list = {
+make_table_once("metatable_list", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(proxy) end
@@ -274,9 +274,10 @@ metatable_list = {
 
     
     __metatable = "RAPI.Wrapper.List"
-}
+})
 
 
 
+-- Public export
 __class.List = List
 __class_mt.List = metatable_list_class

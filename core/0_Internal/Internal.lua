@@ -1,15 +1,5 @@
 -- Internal
 
-__class = {}                -- Every public class
-__class_mt = {}             -- Metatable for public class (optional, should be the same key as in __class)
-__class_mt_builder = {}     -- Function to run to build metatable for public class (optional, should be the same key as in __class)
-
--- __ref_map created in Map.lua
-
-
-
--- ========== Functions ==========
-
 -- Returns a table with a subtable called `internal`
 -- Methods in `internal` will *not* be exported to users,
 -- and are meant for internal use within RAPI
@@ -17,6 +7,36 @@ function new_class()
     return {
         internal = {}
     }
+end
+
+
+-- Runs the function only once on initial load,
+-- and never again on hotload
+function run_once(fn)
+    if not hotloaded then fn() end
+end
+
+
+-- Runs the function only on hotload
+function run_on_hotload(fn)
+    if hotloaded then fn() end
+end
+
+
+-- Create a new table once
+-- On hotload, merge new changes into it
+function make_table_once(table_name, merge)
+    -- Create new table in this mod's globals if it existn't
+    -- (Accessed via `private` -- construct from ENVY)
+    if not private[table_name] then private[table_name] = {} end
+
+    -- Merge table on hotload; update with new changes
+    if merge then
+        local t = private[table_name]
+        for k, v in pairs(merge) do
+            t[k] = v
+        end
+    end
 end
 
 
@@ -34,73 +54,12 @@ end
 
 
 
--- ========== Script Binding ==========
+-- ========== Public Export ==========
 
--- Moved to Script class
+run_once(function()
+    __class = {}                -- Every public class
+    __class_mt = {}             -- Metatable for public class (optional, should be the same key as in __class)
+    -- __class_mt_builder = {}     -- Function to run to build metatable for public class (optional, should be the same key as in __class)
+end)
 
-if true then return end
-
-
-
-if not __bind_id_count then __bind_id_count = 0 end     -- Preserve on hotload
-if not __bind_id_to_func then __bind_id_to_func = {} end
-
-if not __bind_struct_variable_name then
-    __bind_struct_variable_name = "__id"
-    __bind_struct_variable_hash = gm.variable_get_hash(__bind_struct_variable_name)
-end
-
---- this function takes a lua function and uses black magic to wrap it in a CScriptRef which you can give to things that accept a gamemaker function
-function bind_lua_to_cscriptref(func)
-    local struct = gm.struct_create()
-    gm.variable_struct_set(struct, __bind_struct_variable_name, __bind_id_count)
-
-    __bind_id_to_func[__bind_id_count] = func
-    __bind_id_count = __bind_id_count + 1
-    -- bind a struct to a dummy function, so the struct is the self when this CScriptRef is executed
-    local method = gm.method(struct, gm.constants.function_dummy)
-
-    -- Hope this doesn't get GC'd
-    local pointer = memory.get_usertype_pointer(method)
-    __ref_map:set(pointer, true)
-
-    return method
-end
-
--- LIMITATIONS:
--- * If `method` is called by game code against your bound CScriptRef, then the `self` argument will no longer be the custom struct, therefore stopping it from being recognized by the hook
--- * If the given function call relies on accessing `self` to be useful, then it likely won't be useful from this context
-
-memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "RValue*", "int", "void*"}, gm.get_script_function_address(gm.constants.function_dummy),
-    -- Pre-hook
-    {function(return_val, self, other, result, arg_count, args)
-        -- TODO convert to gmf usage (maybe; only if it's actually faster)
-
-        -- if gm.is_struct(self) then   -- Not needed I think
-
-        local arg_count = arg_count:get()
-        local args_typed = ffi.cast("struct RValue**", args:get_address())
-
-        --local fn = __bind_id_to_func[gm.variable_struct_get(self, __bind_struct_variable_name)]
-        local fn = __bind_id_to_func[gm.struct_get_from_hash(self, __bind_struct_variable_hash)]
-        if fn then
-            local arg_table = {}
-            for i=0, arg_count-1 do
-                -- local arg, is_instance_id = rvalue_to_lua(args_typed[i])
-                -- if is_instance_id then
-                --     arg = Instance.wrap(arg)
-                -- else
-                --     arg = Wrap.wrap(arg)
-                -- end
-                -- table.insert(arg_table, arg)
-
-                table.insert(arg_table, RValue.to_wrapper(args_typed[i]))
-            end
-            local ret = fn(table.unpack(arg_table))
-            if ret then result.value = ret end  -- What's the point of this exactly?
-        end
-    end,
-
-    -- Post-hook
-    nil}
-)
+-- __ref_map created in Map.lua

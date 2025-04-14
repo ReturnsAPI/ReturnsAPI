@@ -33,7 +33,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_buffer = {
+make_table_once("methods_buffer", {
 
     write_instance = function(self, instance)
         local holder = RValue.new_holder_scr(2)
@@ -51,7 +51,7 @@ methods_buffer = {
         return RValue.to_wrapper(out)
     end
 
-}
+})
 
 
 -- Add instance methods for primitive types to `methods_buffer`
@@ -100,7 +100,7 @@ end
 
 -- ========== Metatables ==========
 
-metatable_buffer = {
+make_table_once("metatable_buffer", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(proxy) end
@@ -128,4 +128,4 @@ metatable_buffer = {
 
 
     __metatable = "RAPI.Wrapper.Buffer"
-}
+})

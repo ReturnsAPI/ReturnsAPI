@@ -54,7 +54,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_map = {
+make_table_once("methods_map", {
 
     exists = function(self)
         if self.value == -4 then return false end
@@ -119,24 +119,24 @@ methods_map = {
         gmf.ds_map_clear(RValue.new(0), nil, nil, 1, holder)
     end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_map_class = {
+make_table_once("metatable_map_class", {
     __call = function(t, value)
         return Map.new()
     end,
 
 
     __metatable = "RAPI.Class.Map"
-}
+})
 setmetatable(Map, metatable_map_class)
 
 
-metatable_map = {
+make_table_once("metatable_map", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(proxy) end
@@ -197,12 +197,13 @@ metatable_map = {
 
     
     __metatable = "RAPI.Wrapper.Map"
-}
+})
 
 
 
 -- Create __ref_map
-if not __ref_map then __ref_map = Map.new() end -- Preserve on hotload
+run_once(function() __ref_map = Map.new() end)
 
+-- Public export
 __class.Map = Map
 __class_mt.Map = metatable_map_class

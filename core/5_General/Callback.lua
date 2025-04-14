@@ -2,9 +2,11 @@
 
 Callback = new_class()
 
-if not __callback_bank then __callback_bank = {} end    -- Preserve on hotload
-if not __callback_id_counter then __callback_id_counter = 0 end
-if not __callback_id_lookup then __callback_id_lookup = {} end
+run_once(function()
+    __callback_bank = {}
+    __callback_id_counter = 0
+    __callback_id_lookup = {}
+end)
 
 -- Table structures:
 

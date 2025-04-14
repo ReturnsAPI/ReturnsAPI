@@ -2,8 +2,10 @@
 
 Script = {}
 
-if not __bind_id_count then __bind_id_count = 0 end     -- Preserve on hotload
-if not __bind_id_to_func then __bind_id_to_func = {} end
+run_once(function()
+    __bind_id_count = 0
+    __bind_id_to_func = {}
+end)
 
 local name_cache = setmetatable({}, {__mode = "k"})     -- Cache for script.name
 
@@ -61,7 +63,7 @@ end
 
 -- ========== Metatables ==========
 
-metatable_script = {
+make_table_once("metatable_script", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" or k == "cscriptref" then return Proxy.get(proxy)[1] end
@@ -133,7 +135,7 @@ metatable_script = {
 
     
     __metatable = "RAPI.Wrapper.Script"
-}
+})
 
 
 
@@ -169,4 +171,5 @@ Memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "
 
 
 
+-- Public export
 __class.Script = Script

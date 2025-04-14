@@ -153,7 +153,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_sprite = {
+make_table_once("methods_sprite", {
 
     --$instance
     --$optional     x_origin    | number    | The x coordinate of the origin (offset). <br>`0` by default.
@@ -227,13 +227,13 @@ methods_sprite = {
         gmf.sprite_collision_mask(RValue.new(0), nil, nil, 9, holder)
     end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_sprite = {
+make_table_once("metatable_sprite", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(proxy) end
@@ -260,8 +260,9 @@ metatable_sprite = {
 
 
     __metatable = "RAPI.Wrapper.Sprite"
-}
+})
 
 
 
+-- Public export
 __class.Sprite = Sprite

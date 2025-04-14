@@ -143,17 +143,17 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_sound = {
+make_table_once("methods_sound", {
 
     
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_sound = {
+make_table_once("metatable_sound", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(proxy) end
@@ -181,8 +181,9 @@ metatable_sound = {
 
 
     __metatable = "RAPI.Wrapper.Sound"
-}
+})
 
 
 
+-- Public export
 __class.Sound = Sound

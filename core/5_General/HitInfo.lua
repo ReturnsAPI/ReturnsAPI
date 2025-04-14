@@ -25,7 +25,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_hitinfo = {
+make_table_once("methods_hitinfo", {
 
     -- Will contain all of AttackInfo's methods but with
     -- the necessary modifications to HitInfo struct as well
@@ -34,13 +34,13 @@ methods_hitinfo = {
         
     end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_hitinfo = {
+make_table_once("metatable_hitinfo", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" or k == "yy_object_base" then return Proxy.get(proxy) end
@@ -90,8 +90,9 @@ metatable_hitinfo = {
 
     
     __metatable = "RAPI.Wrapper.HitInfo"
-}
+})
 
 
 
+-- Public export
 __class.HitInfo = HitInfo

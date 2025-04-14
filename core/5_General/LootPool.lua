@@ -2,7 +2,9 @@
 
 LootPool = new_class()
 
-if not __loot_pool_find_table then __loot_pool_find_table = {} end  -- Preserve on hotload
+run_once(function()
+    __loot_pool_find_table = {}
+end)
 
 
 
@@ -182,7 +184,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_loot_pool = {
+make_table_once("methods_loot_pool", {
 
     --$instance
     --[[
@@ -267,15 +269,15 @@ methods_loot_pool = {
 
     new_command_crate = function(self)
         -- TODO generates a new command crate object for the loot pool and sets `command_crate_object_id`
-    end,
+    end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_loot_pool = {
+make_table_once("metatable_loot_pool", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(proxy) end
@@ -306,7 +308,7 @@ metatable_loot_pool = {
 
     
     __metatable = "RAPI.Wrapper.LootPool"
-}
+})
 
 
 
@@ -346,4 +348,5 @@ Memory.dynamic_hook("RAPI.LootPool.run_create", "void*", {"void*", "void*", "voi
 
 
 
+-- Public export
 __class.LootPool = LootPool

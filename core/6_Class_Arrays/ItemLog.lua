@@ -132,7 +132,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_class[name_rapi] = Util.table_merge(methods_class[name_rapi], {
+make_table_once("methods_class_item_log", {
 
     --$instance
     --$name         show_properties

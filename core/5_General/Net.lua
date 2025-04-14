@@ -43,4 +43,5 @@ end
 
 
 
+-- Public export
 __class.Net = Net

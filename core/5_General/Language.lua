@@ -2,8 +2,10 @@
 
 Language = new_class()
 
--- Contains env tables of all registered mods
-if not __language_registered then __language_registered = {} end    -- Preserve on hotload
+run_once(function()
+    -- Contains env tables of all registered mods
+    __language_registered = {}
+end)
 
 
 
@@ -148,4 +150,5 @@ Memory.dynamic_hook("RAPI.Language.translate_load_active_language", "void*", {"v
 
 
 
+-- Public export
 __class.Language = Language

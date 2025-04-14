@@ -161,7 +161,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_particle = {
+make_table_once("methods_particle", {
 
     --$instance
     --$param        x           | number    | The x coordinate to spawn at.
@@ -216,13 +216,13 @@ methods_particle = {
         return lookup_struct[self.value]
     end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_particle = {
+make_table_once("metatable_particle", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(proxy) end
@@ -255,8 +255,9 @@ metatable_particle = {
 
 
     __metatable = "RAPI.Wrapper.Particle"
-}
+})
 
 
 
+-- Public export
 __class.Particle = Particle

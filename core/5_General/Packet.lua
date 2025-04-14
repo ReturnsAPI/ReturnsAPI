@@ -2,9 +2,11 @@
 
 Packet = new_class()
 
--- Stores callback functions to run on serialization/deserialization
-if not __callbacks_onSerialize then __callbacks_onSerialize = {} end    -- Preserve on hotload
-if not __callbacks_onDeserialize then __callbacks_onDeserialize = {} end
+run_once(function()
+    -- Stores callback functions to run on serialization/deserialization
+    __callbacks_onSerialize = {}
+    __callbacks_onDeserialize = {}
+end)
 
 
 
@@ -44,7 +46,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_packet = {
+make_table_once("methods_packet", {
 
     --$instance
     --$param        serializer      | function  | The serialization function.
@@ -133,15 +135,15 @@ methods_packet = {
             fn(buffer, ...)
             Packet.internal._mod_net_message_send(self.value, 3)
         end
-    end,
+    end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_packet = {
+make_table_once("metatable_packet", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return Proxy.get(proxy) end
@@ -169,20 +171,23 @@ metatable_packet = {
 
 
     __metatable = "RAPI.Wrapper.Packet"
-}
+})
 
 
 
 -- ========== Internal ==========
 
-local function packet_onReceived(packet, buffer, buffer_tell, player)
-    -- Call deserialization function linked to packet ID
-    local fn = __callbacks_onDeserialize[packet.value]
-    if fn then fn(buffer, player) end
-end
+run_once(function()
+    local function packet_onReceived(packet, buffer, buffer_tell, player)
+        -- Call deserialization function linked to packet ID
+        local fn = __callbacks_onDeserialize[packet.value]
+        if fn then fn(buffer, player) end
+    end
 
-Callback.add(_ENV["!guid"], Callback.NET_MESSAGE_ON_RECEIVED, packet_onReceived)
+    Callback.add(_ENV["!guid"], Callback.NET_MESSAGE_ON_RECEIVED, packet_onReceived)
+end)
 
 
 
+-- Public export
 __class.Packet = Packet

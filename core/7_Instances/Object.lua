@@ -148,7 +148,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_object = {
+make_table_once("methods_object", {
 
     --$instance
     --$return       Instance
@@ -169,13 +169,13 @@ methods_object = {
         return RValue.to_wrapper(out)
     end
 
-}
+})
 
 
 
 -- ========== Metatables ==========
 
-metatable_object = {
+make_table_once("metatable_object", {
     __index = function(proxy, k)
         -- Get wrapped value
         local value = Proxy.get(proxy)
@@ -218,8 +218,9 @@ metatable_object = {
 
     
     __metatable = "RAPI.Wrapper.Object"
-}
+})
 
 
 
+-- Public export
 __class.Object = Object
