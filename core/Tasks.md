@@ -1,3 +1,4 @@
+- Fix Hook class breaking hotloading
 - Damage modification method; either midhook `damager_calculate_damage` or add some "preHit" construct
 - Remaining Actor instance methods
 - Custom object net serialization
