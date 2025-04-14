@@ -18,10 +18,11 @@
     - Artifact
     - Difficulty
     - GameMode
-    
+
     - Ending
 
     - Skill
+    - State
     - Survivor
     - SurvivorLog
     - ActorSkin
