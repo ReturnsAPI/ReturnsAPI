@@ -8,22 +8,22 @@ EffectDisplay = new_class()
 
 --$enum
 EffectDisplay.DrawPriority = ReadOnly.new({
-	BARRIER_BEHIND 	= 1020,
-	HIDDEN_BEHIND 	= 1010,
-	PRE 			= 1000,
-	BEHIND			= 100,
-	CAPE 			= 20,
-	BODY_PRE 		= 10,
-	BODY 			= 0,
-	HITFLASH 		= -1,
-	HIDDEN_ABOVE 	= -5,
-	BODY_POST 		= -10,
-	BODY_FREEZE 	= -15,
-	CAPE_ABOVE 		= -20,
-	ABOVE_BODY 		= -100,
-	ABOVE 			= -200,
-	PAST 			= -1000,
-	BARRIER_ABOVE 	= -1020
+	BARRIER_BEHIND  = 1020,
+	HIDDEN_BEHIND   = 1010,
+	PRE             = 1000,
+	BEHIND          = 100,
+	CAPE            = 20,
+	BODY_PRE        = 10,
+	BODY            = 0,
+	HITFLASH        = -1,
+	HIDDEN_ABOVE    = -5,
+	BODY_POST       = -10,
+	BODY_FREEZE     = -15,
+	CAPE_ABOVE      = -20,
+	ABOVE_BODY      = -100,
+	ABOVE           = -200,
+	PAST            = -1000,
+	BARRIER_ABOVE   = -1020
 })
 
 

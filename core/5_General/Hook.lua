@@ -1,5 +1,8 @@
 -- Hook
 
+-- Issues (TODO):
+-- `memory.dynamic_hook`s are not re-added on RAPI hotload
+
 Hook = new_class()
 
 if not __hook_bank then __hook_bank = {} end    -- Preserve on hotload

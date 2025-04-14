@@ -1,0 +1,38 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/List#static-methods)
+  * [`List.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/List#new)
+  * [`List.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/List#wrap)
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="new"></a>
+```lua
+List.new([table]) -> List
+```
+
+Returns a newly created GameMaker list.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`[table]` | table | *Optional.* A numerically-indexed Lua table to convert into a list.
+
+<br><br>
+
+<a name="wrap"></a>
+```lua
+List.wrap(list) -> List
+```
+
+Returns a List wrapper containing the provided list ID.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`list` | number | The ID of the list.
+
+<br><br>
+

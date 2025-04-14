@@ -1,0 +1,233 @@
+* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#instance-methods)
+  * [`actor:is_grounded`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#is_grounded)
+  * [`actor:is_climbing`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#is_climbing)
+  * [`actor:fire_bullet`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#fire_bullet)
+  * [`actor:fire_explosion`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#fire_explosion)
+  * [`actor:fire_explosion_local`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#fire_explosion_local)
+  * [`actor:fire_direct`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#fire_direct)
+  * [`actor:item_give`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#item_give)
+  * [`actor:item_take`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#item_take)
+  * [`actor:item_count`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#item_count)
+  * [`actor:buff_apply`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#buff_apply)
+  * [`actor:buff_remove`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#buff_remove)
+  * [`actor:buff_count`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#buff_count)
+
+<br><br>
+
+---
+
+## Instance Methods
+
+<a name="is_grounded"></a>
+```lua
+actor:is_grounded() -> bool
+```
+
+Returns `true` if the actor is on the  
+ground and is *not* climbing on a rope.  
+
+**Parameters**  
+None
+
+<br><br>
+
+<a name="is_climbing"></a>
+```lua
+actor:is_climbing() -> bool
+```
+
+Returns `true` if the actor is climbing on a rope.  
+
+**Parameters**  
+None
+
+<br><br>
+
+<a name="fire_bullet"></a>
+```lua
+actor:fire_bullet(x, y, range, direction, damage, [pierce_multiplier], [hit_sprite], [tracer], [can_proc]) -> Instance
+```
+
+Fires a bullet attack from the actor, and returns the attack instance.  
+`.attack_info` will return an AttackInfo.  
+  
+This can be called from host or client, and automatically syncs.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x` | number | The x coordinate of the origin.
+`y` | number | The y coordinate of the origin.
+`range` | number | The range of the bullet (in pixels).
+`direction` | number | The angle to fire the bullet (in degrees).
+`damage` | number | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+`[pierce_multiplier]` | number | *Optional.* Remaining damage is multiplied by this value per pierce. <br>If `nil` or `0`, no piercing happens.
+`[hit_sprite]` | sprite | *Optional.* The sprite to draw on collision with an actor or wall. <br>`nil` by default (no sprite).
+`[tracer]` | number | *Optional.* The bullet tracer to use. <br>[`AttackInfo.Tracer.NONE`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/AttackInfo#Tracer) by default.
+`[can_proc]` | bool | *Optional.* If `false` the attack will not proc. <br>`true` by default.
+
+<br><br>
+
+<a name="fire_explosion"></a>
+```lua
+actor:fire_explosion(x, y, width, height, damage, [explosion_sprite], [sparks_sprite], [can_proc]) -> Instance
+```
+
+Fires an explosion attack from the actor, and returns the attack instance.  
+`.attack_info` will return an AttackInfo.  
+  
+This can be called from host or client, and automatically syncs.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x` | number | The x coordinate of the origin.
+`y` | number | The y coordinate of the origin.
+`width` | number | The width of the explosion, centered at `x` (in pixels).
+`height` | number | The height of the explosion, centered at `y` (in pixels).
+`damage` | number | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+`[explosion_sprite]` | sprite | *Optional.* The sprite to use for the explosion. <br>`nil` by default (no sprite).
+`[sparks_sprite]` | sprite | *Optional.* The sprite to draw on hit actors. <br>`nil` by default (no sprite).
+`[can_proc]` | bool | *Optional.* If `false` the attack will not proc. <br>`true` by default.
+
+<br><br>
+
+<a name="fire_explosion_local"></a>
+```lua
+actor:fire_explosion_local(x, y, width, height, damage, [explosion_sprite], [sparks_sprite], [can_proc]) -> Instance
+```
+
+Fires an explosion attack from the actor, and returns the attack instance.  
+`.attack_info` will return an AttackInfo.  
+  
+This attack is not synced.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x` | number | The x coordinate of the origin.
+`y` | number | The y coordinate of the origin.
+`width` | number | The width of the explosion, centered at `x` (in pixels).
+`height` | number | The height of the explosion, centered at `y` (in pixels).
+`damage` | number | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+`[explosion_sprite]` | sprite | *Optional.* The sprite to use for the explosion. <br>`nil` by default (no sprite).
+`[sparks_sprite]` | sprite | *Optional.* The sprite to draw on hit actors. <br>`nil` by default (no sprite).
+`[can_proc]` | bool | *Optional.* If `false` the attack will not proc. <br>`true` by default.
+
+<br><br>
+
+<a name="fire_direct"></a>
+```lua
+actor:fire_direct(target, damage, [direction], [x], [y], [hit_sprite], [can_proc]) -> Instance
+```
+
+Fires a direct attack from the actor, and returns the attack instance.  
+`.attack_info` will return an AttackInfo.  
+  
+This can be called from host or client, and automatically syncs.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`target` | Instance | The target instance of the attack.
+`damage` | number | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+`[direction]` | number | *Optional.* The angle of the attack (in degrees). <br>`0` by default.
+`[x]` | number | *Optional.* The x coordinate. <br>`target.x` by default.
+`[y]` | number | *Optional.* The y coordinate. <br>`target.y` by default.
+`[hit_sprite]` | sprite | *Optional.* The sprite to draw on collision with an actor or wall. <br>`nil` by default (no sprite).
+`[can_proc]` | bool | *Optional.* If `false` the attack will not proc. <br>`true` by default.
+
+<br><br>
+
+<a name="item_give"></a>
+```lua
+actor:item_give(item, [count], [kind]) -> nil
+```
+
+Gives stacks of the specified item to the actor.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`item` | Item | The item to give.
+`[count]` | number | *Optional.* The amount of stacks to give. <br>`1` by default.
+`[kind]` | number | *Optional.* The [kind](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#StackKind) of item. <br>`Item.StackKind.NORMAL` by default.
+
+<br><br>
+
+<a name="item_take"></a>
+```lua
+actor:item_take(item, [count], [kind]) -> nil
+```
+
+Takes (removes) stacks of the specified item from the actor.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`item` | Item | The item to take.
+`[count]` | number | *Optional.* The amount of stacks to take. <br>`1` by default.
+`[kind]` | number | *Optional.* The [kind](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#StackKind) of item. <br>`Item.StackKind.NORMAL` by default.
+
+<br><br>
+
+<a name="item_count"></a>
+```lua
+actor:item_count(item, [kind]) -> number
+```
+
+Returns the number of stacks of the specified item the actor has.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`item` | Item | The item to check.
+`[kind]` | number | *Optional.* The [kind](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#StackKind) of item. <br>`Item.StackKind.NORMAL` by default.
+
+<br><br>
+
+<a name="buff_apply"></a>
+```lua
+actor:buff_apply(buff, duration, [count]) -> nil
+```
+
+Applies stacks of the specified buff to the actor.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`buff` | Buff | The buff to apply.
+`duration` | number | The duration of the buff (in frames).
+`[count]` | number | *Optional.* The amount of stacks to apply. <br>`1` by default.
+
+<br><br>
+
+<a name="buff_remove"></a>
+```lua
+actor:buff_remove(buff, [count]) -> nil
+```
+
+Removes stacks of the specified buff from the actor.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`buff` | Buff | The buff to remove.
+`[count]` | number | *Optional.* The amount of stacks to remove. <br>`1` by default.
+
+<br><br>
+
+<a name="buff_count"></a>
+```lua
+actor:buff_count(buff) -> number
+```
+
+Returns the number of stacks of the specified buff the actor has.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`buff` | Buff | The buff to check.
+
+<br><br>
+

@@ -211,7 +211,7 @@ methods_class[name_rapi] = Util.table_merge(methods_class[name_rapi], {
 
 
     --$instance
-    --$param        tier        | number   | The $tier, <insert link>$ to set.
+    --$param        tier        | number   | The $tier, ItemTier#constants$ to set.
     --[[
     Sets the tier of the item, and assigns it to the appropriate
     loot pool (will remove from all previous loot pools).

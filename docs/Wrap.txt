@@ -1,0 +1,24 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Wrap#static-methods)
+  * [`Wrap.unwrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Wrap#unwrap)
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="unwrap"></a>
+```lua
+Wrap.unwrap(value) -> any
+```
+
+Returns the unwrapped value of a RAPI wrapper,  
+or `value` if it is not a wrapper.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`value` |  | The value to unwrap (if applicable).
+
+<br><br>
+

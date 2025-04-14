@@ -1,0 +1,141 @@
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#enums)
+  * [`RValue.Type`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#Type)
+
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#static-methods)
+  * [`RValue.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#new)
+  * [`RValue.copy`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#copy)
+  * [`RValue.new_holder`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#new_holder)
+  * [`RValue.new_holder_scr`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#new_holder_scr)
+  * [`RValue.peek`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#peek)
+  * [`RValue.to_wrapper`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#to_wrapper)
+  * [`RValue.from_wrapper`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#from_wrapper)
+
+<br><br>
+
+---
+
+## Enums
+
+<a name="Type"></a>
+```lua
+RValue.Type = {
+    REAL        = 0,
+    STRING      = 1,
+    ARRAY       = 2,
+    PTR         = 3,
+    UNDEFINED   = 5,
+    OBJECT      = 6,
+    INT32       = 7,
+    INT64       = 10,
+    BOOL        = 13,
+    REF         = 15
+}
+```
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="new"></a>
+```lua
+RValue.new(value, [rvalue_type]) -> RValue
+```
+
+Wraps a value as an RValue and returns it.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`value` |  | The value to wrap.
+`[rvalue_type]` | number | *Optional.* The [`RValue.Type`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/RValue#Type) to wrap as. <br>Not required for Lua primitives.
+
+<br><br>
+
+<a name="copy"></a>
+```lua
+RValue.copy(rvalue_dest, rvalue_src) -> nil
+```
+
+Copies the contents of `src` RValue to `dest` RValue.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`rvalue_dest` | RValue | The RValue to copy to.
+`rvalue_src` | RValue | The RValue to copy from.
+
+<br><br>
+
+<a name="new_holder"></a>
+```lua
+RValue.new_holder(size) -> RValue[]
+```
+
+Returns a new RValue holder of the specified size (for builtin functions).  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`size` | number | The size of the holder.
+
+<br><br>
+
+<a name="new_holder_scr"></a>
+```lua
+RValue.new_holder_scr(size) -> RValue*[]
+```
+
+Returns a new RValue* holder of the specified size (for script functions).  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`size` | number | The size of the holder.
+
+<br><br>
+
+<a name="peek"></a>
+```lua
+RValue.peek(rvalue, [label]) -> nil
+```
+
+Prints the contents of an RValue.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`rvalue` | RValue | The RValue to peek at.
+`[label]` | string | *Optional.* Prepend text to the print.
+
+<br><br>
+
+<a name="to_wrapper"></a>
+```lua
+RValue.to_wrapper(rvalue) -> RAPI wrapper or Lua primitive
+```
+
+Converts an RValue into the appropriate RAPI wrapper or Lua primitive.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`rvalue` | RValue | The RValue to convert.
+
+<br><br>
+
+<a name="from_wrapper"></a>
+```lua
+RValue.from_wrapper(value) -> RValue
+```
+
+Converts a RAPI wrapper or Lua primitive into the appropriate RValue.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`value` |  | The value to convert.
+
+<br><br>
+

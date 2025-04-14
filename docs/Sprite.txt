@@ -1,0 +1,137 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sprite#static-methods)
+  * [`Sprite.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sprite#new)
+  * [`Sprite.find`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sprite#find)
+  * [`Sprite.find_all`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sprite#find_all)
+  * [`Sprite.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sprite#wrap)
+
+* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sprite#instance-methods)
+  * [`sprite:set_origin`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sprite#set_origin)
+  * [`sprite:set_speed`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sprite#set_speed)
+  * [`sprite:set_collision_mask`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sprite#set_collision_mask)
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="new"></a>
+```lua
+Sprite.new(identifier, path, [image_number], [x_origin], [y_origin]) -> Sprite
+```
+
+Creates a new sprite with the given identifier if it does not already exist,  
+or returns the existing one if it does.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier for the sprite.
+`path` | string | The file path to the sprite. <br>`~` expands to your mod folder (without a trailing slash).
+`[image_number]` | number | *Optional.* The number of subimages. <br>`1` by default.
+`[x_origin]` | number | *Optional.* The x coordinate of the origin (offset). <br>`0` by default.
+`[y_origin]` | number | *Optional.* The y coordinate of the origin (offset). <br>`0` by default.
+
+<br><br>
+
+<a name="find"></a>
+```lua
+Sprite.find(identifier, [namespace]) -> Sprite or nil
+```
+
+Searches for the specified sprite and returns it.  
+If no namespace is provided, searches in your mod's namespace first, and "ror" second.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier to search for.
+`[namespace]` | string | *Optional.* The namespace to search in.
+
+<br><br>
+
+<a name="find_all"></a>
+```lua
+Sprite.find_all([namespace]) -> table, bool
+```
+
+Returns a table of all sprites in the specified namespace,  
+and a boolean that is `true` if the table is *not* empty.  
+If no namespace is provided, retrieves from both your mod's namespace and "ror".  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`[namespace]` | string | *Optional.* The namespace to check.
+
+<br><br>
+
+<a name="wrap"></a>
+```lua
+Sprite.wrap(sprite) -> Sprite
+```
+
+Returns a Sprite wrapper containing the provided sprite ID.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`sprite` | number | The sprite ID to wrap.
+
+<br><br>
+
+---
+
+## Instance Methods
+
+<a name="set_origin"></a>
+```lua
+sprite:set_origin([x_origin], [y_origin]) -> nil
+```
+
+Sets the origin of the sprite.  
+Resets unspecified coordinates to `0`.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`[x_origin]` | number | *Optional.* The x coordinate of the origin (offset). <br>`0` by default.
+`[y_origin]` | number | *Optional.* The y coordinate of the origin (offset). <br>`0` by default.
+
+<br><br>
+
+<a name="set_speed"></a>
+```lua
+sprite:set_speed(speed) -> nil
+```
+
+Sets the animation speed of the sprite.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`speed` | number | The animation speed, in "sprite frames per game frame".
+
+<br><br>
+
+<a name="set_collision_mask"></a>
+```lua
+sprite:set_collision_mask(bbox_left, bbox_top, bbox_right, bbox_bottom) -> nil
+```
+
+Sets the collision mask of the sprite, relative to the origin.  
+  
+E.g.,  
+- A negative `bbox_left` value means to the left of the origin.  
+- `bbox_left = -5` and `bbox_right = 5` would give a total width of `10` pixels, centered on the origin.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`bbox_left` | number | The left side, relative to the origin.
+`bbox_top` | number | The top side, relative to the origin.
+`bbox_right` | number | The right side, relative to the origin.
+`bbox_bottom` | number | The bottom side, relative to the origin.
+
+<br><br>
+

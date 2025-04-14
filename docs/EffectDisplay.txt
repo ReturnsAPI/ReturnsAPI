@@ -1,0 +1,111 @@
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/EffectDisplay#enums)
+  * [`EffectDisplay.DrawPriority`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/EffectDisplay#DrawPriority)
+
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/EffectDisplay#static-methods)
+  * [`EffectDisplay.sprite`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/EffectDisplay#sprite)
+  * [`EffectDisplay.func`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/EffectDisplay#func)
+  * [`EffectDisplay.instance`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/EffectDisplay#instance)
+  * [`EffectDisplay.particles`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/EffectDisplay#particles)
+
+<br><br>
+
+---
+
+## Enums
+
+<a name="DrawPriority"></a>
+```lua
+EffectDisplay.DrawPriority = {
+    BARRIER_BEHIND  = 1020,
+    HIDDEN_BEHIND   = 1010,
+    PRE             = 1000,
+    BEHIND          = 100,
+    CAPE            = 20,
+    BODY_PRE        = 10,
+    BODY            = 0,
+    HITFLASH        = -1,
+    HIDDEN_ABOVE    = -5,
+    BODY_POST       = -10,
+    BODY_FREEZE     = -15,
+    CAPE_ABOVE      = -20,
+    ABOVE_BODY      = -100,
+    ABOVE           = -200,
+    PAST            = -1000,
+    BARRIER_ABOVE   = -1020
+}
+```
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="sprite"></a>
+```lua
+EffectDisplay.sprite(sprite, [priority], [anim_speed], [x_origin], [y_origin]) -> Struct
+```
+
+Returns a EffectDisplaySprite struct.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`sprite` | sprite | The sprite ID.
+`[priority]` | number | *Optional.* The [draw priority](https://github.com/ReturnsAPI/ReturnsAPI/wiki/EffectDisplay#DrawPriority). <br>`EffectDisplay.DrawPriority.ABOVE` by default.
+`[anim_speed]` | number | *Optional.* The animation speed. <br>`0` by default.
+`[x_origin]` | number | *Optional.* The x coordinate of the origin (offset). <br>`0` by default.
+`[y_origin]` | number | *Optional.* The y coordinate of the origin (offset). <br>`0` by default.
+
+<br><br>
+
+<a name="func"></a>
+```lua
+EffectDisplay.func(func, [priority]) -> Struct
+```
+
+Returns a EffectDisplayFunction struct.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`func` | function | The function to bind.
+`[priority]` | number | *Optional.* The [draw priority](https://github.com/ReturnsAPI/ReturnsAPI/wiki/EffectDisplay#DrawPriority). <br>`EffectDisplay.DrawPriority.BODY` by default.
+
+<br><br>
+
+<a name="instance"></a>
+```lua
+EffectDisplay.instance(object, [host_only]) -> Struct
+```
+
+Returns a EffectDisplayInstance struct.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`object` | Object | The object.
+`[host_only]` | bool | *Optional.* desc. <br>`false` by default.
+
+<br><br>
+
+<a name="particles"></a>
+```lua
+EffectDisplay.particles(particle_type, rate, amount, [system], [xrand], [yrand], [color]) -> Struct
+```
+
+Returns a EffectDisplayParticles struct.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`particle_type` | Particle | The particle type.
+`rate` | number | 
+`amount` | number | 
+`[system]` | number | *Optional.* The [particle system](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Particle#System) to use. <br>`Particle.System.ABOVE` by default.
+`[xrand]` | number | *Optional.* 
+`[yrand]` | number | *Optional.* 
+`[color]` | color | *Optional.* The color to blend with. <br>`Color.WHITE` by default.
+
+<br><br>
+

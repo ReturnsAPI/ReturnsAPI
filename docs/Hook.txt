@@ -1,0 +1,76 @@
+* [**Constants**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#constants)
+
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#static-methods)
+  * [`Hook.add`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#add)
+  * [`Hook.remove`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#remove)
+  * [`Hook.remove_all`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#remove_all)
+
+<br><br>
+
+---
+
+## Constants
+
+```lua
+Hook.PRE     = 0
+Hook.POST    = 1
+```
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="add"></a>
+```lua
+Hook.add(script, type, fn, [priority]) -> number
+```
+
+Registers a function under a game function hook.  
+Returns the unique ID of the registered function.  
+  
+**Priority Convention**  
+To allow for a decent amount of space between priorities,  
+use the enum values in [`Callback.Priority`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#Priority).  
+If you need to be more specific than that, try to keep a distance of at least `100`.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`script` | string | The game function to hook.
+`type` | number | Either `Hook.PRE` or `Hook.POST`.
+`fn` | function | The function to register. <br>The parameters for it are `self, other, result, args`.
+`[priority]` | number | *Optional.* The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+
+<br><br>
+
+<a name="remove"></a>
+```lua
+Hook.remove(id) -> nil
+```
+
+Removes a registered hook function.  
+The ID is the one from [`Hook.add`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#add).  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`id` | number | The unique ID of the registered function to remove.
+
+<br><br>
+
+<a name="remove_all"></a>
+```lua
+Hook.remove_all() -> nil
+```
+
+Removes all registered hook functions from your namespace.  
+  
+Automatically called when you hotload your mod.  
+
+**Parameters**  
+None
+
+<br><br>
+

@@ -1,0 +1,74 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sound#static-methods)
+  * [`Sound.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sound#new)
+  * [`Sound.find`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sound#find)
+  * [`Sound.find_all`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sound#find_all)
+  * [`Sound.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Sound#wrap)
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="new"></a>
+```lua
+Sound.new(identifier, path) -> Sound
+```
+
+Creates a new sound with the given identifier if it does not already exist,  
+or returns the existing one if it does.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier for the sound.
+`path` | string | The file path to the sound. <br>`~` expands to your mod folder (without a trailing slash).
+
+<br><br>
+
+<a name="find"></a>
+```lua
+Sound.find(identifier, [namespace]) -> Sound or nil
+```
+
+Searches for the specified sound and returns it.  
+If no namespace is provided, searches in your mod's namespace first, and "ror" second.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier to search for.
+`[namespace]` | string | *Optional.* The namespace to search in.
+
+<br><br>
+
+<a name="find_all"></a>
+```lua
+Sound.find_all([namespace]) -> table, bool
+```
+
+Returns a table of all sounds in the specified namespace,  
+and a boolean that is `true` if the table is *not* empty.  
+If no namespace is provided, retrieves from both your mod's namespace and "ror".  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`[namespace]` | string | *Optional.* The namespace to check.
+
+<br><br>
+
+<a name="wrap"></a>
+```lua
+Sound.wrap(sound) -> Sound
+```
+
+Returns a Sound wrapper containing the provided sound ID.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`sound` | number | The sound ID to wrap.
+
+<br><br>
+

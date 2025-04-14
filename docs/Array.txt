@@ -1,0 +1,73 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Array#static-methods)
+  * [`Array.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Array#new)
+  * [`Array.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Array#wrap)
+  * [`Array.wrap_i64`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Array#wrap_i64)
+  * [`Array.is`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Array#is)
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="new"></a>
+```lua
+Array.new([size], [value]) -> Array
+```
+
+Returns a newly created GameMaker array.  
+  
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`[size]` | number | *Optional.* The size of the array. <br>`0` by default.
+`[value]` |  | *Optional.* The value to populate the array with. <br>`0` by default.
+  
+| Parameter | Type  | Description  
+| --------- | ----- | -----------  
+| `table`   | table | A numerically-indexed Lua table to convert into an array.  
+
+<br><br>
+
+<a name="wrap"></a>
+```lua
+Array.wrap(array) -> Array
+```
+
+Returns an Array wrapper containing the provided array.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`array` | RValue or Array wrapper | The array to wrap.
+
+<br><br>
+
+<a name="wrap_i64"></a>
+```lua
+Array.wrap_i64(array) -> Array
+```
+
+Returns an Array wrapper containing the provided array.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`array` | number | `i64` reference to an array.
+
+<br><br>
+
+<a name="is"></a>
+```lua
+Array.is(value) -> bool
+```
+
+Returns `true` if `value` is an array, and `false` otherwise.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`value` | RValue or Array wrapper | The value to check.
+
+<br><br>
+

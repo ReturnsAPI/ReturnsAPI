@@ -1,0 +1,27 @@
+- Damage modification method; either midhook `damager_calculate_damage` or add some "preHit" construct
+- Remaining Actor instance methods
+- Custom object net serialization
+    - Custom interactables(?); not sure if it still needs to be its own thing
+- Classes
+    - Equipment
+    - Achievement
+
+    - Stage
+    - EnvironmentLog
+    
+    - InteractableCard
+    - MonsterCard
+
+    - MonsterLog
+    - Elite
+    
+    - Artifact
+    - Difficulty
+    - GameMode
+    
+    - Ending
+
+    - Skill
+    - Survivor
+    - SurvivorLog
+    - ActorSkin

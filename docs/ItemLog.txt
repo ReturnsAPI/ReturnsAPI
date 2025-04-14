@@ -1,0 +1,142 @@
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#enums)
+  * [`ItemLog.Property`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#Property)
+  * [`ItemLog.Group`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#Group)
+
+* [**Properties**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#properties)
+
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#static-methods)
+  * [`ItemLog.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#new)
+  * [`ItemLog.new_from_item`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#new_from_item)
+
+* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#instance-methods)
+  * [`itemLog:show_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#show_properties)
+  * [`itemLog:set_group`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#set_group)
+
+<br><br>
+
+---
+
+## Enums
+
+<a name="Property"></a>
+```lua
+ItemLog.Property = {
+    NAMESPACE            = 0
+    IDENTIFIER           = 1
+    TOKEN_NAME           = 2
+    TOKEN_DESCRIPTION    = 3
+    TOKEN_STORY          = 4
+    TOKEN_DATE           = 5
+    TOKEN_DESTINATION    = 6
+    TOKEN_PRIORITY       = 7
+    PICKUP_OBJECT_ID     = 8
+    SPRITE_ID            = 9
+    GROUP                = 10
+    ACHIEVEMENT_ID       = 11
+}
+```
+
+<a name="Group"></a>
+```lua
+ItemLog.Group = {
+    COMMON              = 0,
+    COMMON_LOCKED       = 1,
+    UNCOMMON            = 2,
+    UNCOMMON_LOCKED     = 3,
+    RARE                = 4,
+    RARE_LOCKED         = 5,
+    EQUIPMENT           = 6,
+    EQUIPMENT_LOCKED    = 7,
+    BOSS                = 8,
+    BOSS_LOCKED         = 9,
+    LAST                = 10000 -- Normally 10, but this is to allow for custom tiers
+}
+```
+
+<br><br>
+
+---
+
+## Properties
+
+Property | Type | Description
+| - | - | -
+`namespace` | string | The namespace the log is in.
+`identifier` | string | The identifier for the log within the namespace.
+`token_name` | string | The localization token for the log's name.
+`token_description` | string | The localization token for the log's description.
+`token_story` | string | The localization token for the log's story.
+`token_date` | string | The localization token for the log's date.
+`token_destination` | string | The localization token for the log's destination.
+`token_priority` | string | The localization token for the log's priority.
+`sprite_id` | sprite | The sprite ID of the log.
+`group` | number | The ordering "group" the log is placed in.
+`achievement_id` | number | The achievement ID of the log. <br>If *not* `-1`, the log will be locked until the achievement is unlocked.
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="new"></a>
+```lua
+ItemLog.new(identifier) -> ItemLog
+```
+
+Creates a new item log with the given identifier if it does not already exist,  
+or returns the existing one if it does.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier for the item log.
+
+<br><br>
+
+<a name="new_from_item"></a>
+```lua
+ItemLog.new_from_item(item) -> ItemLog
+```
+
+Creates a new item log using an item as a base,  
+automatically populating the log's properties and  
+setting the item's `item_log_id` property.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`item` | Item | The item to use as a base.
+
+<br><br>
+
+---
+
+## Instance Methods
+
+<a name="show_properties"></a>
+```lua
+itemLog:show_properties() -> nil
+```
+
+Prints the item log's properties.  
+
+**Parameters**  
+None
+
+<br><br>
+
+<a name="set_group"></a>
+```lua
+itemLog:set_group(group) -> nil
+```
+
+Sets the group of the item log.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`group` | number | The group to set.
+
+<br><br>
+

@@ -1,0 +1,23 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/HitInfo#static-methods)
+  * [`HitInfo.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/HitInfo#wrap)
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="wrap"></a>
+```lua
+HitInfo.wrap(hit_info) -> HitInfo
+```
+
+Returns a HitInfo wrapper containing the provided `hit_info` struct.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`hit_info` | Struct | The `hit_info` struct to wrap.
+
+<br><br>
+

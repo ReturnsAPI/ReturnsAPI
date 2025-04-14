@@ -70,6 +70,19 @@ end
 
 
 --$static
+--[[
+Prints the results of `GM.debug_get_callstack()`.
+The value at the top was the most recent previous call.
+]]
+Util.gm_trace = function(value)
+    local out = RValue.new(0)
+    gmf.debug_get_callstack(out, nil, nil, 0, nil)
+    local array = RValue.to_wrapper(out)
+    array:print()
+end
+
+
+--$static
 --$return       bool
 --$param        value       |           | The value to convert.
 --[[

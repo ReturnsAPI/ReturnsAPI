@@ -182,8 +182,9 @@ methods_list = {
     
     print = function(self)
         local str = ""
+        local padding = #tostring(#self) + 2
         for i, v in ipairs(self) do
-            str = str.."\n"..Util.pad_string_right(i - 1, 32).." = "..Util.tostring(v)
+            str = str.."\n"..Util.pad_string_right("["..(i - 1).."]", padding).."  "..Util.tostring(v)
         end
         print(str)
     end

@@ -17,7 +17,7 @@ Returns a newly created GameMaker array.
 
 | Parameter | Type  | Description
 | --------- | ----- | -----------
-| table     | table | A numerically-indexed Lua table to convert into an array.
+| `table`   | table | A numerically-indexed Lua table to convert into an array.
 ]]
 Array.new = function(arg1, arg2)
     -- Overload 1
@@ -222,8 +222,9 @@ methods_array = {
     
     print = function(self)
         local str = ""
+        local padding = #tostring(#self) + 2
         for i, v in ipairs(self) do
-            str = str.."\n"..Util.pad_string_right(i - 1, 32).." = "..Util.tostring(v)
+            str = str.."\n"..Util.pad_string_right("["..(i - 1).."]", padding).."  "..Util.tostring(v)
         end
         print(str)
     end
