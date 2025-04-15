@@ -359,7 +359,7 @@ Util.table_append(methods_instance, {
         end
         
         return object_index
-    end
+    end,
 
 
     --$instance
