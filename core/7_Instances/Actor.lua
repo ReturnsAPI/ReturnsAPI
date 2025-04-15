@@ -415,7 +415,9 @@ methods_actor = {
         if __buff_count_cache[id][buff] then return __buff_count_cache[id][buff] end
 
         -- Get buff count from array
-        local count = self.buff_stack:get(buff)
+        local array = self.buff_stack
+        if buff >= #array then return 0 end -- Return 0 for custom if array hasn't been resized yet
+        local count = array:get(buff)
 
         -- Store in cache and return
         __buff_count_cache[id][buff] = count
