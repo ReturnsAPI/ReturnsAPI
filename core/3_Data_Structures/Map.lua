@@ -96,6 +96,15 @@ methods_map = {
     end,
 
 
+    set_rvalue = function(self, key, value)
+        local holder = RValue.new_holder(3)
+        holder[0] = RValue.new(self.value)
+        holder[1] = key
+        holder[2] = value
+        gmf.ds_map_set(RValue.new(0), nil, nil, 3, holder)
+    end,
+
+
     size = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value)
@@ -109,6 +118,14 @@ methods_map = {
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value)
         holder[1] = RValue.from_wrapper(key)
+        gmf.ds_map_delete(RValue.new(0), nil, nil, 2, holder)
+    end,
+
+
+    delete_rvalue = function(self, key)
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value)
+        holder[1] = key
         gmf.ds_map_delete(RValue.new(0), nil, nil, 2, holder)
     end,
 

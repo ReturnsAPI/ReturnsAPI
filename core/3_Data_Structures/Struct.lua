@@ -48,22 +48,28 @@ Struct.wrap = function(struct)
     -- Wraps:   `yy_object_base` of `.type` 0
     if not Struct.is(struct) then log.error("Value is not a struct", 2) end
     local proxy = Proxy.new(struct.yy_object_base, metatable_struct)
-    __ref_map:set(proxy, true)
+    __ref_map:set_rvalue(
+        RValue.new(struct.yy_object_base, RValue.Type.OBJECT),
+        RValue.new(true)
+    )
     return proxy
 end
 
 
 --$static
 --$return       Struct
---$param        struct      |           | `struct YYObjectBase*` pointing to a struct.
+--$param        struct_yy   |           | `struct YYObjectBase*` pointing to a struct.
 --[[
 Returns a Struct wrapper containing the provided struct.
 ]]
-Struct.wrap_yyobjectbase = function(struct)
+Struct.wrap_yyobjectbase = function(struct_yy)
     -- Input:   `object RValue.yy_object_base` / `struct YYObjectBase*`
     -- Wraps:   `yy_object_base` of `.type` 0
-    local proxy = Proxy.new(struct, metatable_struct)
-    __ref_map:set(proxy, true)
+    local proxy = Proxy.new(struct_yy, metatable_struct)
+    __ref_map:set_rvalue(
+        RValue.new(struct_yy, RValue.Type.OBJECT),
+        RValue.new(true)
+    )
     return proxy
 end
 
@@ -172,7 +178,9 @@ make_table_once("metatable_struct", {
 
 
     __gc = function(proxy)
-        __ref_map:delete(proxy)
+        __ref_map:delete_rvalue(
+            RValue.new(Proxy.get(proxy), RValue.Type.OBJECT)
+        )
     end,
 
 

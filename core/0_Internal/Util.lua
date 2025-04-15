@@ -3,7 +3,8 @@
 Util = new_class()
 
 run_once(function()
-    __gc_proxies = setmetatable({}, {__mode = "kv"})
+    __gc_proxies = setmetatable({}, {__mode = "k"})
+    __gc_proxies_2 = setmetatable({}, {__mode = "kv"})
 end)
 
 
@@ -335,9 +336,12 @@ A version of `setmetatable()` that allows for Lua 5.2's `__gc` metamethod.
 Util.setmetatable_gc = function(t, mt)
     -- `setmetatable` but with `__gc` metamethod enabled
     if mt.__gc then
-        __gc_proxies[t] = newproxy(true)
-        getmetatable(__gc_proxies[t]).__gc = function()
-            mt.__gc(t)
+        local cproxy = newproxy(true)
+        __gc_proxies[t] = cproxy
+        __gc_proxies_2[cproxy] = t
+        getmetatable(cproxy).__gc = function(self)
+            mt.__gc(__gc_proxies_2[self])   -- Cannot reference `t` directly since
+                                            -- closures count as strong references
         end
     end
     return setmetatable(t, mt)

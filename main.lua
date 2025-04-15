@@ -45,6 +45,10 @@ gui.add_imgui(function()
         ImGui.Text("__rvalue_current:   "..__rvalue_current)
         ImGui.Text("#__ref_map:         "..#__ref_map)
 
+        if ImGui.Button("Collect garbage") then
+            collectgarbage()
+        end
+
         if ImGui.Button("_mod_instance_number benchmark") then
             local foo = function(obj)
                 local holder = RValue.new_holder_scr(1)

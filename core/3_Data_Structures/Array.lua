@@ -59,22 +59,28 @@ Array.wrap = function(array)
     -- Wraps:   `array RValue.i64`
     if not Array.is(array) then log.error("Value is not an array", 2) end
     local proxy = Proxy.new(array.i64, metatable_array)
-    __ref_map:set(proxy, true)
+    __ref_map:set_rvalue(
+        RValue.new(array.i64, RValue.Type.ARRAY),
+        RValue.new(true)
+    )
     return proxy
 end
 
 
 --$static
 --$return       Array
---$param        array       | number    | `i64` reference to an array.
+--$param        array_i64   | number    | `i64` reference to an array.
 --[[
 Returns an Array wrapper containing the provided array.
 ]]
-Array.wrap_i64 = function(array)
+Array.wrap_i64 = function(array_i64)
     -- Input:   number (i64 reference)
     -- Wraps:   `array RValue.i64`
-    local proxy = Proxy.new(array, metatable_array)
-    __ref_map:set(proxy, true)
+    local proxy = Proxy.new(array_i64, metatable_array)
+    __ref_map:set_rvalue(
+        RValue.new(array_i64, RValue.Type.ARRAY),
+        RValue.new(true)
+    )
     return proxy
 end
 
@@ -311,7 +317,9 @@ make_table_once("metatable_array", {
 
 
     __gc = function(proxy)
-        __ref_map:delete(proxy)
+        __ref_map:delete_rvalue(
+            RValue.new(Proxy.get(proxy), RValue.Type.ARRAY)
+        )
     end,
 
 
