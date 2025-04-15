@@ -9,3 +9,8 @@ Memory.dynamic_hook = function(name, ret_signature, signature, address, function
     if type(functions[2]) == "function" then jit.off(functions[2]) end
     memory.dynamic_hook(name, ret_signature, signature, address, functions)
 end
+
+Memory.dynamic_hook_mid = function(name, register, signature, arg4, address, fn)
+    if type(fn) == "function" then jit.off(fn) end
+    memory.dynamic_hook_mid(name, register, signature, arg4, address, fn)
+end
