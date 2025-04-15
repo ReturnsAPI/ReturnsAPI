@@ -374,13 +374,66 @@ Util.table_append(methods_instance, {
         -- Return `false` if wrapper is invalid
         if self.value == -4 then return false end
 
-        local holder = RValue.new_holder_scr(3)
+        local holder = RValue.new_holder(3)
         holder[0] = RValue.new(x or self.x)
         holder[1] = RValue.new(y or self.y)
-        holder[2] = RValue.from_wrapper(object)
+        holder[2] = RValue.new(Wrap.unwrap(object))
         local out = RValue.new(0)
-        gmf.place_meeting(self.CInstance, self.CInstance, out, 3, holder)
+        gmf.place_meeting(out, self.CInstance, self.CInstance, 3, holder)
         return (out.value == 1)
+    end,
+
+
+    --$instance
+    --$return       table, bool
+    --$param        object      | Object    | The object to check.
+    --$optional     x           | number    | The x position to check at. <br>Uses this instance's current position by default.
+    --$optional     y           | number    | The y position to check at. <br>Uses this instance's current position by default.
+    --[[
+    Returns a table of all instances of the specified object that this instance is colliding with,
+    and a boolean that is `true` if the table is *not* empty.
+    ]]
+    get_collisions = function(self, object, x, y)
+        -- Return `{}, 0` if wrapper is invalid
+        if self.value == -4 then return {}, 0 end
+
+        local object = Wrap.unwrap(object)
+
+        -- Calculate coordinate offset for collision check
+        local self_x = self.x
+        local self_y = self.y
+        local x = x or self_x
+        local y = y or self_y
+        local x_offset = x - self_x
+        local y_offset = y - self_y
+
+        local insts = {}
+        local list = List.new()
+
+        local holder = RValue.new_holder(9)
+        holder[0] = RValue.new(self.bbox_left   + x_offset)
+        holder[1] = RValue.new(self.bbox_top    + y_offset)
+        holder[2] = RValue.new(self.bbox_right  + x_offset)
+        holder[3] = RValue.new(self.bbox_bottom + y_offset)
+        holder[4] = RValue.new(Wrap.unwrap(object))
+        holder[5] = RValue.new(false)
+        holder[6] = RValue.new(true)
+        holder[7] = RValue.new(list.value)
+        holder[8] = RValue.new(false)
+        local out = RValue.new(0)
+        gmf.collision_rectangle_list(out, self.CInstance, self.CInstance, 9, holder)
+        local count = out.value
+
+        -- Convert output list to table
+        if count > 0 then
+            for _, inst in ipairs(list) do
+                table.insert(insts, inst)
+            end
+        end
+        
+        list:destroy()
+
+        return insts, #insts
     end,
 
 
