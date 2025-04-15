@@ -226,16 +226,29 @@ end
 
 
 --$static
---$return       table
---$param        original    | table     | The original table to append to.
---$param        added       | table     | The table to append.
+--$param        dest        | table     | The original table to append to.
+--$param        src         | table     | The table to append.
 --[[
-Appends keys from `added` to `original`.
+Appends keys from `src` to `dest`.
 Existing keys will be overwritten.
 ]]
-Util.table_append = function(original, added)
-    for k, v in pairs(added) do
-        original[k] = v
+Util.table_append = function(dest, src)
+    for k, v in pairs(src) do
+        dest[k] = v
+    end
+end
+
+
+--$static
+--$param        dest        | table     | The original table to append to.
+--$param        src         | table     | The table to append.
+--[[
+Inserts a table of values (`src`) to `dest`.
+Both should be numerically-indexed tables.
+]]
+Util.table_insert = function(dest, src)
+    for _, v in ipairs(src) do
+        table.insert(dest, v)
     end
 end
 

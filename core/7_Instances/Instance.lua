@@ -8,6 +8,7 @@ end)
 
 local wrapper_cache = setmetatable({}, {__mode = "v"})      -- Cache for Instance.wrap
 local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for inst.CInstance
+local object_index_cache = {}                               -- Cache for inst:get_object_index; indexed by ID
 
 -- `__invalid_instance` created at the bottom
 
@@ -282,7 +283,23 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_instance = {
+methods_instance = {}
+
+-- Add GM scripts
+for scr, _ in pairs(GM.internal.builtin) do
+    methods_instance[scr] = function(self, ...)
+        if self.value == -4 then log.error("Instance does not exist", 2) end
+        return GM.SO[scr](self, self, ...)
+    end
+end
+for scr, _ in pairs(GM.internal.script) do
+    methods_instance[scr] = function(self, ...)
+        if self.value == -4 then log.error("Instance does not exist", 2) end
+        return GM.SO[scr](self, self, ...)
+    end
+end
+
+Util.table_append(methods_instance, {
 
     --$instance
     --$aref         exists-instance
@@ -329,6 +346,23 @@ methods_instance = {
 
 
     --$instance
+    --$return       number
+    --[[
+    Returns the instance's correct object index, accounting for custom objects.
+    ]]
+    get_object_index = function(self)
+        -- Check cache
+        local object_index = object_index_cache[self.value]
+        if not object_index then
+            object_index = self:get_object_index_self()
+            object_index_cache[self.value] = object_index
+        end
+        
+        return object_index
+    end
+
+
+    --$instance
     --$return       bool
     --$param        object      | Object    | The object to check.
     --$optional     x           | number    | The x position to check at. <br>Uses this instance's current position by default.
@@ -347,23 +381,20 @@ methods_instance = {
         local out = RValue.new(0)
         gmf.place_meeting(self.CInstance, self.CInstance, out, 3, holder)
         return (out.value == 1)
+    end,
+
+
+    --$instance
+    --$return       bool
+    --[[
+    Returns `true` if this instance is a projectile.
+    ]]
+    is_projectile = function(self)
+        if __is_projectile[self:get_object_index()] then return true end
+        return false
     end
 
-}
-
--- Add GM scripts
-for scr, _ in pairs(GM.internal.builtin) do
-    methods_instance[scr] = function(self, ...)
-        if self.value == -4 then log.error("Instance does not exist", 2) end
-        return GM.SO[scr](self, self, ...)
-    end
-end
-for scr, _ in pairs(GM.internal.script) do
-    methods_instance[scr] = function(self, ...)
-        if self.value == -4 then log.error("Instance does not exist", 2) end
-        return GM.SO[scr](self, self, ...)
-    end
-end
+})
 
 
 

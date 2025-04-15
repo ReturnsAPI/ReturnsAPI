@@ -2,6 +2,11 @@
 
 Object = new_class()
 
+run_once(function()
+    __is_projectile = {}    -- List of objects that can be seen as "projectiles"
+                            -- Vanilla objects are added at the bottom of this file
+end)
+
 local find_cache = {}
 
 
@@ -167,6 +172,17 @@ methods_object = {
         local out = RValue.new(0)
         gmf.instance_create(nil, nil, out, 3, holder)
         return RValue.to_wrapper(out)
+    end,
+
+
+    --$instance
+    --$param        bool        | bool      | 
+    --[[
+    Whether or not to mark this object as a projectile.
+    ]]
+    mark_as_projectile = function(self, bool)
+        if not bool then log.error("Object.mark_as_projectile: `bool` argument not provided", 2) end
+        __is_projectile[self.value] = bool
     end
 
 }
@@ -219,6 +235,35 @@ make_table_once("metatable_object", {
     
     __metatable = "RAPI.Wrapper.Object"
 })
+
+
+
+-- ========== Populate `__is_projectile` with vanilla objects ==========
+
+run_once(function()
+    local t = {
+
+        -- Enemy projectiles from RMT's `instance.lua`
+        gm.constants.oJellyMissile,
+        gm.constants.oWurmMissile,
+        gm.constants.oShamBMissile,
+        gm.constants.oTurtleMissile,
+        gm.constants.oBrambleBullet,
+        gm.constants.oLizardRSpear,
+        gm.constants.oEfMissileEnemy,
+        gm.constants.oSpiderBulletNoSync,       gm.constants.oSpiderBullet,
+        gm.constants.oGuardBulletNoSync,        gm.constants.oGuardBullet,
+        gm.constants.oBugBulletNoSync,          gm.constants.oBugBullet,
+        gm.constants.oScavengerBulletNoSync,    gm.constants.oScavengerBullet,
+
+        -- TODO add the rest
+
+    }
+
+    for _, obj_id in ipairs(t) do
+        __is_projectile[obj_id] = true
+    end
+end)
 
 
 
