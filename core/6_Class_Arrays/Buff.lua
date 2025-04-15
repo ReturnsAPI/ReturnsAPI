@@ -86,11 +86,11 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_class_array[name_rapi] = {
+methods_class_array[name_rapi] = Util.table_merge(methods_class_array[name_rapi], {
 
     
 
-}
+})
 
 
 

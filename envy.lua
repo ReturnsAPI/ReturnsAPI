@@ -1,6 +1,9 @@
 -- ENVY
 
-if not __namespace_path then __namespace_path = {} end  -- Preserve on hotload
+run_once(function()
+    __namespace_path = {}
+    __auto_setups = {}
+end)
 
 
 function public.setup(env, namespace)
@@ -100,6 +103,7 @@ function public.auto(properties)
     local env = envy.getfenv(2)
     local wrapper = public.setup(env, properties.namespace)
     envy.import_all(env, wrapper)
+    __auto_setups[env] = { namespace = properties.namespace }   -- Save for calling again on RAPI hotload
 
     -- Override default `print`, `type`, and `tostring` with Util's versions
     env.lua_print = env.print
@@ -119,3 +123,18 @@ function public.auto(properties)
     -- Autoregister to Language
     if Language         then Language.register_autoload(env) end
 end
+
+
+run_on_hotload(function()
+    -- Reimport class tables to mods
+    -- that called .auto() on RAPI hotload
+    for env, t in pairs(__auto_setups) do
+        local wrapper = public.setup(env, t.namespace)
+        envy.import_all(env, wrapper)
+
+        -- Override default `print`, `type`, and `tostring` with Util's versions
+        env.print = Util.print
+        env.type = Util.type
+        env.tostring = Util.tostring
+    end
+end)

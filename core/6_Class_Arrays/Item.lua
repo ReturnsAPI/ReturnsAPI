@@ -146,7 +146,7 @@ Returns an Item wrapper containing the provided item ID.
 
 -- ========== Instance Methods ==========
 
-methods_class_array[name_rapi] = {
+methods_class_array[name_rapi] = Util.table_merge(methods_class_array[name_rapi], {
 
     --$instance
     --$name         show_properties
@@ -249,4 +249,4 @@ methods_class_array[name_rapi] = {
         self.loot_tags = tags
     end
 
-}
+})

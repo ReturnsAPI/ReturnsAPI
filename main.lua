@@ -29,12 +29,13 @@ for _, dir in ipairs(dirs) do
     end
 end
 
--- Prevent anything in run_once() from running again
-hotloaded = true
-
 
 -- ENVY public setup
 require("./envy")
+
+
+-- Prevent anything in run_once() from running again
+hotloaded = true
 
 
 -- DEBUG

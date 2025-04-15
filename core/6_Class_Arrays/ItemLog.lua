@@ -132,7 +132,7 @@ end
 
 -- ========== Instance Methods ==========
 
-methods_class_array[name_rapi] = {
+methods_class_array[name_rapi] = Util.table_merge(methods_class_array[name_rapi], {
 
     --$instance
     --$name         show_properties
@@ -169,4 +169,4 @@ methods_class_array[name_rapi] = {
         item_log_order:insert(pos, self.value)
     end
 
-}
+})
