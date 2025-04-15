@@ -55,7 +55,7 @@ local function parse_keys(map, t, key)
         else newkey = newkey.."."..k
         end
         if type(v) == "table" then parse_keys(map, v, newkey)
-        else map:set(newkey, tostring(v)); print(newkey, tostring(v))
+        else map:set(newkey, tostring(v)) --; print(newkey, tostring(v))
         end
     end
 end

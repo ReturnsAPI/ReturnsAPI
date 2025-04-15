@@ -5,6 +5,7 @@ v Fix Hook class breaking hotloading
 - Remaining Actor instance methods
 - Custom object net serialization
     - Custom interactables(?); not sure if it still needs to be its own thing
+- Make __ref_map gc not happen all at once; right now there is a lag spike for 1 frame
 - Classes
     - Equipment
     - Achievement

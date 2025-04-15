@@ -139,6 +139,14 @@ Object.find = function(identifier, namespace, default_namespace)
 end
 
 
+Object.add_serializers = function(namespace, object, serializer, deserializer)
+    -- Notes:
+    -- Remove on hotload
+    -- Write a note that the deserializer should read *everything* written in serialize,
+    -- since it seems that all custom objects share the same packet
+end
+
+
 --$static
 --$return       Object
 --$param        object      | number    | The object index to wrap.
@@ -172,6 +180,28 @@ methods_object = {
         local out = RValue.new(0)
         gmf.instance_create(nil, nil, out, 3, holder)
         return RValue.to_wrapper(out)
+    end,
+
+
+    --$instance
+    --$param        sprite      | sprite    | The sprite to set.
+    --[[
+    Sets the sprite of the object.
+    ]]
+    set_sprite = function(self, sprite)
+        self.obj_sprite = sprite
+        GM.object_set_sprite_w(self.value, sprite)
+    end,
+
+
+    --$instance
+    --$param        depth       | number    | The depth to set.
+    --[[
+    Sets the depth of the object.
+    ]]
+    set_depth = function(self, depth)
+        self.obj_depth = depth
+        Global.object_depths:set(self.value, depth) -- Does not apply retroactively to existing instances
     end,
 
 
@@ -228,6 +258,7 @@ make_table_once("metatable_object", {
         if index then
             local obj_array = Global.custom_object:get(value - Object.CUSTOM_START)
             obj_array:set(index, v)
+            return
         end
         log.error("Non-existent Object property '"..k.."'", 2)
     end,

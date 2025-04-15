@@ -117,6 +117,19 @@ end
 
 --$static
 --$return       number
+--$param        n           | number    | The number to clamp.
+--$param        min         | number    | The minimum clamp value.
+--$param        max         | number    | The maximum clamp value.
+--[[
+Clamps the given value between two boundaries.
+]]
+Util.clamp = function(n, _min, _max)
+    return math.min(math.max(n, _min), _max)
+end
+
+
+--$static
+--$return       number
 --$param        x           | number    | The value to ease, between `0` and `1`.
 --$optional     n           | number    | The easing power. <br>`2` (quadratic) by default.
 --[[
