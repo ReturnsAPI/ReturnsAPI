@@ -66,18 +66,20 @@ end
 --$static
 --$return       Instance
 --$param        object      | Object    | The object to check.
+--$param        n           | number    | The *n*-th instance, indexed from 1. <br>`1` by default.
 --[[
-Returns the first instance of the specified object,
+Returns the first (or *n*-th) instance of the specified object,
 or an invalid instance (value of `-4`).
 ]]
-Instance.find = function(object)
+Instance.find = function(object, n)
     local object = Wrap.unwrap(object)
+    local n = n or 1
 
     -- Vanilla object
     if object < Object.CUSTOM_START then
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(object)
-        holder[1] = RValue.new(0)
+        holder[1] = RValue.new(n - 1)
         local out = RValue.new(0)
         gmf.instance_find(out, nil, nil, 2, holder)
         local inst = RValue.to_wrapper(out)
@@ -85,12 +87,11 @@ Instance.find = function(object)
     
     -- Custom object
     else
-        local holder = RValue.new_holder_scr(3)
+        local holder = RValue.new_holder_scr(2)
         holder[0] = RValue.new(object)
-        holder[1] = RValue.new(0)
-        holder[2] = RValue.new(0)
+        holder[1] = RValue.new(n)   -- _mod_instance_find is indexed from 1
         local out = RValue.new(0)
-        gmf._mod_instance_nearest(nil, nil, out, 3, holder)
+        gmf._mod_instance_find(nil, nil, out, 2, holder)
         local inst = RValue.to_wrapper(out)
         if inst ~= -4 then return inst end
 
@@ -113,59 +114,12 @@ instances of the object, and can be *very* expensive at high numbers.
 Try not to call this too much.
 ]]
 Instance.find_all = function(object)
-    local insts = {}
-    local room_size = 200000    -- Should be sufficient
-
     local object = Wrap.unwrap(object)
+    local insts = {}
 
-    -- Check if object has a sprite (and therefore a collision mask)
-    local holder = RValue.new_holder(1)
-    holder[0] = RValue.new(object)
-    local out = RValue.new(0)
-    gmf.object_get_sprite(out, nil, nil, 1, holder)
-    local has_sprite = (out.value >= 0)
-
-    -- No collision mask
-    if not has_sprite then
-        local count = Instance.count(object)
-        for n = 0, count - 1 do
-            local holder = RValue.new_holder(2)
-            holder[0] = RValue.new(object)
-            holder[1] = RValue.new(n)
-            local out = RValue.new(0)
-            gmf.instance_find(out, nil, nil, 2, holder)
-            local inst = RValue.to_wrapper(out)
-
-            -- <Insert custom object finding here>
-            
-            if inst ~= -4 then table.insert(insts, inst) end
-        end
-
-    -- Collision mask; faster to use collision_rectangle_list
-    else
-        local list = List.new()
-
-        local holder = RValue.new_holder(9)
-        holder[0] = RValue.new(-room_size)
-        holder[1] = RValue.new(-room_size)
-        holder[2] = RValue.new(room_size)
-        holder[3] = RValue.new(room_size)
-        holder[4] = RValue.new(object)
-        holder[5] = RValue.new(false)
-        holder[6] = RValue.new(false)
-        holder[7] = RValue.new(list.value)
-        holder[8] = RValue.new(false)
-        local out = RValue.new(0)
-        gmf.collision_rectangle_list(out, nil, nil, 9, holder)
-        local count = out.value
-
-        if count > 0 then
-            for _, inst in ipairs(list) do
-                table.insert(insts, inst)
-            end
-        end
-
-        list:destroy()
+    local count = Instance.count(object)
+    for n = 1, count do
+        table.insert(insts, Instance.find(object, n))
     end
 
     return insts, #insts > 0
