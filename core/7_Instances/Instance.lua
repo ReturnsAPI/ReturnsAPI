@@ -75,6 +75,9 @@ Instance.find = function(object, n)
     local object = Wrap.unwrap(object)
     local n = n or 1
 
+    -- GML `instance_find` is faster than `_mod_instance_find`,
+    -- so use that for vanilla objects
+
     -- Vanilla object
     if object < Object.CUSTOM_START then
         local holder = RValue.new_holder(2)
