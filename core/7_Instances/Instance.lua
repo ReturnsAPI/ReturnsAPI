@@ -157,13 +157,15 @@ Instance.find_all = function(object)
         holder[8] = RValue.new(false)
         local out = RValue.new(0)
         gmf.collision_rectangle_list(out, nil, nil, 9, holder)
+        local count = out.value
 
-        for _, v in ipairs(list) do
-            table.insert(insts, Instance.wrap(v))
+        if count > 0 then
+            for _, inst in ipairs(list) do
+                table.insert(insts, inst)
+            end
         end
 
         list:destroy()
-
     end
 
     return insts, #insts > 0
