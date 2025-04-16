@@ -67,6 +67,12 @@ gui.add_imgui(function()
             end
         end
 
+        if ImGui.Button("Print memory.game_base_address") then
+            print(memory.game_base_address)
+            -- 1.4070007155917e+14
+            -- 0x7FF749C90002
+        end
+
         if ImGui.Button("_mod_instance_number benchmark") then
             local foo = function(obj)
                 local holder = RValue.new_holder_scr(1)

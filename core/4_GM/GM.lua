@@ -75,6 +75,9 @@ local callso = function(k)
 
         if GM.internal.builtin[k] then
             __GM_function_cache_callso[k] = function(self, other, ...)
+                if self then self = self.CInstance end
+                if other then other = other.CInstance end
+                
                 local args = table.pack(...)
                 local holder = nil
                 if args.n > 0 then holder = RValue.new_holder(args.n) end
@@ -85,17 +88,23 @@ local callso = function(k)
                 end
 
                 local out = RValue.new(0)
-                gmf[k](out, self.CInstance, other.CInstance, args.n, holder)
+                gmf[k](out, self, other, args.n, holder)
                 return RValue.to_wrapper(out)
             end
 
         elseif GM.internal.object[k] then
             __GM_function_cache_callso[k] = function(self, other)
-                gmf[k](self.CInstance, other.CInstance)
+                if self then self = self.CInstance end
+                if other then other = other.CInstance end
+
+                gmf[k](self, other)
             end
 
         elseif GM.internal.script[k] then
             __GM_function_cache_callso[k] = function(self, other, ...)
+                if self then self = self.CInstance end
+                if other then other = other.CInstance end
+
                 local args = table.pack(...)
                 local holder = nil
                 if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
@@ -106,7 +115,7 @@ local callso = function(k)
                 end
 
                 local out = RValue.new(0)
-                gmf[k](self.CInstance, other.CInstance, out, args.n, holder)
+                gmf[k](self, other, out, args.n, holder)
                 return RValue.to_wrapper(out)
             end
 

@@ -71,16 +71,30 @@ Returns the first instance of the specified object,
 or an invalid instance (value of `-4`).
 ]]
 Instance.find = function(object)
-    local holder = RValue.new_holder(2)
-    holder[0] = RValue.new(Wrap.unwrap(object))
-    holder[1] = RValue.new(0)
-    local out = RValue.new(0)
-    gmf.instance_find(out, nil, nil, 2, holder)
-    local inst = RValue.to_wrapper(out)
+    local object = Wrap.unwrap(object)
 
-    -- <Insert custom object finding here>
+    -- Vanilla object
+    if object < Object.CUSTOM_START then
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(object)
+        holder[1] = RValue.new(0)
+        local out = RValue.new(0)
+        gmf.instance_find(out, nil, nil, 2, holder)
+        local inst = RValue.to_wrapper(out)
+        if inst ~= -4 then return inst end
+    
+    -- Custom object
+    else
+        local holder = RValue.new_holder_scr(3)
+        holder[0] = RValue.new(object)
+        holder[1] = RValue.new(0)
+        holder[2] = RValue.new(0)
+        local out = RValue.new(0)
+        gmf._mod_instance_nearest(nil, nil, out, 3, holder)
+        local inst = RValue.to_wrapper(out)
+        if inst ~= -4 then return inst end
 
-    if inst ~= -4 then return inst end
+    end
 
     -- No instance found
     return __invalid_instance
@@ -342,6 +356,16 @@ Util.table_append(methods_instance, {
         -- make this wrapper invalid
         __instance_data[self.value] = nil
         Proxy.set(self, -4)
+    end,
+
+
+    --$instance
+    --$return       Object
+    --[[
+    Returns the object that the instance is a type of.
+    ]]
+    get_object = function(self)
+        return Object.wrap(self:get_object_index())
     end,
 
 
