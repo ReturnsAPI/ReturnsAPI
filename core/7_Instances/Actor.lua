@@ -271,6 +271,9 @@ methods_actor = {
         local id = self.value
         if id == -4 then return end
 
+        -- Argument check
+        if not item then log.error("item_give: item is invalid", 2) end
+
         local holder = RValue.new_holder_scr(4)
         holder[0] = RValue.new(id, RValue.Type.REF)
         holder[1] = RValue.from_wrapper(item)
@@ -291,6 +294,9 @@ methods_actor = {
         -- Return if wrapper is invalid
         local id = self.value
         if id == -4 then return end
+
+        -- Argument check
+        if not item then log.error("item_take: item is invalid", 2) end
 
         local holder = RValue.new_holder_scr(4)
         holder[0] = RValue.new(id, RValue.Type.REF)
@@ -313,6 +319,9 @@ methods_actor = {
 
         -- Return `0` if wrapper is invalid
         if id == -4 then return 0 end
+        
+        -- Argument check
+        if not item then log.error("item_count: item is invalid", 2) end
 
         -- Build cache subtable if existn't
         local item = Wrap.unwrap(item)
@@ -349,7 +358,7 @@ methods_actor = {
         local id = self.value
         if id == -4 then return end
 
-        -- Arg check
+        -- Argument check
         if not buff then log.error("buff_apply: buff is invalid", 2) end
         if not duration then log.error("buff_apply: duration is missing", 2) end
 
@@ -376,6 +385,9 @@ methods_actor = {
         -- Return if wrapper is invalid
         local id = self.value
         if id == -4 then return end
+
+        -- Argument check
+        if not buff then log.error("buff_remove: buff is invalid", 2) end
 
         local current_count = self:buff_count(buff)
 
@@ -406,6 +418,9 @@ methods_actor = {
 
         -- Return `0` if wrapper is invalid
         if id == -4 then return 0 end
+
+        -- Argument check
+        if not buff then log.error("buff_count: buff is invalid", 2) end
 
         -- Build cache subtable if existn't
         local buff = Wrap.unwrap(buff)

@@ -392,6 +392,10 @@ Util.table_append(methods_instance, {
     --[[
     Returns a table of all instances of the specified object that this instance is colliding with,
     and a boolean that is `true` if the table is *not* empty.
+
+    **NOTE:** The execution time scales with the number of
+    instances found, and can be somewhat expensive at high numbers.
+    Be mindful when calling this.
     ]]
     get_collisions = function(self, object, x, y)
         -- Return `{}, 0` if wrapper is invalid
