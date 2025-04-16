@@ -338,12 +338,15 @@ Util.setmetatable_gc = function(t, mt)
     if mt.__gc then
         local cproxy = newproxy(true)
         getmetatable(cproxy).__gc = function(self) mt.__gc(t) end
-        t[cproxy] = true    -- This will show up in keys, but the other
-                            -- method doesn't seem to work correctly
+        t[cproxy] = true    -- This will show up in keys
+                            -- You can mostly get around this by overriding
+                            -- __pairs and __ipairs though, which Array and
+                            -- Struct already does for iteration
     end
     return setmetatable(t, mt)
 end
 
+-- This method doesn't seem to work correctly:
 -- Util.setmetatable_gc = function(t, mt)
 --     -- `setmetatable` but with `__gc` metamethod enabled
 --     if mt.__gc then

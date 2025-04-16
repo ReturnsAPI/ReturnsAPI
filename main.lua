@@ -34,6 +34,16 @@ end
 require("./envy")
 
 
+-- Remove internal RAPI hooks on hotload
+run_on_hotload(function()
+    local namespace = _ENV["!guid"]
+    if Callback         then Callback.remove_all(namespace) end
+    if Hook             then Hook.remove_all(namespace) end
+    if Initialize       then Initialize.internal.remove_all(namespace) end
+    if RecalculateStats then RecalculateStats.remove_all(namespace) end
+end)
+
+
 -- Prevent anything in run_once() from running again
 hotloaded = true
 
@@ -47,6 +57,14 @@ gui.add_imgui(function()
 
         if ImGui.Button("Collect garbage") then
             collectgarbage()
+        end
+
+        if ImGui.Button("Spawn 100 Lemurians on player") then
+            local p = Player.get_local()
+            if p:exists() then
+                local obj = Object.find("lizard", nil, "RAPI")
+                for i = 1, 100 do obj:create(p.x, p.y) end
+            end
         end
 
         if ImGui.Button("_mod_instance_number benchmark") then
@@ -81,14 +99,73 @@ gui.add_imgui(function()
             print(GM.instance_number(gm.constants.oP))
         end
 
-        if ImGui.Button("Spawn 100 Lemurians on player") then
-            local p = Player.get_local()
-            if p:exists() then
-                local obj = Object.find("lizard", nil, "RAPI")
-                for i = 1, 100 do obj:create(p.x, p.y) end
-            end
-        end
-
     end
     ImGui.End()
+end)
+
+
+-- Draw debug info
+-- Toggle in top ImGui bar under this mod
+
+local debug_show_info = false
+gui.add_to_menu_bar(function()
+    local value, pressed = ImGui.Checkbox("Show debug info", debug_show_info)
+    if pressed then debug_show_info = value end
+end)
+
+local _scale
+local _scale2
+local function scale(n) return (n or 1) * _scale end
+local function scale2(n) return (n or 1) * _scale2 end
+
+local y = 100
+local function draw_info(text, value)
+    -- Draw info on line
+    local sc_y = scale(y)
+    local sc = scale()
+    GM.draw_text_transformed(scale(25), sc_y, text, sc, sc, 0)
+    GM.draw_text_transformed(scale(175), sc_y, value, sc, sc, 0)
+
+    -- Increment y for next line
+    y = y + 15
+end
+
+Hook.add(_ENV["!guid"], "gml_Object_oInit_Draw_64", Hook.POST, function(self, other)
+    if not debug_show_info then return end
+
+    _scale = GM.variable_global_get("___ui_mode_zoom_scale")
+    _scale2 = GM.variable_global_get("current_zoom_scale")
+    
+    -- Save old draw properties
+    local og_col = GM.draw_get_color()
+    local og_halign = GM.draw_get_halign()
+    local og_valign = GM.draw_get_valign()
+    local og_font = GM.draw_get_font()
+
+    -- Set draw properties
+    GM.draw_set_halign(0)
+    GM.draw_set_valign(0)
+    GM.draw_set_font(gm.constants.fntNormal)
+    GM.draw_set_color(Color.WHITE)
+    y = 100
+
+
+    -- Populate with debug info
+    local info_table = {
+        {"__rvalue_current:",   __rvalue_current},
+        {"#__ref_map:",         #__ref_map},
+    }
+
+    
+    -- Draw info
+    for _, v in ipairs(info_table) do
+        draw_info(v[1], v[2])
+    end
+
+    -- Reset old draw properties
+    GM.draw_set_color(og_col)
+    GM.draw_set_alpha(1)
+    GM.draw_set_halign(og_halign)
+    GM.draw_set_valign(og_valign)
+    GM.draw_set_font(og_font)
 end)
