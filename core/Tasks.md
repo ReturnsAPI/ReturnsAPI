@@ -7,7 +7,7 @@ v Fix Hook class breaking hotloading
     - Custom interactables(?); not sure if it still needs to be its own thing
 ~ Make __ref_map gc not happen all at once; right now there is a lag spike for 1 frame
     - Spreading out __ref_map removal doesn't actually help since the main bottleneck seems to not be there
-- Make Instance find_all, is_colliding, and get_collisions work with custom objects
+v Make Instance find_all, is_colliding, and get_collisions work with custom objects
 - Classes
     - Equipment
     - Achievement
