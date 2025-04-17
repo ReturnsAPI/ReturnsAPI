@@ -4,11 +4,11 @@ Instance = new_class()
 
 run_once(function()
     __instance_data = {}
+    __object_index_cache = {}   -- Cache for inst:get_object_index; indexed by ID
 end)
 
 local wrapper_cache = setmetatable({}, {__mode = "v"})      -- Cache for Instance.wrap
 local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for inst.CInstance
-local object_index_cache = {}                               -- Cache for inst:get_object_index; indexed by ID
 
 -- `__invalid_instance` created at the bottom
 
@@ -335,10 +335,10 @@ Util.table_append(methods_instance, {
     ]]
     get_object_index = function(self)
         -- Check cache
-        local object_index = object_index_cache[self.value]
+        local object_index = __object_index_cache[self.value]
         if not object_index then
             object_index = self:get_object_index_self()
-            object_index_cache[self.value] = object_index
+            __object_index_cache[self.value] = object_index
         end
         
         return object_index
@@ -352,18 +352,58 @@ Util.table_append(methods_instance, {
     --$optional     y           | number    | The y position to check at. <br>Uses this instance's current position by default.
     --[[
     Returns `true` if this instance is colliding with *any* instance of the specified object.
+
+    **NOTE:** Checking for custom object collision
+    is *much* slower than a vanilla object.
+    Be mindful of this.
     ]]
     is_colliding = function(self, object, x, y)
         -- Return `false` if wrapper is invalid
         if self.value == -4 then return false end
 
-        local holder = RValue.new_holder(3)
-        holder[0] = RValue.new(x or self.x)
-        holder[1] = RValue.new(y or self.y)
-        holder[2] = RValue.new(Wrap.unwrap(object))
-        local out = RValue.new(0)
-        gmf.place_meeting(out, self.CInstance, self.CInstance, 3, holder)
-        return (out.value == 1)
+        local object = Wrap.unwrap(object)
+
+        -- Vanilla object
+        if object < Object.CUSTOM_START then
+            local holder = RValue.new_holder(3)
+            holder[0] = RValue.new(x or self.x)
+            holder[1] = RValue.new(y or self.y)
+            holder[2] = RValue.new(object)
+            local out = RValue.new(0)
+            gmf.place_meeting(out, self.CInstance, self.CInstance, 3, holder)
+            return (out.value == 1)
+
+        -- Custom object
+        else
+            -- Figure out correct object to check
+            local obj_array = Object.wrap(object).array
+            local object_to_check = obj_array:get(Object.Property.BASE)
+            
+            local list = List.new()
+
+            local holder = RValue.new_holder(5)
+            holder[0] = RValue.new(x or self.x)
+            holder[1] = RValue.new(y or self.y)
+            holder[2] = RValue.new(object_to_check)
+            holder[3] = RValue.new(list.value)
+            holder[4] = RValue.new(false)
+            local out = RValue.new(0)
+            gmf.instance_place_list(out, self.CInstance, self.CInstance, 5, holder)
+            local count = out.value
+
+            if count > 0 then
+                for _, inst in ipairs(list) do
+                    -- Check if `__object_index` matches
+                    if inst:get_object_index() == object then
+                        list:destroy()
+                        return true
+                    end
+                end
+            end
+            
+            list:destroy()
+            return false
+        end
     end,
 
 
@@ -378,43 +418,52 @@ Util.table_append(methods_instance, {
 
     **NOTE:** The execution time scales with the number of
     instances found, and can be somewhat expensive at high numbers.
-    Be mindful when calling this.
+    Be mindful of this.
     ]]
     get_collisions = function(self, object, x, y)
         -- Return `{}, 0` if wrapper is invalid
         if self.value == -4 then return {}, 0 end
-
+        
         local object = Wrap.unwrap(object)
 
-        -- Calculate coordinate offset for collision check
-        local self_x = self.x
-        local self_y = self.y
-        local x = x or self_x
-        local y = y or self_y
-        local x_offset = x - self_x
-        local y_offset = y - self_y
+        -- Figure out correct object to check
+        local object_to_check = object
+        if object >= Object.CUSTOM_START then
+            local obj_array = Object.wrap(object).array
+            object_to_check = obj_array:get(Object.Property.BASE)
+        end
 
         local insts = {}
         local list = List.new()
 
-        local holder = RValue.new_holder(9)
-        holder[0] = RValue.new(self.bbox_left   + x_offset)
-        holder[1] = RValue.new(self.bbox_top    + y_offset)
-        holder[2] = RValue.new(self.bbox_right  + x_offset)
-        holder[3] = RValue.new(self.bbox_bottom + y_offset)
-        holder[4] = RValue.new(Wrap.unwrap(object))
-        holder[5] = RValue.new(false)
-        holder[6] = RValue.new(true)
-        holder[7] = RValue.new(list.value)
-        holder[8] = RValue.new(false)
+        local holder = RValue.new_holder(5)
+        holder[0] = RValue.new(x or self.x)
+        holder[1] = RValue.new(y or self.y)
+        holder[2] = RValue.new(object_to_check)
+        holder[3] = RValue.new(list.value)
+        holder[4] = RValue.new(false)
         local out = RValue.new(0)
-        gmf.collision_rectangle_list(out, self.CInstance, self.CInstance, 9, holder)
+        gmf.instance_place_list(out, self.CInstance, self.CInstance, 5, holder)
         local count = out.value
 
         -- Convert output list to table
         if count > 0 then
-            for _, inst in ipairs(list) do
-                table.insert(insts, inst)
+
+            -- Vanilla object
+            if object < Object.CUSTOM_START then
+                for _, inst in ipairs(list) do
+                    table.insert(insts, inst)
+                end
+
+            -- Custom object
+            else
+                for _, inst in ipairs(list) do
+                    -- Check if `__object_index` matches
+                    if inst:get_object_index() == object then
+                        table.insert(insts, inst)
+                    end
+                end
+
             end
         end
         

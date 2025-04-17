@@ -5,6 +5,8 @@ Object = new_class()
 run_once(function()
     __is_projectile = {}    -- List of objects that can be seen as "projectiles"
                             -- Vanilla objects are added at the bottom of this file
+    __object_wrapper_cache = {}
+    __object_array_cache = {}
 end)
 
 local find_cache = {}
@@ -154,7 +156,12 @@ end
 Returns an Object wrapper containing the provided object index.
 ]]
 Object.wrap = function(object)
-    return Proxy.new(Wrap.unwrap(object), metatable_object)
+    -- Check cache
+    if __object_wrapper_cache[object] then return __object_wrapper_cache[object] end
+
+    local proxy = Proxy.new(Wrap.unwrap(object), metatable_object)
+    __object_wrapper_cache[object] = proxy
+    return proxy
 end
 
 
@@ -227,6 +234,18 @@ make_table_once("metatable_object", {
         local value = Proxy.get(proxy)
         if k == "value" then return value end
         if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
+        if k == "array" then
+            if value < Object.CUSTOM_START then log.error("No Object properties for vanilla objects", 2) end
+            
+            -- Check cache
+            local array = __object_array_cache[value]
+            if not array then
+                array = Global.custom_object:get(value - Object.CUSTOM_START)
+                __object_array_cache[value] = array
+            end
+
+            return array
+        end
 
         -- Methods
         if methods_object[k] then
@@ -237,8 +256,7 @@ make_table_once("metatable_object", {
         if value < Object.CUSTOM_START then log.error("No Object properties for vanilla objects", 2) end
         local index = Object.Property[k:upper()]
         if index then
-            local obj_array = Global.custom_object:get(value - Object.CUSTOM_START)
-            return obj_array:get(index)
+            return proxy.array:get(index)
         end
         log.error("Non-existent Object property '"..k.."'", 2)
     end,
@@ -256,8 +274,7 @@ make_table_once("metatable_object", {
         if value < Object.CUSTOM_START then log.error("No Object properties for vanilla objects", 2) end
         local index = Object.Property[k:upper()]
         if index then
-            local obj_array = Global.custom_object:get(value - Object.CUSTOM_START)
-            obj_array:set(index, v)
+            proxy.array:set(index, v)
             return
         end
         log.error("Non-existent Object property '"..k.."'", 2)
