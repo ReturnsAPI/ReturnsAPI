@@ -1,9 +1,9 @@
--- RecalculateStats
+-- DamageCalculate
 
-RecalculateStats = new_class()
+DamageCalculate = new_class()
 
 run_once(function()
-    __recalc_stats_callbacks = {}
+    __damage_calc_callbacks = {}
 end)
 
 
@@ -11,26 +11,26 @@ end)
 -- ========== Static Methods ==========
 
 --$static
---$param        fn          | function  | The function to register. <br>The parameters for it are `actor, api`.
+--$param        fn          | function  | The function to register. <br>The parameters for it are `actor, target, api`.
 --[[
-Registers a function for stat recalculation.
+Registers a function for modifying damage calculation.
 ]]
-RecalculateStats.add = function(namespace, fn)
+DamageCalculate.add = function(namespace, fn)
     -- Create namespace subtable if it does not exist
-    if not __recalc_stats_callbacks[namespace] then __recalc_stats_callbacks[namespace] = {} end
+    if not __damage_calc_callbacks[namespace] then __damage_calc_callbacks[namespace] = {} end
 
-    table.insert(__recalc_stats_callbacks[namespace], fn)
+    table.insert(__damage_calc_callbacks[namespace], fn)
 end
 
 
 --$static
 --[[
-Removes all registered stat recalculation functions from your namespace.
+Removes all registered damage calculation functions from your namespace.
 
 Automatically called when you hotload your mod.
 ]]
-RecalculateStats.remove_all = function(namespace)
-    __recalc_stats_callbacks[namespace] = nil
+DamageCalculate.remove_all = function(namespace)
+    __damage_calc_callbacks[namespace] = nil
 end
 
 
@@ -150,7 +150,7 @@ local function gather_params(self)
     end
 
     -- Loop through all namespace subtables
-    for namespace, funcs in pairs(__recalc_stats_callbacks) do
+    for namespace, funcs in pairs(__damage_calc_callbacks) do
 
         -- Call each registered function in the namespace
         for _, fn in ipairs(funcs) do
@@ -176,15 +176,15 @@ memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"void*", "void*", "void*
 
 local ptr = gm.get_script_function_address(gm.constants.recalculate_stats)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.knockback_cap", {"rbx"}, {"RValue*"}, 0, ptr:add(0x96d), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.knockback_cap", {"rbx"}, {"RValue*"}, 0, ptr:add(0x96d), function(args)
     args[1].value = (args[1].value + params.knockback_cap_add) * params.knockback_cap_mult
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0xa6c), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0xa6c), function(args)
     -- the internal value is unintuitive, so invert it in the API to be a standard multiplier
     args[1].value = 1 - ((1 - args[1].value) * params.cooldown_mult)
 end)
-memory.dynamic_hook_mid("RAPI.RecalculateStats.maxhp", {"rcx"}, {"RValue*"}, 0, ptr:add(0xd7e), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.maxhp", {"rcx"}, {"RValue*"}, 0, ptr:add(0xd7e), function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
     local finalized = (args[1].value + params.maxhp_add) * params.maxhp_mult
     params.__original_finalized_hp = finalized
@@ -196,17 +196,17 @@ memory.dynamic_hook_mid("RAPI.RecalculateStats.maxhp", {"rcx"}, {"RValue*"}, 0, 
     args[1].value = finalized
 end)
 -- added to hp every step/frame
-memory.dynamic_hook_mid("RAPI.RecalculateStats.hp_regen", {"rax"}, {"RValue*"}, 0, ptr:add(0x22e7), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.hp_regen", {"rax"}, {"RValue*"}, 0, ptr:add(0x22e7), function(args)
     -- no multiplicative regen modifiers in vanilla
     args[1].value = (args[1].value + params.hp_regen_add) * params.hp_regen_mult
 end)
-memory.dynamic_hook_mid("RAPI.RecalculateStats.damage", {"rax"}, {"RValue*"}, 0, ptr:add(0x156b), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.damage", {"rax"}, {"RValue*"}, 0, ptr:add(0x156b), function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
     -- prevent value from going below 0 because vanilla doesn't protect against it
     args[1].value = math.max(0, (args[1].value + params.damage_add) * params.damage_mult)
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.maxshield", {"rax"}, {"RValue*"}, 0, ptr:add(0x1bdf), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.maxshield", {"rax"}, {"RValue*"}, 0, ptr:add(0x1bdf), function(args)
     -- no multiplicative shield modifiers in vanilla
     local finalized = (
         args[1].value
@@ -219,44 +219,44 @@ memory.dynamic_hook_mid("RAPI.RecalculateStats.maxshield", {"rax"}, {"RValue*"},
     args[1].value = math.max(0, finalized)
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.critical_chance", {"rdx"}, {"RValue*"}, 0, ptr:add(0x28c7), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.critical_chance", {"rdx"}, {"RValue*"}, 0, ptr:add(0x28c7), function(args)
     -- no multiplicative crit chance modifiers in vanilla
     args[1].value = (args[1].value + params.critical_chance_add) * params.critical_chance_mult
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.attack_speed", {"rdx"}, {"RValue*"}, 0, ptr:add(0x3034), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.attack_speed", {"rdx"}, {"RValue*"}, 0, ptr:add(0x3034), function(args)
     -- no multiplicative attack speed modifiers in vanilla
     args[1].value = (args[1].value + params.attack_speed_add) * params.attack_speed_mult
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.pHmax", {"rax"}, {"RValue*"}, 0, ptr:add(0x3c06), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.pHmax", {"rax"}, {"RValue*"}, 0, ptr:add(0x3c06), function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
     args[1].value = (args[1].value + params.pHmax_add) * params.pHmax_mult
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.armor", {"rax"}, {"RValue*"}, 0, ptr:add(0x4187), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.armor", {"rax"}, {"RValue*"}, 0, ptr:add(0x4187), function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
     args[1].value = (args[1].value + params.armor_add) * params.armor_mult
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.equipment_cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0x4675), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.equipment_cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0x4675), function(args)
     -- the internal value is unintuitive, so invert it in the API to be a standard multiplier
     args[1].value = 1 - ((1 - args[1].value) * params.equipment_cooldown_mult)
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.pVmax", {"rbx"}, {"RValue*"}, 0, ptr:add(0x4811), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.pVmax", {"rbx"}, {"RValue*"}, 0, ptr:add(0x4811), function(args)
     args[1].value = (args[1].value + params.pVmax_add) * params.pVmax_mult
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.pGravity1", {"rbx"}, {"RValue*"}, 0, ptr:add(0x4858), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.pGravity1", {"rbx"}, {"RValue*"}, 0, ptr:add(0x4858), function(args)
     args[1].value = (args[1].value + params.pGravity1_add) * params.pGravity1_mult
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.pGravity2", {"rbx"}, {"RValue*"}, 0, ptr:add(0x489f), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.pGravity2", {"rbx"}, {"RValue*"}, 0, ptr:add(0x489f), function(args)
     args[1].value = (args[1].value + params.pGravity2_add) * params.pGravity2_mult
 end)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.maxbarrier", {"rax"}, {"RValue*"}, 0, ptr:add(0x5053), function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.maxbarrier", {"rax"}, {"RValue*"}, 0, ptr:add(0x5053), function(args)
     args[1].value = math.max(0, (args[1].value + params.maxbarrier_add) * params.maxbarrier_mult)
 end)
 
@@ -318,4 +318,4 @@ memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"void*"
 
 
 -- Public export
-__class.RecalculateStats = RecalculateStats
+__class.DamageCalculate = DamageCalculate

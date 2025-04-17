@@ -145,7 +145,7 @@ make_table_once("metatable_script", {
 -- * If `method` is called by game code against your bound CScriptRef, then the `self` argument will no longer be the custom struct, therefore stopping it from being recognized by the hook
 -- * If the given function call relies on accessing `self` to be useful, then it likely won't be useful from this context
 
-Memory.dynamic_hook(_ENV["!guid"], "function_dummy", "void*", {"YYObjectBase*", "void*", "RValue*", "int", "void*"}, gm.get_script_function_address(gm.constants.function_dummy),
+memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "RValue*", "int", "void*"}, gm.get_script_function_address(gm.constants.function_dummy),
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
         local arg_count = arg_count:get()

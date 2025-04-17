@@ -7,7 +7,7 @@ function damager_calculate_damage(hit_info, true_hit, hit, damage, critical, par
 	var damage_true, damage_fake
 	damage_true = damage
 	damage = damage_calculate_armor(damage, hit)
-	damage_fake = round(damage * random_range(0.75, 1.25))
+	damage_fake = round(damage * random_range(0.75, 1.25))	// Klehrik: This is nondeterministic because it's just a local visual
 	
 	// Sniper drone
 	with (oSniperDrone) {
@@ -30,6 +30,7 @@ function damager_calculate_damage(hit_info, true_hit, hit, damage, critical, par
 		draw_damage(true_hit.x, true_hit.bbox_top - 12*GAME_SCALE, ceil((damage * multiplier) - damage),
 			false, C_DAMAGE_TOXIN, team, climb)
 		
+		// Klehrik: This is also nondeterministic (another vfx)
 		if (G_QUALITY >= GRAPHICS_QUALITY.high){
 			repeat(random_range(1,2)) {
 				var t=random(360)
@@ -103,6 +104,10 @@ function damager_calculate_damage(hit_info, true_hit, hit, damage, critical, par
 			damage_true = ceil(damage_true * 2)
 		}
 	}
+
+	-- Klehrik: I think the mid-hook should go right here
+	--			Additionally, perhaps we shouldn't have flat add for this one
+	--			I have no idea where that would even go
 	
 	
 	// Damage numbers

@@ -451,6 +451,22 @@ Util.pad_string_right = function(str, length, char)
 end
 
 
+--$static
+--$return       strings
+--$param        fn          | function or table  | A function or table of functions.
+--[[
+Returns back the function (or table of functions) with JIT compilation disabled.
+Use in tandem with memory hooks.
+]]
+Util.jit_off = function(fn)
+    if type(fn) == "table" then
+        for _, f in ipairs(fn) do jit.off(f) end
+    else jit.off(fn)
+    end
+    return fn
+end
+
+
 
 -- Public export
 __class.Util = Util

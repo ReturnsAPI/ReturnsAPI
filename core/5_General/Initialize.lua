@@ -98,7 +98,7 @@ end
 
 -- ========== Hooks ==========
 
-Memory.dynamic_hook(_ENV["!guid"], "Initialize.__input_system_tick", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__input_system_tick),
+memory.dynamic_hook("RAPI.Initialize.__input_system_tick", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__input_system_tick),
     -- Pre-hook
     {nil,
 

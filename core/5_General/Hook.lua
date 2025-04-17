@@ -75,7 +75,7 @@ Hook.POST   = 1
 Hook.internal.hook_script = function(script, _type, func)
     if _type == Hook.PRE then
         print("Hook: Added pre-hook for '"..script.."'")
-        Memory.dynamic_hook(_ENV["!guid"], "Hook.PRE."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
+        memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
             -- Pre-hook
             {func,
 
@@ -85,7 +85,7 @@ Hook.internal.hook_script = function(script, _type, func)
 
     elseif _type == Hook.POST then
         print("Hook: Added post-hook for '"..script.."'")
-        Memory.dynamic_hook(_ENV["!guid"], "Hook.POST."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
+        memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
             -- Pre-hook
             {nil,
 
@@ -100,7 +100,7 @@ end
 Hook.internal.hook_object = function(script, _type, func)
     if _type == Hook.PRE then
         print("Hook: Added pre-hook for '"..script.."'")
-        Memory.dynamic_hook(_ENV["!guid"], "Hook.PRE."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
+        memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
             -- Pre-hook
             {func,
 
@@ -110,7 +110,7 @@ Hook.internal.hook_object = function(script, _type, func)
 
     elseif _type == Hook.POST then
         print("Hook: Added post-hook for '"..script.."'")
-        Memory.dynamic_hook(_ENV["!guid"], "Hook.POST."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
+        memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
             -- Pre-hook
             {nil,
 
@@ -182,7 +182,7 @@ Hook.add = function(namespace, script, _type, fn, priority)
     if not __hook_bank[script][_type] then
         __hook_bank[script][_type] = { priorities = {} }
         
-        -- Memory.dynamic_hook is only created once
+        -- memory.dynamic_hook is only created once
         -- for each game function and hook type pair
         local hook_func = nil
         
