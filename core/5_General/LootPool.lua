@@ -316,7 +316,7 @@ make_table_once("metatable_loot_pool", {
 
 -- Custom loot pools are not auto-populated by the game
 
-Memory.dynamic_hook("RAPI.LootPool.run_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.run_create),
+Memory.dynamic_hook(_ENV["!guid"], "LootPool.run_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.run_create),
     -- Pre-hook
     {nil,
 

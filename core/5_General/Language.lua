@@ -137,7 +137,7 @@ end
 
 -- ========== Hooks ==========
 
-Memory.dynamic_hook("RAPI.Language.translate_load_active_language", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.translate_load_active_language),
+Memory.dynamic_hook(_ENV["!guid"], "Language.translate_load_active_language", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.translate_load_active_language),
     -- Pre-hook
     {nil,
 

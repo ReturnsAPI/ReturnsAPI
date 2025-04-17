@@ -480,7 +480,7 @@ make_table_once("metatable_actor", {
 local hooks = {"item_give_internal", "item_take_internal"}
 
 for _, hook in ipairs(hooks) do
-    Memory.dynamic_hook("RAPI.Actor."..hook, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook]),
+    Memory.dynamic_hook(_ENV["!guid"], "Actor."..hook, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook]),
         -- Pre-hook
         {function(ret_val, self, other, result, arg_count, args)
             local args_typed = ffi.cast("struct RValue**", args:get_address())
@@ -503,7 +503,7 @@ end
 
 -- Reset cache when a buff is applied
 
-Memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.apply_buff_internal),
+Memory.dynamic_hook(_ENV["!guid"], "Actor.apply_buff_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.apply_buff_internal),
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
         local args_typed = ffi.cast("struct RValue**", args:get_address())
@@ -526,7 +526,7 @@ Memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*"
 -- Adds an `on_remove` callback to every buff for this,
 -- which allows for detecting passive buff expiry
 
-Memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.buff_create),
+Memory.dynamic_hook(_ENV["!guid"], "Actor.buff_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.buff_create),
     -- Pre-hook
     {nil,
 
@@ -550,7 +550,7 @@ Memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*
 
 -- On room change, remove non-existent instances from `_count_cache`
 
-Memory.dynamic_hook("RAPI.Actor.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto),
+Memory.dynamic_hook(_ENV["!guid"], "Actor.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto),
     -- Pre-hook
     {nil,
 
@@ -575,7 +575,7 @@ Memory.dynamic_hook("RAPI.Actor.room_goto", "void*", {"void*", "void*", "void*",
 
 -- Remove `_count_cache` on non-player kill
 
-Memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead),
+Memory.dynamic_hook(_ENV["!guid"], "Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead),
     -- Pre-hook
     {nil,
 
@@ -603,7 +603,7 @@ Memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", 
 
 -- Move `_count_cache` to new instance
 
-Memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform),
+Memory.dynamic_hook(_ENV["!guid"], "Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform),
     -- Pre-hook
     {nil,
 

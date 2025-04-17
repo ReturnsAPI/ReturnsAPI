@@ -313,7 +313,7 @@ end
 
 -- ========== Hooks ==========
 
-Memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.callback_execute),
+Memory.dynamic_hook(_ENV["!guid"], "Callback.callback_execute", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.callback_execute),
     -- Pre-hook
     {nil,
 

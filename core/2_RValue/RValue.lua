@@ -55,11 +55,17 @@ RValue.Type = {
     STRING      = 1,
     ARRAY       = 2,
     PTR         = 3,
+    VEC3        = 4,    -- Unhandled
     UNDEFINED   = 5,
     OBJECT      = 6,
     INT32       = 7,
+    VEC4        = 8,    -- Unhandled
+    MATRIX      = 9,    -- Unhandled
     INT64       = 10,
+    ACCESSOR    = 11,   -- Unhandled
+    JSNULL      = 12,   -- Unhandled
     BOOL        = 13,
+    ITERATOR    = 14,   -- Unhandled
     REF         = 15
 }
 

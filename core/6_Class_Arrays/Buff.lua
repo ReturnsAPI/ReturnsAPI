@@ -103,7 +103,7 @@ Util.table_append(methods_class_array[name_rapi], {
 -- Extend buff_stack to accommodate custom buffs
 -- The game does *not* automatically do this
 
-Memory.dynamic_hook("RAPI.Buff.init_actor_default", "void*", {"CInstance*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.init_actor_default),
+Memory.dynamic_hook(_ENV["!guid"], "Buff.init_actor_default", "void*", {"CInstance*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.init_actor_default),
     -- Pre-hook
     {nil,
 
