@@ -134,6 +134,9 @@ function damager_calculate_damage(hit_info, true_hit, hit, damage, critical, par
 	} else {
 		global.__damager_calculate_damage__last_damage_value = damage
 	}
+
+	-- Klehrik: Crits can actually be randomly set
+	--			in here and they will still sync for some reason
 	
 	return critical
 }

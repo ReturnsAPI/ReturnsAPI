@@ -37,283 +37,140 @@ end
 
 -- ========== Internal ==========
 
-local params = {
-    --skill_primary = {},
-    skill_secondary = {},
-    skill_utility = {},
-    skill_special = {},
+local params = {}
+
+-- Original arguments from hooked function
+local hook_args
+local hook_args_names = {
+    hit_info        = 0,
+    true_hit        = 1,
+    hit             = 2,
+    damage          = 3,
+    critical        = 4,
+    parent          = 5,
+    proc            = 6,
+    attack_flags    = 7,
+    damage_col      = 8,
+    team            = 9,
+    climb           = 10,
+    percent_hp      = 11,
+    xscale          = 12,
+    hit_x           = 13,
+    hit_y           = 14
 }
 
-local function reset_params()
-    params.maxhp_add = 0 -- health capacity
-    params.maxhp_mult = 1
+local api
+local api_internal = {
 
-    params.hp_regen_add = 0 -- amount added to hp every frame
-    params.hp_regen_mult = 1
+    damage_mult = function(value, update_damage_number)
+        local prev_damage = api.damage
+        api.damage = math.ceil(api.damage * value)
+        params.damage_true = math.ceil(params.damage_true * value)
 
-    params.pHmax_add = 0 -- horizontal movement speed, in pixels/frame
-    params.pHmax_mult = 1
+        -- Update damage number
+        if update_damage_number ~= false then
+            params.damage_fake = math.ceil(params.damage_fake * value)
 
-    params.pVmax_add = 0 -- vertical speed applied when jumping
-    params.pVmax_mult = 1
-
-    params.pGravity1_add = 0 -- downward acceleration while in the air
-    params.pGravity1_mult = 1
-
-    params.pGravity2_add = 0 -- downward acceleration while ascending and holding jump input after jumping
-    params.pGravity2_mult = 1
-
-    params.damage_add = 0 -- "base damage" stat, multiplied by skill and proc damage percents
-    params.damage_mult = 1
-
-    params.attack_speed_add = 0 -- multiplier for speed of attack animations
-    params.attack_speed_mult = 1
-
-    params.critical_chance_add = 0 -- percent chance to do double damage
-    params.critical_chance_mult = 1
-
-    params.maxshield_add = 0 -- additional layer of hp that instantly recovers after 7 seconds spent untouched
-    params.maxshield_mult = 1
-
-    -- Health-Shield interactions
-    -- Don't really like this but can't think of a better idea
-    -- This should exist though since it's already an established thing from RoR2
-    -- Both of these are additive, and can go over 1.0
-    --      * E.g., Transcendence would add `1.5 + 0.25*(stack-1)`
-    params.maxshield_from_maxhp = 0 -- Adds maxshield based on x% of maxhp; e.g., 1.0 adds maxshield equal to maxhp
-    params.maxhp_to_maxshield   = 0 -- Converts x% of maxhp to maxshield
-
-    params.armor_add = 0 -- damage reduction using a special non-linear formula -- negative values result in increased damage up to +100%
-    params.armor_mult = 1
-
-    params.cooldown_mult = 1 -- multiplier for skill cooldowns
-    params.equipment_cooldown_mult = 1 -- multiplier for equipment cooldown
-
-    params.knockback_cap_add = 0 -- damage threshold for being staggered
-    params.knockback_cap_mult = 1
-
-    params.maxbarrier_add = 0
-    params.maxbarrier_mult = 1
-
-    -- primary skills usually can't be meaningfully given stocks or reduced cooldowns, so
-    --params.skill_primary.stock_add = 0
-    --params.skill_primary.cooldown_mult = 1
-    params.skill_secondary.max_stock_add = 0 -- capacity for usable 'stocks' of the skill
-    params.skill_secondary.cooldown_mult = 1 -- multiplier for individual skill cooldown
-    params.skill_utility.max_stock_add = 0
-    params.skill_utility.cooldown_mult = 1
-    params.skill_special.max_stock_add = 0
-    params.skill_special.cooldown_mult = 1
-end
-reset_params()
-
-local api = {}
-
-for param, value in pairs(params) do
-    if type(value) == "number" then -- standard
-        local fn
-        if string.sub(param, -4, -1) == "mult" then
-            fn = function(multiplier)
-                params[param] = params[param] * multiplier
-            end
+        -- Return difference between current and previous damage
+        -- This value can then be drawn separately
         else
-            fn = function(adder)
-                params[param] = params[param] + adder
-            end
+            return prev_damage - api.damage
         end
-        api[param] = fn
-    elseif type(value) == "table" then
-        api[param] = ReadOnly.new({
-            max_stock_add = function(stock)
-                params[param].max_stock_add = params[param].max_stock_add + stock
-            end,
-            cooldown_mult = function(mult)
-                params[param].cooldown_mult = params[param].cooldown_mult * mult
-            end,
-        })
-    end
-end
+    end,
 
-api = ReadOnly.new(api)
 
-local function gather_params(self)
-    -- self is 'Actor' or 'Player' wrapper
+    set_critical = function(bool)
+        if bool == nil then log.error("set_critical: Missing bool argument", 2) end
 
-    -- Reset the `params` table
-    reset_params()
+        -- Enable crit
+        if (not api.critical) and bool then
+            api.critical = true
+            api.damage = api.damage * 2
+            params.damage_true = params.damage_true * 2
+            params.damage_fake = params.damage_fake * 2
 
-    -- Debug
-    -- Just leave this here; it should never run
-    if type(self) == "userdata" then
-        print("gather_params: userdata detected")
-        print(getmetatable(self).__name)
-    end
+        -- Disable crit
+        elseif api.critical and (not bool) then
+            api.critical = false
+            api.damage = math.ceil(api.damage / 2)
+            params.damage_true = math.ceil(params.damage_true / 2)
+            params.damage_fake = math.ceil(params.damage_fake / 2)
 
-    -- Loop through all namespace subtables
-    for namespace, funcs in pairs(__damage_calc_callbacks) do
-
-        -- Call each registered function in the namespace
-        for _, fn in ipairs(funcs) do
-            fn(self, api)
         end
     end
+
+}
+
+api = setmetatable({}, {
+    __index = function(t, k)
+        -- Get original function arguments
+        local arg_num = hook_args_names[k]
+        if arg_num then
+            return RValue.to_wrapper(hook_args[arg_num])
+        end
+
+        -- Methods
+        if api_internal[k] then
+            return api_internal[k]
+        end
+
+        log.error("api has no property or method '"..k.."'", 2)
+    end,
+
+    __newindex = function(t, k, v)
+        -- Set original function arguments
+        local arg_num = hook_args_names[k]
+        if arg_num then
+            hook_args[arg_num] = RValue.from_wrapper(v)
+            return
+        end
+
+        log.error("api has no property '"..k.."' to set", 2)
+    end,
+
+    __metatable = "RAPI.DamageCalculate.api"
+})
+
+local function reset_params()
+    params.damage_true = 1
+    params.damage_fake = 1
 end
 
 
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.recalculate_stats),
-    -- Pre-hook
-    {function(ret_val, self, other, result, arg_count, args)
-        local inst = ffi.cast("struct CInstance *", self:get_address())
-        gather_params(Instance.wrap(inst.id))
-    end,
+local ptr = gm.get_script_function_address(gm.constants.damager_calculate_damage)
 
-    -- Post-hook
-    nil}
-)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.damager_calculate_damage", {"r14", "rbp-40h", "rbp+20h"}, {"RValue**", "RValue*", "RValue*"}, 0, ptr:add(0x438D), Util.jit_off(function(args)
+    -- Get argument array (stored in register `r14` with type `RValue**`)
+    hook_args = ffi.cast("struct RValue**", args[1]:get_address())
+    
+    -- Reset `params` table
+    reset_params()
 
-local ptr = gm.get_script_function_address(gm.constants.recalculate_stats)
+    -- Gather params
+    -- Loop through all namespace subtables
+    for namespace, funcs in pairs(__damage_calc_callbacks) do
 
-memory.dynamic_hook_mid("RAPI.DamageCalculate.knockback_cap", {"rbx"}, {"RValue*"}, 0, ptr:add(0x96d), function(args)
-    args[1].value = (args[1].value + params.knockback_cap_add) * params.knockback_cap_mult
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0xa6c), function(args)
-    -- the internal value is unintuitive, so invert it in the API to be a standard multiplier
-    args[1].value = 1 - ((1 - args[1].value) * params.cooldown_mult)
-end)
-memory.dynamic_hook_mid("RAPI.DamageCalculate.maxhp", {"rcx"}, {"RValue*"}, 0, ptr:add(0xd7e), function(args)
-    -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
-    local finalized = (args[1].value + params.maxhp_add) * params.maxhp_mult
-    params.__original_finalized_hp = finalized
-
-    -- Reduce maxhp from Health -> Shield conversion
-    -- Don't have to worry about <= 0 since it's handled later
-    finalized = finalized * (1 - params.maxhp_to_maxshield)
-
-    args[1].value = finalized
-end)
--- added to hp every step/frame
-memory.dynamic_hook_mid("RAPI.DamageCalculate.hp_regen", {"rax"}, {"RValue*"}, 0, ptr:add(0x22e7), function(args)
-    -- no multiplicative regen modifiers in vanilla
-    args[1].value = (args[1].value + params.hp_regen_add) * params.hp_regen_mult
-end)
-memory.dynamic_hook_mid("RAPI.DamageCalculate.damage", {"rax"}, {"RValue*"}, 0, ptr:add(0x156b), function(args)
-    -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
-    -- prevent value from going below 0 because vanilla doesn't protect against it
-    args[1].value = math.max(0, (args[1].value + params.damage_add) * params.damage_mult)
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.maxshield", {"rax"}, {"RValue*"}, 0, ptr:add(0x1bdf), function(args)
-    -- no multiplicative shield modifiers in vanilla
-    local finalized = (
-        args[1].value
-        + params.maxshield_add
-        + (params.maxshield_from_maxhp * params.__original_finalized_hp)
-        + (params.maxhp_to_maxshield * params.__original_finalized_hp)
-    ) * params.maxshield_mult
-
-    -- prevent value from going below 0 because vanilla doesn't protect against it
-    args[1].value = math.max(0, finalized)
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.critical_chance", {"rdx"}, {"RValue*"}, 0, ptr:add(0x28c7), function(args)
-    -- no multiplicative crit chance modifiers in vanilla
-    args[1].value = (args[1].value + params.critical_chance_add) * params.critical_chance_mult
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.attack_speed", {"rdx"}, {"RValue*"}, 0, ptr:add(0x3034), function(args)
-    -- no multiplicative attack speed modifiers in vanilla
-    args[1].value = (args[1].value + params.attack_speed_add) * params.attack_speed_mult
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.pHmax", {"rax"}, {"RValue*"}, 0, ptr:add(0x3c06), function(args)
-    -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
-    args[1].value = (args[1].value + params.pHmax_add) * params.pHmax_mult
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.armor", {"rax"}, {"RValue*"}, 0, ptr:add(0x4187), function(args)
-    -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
-    args[1].value = (args[1].value + params.armor_add) * params.armor_mult
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.equipment_cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0x4675), function(args)
-    -- the internal value is unintuitive, so invert it in the API to be a standard multiplier
-    args[1].value = 1 - ((1 - args[1].value) * params.equipment_cooldown_mult)
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.pVmax", {"rbx"}, {"RValue*"}, 0, ptr:add(0x4811), function(args)
-    args[1].value = (args[1].value + params.pVmax_add) * params.pVmax_mult
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.pGravity1", {"rbx"}, {"RValue*"}, 0, ptr:add(0x4858), function(args)
-    args[1].value = (args[1].value + params.pGravity1_add) * params.pGravity1_mult
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.pGravity2", {"rbx"}, {"RValue*"}, 0, ptr:add(0x489f), function(args)
-    args[1].value = (args[1].value + params.pGravity2_add) * params.pGravity2_mult
-end)
-
-memory.dynamic_hook_mid("RAPI.DamageCalculate.maxbarrier", {"rax"}, {"RValue*"}, 0, ptr:add(0x5053), function(args)
-    args[1].value = math.max(0, (args[1].value + params.maxbarrier_add) * params.maxbarrier_mult)
-end)
-
-local ActorSkill_recalculate_stats = gm.constants.anon_ActorSkill_gml_GlobalScript_scr_actor_skills_83921016_ActorSkill_gml_GlobalScript_scr_actor_skills
-local class_skill = Global.class_skill
-
-local index_to_table = {
-    [1] = "skill_secondary",
-    [2] = "skill_utility",
-    [3] = "skill_special",
-}
-
--- this gets called extremely frequently -- 12 times when an actor spawns, and 4 times each time stats are recaculated. needs to be optimal as possible
-memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(ActorSkill_recalculate_stats),
-    -- Pre-hook
-    {nil,
-
-    -- Post-hook
-    function(ret_val, self, other, result, arg_count, args)
-        local self_cdata = ffi.cast("YYObjectBase *", self:get_address())
-        local self_struct = Struct.wrap_yyobjectbase(self_cdata)
-
-        -- Get skill_id
-        local skill_id = self_struct.skill_id or 0
-
-        -- Check if skill is primary
-        local is_primary = class_skill:get(skill_id):get(17) or false
-        if is_primary then return end
-        
-        gather_params(self_struct.parent)
-
-        local skill_index = self_struct.slot_index or 1
-        local modifiers = params[index_to_table[skill_index]]
-        if not modifiers then return end
-
-        -- add stock
-        local max_stock = self_struct.max_stock
-        max_stock = math.max(1, max_stock + modifiers.max_stock_add)
-        self_struct.max_stock = max_stock
-
-        -- modify cooldown
-        local cooldown = self_struct.cooldown
-        cooldown = math.floor(math.max(30, cooldown * modifiers.cooldown_mult))
-        self_struct.cooldown = cooldown
-
-        -- start cooldown if necessary. ugly because orig already calls this before this hook, but oh well
-        local auto_restock = class_skill:get(skill_id):get(10) or false
-        if auto_restock then
-            local skill_start_cooldown = self_struct.skill_start_cooldown
-
-            -- TODO verify that this actually works
-            skill_start_cooldown.self = self_struct
-            skill_start_cooldown.other = self_struct
-            skill_start_cooldown()
+        -- Call each registered function in the namespace
+        for _, fn in ipairs(funcs) do
+            fn(api) -- TODO pass actor, hit, etc.
         end
-    end}
-)
+    end
+
+
+    -- ===== Apply params =====
+    -- Only need to do this for local variables in the function
+    -- Anything that was part of the original arguments
+    -- can be get/set directly via `api.<argument>` etc. `api.damage`
+
+    -- damage_true
+    args[2].value = args[2].value * params.damage_true
+
+    -- damage_fake
+    args[3].value = args[3].value * params.damage_fake
+end))
 
 
 

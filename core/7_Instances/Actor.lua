@@ -480,7 +480,7 @@ make_table_once("metatable_actor", {
 local hooks = {"item_give_internal", "item_take_internal"}
 
 for _, hook in ipairs(hooks) do
-    memory.dynamic_hook("RAPI.Actor."..hook, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook]),
+    memory.dynamic_hook("RAPI.Actor."..hook, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook]), Util.jit_off(
         -- Pre-hook
         {function(ret_val, self, other, result, arg_count, args)
             local args_typed = ffi.cast("struct RValue**", args:get_address())
@@ -497,13 +497,13 @@ for _, hook in ipairs(hooks) do
 
         -- Post-hook
         nil}
-    )
+    ))
 end
 
 
 -- Reset cache when a buff is applied
 
-memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.apply_buff_internal),
+memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.apply_buff_internal), Util.jit_off(
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
         local args_typed = ffi.cast("struct RValue**", args:get_address())
@@ -519,14 +519,14 @@ memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*"
 
     -- Post-hook
     nil}
-)
+))
 
 
 -- Reset cache when a buff is removed
 -- Adds an `on_remove` callback to every buff for this,
 -- which allows for detecting passive buff expiry
 
-memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.buff_create),
+memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.buff_create), Util.jit_off(
     -- Pre-hook
     {nil,
 
@@ -542,7 +542,7 @@ memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*
             __buff_count_cache[id][buff.value] = nil
         end, 1000000000)    -- Make sure this runs first
     end}
-)
+))
 
 
 
@@ -550,7 +550,7 @@ memory.dynamic_hook("RAPI.Actor.buff_create", "void*", {"void*", "void*", "void*
 
 -- On room change, remove non-existent instances from `_count_cache`
 
-memory.dynamic_hook("RAPI.Actor.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto),
+memory.dynamic_hook("RAPI.Actor.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto), Util.jit_off(
     -- Pre-hook
     {nil,
 
@@ -570,12 +570,12 @@ memory.dynamic_hook("RAPI.Actor.room_goto", "void*", {"void*", "void*", "void*",
             end
         end
     end}
-)
+))
 
 
 -- Remove `_count_cache` on non-player kill
 
-memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead),
+memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead), Util.jit_off(
     -- Pre-hook
     {nil,
 
@@ -598,12 +598,12 @@ memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", 
             __buff_count_cache[actor_id] = nil
         end
     end}
-)
+))
 
 
 -- Move `_count_cache` to new instance
 
-memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform),
+memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform), Util.jit_off(
     -- Pre-hook
     {nil,
 
@@ -626,7 +626,7 @@ memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*",
             __buff_count_cache[actor_id] = nil
         end
     end}
-)
+))
 
 
 

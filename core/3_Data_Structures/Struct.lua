@@ -2,6 +2,8 @@
 
 Struct = new_class()
 
+local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for struct.CInstance
+
 
 
 -- ========== Static Methods ==========
@@ -126,6 +128,16 @@ make_table_once("metatable_struct", {
         -- Get wrapped value
         if k == "value" or k == "yy_object_base" then return Proxy.get(proxy) end
         if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
+        if k == "CInstance" then
+            -- Check cache
+            local cinstance = cinstance_cache[proxy]
+            if not cinstance then
+                cinstance = ffi.cast("struct CInstance *", Proxy.get(proxy))
+                cinstance_cache[proxy] = cinstance
+            end
+
+            return cinstance
+        end
 
         -- Methods
         if methods_struct[k] then
@@ -138,7 +150,17 @@ make_table_once("metatable_struct", {
         holder[1] = RValue.new(k)
         local out = RValue.new(0)
         gmf.variable_struct_get(out, nil, nil, 2, holder)
-        return RValue.to_wrapper(out)
+        local wrapped = RValue.to_wrapper(out)
+
+        -- If Script, automatically "bind"
+        -- script as self/other
+        if type(wrapped) == "table"
+        and wrapped.RAPI == "Script" then
+            wrapped.self = proxy
+            wrapped.other = proxy
+        end
+        
+        return wrapped
     end,
 
 
@@ -146,7 +168,8 @@ make_table_once("metatable_struct", {
         -- Throw read-only error for certain keys
         if k == "value"
         or k == "yy_object_base"
-        or k == "RAPI" then
+        or k == "RAPI"
+        or k == "CInstance" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 

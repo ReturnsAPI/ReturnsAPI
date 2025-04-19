@@ -75,23 +75,23 @@ Hook.POST   = 1
 Hook.internal.hook_script = function(script, _type, func)
     if _type == Hook.PRE then
         print("Hook: Added pre-hook for '"..script.."'")
-        memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
+        memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]), Util.jit_off(
             -- Pre-hook
             {func,
 
             -- Post-hook
             nil}
-        )
+        ))
 
     elseif _type == Hook.POST then
         print("Hook: Added post-hook for '"..script.."'")
-        memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]),
+        memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[script]), Util.jit_off(
             -- Pre-hook
             {nil,
 
             -- Post-hook
             func}
-        )
+        ))
     
     end
 end
@@ -100,23 +100,23 @@ end
 Hook.internal.hook_object = function(script, _type, func)
     if _type == Hook.PRE then
         print("Hook: Added pre-hook for '"..script.."'")
-        memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
+        memory.dynamic_hook("RAPI.Hook.PRE."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script), Util.jit_off(
             -- Pre-hook
             {func,
 
             -- Post-hook
             nil}
-        )
+        ))
 
     elseif _type == Hook.POST then
         print("Hook: Added post-hook for '"..script.."'")
-        memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script),
+        memory.dynamic_hook("RAPI.Hook.POST."..script, "void*", {"void*", "void*"}, gm.get_object_function_address(script), Util.jit_off(
             -- Pre-hook
             {nil,
 
             -- Post-hook
             func}
-        )
+        ))
 
     end
 end

@@ -83,16 +83,38 @@ make_table_once("metatable_script", {
         -- Get stored self/other
         if k == "self"  then return Proxy.get(proxy)[3] end
         if k == "other" then return Proxy.get(proxy)[4] end
+
+        -- Call with manual self/other
+        if k == "call" then
+            return function(self, other, ...)
+                if self then self = self.CInstance end
+                if other then other = other.CInstance end
+
+                local args = table.pack(...)
+                local holder = nil
+                if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
+
+                -- Populate holder
+                for i = 1, args.n do
+                    holder[i - 1] = RValue.from_wrapper(args[i])
+                end
+
+                local out = RValue.new(0)
+                gmf[proxy.name](self, other, out, args.n, holder)
+                return RValue.to_wrapper(out)
+            end
+        end
     end,
 
 
     __newindex = function(proxy, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
-        or k == "yy_object_base"
-        or k == "RAPI"
         or k == "cscriptref"
-        or k == "name" then
+        or k == "RAPI"
+        or k == "yy_object_base"
+        or k == "name"
+        or k == "call" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
@@ -102,9 +124,10 @@ make_table_once("metatable_script", {
             local index = 3
             if k == "other" then index = 4 end
 
+            -- Convert v into CInstance to store
             local _type = Util.type(v)
-            if      _type == "Struct"           then Proxy.get(proxy)[index] = ffi.cast("struct CInstance *", v.value)
-            elseif  instance_wrappers[_type]    then Proxy.get(proxy)[index] = v.CInstance
+            if _type == "Struct" or instance_wrappers[_type] then
+                Proxy.get(proxy)[index] = v.CInstance
             end
             return
         end
@@ -145,7 +168,7 @@ make_table_once("metatable_script", {
 -- * If `method` is called by game code against your bound CScriptRef, then the `self` argument will no longer be the custom struct, therefore stopping it from being recognized by the hook
 -- * If the given function call relies on accessing `self` to be useful, then it likely won't be useful from this context
 
-memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "RValue*", "int", "void*"}, gm.get_script_function_address(gm.constants.function_dummy),
+memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "RValue*", "int", "void*"}, gm.get_script_function_address(gm.constants.function_dummy), Util.jit_off(
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
         local arg_count = arg_count:get()
@@ -167,7 +190,7 @@ memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "
 
     -- Post-hook
     nil}
-)
+))
 
 
 

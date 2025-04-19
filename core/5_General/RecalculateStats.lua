@@ -163,7 +163,7 @@ end
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.recalculate_stats),
+memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.recalculate_stats), Util.jit_off(
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
         local inst = ffi.cast("struct CInstance *", self:get_address())
@@ -172,19 +172,19 @@ memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"void*", "void*", "void*
 
     -- Post-hook
     nil}
-)
+))
 
 local ptr = gm.get_script_function_address(gm.constants.recalculate_stats)
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.knockback_cap", {"rbx"}, {"RValue*"}, 0, ptr:add(0x96d), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.knockback_cap", {"rbx"}, {"RValue*"}, 0, ptr:add(0x96d), Util.jit_off(function(args)
     args[1].value = (args[1].value + params.knockback_cap_add) * params.knockback_cap_mult
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0xa6c), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0xa6c), Util.jit_off(function(args)
     -- the internal value is unintuitive, so invert it in the API to be a standard multiplier
     args[1].value = 1 - ((1 - args[1].value) * params.cooldown_mult)
-end)
-memory.dynamic_hook_mid("RAPI.RecalculateStats.maxhp", {"rcx"}, {"RValue*"}, 0, ptr:add(0xd7e), function(args)
+end))
+memory.dynamic_hook_mid("RAPI.RecalculateStats.maxhp", {"rcx"}, {"RValue*"}, 0, ptr:add(0xd7e), Util.jit_off(function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
     local finalized = (args[1].value + params.maxhp_add) * params.maxhp_mult
     params.__original_finalized_hp = finalized
@@ -194,19 +194,19 @@ memory.dynamic_hook_mid("RAPI.RecalculateStats.maxhp", {"rcx"}, {"RValue*"}, 0, 
     finalized = finalized * (1 - params.maxhp_to_maxshield)
 
     args[1].value = finalized
-end)
+end))
 -- added to hp every step/frame
-memory.dynamic_hook_mid("RAPI.RecalculateStats.hp_regen", {"rax"}, {"RValue*"}, 0, ptr:add(0x22e7), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.hp_regen", {"rax"}, {"RValue*"}, 0, ptr:add(0x22e7), Util.jit_off(function(args)
     -- no multiplicative regen modifiers in vanilla
     args[1].value = (args[1].value + params.hp_regen_add) * params.hp_regen_mult
-end)
-memory.dynamic_hook_mid("RAPI.RecalculateStats.damage", {"rax"}, {"RValue*"}, 0, ptr:add(0x156b), function(args)
+end))
+memory.dynamic_hook_mid("RAPI.RecalculateStats.damage", {"rax"}, {"RValue*"}, 0, ptr:add(0x156b), Util.jit_off(function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
     -- prevent value from going below 0 because vanilla doesn't protect against it
     args[1].value = math.max(0, (args[1].value + params.damage_add) * params.damage_mult)
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.maxshield", {"rax"}, {"RValue*"}, 0, ptr:add(0x1bdf), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.maxshield", {"rax"}, {"RValue*"}, 0, ptr:add(0x1bdf), Util.jit_off(function(args)
     -- no multiplicative shield modifiers in vanilla
     local finalized = (
         args[1].value
@@ -217,48 +217,48 @@ memory.dynamic_hook_mid("RAPI.RecalculateStats.maxshield", {"rax"}, {"RValue*"},
 
     -- prevent value from going below 0 because vanilla doesn't protect against it
     args[1].value = math.max(0, finalized)
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.critical_chance", {"rdx"}, {"RValue*"}, 0, ptr:add(0x28c7), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.critical_chance", {"rdx"}, {"RValue*"}, 0, ptr:add(0x28c7), Util.jit_off(function(args)
     -- no multiplicative crit chance modifiers in vanilla
     args[1].value = (args[1].value + params.critical_chance_add) * params.critical_chance_mult
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.attack_speed", {"rdx"}, {"RValue*"}, 0, ptr:add(0x3034), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.attack_speed", {"rdx"}, {"RValue*"}, 0, ptr:add(0x3034), Util.jit_off(function(args)
     -- no multiplicative attack speed modifiers in vanilla
     args[1].value = (args[1].value + params.attack_speed_add) * params.attack_speed_mult
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.pHmax", {"rax"}, {"RValue*"}, 0, ptr:add(0x3c06), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.pHmax", {"rax"}, {"RValue*"}, 0, ptr:add(0x3c06), Util.jit_off(function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
     args[1].value = (args[1].value + params.pHmax_add) * params.pHmax_mult
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.armor", {"rax"}, {"RValue*"}, 0, ptr:add(0x4187), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.armor", {"rax"}, {"RValue*"}, 0, ptr:add(0x4187), Util.jit_off(function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
     args[1].value = (args[1].value + params.armor_add) * params.armor_mult
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.equipment_cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0x4675), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.equipment_cdr", {"rdi"}, {"RValue*"}, 0, ptr:add(0x4675), Util.jit_off(function(args)
     -- the internal value is unintuitive, so invert it in the API to be a standard multiplier
     args[1].value = 1 - ((1 - args[1].value) * params.equipment_cooldown_mult)
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.pVmax", {"rbx"}, {"RValue*"}, 0, ptr:add(0x4811), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.pVmax", {"rbx"}, {"RValue*"}, 0, ptr:add(0x4811), Util.jit_off(function(args)
     args[1].value = (args[1].value + params.pVmax_add) * params.pVmax_mult
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.pGravity1", {"rbx"}, {"RValue*"}, 0, ptr:add(0x4858), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.pGravity1", {"rbx"}, {"RValue*"}, 0, ptr:add(0x4858), Util.jit_off(function(args)
     args[1].value = (args[1].value + params.pGravity1_add) * params.pGravity1_mult
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.pGravity2", {"rbx"}, {"RValue*"}, 0, ptr:add(0x489f), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.pGravity2", {"rbx"}, {"RValue*"}, 0, ptr:add(0x489f), Util.jit_off(function(args)
     args[1].value = (args[1].value + params.pGravity2_add) * params.pGravity2_mult
-end)
+end))
 
-memory.dynamic_hook_mid("RAPI.RecalculateStats.maxbarrier", {"rax"}, {"RValue*"}, 0, ptr:add(0x5053), function(args)
+memory.dynamic_hook_mid("RAPI.RecalculateStats.maxbarrier", {"rax"}, {"RValue*"}, 0, ptr:add(0x5053), Util.jit_off(function(args)
     args[1].value = math.max(0, (args[1].value + params.maxbarrier_add) * params.maxbarrier_mult)
-end)
+end))
 
 local ActorSkill_recalculate_stats = gm.constants.anon_ActorSkill_gml_GlobalScript_scr_actor_skills_83921016_ActorSkill_gml_GlobalScript_scr_actor_skills
 local class_skill = Global.class_skill
@@ -270,7 +270,7 @@ local index_to_table = {
 }
 
 -- this gets called extremely frequently -- 12 times when an actor spawns, and 4 times each time stats are recaculated. needs to be optimal as possible
-memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(ActorSkill_recalculate_stats),
+memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(ActorSkill_recalculate_stats), Util.jit_off(
     -- Pre-hook
     {nil,
 
@@ -305,15 +305,12 @@ memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"void*"
         -- start cooldown if necessary. ugly because orig already calls this before this hook, but oh well
         local auto_restock = class_skill:get(skill_id):get(10) or false
         if auto_restock then
-            local skill_start_cooldown = self_struct.skill_start_cooldown
-
-            -- TODO verify that this actually works
-            skill_start_cooldown.self = self_struct
-            skill_start_cooldown.other = self_struct
-            skill_start_cooldown()
+            -- Auto"binds" `self_struct` as self/other
+            -- (See Struct class metatable)
+            self_struct.skill_start_cooldown()
         end
     end}
-)
+))
 
 
 

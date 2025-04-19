@@ -10,6 +10,9 @@ v Fix Hook class breaking hotloading
 v Make Instance find_all, is_colliding, and get_collisions work with custom objects
     - Make Instance.find_all faster(?) by midhooking `_mod_instance_findAll` and redirecting outputs to a table instead of nowhere (i.e., "`mod_push_value`")
         - This is actually way slower nvm
+- Colon syntax for Script; figure out a method to support self/other-less calling too? idk
+    - Can still keep Script wrappers as separate objects, but "bind" some as closures
+    v Solution: On getting method from struct, auto"bind" the struct to self/other of the wrapper
 - Classes
     - Equipment
     - Achievement

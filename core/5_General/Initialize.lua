@@ -98,7 +98,7 @@ end
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.Initialize.__input_system_tick", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__input_system_tick),
+memory.dynamic_hook("RAPI.Initialize.__input_system_tick", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__input_system_tick), Util.jit_off(
     -- Pre-hook
     {nil,
 
@@ -130,7 +130,7 @@ memory.dynamic_hook("RAPI.Initialize.__input_system_tick", "void*", {"void*", "v
         end
         initialize_done_this_load = true
     end}
-)
+))
 
 
 
