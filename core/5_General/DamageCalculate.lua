@@ -106,7 +106,17 @@ api = setmetatable({}, {
         -- Get original function arguments
         local arg_num = hook_args_names[k]
         if arg_num then
-            return RValue.to_wrapper(hook_args[arg_num])
+            local ret = RValue.to_wrapper(hook_args[arg_num])
+
+            -- Wrap instance as invalid if nil or -4
+            if  (k == "parent"
+            or   k == "hit"
+            or   k == "true_hit")
+            and (ret == nil or ret == -4) then
+                ret = Instance.wrap(-4)
+            end
+
+            return ret
         end
 
         -- Methods

@@ -122,37 +122,7 @@ Hook.internal.hook_object = function(script, _type, func)
 end
 
 
--- Re-add all hooks on hotload
-run_on_hotload(function()
-    for i, v in ipairs(__hooks_script) do
-        Hook.internal.hook_script(table.unpack(v))
-    end
-
-    for i, v in ipairs(__hooks_object) do
-        Hook.internal.hook_object(table.unpack(v))
-    end
-end)
-
-
-
--- ========== Static Methods ==========
-
---$static
---$return       number
---$param        script      | string    | The game function to hook.
---$param        type        | number    | Either `Hook.PRE` or `Hook.POST`.
---$param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
---$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
---[[
-Registers a function under a game function hook.
-Returns the unique ID of the registered function.
-
-**Priority Convention**
-To allow for a decent amount of space between priorities,
-use the enum values in $`Callback.Priority`, Callback#Priority$.
-If you need to be more specific than that, try to keep a distance of at least `100`.
-]]
-Hook.add = function(namespace, script, _type, fn, priority)
+Hook.internal.add = function(namespace, script, _type, fn, priority)
     -- Throw error if not numerical ID
     if type(script) ~= "string" then
         log.error("Hook.add: script should be a string", 2)
@@ -369,6 +339,59 @@ Hook.add = function(namespace, script, _type, fn, priority)
 
     -- Return numerical ID for removability
     return __hook_id_counter
+end
+
+
+-- Re-add all hooks on hotload
+run_on_hotload(function()
+    for i, v in ipairs(__hooks_script) do
+        Hook.internal.hook_script(table.unpack(v))
+    end
+
+    for i, v in ipairs(__hooks_object) do
+        Hook.internal.hook_object(table.unpack(v))
+    end
+end)
+
+
+
+-- ========== Static Methods ==========
+
+--$static
+--$return       number
+--$param        script      | string    | The game function to hook.
+--$param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
+--$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--[[
+Registers a function under a game function pre-hook.
+Returns the unique ID of the registered function.
+
+**Priority Convention**
+To allow for a decent amount of space between priorities,
+use the enum values in $`Callback.Priority`, Callback#Priority$.
+If you need to be more specific than that, try to keep a distance of at least `100`.
+]]
+Hook.pre = function(namespace, script, fn, priority)
+    Hook.internal.add(namespace, script, Hook.PRE, fn, priority)
+end
+
+
+--$static
+--$return       number
+--$param        script      | string    | The game function to hook.
+--$param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
+--$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--[[
+Registers a function under a game function post-hook.
+Returns the unique ID of the registered function.
+
+**Priority Convention**
+To allow for a decent amount of space between priorities,
+use the enum values in $`Callback.Priority`, Callback#Priority$.
+If you need to be more specific than that, try to keep a distance of at least `100`.
+]]
+Hook.post = function(namespace, script, fn, priority)
+    Hook.internal.add(namespace, script, Hook.POST, fn, priority)
 end
 
 

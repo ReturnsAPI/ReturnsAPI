@@ -136,7 +136,7 @@ local function draw_info(text, value)
     y = y + 15
 end
 
-Hook.add(_ENV["!guid"], "gml_Object_oInit_Draw_64", Hook.POST, function(self, other)
+Hook.post(_ENV["!guid"], "gml_Object_oInit_Draw_64", function(self, other)
     if not debug_show_info then return end
 
     _scale = GM.variable_global_get("___ui_mode_zoom_scale")
