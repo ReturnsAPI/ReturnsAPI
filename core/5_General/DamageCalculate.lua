@@ -11,7 +11,7 @@ end)
 -- ========== Static Methods ==========
 
 --$static
---$param        fn          | function  | The function to register. <br>The parameters for it are `actor, target, api`.
+--$param        fn          | function  | The function to register. <br>The parameters for it are `api`.
 --[[
 Registers a function for modifying damage calculation.
 ]]
