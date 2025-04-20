@@ -372,7 +372,7 @@ use the enum values in $`Callback.Priority`, Callback#Priority$.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 Hook.pre = function(namespace, script, fn, priority)
-    Hook.internal.add(namespace, script, Hook.PRE, fn, priority)
+    return Hook.internal.add(namespace, script, Hook.PRE, fn, priority)
 end
 
 
@@ -391,7 +391,7 @@ use the enum values in $`Callback.Priority`, Callback#Priority$.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 Hook.post = function(namespace, script, fn, priority)
-    Hook.internal.add(namespace, script, Hook.POST, fn, priority)
+    return Hook.internal.add(namespace, script, Hook.POST, fn, priority)
 end
 
 
