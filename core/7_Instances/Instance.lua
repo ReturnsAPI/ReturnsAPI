@@ -562,7 +562,7 @@ make_table_once("metatable_instance", {
 
 -- On room change, remove non-existent instances from `__instance_data`
 
-memory.dynamic_hook("RAPI.Instance.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto), Util.jit_off(
+memory.dynamic_hook("RAPI.Instance.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto),
     -- Pre-hook
     {nil,
 
@@ -574,12 +574,12 @@ memory.dynamic_hook("RAPI.Instance.room_goto", "void*", {"void*", "void*", "void
             end
         end
     end}
-))
+)
 
 
 -- Remove `__instance_data` on non-player kill
 
-memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead), Util.jit_off(
+memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead),
     -- Pre-hook
     {nil,
 
@@ -601,12 +601,12 @@ memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", 
             __instance_data[actor_id] = nil
         end
     end}
-))
+)
 
 
 -- Move `__instance_data` to new instance
 
-memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform), Util.jit_off(
+memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform),
     -- Pre-hook
     {nil,
 
@@ -623,7 +623,7 @@ memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*",
             __instance_data[actor_id] = nil
         end
     end}
-))
+)
 
 
 

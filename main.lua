@@ -49,7 +49,7 @@ hotloaded = true
 
 
 -- DEBUG
-gui.add_imgui(function()
+gui.add_imgui(Util.jit_off(function()
     if ImGui.Begin("ReturnsAPI Debug") then
 
         ImGui.Text("__rvalue_current:   "..__rvalue_current)
@@ -107,17 +107,17 @@ gui.add_imgui(function()
 
     end
     ImGui.End()
-end)
+end))
 
 
 -- Draw debug info
 -- Toggle in top ImGui bar under this mod
 
 local debug_show_info = false
-gui.add_to_menu_bar(function()
+gui.add_to_menu_bar(Util.jit_off(function()
     local value, pressed = ImGui.Checkbox("Show debug info", debug_show_info)
     if pressed then debug_show_info = value end
-end)
+end))
 
 local _scale
 local _scale2

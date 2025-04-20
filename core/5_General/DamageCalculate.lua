@@ -152,7 +152,7 @@ end
 
 local ptr = gm.get_script_function_address(gm.constants.damager_calculate_damage)
 
-memory.dynamic_hook_mid("RAPI.DamageCalculate.damager_calculate_damage", {"r14", "rbp-40h", "rbp+20h"}, {"RValue**", "RValue*", "RValue*"}, 0, ptr:add(0x438D), Util.jit_off(function(args)
+memory.dynamic_hook_mid("RAPI.DamageCalculate.damager_calculate_damage", {"r14", "rbp-40h", "rbp+20h"}, {"RValue**", "RValue*", "RValue*"}, 0, ptr:add(0x438D), function(args)
     -- Get argument array (stored in register `r14` with type `RValue**`)
     hook_args = ffi.cast("struct RValue**", args[1]:get_address())
     
@@ -180,7 +180,7 @@ memory.dynamic_hook_mid("RAPI.DamageCalculate.damager_calculate_damage", {"r14",
 
     -- damage_fake
     args[3].value = args[3].value * params.damage_fake
-end))
+end)
 
 
 

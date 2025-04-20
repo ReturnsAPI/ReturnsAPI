@@ -107,7 +107,7 @@ local hooks = {
 }
 for _, hook in ipairs(hooks) do
     local name_global = hook[2]
-    memory.dynamic_hook("RAPI.Class."..name_global, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(hook[1]), Util.jit_off(
+    memory.dynamic_hook("RAPI.Class."..name_global, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(hook[1]),
         -- Pre-hook
         {nil,
 
@@ -135,7 +135,7 @@ for _, hook in ipairs(hooks) do
                 t[id] = element_table
             end
         end}
-    ))
+    )
 end
 
 
