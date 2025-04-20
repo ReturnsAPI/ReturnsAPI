@@ -41,6 +41,7 @@ run_on_hotload(function()
     if Hook             then Hook.remove_all(namespace) end
     if Initialize       then Initialize.internal.remove_all(namespace) end
     if RecalculateStats then RecalculateStats.remove_all(namespace) end
+    if DamageCalculate  then DamageCalculate.remove_all(namespace) end
 end)
 
 
@@ -49,6 +50,8 @@ hotloaded = true
 
 
 -- DEBUG
+spawning = true
+
 gui.add_imgui(Util.jit_off(function()
     if ImGui.Begin("ReturnsAPI Debug") then
 
@@ -65,6 +68,10 @@ gui.add_imgui(Util.jit_off(function()
                 local obj = Object.find("lizard", nil, "RAPI")
                 for i = 1, 100 do obj:create(p.x, p.y) end
             end
+        end
+
+        if ImGui.Button("Toggle spawning: "..tostring(spawning)) then
+            spawning = not spawning
         end
 
         if ImGui.Button("Print memory.game_base_address") then
@@ -108,6 +115,12 @@ gui.add_imgui(Util.jit_off(function()
     end
     ImGui.End()
 end))
+
+Hook.post(_ENV["!guid"], "__input_system_tick", function(self, other, result, args)
+    if spawning then return end
+    local director = Instance.find(gm.constants.oDirectorControl)
+    if director:exists() then director:alarm_set(1, 60) end
+end)
 
 
 -- Draw debug info
