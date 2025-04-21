@@ -129,6 +129,44 @@ ItemLog.new_from_item = function(namespace, item)
 end
 
 
+--$static
+--$return   ItemLog
+--$param    equip           | Equipment | The equipment to use as a base.
+--[[
+Creates a new item log using an equipment as a base,
+automatically populating the log's properties and
+setting the equipment's `item_log_id` property.
+]]
+ItemLog.new_from_equipment = function(namespace, equip)
+    Initialize.internal.check_if_started()
+    
+    if not equip then log.error("No equipment provided", 2) end
+    equip = Equipment.wrap(equip)
+
+    -- Use existing equip log if found
+    local item_log = ItemLog.find(equip.identifier, namespace)
+    if not item_log then
+        -- Create new
+        item_log = ItemLog.wrap(GM.item_log_create(
+            namespace,
+            equip.identifier,
+            0,
+            equip.sprite_id,
+            equip.object_id
+        ))
+    end
+
+    -- Set group
+    local group = equip.tier * 2    -- TODO: Add +1 if equip is achievement-locked
+    item_log:set_group(group)
+
+    -- Set the log ID of the equip
+    equip.item_log_id = item_log
+
+    return item_log
+end
+
+
 
 -- ========== Instance Methods ==========
 

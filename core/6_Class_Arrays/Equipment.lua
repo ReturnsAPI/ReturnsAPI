@@ -1,7 +1,7 @@
--- Item
+-- Equipment
 
-local name_rapi = class_name_g2r["class_item"]
-Item = __class[name_rapi]
+local name_rapi = class_name_g2r["class_equipment"]
+Equipment = __class[name_rapi]
 
 
 
@@ -14,63 +14,35 @@ NAMESPACE           0
 IDENTIFIER          1
 TOKEN_NAME          2
 TOKEN_TEXT          3
-ON_ACQUIRED         4
-ON_REMOVED          5
+ON_USE              4
+COOLDOWN            5
 TIER                6
 SPRITE_ID           7
 OBJECT_ID           8
 ITEM_LOG_ID         9
 ACHIEVEMENT_ID      10
-IS_HIDDEN           11
-EFFECT_DISPLAY      12
-ACTOR_COMPONENT     13
-LOOT_TAGS           14
-IS_NEW_ITEM         15
+EFFECT_DISPLAY      11
+LOOT_TAGS           12
+IS_NEW_EQUIPMENT    13
 ]]
-
-
---$enum
-Item.LootTag = ReadOnly.new({
-    CATEGORY_DAMAGE                 = 1,
-    CATEGORY_HEALING                = 2,
-    CATEGORY_UTILITY                = 4,
-    EQUIPMENT_BLACKLIST_ENIGMA      = 8,
-    EQUIPMENT_BLACKLIST_CHAOS       = 16,
-    EQUIPMENT_BLACKLIST_ACTIVATOR   = 32,
-    ITEM_BLACKLIST_ENGI_TURRETS     = 64,
-    ITEM_BLACKLIST_VENDOR           = 128,
-    ITEM_BLACKLIST_INFUSER          = 256
-})
-
-
---$enum
-Item.StackKind = ReadOnly.new({
-    NORMAL          = 0,
-    TEMPORARY_BLUE  = 1,
-    TEMPORARY_RED   = 2,
-    ANY             = 3,
-    TEMPORARY_ANY   = 4
-})
 
 
 --$properties
 --[[
-namespace       | string    | The namespace the item is in.
-identifier      | string    | The identifier for the item within the namespace.
-token_name      | string    | The localization token for the item's name.
-token_text      | string    | The localization token for the item's pickup text.
-on_acquired     | number    | The ID of the callback that runs when the item is acquired.
-on_removed      | number    | The ID of the callback that runs when the item is removed.
-tier            | number    | The tier of the item.
-sprite_id       | sprite    | The sprite ID of the item.
-object_id       | object    | The object ID of the item.
-item_log_id     | number    | The item log ID of the item.
-achievement_id  | number    | The achievement ID of the item. <br>If *not* `-1`, the item will be locked until the achievement is unlocked.
-is_hidden       | bool      | 
-effect_display  |           | 
-actor_component |           | 
-loot_tags       | number    | The sum of all loot tags applied to the item.
-is_new_item     | bool      | `true` for new vanilla items added in *Returns*.
+namespace           | string    | The namespace the equipment is in.
+identifier          | string    | The identifier for the equipment within the namespace.
+token_name          | string    | The localization token for the equipment's name.
+token_text          | string    | The localization token for the equipment's pickup text.
+on_use              | number    | The ID of the callback that runs when the equipment is activated.
+cooldown            | number    | The cooldown of the equipment (in frames).
+tier                | number    | The tier of the equipment.
+sprite_id           | sprite    | The sprite ID of the equipment.
+object_id           | object    | The object ID of the equipment.
+item_log_id         | number    | The item log ID of the equipment.
+achievement_id      | number    | The achievement ID of the equipment. <br>If *not* `-1`, the equipment will be locked until the achievement is unlocked.
+effect_display      |           | 
+loot_tags           | number    | The sum of all loot tags applied to the item.
+is_new_equipment    | bool      | `true` for new vanilla equipment added in *Returns*.
 ]]
 
 
@@ -78,44 +50,58 @@ is_new_item     | bool      | `true` for new vanilla items added in *Returns*.
 -- ========== Static Methods ==========
 
 --$static
---$return   Item
---$param    identifier  | string    | The identifier for the item.
+--$return   Equipment
+--$param    identifier  | string    | The identifier for the equipment.
 --[[
-Creates a new item with the given identifier if it does not already exist,
+Creates a new equipment with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-Item.new = function(namespace, identifier)
+Equipment.new = function(namespace, identifier)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
-    -- Return existing item if found
-    local item = Item.find(identifier, namespace)
-    if item then return item end
+    -- Return existing equipment if found
+    local equip = Equipment.find(identifier, namespace)
+    if equip then return equip end
 
     -- Create new
-    item = Item.wrap(GM.item_create(
+    equip = Equipment.wrap(GM.equipment_create(
         namespace,
         identifier,
-        nil,    -- item ID; if nil, it is auto-set
-        ItemTier.NOTIER,
-        GM.object_add_w(namespace, identifier, gm.constants.pPickupItem),
-        0       -- loot_tags (?)
+        #Class.Equipment,   -- equip ID; *not* auto-set by the game
+        ItemTier.EQUIPMENT,
+        GM.object_add_w(namespace, identifier, gm.constants.pPickupEquipment),
+        0,      -- loot_tags (?)
+        nil,    -- ?
+        45      -- cooldown (in seconds)
+        -- true,   -- make log
+        -- 6,      -- log group
+        -- nil,    -- ?
+        -- nil     -- ?
     ))
 
-    -- Remove `is_new_item` flag
-    item.is_new_item = false
+    -- Have to manually increase this variable for
+    -- some reason (`class_equipment` array length)
+    Global.count_equipment = Global.count_equipment + 1
 
-    return item
+    -- Remove `is_new_equipment` flag
+    equip.is_new_equipment = false
+
+    -- Add to Equipment loot pool by default
+    local pool = ItemTier.wrap(ItemTier.EQUIPMENT).equipment_pool_for_reroll
+    if pool ~= -1 then LootPool.wrap(pool):add_equipment(equip) end
+
+    return equip
 end
 
 
 --$static
 --$name         find
---$return       Item or nil
+--$return       Equipment or nil
 --$param        identifier  | string    | The identifier to search for.
 --$optional     namespace   | string    | The namespace to search in.
 --[[
-Searches for the specified item and returns it.
+Searches for the specified equipment and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
 
@@ -124,9 +110,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --$name         find_all
 --$return       table, bool
 --$param        filter      |           | The filter to search by.
---$optional     property    | number    | The property to check. <br>$`Item.Property.NAMESPACE`, Item#Property$ by default.
+--$optional     property    | number    | The property to check. <br>$`Equipment.Property.NAMESPACE`, Equipment#Property$ by default.
 --[[
-Returns a table of items matching the specified filter and property,
+Returns a table of equipment matching the specified filter and property,
 and a boolean that is `true` if the table is *not* empty.
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
@@ -136,10 +122,10 @@ Try not to do that too much.
 
 --$static
 --$name         wrap
---$return       Item
---$param        item_id     | number    | The item ID to wrap.
+--$return       Equipment
+--$param        equip_id    | number    | The equipment ID to wrap.
 --[[
-Returns an Item wrapper containing the provided item ID.
+Returns an Equipment wrapper containing the provided equipment ID.
 ]]
 
 
@@ -151,7 +137,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --$instance
     --$name         show_properties
     --[[
-    Prints the item's properties.
+    Prints the equipment's properties.
     ]]
 
 
@@ -161,7 +147,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --$param        y           | number    | The y spawn coordinate.
     --$optional     target      | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
     --[[
-    Spawns and returns an item drop.
+    Spawns and returns an equipment drop.
     ]]
     create = function(self, x, y, target)
         local object_id = self.object_id
@@ -178,7 +164,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
         -- Look for drop (because gm.item_drop_object does not actually return the instance for some reason)
         local drop = nil
-        local drops = Instance.find_all(gm.constants.pPickupItem) --, gm.constants.oCustomObject_pPickupItem)   -- TODO custom items
+        local drops = Instance.find_all(gm.constants.pPickupEquipment) --, gm.constants.oCustomObject_pPickupEquipment)   -- TODO custom items
         for _, d in ipairs(drops) do
             local dData = Instance.get_data(d)
             if math.abs(d.x - x) <= 1 and math.abs(d.y - y) <= 1
@@ -196,13 +182,13 @@ Util.table_append(methods_class_array[name_rapi], {
     --$instance
     --$param        sprite      | Sprite    | The sprite to set.
     --[[
-    Sets the sprite of the item.
+    Sets the sprite of the equipment.
     ]]
     set_sprite = function(self, sprite)
         sprite = Wrap.unwrap(sprite)
         self.sprite_id = sprite
     
-        -- Set item object sprite
+        -- Set equipment object sprite
         local holder = RValue.new_holder_scr(2)
         holder[0] = RValue.new(self.object_id)
         holder[1] = RValue.new(sprite)
@@ -213,14 +199,14 @@ Util.table_append(methods_class_array[name_rapi], {
     --$instance
     --$param        tier        | number   | The $tier, ItemTier#constants$ to set.
     --[[
-    Sets the tier of the item, and assigns it to the appropriate
+    Sets the tier of the equipment, and assigns it to the appropriate
     loot pool (will remove from all previous loot pools).
     ]]
     set_tier = function(self, tier)
         tier = Wrap.unwrap(tier)
         self.tier = tier
 
-        -- Remove from all loot pools that the item is in
+        -- Remove from all loot pools that the equipment is in
         local pools = Global.treasure_loot_pools    -- Array
         for _, struct in ipairs(pools) do
             local drop_pool = List.wrap(struct.drop_pool)
@@ -228,15 +214,15 @@ Util.table_append(methods_class_array[name_rapi], {
         end
 
         -- Add to new loot pool (if it exists)
-        local pool = ItemTier.wrap(tier).item_pool_for_reroll
-        if pool ~= -1 then LootPool.wrap(pool):add_item(self) end
+        local pool = ItemTier.wrap(tier).equipment_pool_for_reroll
+        if pool ~= -1 then LootPool.wrap(pool):add_equipment(self) end
     end,
 
 
     --$instance
     --$param        ...         | number(s) | A variable number of $loot tags, Item#LootTag$ to add.
     --[[
-    Sets the loot tags of the item.
+    Sets the loot tags of the equipment.
     ]]
     set_loot_tags = function(self, ...)
         local args = {...}
@@ -250,3 +236,5 @@ Util.table_append(methods_class_array[name_rapi], {
     end
 
 })
+
+-- TODO add and test passive equipment support in multiplayer

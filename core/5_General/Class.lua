@@ -292,6 +292,11 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             log.error("Non-existent "..name_rapi.." property '"..k.."'", 2)
         end,
 
+
+        __eq = function(proxy, other)
+            return proxy.value == other.value
+        end,
+
         
         __metatable = "RAPI.Wrapper."..name_rapi
     })

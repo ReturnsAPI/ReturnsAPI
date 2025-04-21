@@ -205,7 +205,7 @@ methods_loot_pool = {
     --[[
     Adds an item to the loot pool.
     ]]
-    add = function(self, item)
+    add_item = function(self, item)
         List.wrap(self.drop_pool):add(Item.wrap(item).object_id)
     end,
 
@@ -215,8 +215,28 @@ methods_loot_pool = {
     --[[
     Removes an item from the loot pool.
     ]]
-    remove = function(self, item)
+    remove_item = function(self, item)
         List.wrap(self.drop_pool):delete_value(Item.wrap(item).object_id)
+    end,
+
+
+    --$instance
+    --$param        equip       | Equipment | The equipment to add.
+    --[[
+    Adds an equipment to the loot pool.
+    ]]
+    add_equipment = function(self, equip)
+        List.wrap(self.drop_pool):add(Equipment.wrap(equip).object_id)
+    end,
+
+
+    --$instance
+    --$param        equip       | Equipment | The equipment to remove.
+    --[[
+    Removes an equipment from the loot pool.
+    ]]
+    remove_equipment = function(self, equip)
+        List.wrap(self.drop_pool):delete_value(Equipment.wrap(equip).object_id)
     end,
 
 
