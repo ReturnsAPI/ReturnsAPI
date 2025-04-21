@@ -148,7 +148,7 @@ end
 --      * find              static method
 --      * find_all          static method
 --      * wrap              static method
---      * show_properties   instance method
+--      * print_properties   instance method
 --      * Metatable for get/set properties
 -- 
 -- Use __class[<RAPI name>] in their respective
@@ -246,7 +246,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
     end
 
     methods_class_array[name_rapi] = {
-        show_properties = function(self)
+        print_properties = function(self)
             local array = __class_find_tables[name_global][self.value].array
             local str = ""
             for i, v in ipairs(array) do

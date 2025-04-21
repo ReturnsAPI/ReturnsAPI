@@ -149,7 +149,7 @@ Returns an Item wrapper containing the provided item ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --$instance
-    --$name         show_properties
+    --$name         print_properties
     --[[
     Prints the item's properties.
     ]]

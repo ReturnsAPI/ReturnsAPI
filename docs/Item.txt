@@ -12,7 +12,7 @@
   * [`Item.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#wrap)
 
 * [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#instance-methods)
-  * [`item:show_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#show_properties)
+  * [`item:print_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#print_properties)
   * [`item:create`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#create)
   * [`item:set_sprite`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#set_sprite)
   * [`item:set_tier`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Item#set_tier)
@@ -171,9 +171,9 @@ Parameter | Type | Description
 
 ## Instance Methods
 
-<a name="show_properties"></a>
+<a name="print_properties"></a>
 ```lua
-item:show_properties() -> nil
+item:print_properties() -> nil
 ```
 
 Prints the item's properties.  

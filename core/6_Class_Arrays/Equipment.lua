@@ -139,7 +139,7 @@ Returns an Equipment wrapper containing the provided equipment ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --$instance
-    --$name         show_properties
+    --$name         print_properties
     --[[
     Prints the equipment's properties.
     ]]

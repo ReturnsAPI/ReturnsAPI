@@ -190,7 +190,7 @@ methods_loot_pool = {
     --[[
     Prints the loot pool's properties.
     ]]
-    show_properties = function(self)
+    print_properties = function(self)
         local struct = __loot_pool_find_table[self.value].struct
         local str = ""
         for k, v in pairs(struct) do

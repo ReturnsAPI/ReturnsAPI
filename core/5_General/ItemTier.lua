@@ -171,7 +171,7 @@ methods_item_tier = {
     --[[
     Prints the item tier's properties.
     ]]
-    show_properties = function(self)
+    print_properties = function(self)
         local struct = __item_tier_find_table[self.value].struct
         local str = ""
         for k, v in pairs(struct) do

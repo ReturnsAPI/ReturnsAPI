@@ -481,6 +481,25 @@ Util.table_append(methods_instance, {
     is_projectile = function(self)
         if __is_projectile[self:get_object_index()] then return true end
         return false
+    end,
+
+
+    --$instance
+    --[[
+    Prints the instances's variables.
+    ]]
+    print_variables = function(self)
+        local holder = RValue.new_holder(1)
+        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        local out = RValue.new(0)
+        gmf.variable_instance_get_names(out, nil, nil, 1, holder)
+        local names = RValue.to_wrapper(out)
+
+        local str = ""
+        for _, name in ipairs(names) do
+            str = str.."\n"..Util.pad_string_right(name, 32).." = "..Util.tostring(self[name])
+        end
+        print(str)
     end
 
 })

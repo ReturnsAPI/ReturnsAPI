@@ -34,7 +34,7 @@ end
 
 methods_class[rapi_name] = {
 
-    show_properties = function(self)
+    print_properties = function(self)
         local array = Class.Buff:get(self.value)
         local str = ""
         for i, v in ipairs(array) do

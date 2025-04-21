@@ -6,7 +6,7 @@
   * [`ItemTier.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemTier#wrap)
 
 * [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemTier#instance-methods)
-  * [`itemTier:show_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemTier#show_properties)
+  * [`itemTier:print_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemTier#print_properties)
 
 <br><br>
 
@@ -80,9 +80,9 @@ Parameter | Type | Description
 
 ## Instance Methods
 
-<a name="show_properties"></a>
+<a name="print_properties"></a>
 ```lua
-itemTier:show_properties() -> nil
+itemTier:print_properties() -> nil
 ```
 
 Prints the item tier's properties.  

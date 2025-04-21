@@ -225,7 +225,7 @@ methods_class[rapi_name] = {
     end,
 
 
-    show_properties = function(self)
+    print_properties = function(self)
         local array = Class.Item:get(self.value)
         local str = ""
         for i, v in ipairs(array) do

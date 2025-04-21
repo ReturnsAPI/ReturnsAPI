@@ -9,7 +9,7 @@
   * [`ItemLog.new_from_item`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#new_from_item)
 
 * [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#instance-methods)
-  * [`itemLog:show_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#show_properties)
+  * [`itemLog:print_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#print_properties)
   * [`itemLog:set_group`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#set_group)
 
 <br><br>
@@ -114,9 +114,9 @@ Parameter | Type | Description
 
 ## Instance Methods
 
-<a name="show_properties"></a>
+<a name="print_properties"></a>
 ```lua
-itemLog:show_properties() -> nil
+itemLog:print_properties() -> nil
 ```
 
 Prints the item log's properties.  

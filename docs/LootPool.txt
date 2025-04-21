@@ -7,7 +7,7 @@
   * [`LootPool.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#wrap)
 
 * [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#instance-methods)
-  * [`lootPool:show_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#show_properties)
+  * [`lootPool:print_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#print_properties)
   * [`lootPool:add`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#add)
   * [`lootPool:remove`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#remove)
   * [`lootPool:roll`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#roll)
@@ -99,9 +99,9 @@ Parameter | Type | Description
 
 ## Instance Methods
 
-<a name="show_properties"></a>
+<a name="print_properties"></a>
 ```lua
-lootPool:show_properties() -> nil
+lootPool:print_properties() -> nil
 ```
 
 Prints the loot pool's properties.  
