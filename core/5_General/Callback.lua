@@ -252,10 +252,11 @@ Callback.add = function(namespace, callback, fn, priority)
     __callback_id_lookup[__callback_id_counter] = lookup_table
     table.insert(__callback_bank[callback][priority], fn_table)
     
+    local current_id = __callback_id_counter
     __callback_id_counter = __callback_id_counter + 1
 
     -- Return numerical ID for removability
-    return __callback_id_counter
+    return current_id
 end
 
 

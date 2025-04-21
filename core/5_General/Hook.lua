@@ -335,10 +335,12 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
     local lookup_table = {script, _type, fn_table}
     __hook_id_lookup[__hook_id_counter] = lookup_table
     table.insert(__hook_bank[script][_type][priority], fn_table)
+    
+    local current_id = __hook_id_counter
     __hook_id_counter = __hook_id_counter + 1
 
     -- Return numerical ID for removability
-    return __hook_id_counter
+    return current_id
 end
 
 

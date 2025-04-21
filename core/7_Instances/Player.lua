@@ -40,12 +40,13 @@ methods_player = {
     --$return       Equipment or nil
     --[[
     Returns the player's current equipment.
+    Always `nil` for non-player actors.
     ]]
-    get_equipment = function(self)
+    equipment_get = function(self)
         local holder = RValue.new_holder_scr(1)
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         local out = RValue.new(0)
-        gmf.equipment_get(out, nil, nil, 1, holder)
+        gmf.equipment_get(nil, nil, out, 1, holder)
         local equip = out.value
 
         if equip >= 0 then return Equipment.wrap(equip) end
@@ -58,11 +59,11 @@ methods_player = {
     --[[
     Sets the player's equipment.
     ]]
-    set_equipment = function(self, equip)
+    equipment_set = function(self, equip)
         local holder = RValue.new_holder_scr(2)
         holder[0] = RValue.new(self.value, RValue.Type.REF)
         holder[1] = RValue.new(Wrap.unwrap(equip))
-        gmf.equipment_set(RValue.new(0), nil, nil, 2, holder)
+        gmf.equipment_set(nil, nil, RValue.new(0), 2, holder)
     end
 
 }

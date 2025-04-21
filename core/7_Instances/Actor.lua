@@ -438,6 +438,17 @@ methods_actor = {
         __buff_count_cache[id][buff] = count
         if count == nil then return 0 end
         return count
+    end,
+
+
+    --$instance
+    --$return       Equipment or nil
+    --[[
+    Returns the player's current equipment.
+    Always `nil` for non-player actors.
+    ]]
+    equipment_get = function(self)
+        return nil
     end
 
 }

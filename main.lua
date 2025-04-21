@@ -42,6 +42,7 @@ run_on_hotload(function()
     if Initialize       then Initialize.internal.remove_all(namespace) end
     if RecalculateStats then RecalculateStats.remove_all(namespace) end
     if DamageCalculate  then DamageCalculate.remove_all(namespace) end
+    if Alarm            then Alarm.remove_all(namespace) end
 end)
 
 
