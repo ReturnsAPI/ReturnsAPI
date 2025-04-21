@@ -3,6 +3,10 @@
 local name_rapi = class_name_g2r["class_equipment"]
 Equipment = __class[name_rapi]
 
+run_once(function()
+    __equipment_is_passive = {}
+end)
+
 
 
 -- ========== Enums ==========
@@ -233,8 +237,46 @@ Util.table_append(methods_class_array[name_rapi], {
         for _, tag in ipairs(args) do tags = tags + tag end
 
         self.loot_tags = tags
-    end
+    end,
+
+
+    --$instance
+    --$return       bool
+    --[[
+    Returns `true` if this equipment is marked as passive.
+    ]]
+    is_passive = function(self)
+        return (__equipment_is_passive[self.value] == true)
+    end,
+
+
+    --$instance
+    --$param        bool        | bool      | `true` (passive) or `false` (active)
+    --[[
+    Sets whether or not the equipment is passive (i.e., cannot be activated).
+    ]]
+    set_passive = function(self, bool)
+        if bool == nil then log.error("set_passive: bool argument expected", 2) end
+        __equipment_is_passive[self.value] = bool
+    end,
 
 })
 
--- TODO add and test passive equipment support in multiplayer
+
+
+-- ========== Hooks ==========
+
+memory.dynamic_hook("RAPI.Equipment.item_use_equipment", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.item_use_equipment),
+    {function(ret_val, self, other, result, arg_count, args)
+        -- Prevent passive equipment use
+        -- This hook only runs locally
+        -- Confirmed to work in multiplayer
+        local self_cdata = ffi.cast("CInstance *", self:get_address())
+        local equipment = Instance.wrap(self_cdata.id):equipment_get()
+        if equipment and __equipment_is_passive[equipment.value] then
+            return false
+        end
+    end,
+
+    nil}
+)
