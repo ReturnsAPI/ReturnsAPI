@@ -116,11 +116,10 @@ end
 
 
 --$static
---$return       table, bool
+--$return       table
 --$optional     namespace   | string    | The namespace to check.
 --[[
-Returns a table of all particles in the specified namespace,
-and a boolean that is `true` if the table is *not* empty.
+Returns a table of all particles in the specified namespace.
 If no namespace is provided, retrieves from both your mod's namespace and "ror".
 ]]
 Particle.find_all = function(namespace, _namespace)
@@ -143,7 +142,7 @@ Particle.find_all = function(namespace, _namespace)
         end
     end
     
-    return parts, #parts > 0
+    return parts
 end
 
 

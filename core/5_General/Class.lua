@@ -238,7 +238,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             end
         end
 
-        return elements, #elements > 0
+        return elements
     end
 
     class_table.wrap = function(value)

@@ -106,11 +106,10 @@ end
 
 
 --$static
---$return       table, bool
+--$return       table
 --$param        object      | Object    | The object to check.
 --[[
-Returns a table of all instances of the specified object,
-and a boolean that is `true` if the table is *not* empty.
+Returns a table of all instances of the specified object.
 
 **NOTE:** The execution time scales with the number of
 instances of the object, and can be *very* expensive at high numbers.
@@ -125,7 +124,7 @@ Instance.find_all = function(object)
         table.insert(insts, Instance.find(object, n))
     end
 
-    return insts, #insts > 0
+    return insts
 end
 
 
@@ -408,13 +407,12 @@ Util.table_append(methods_instance, {
 
 
     --$instance
-    --$return       table, bool
+    --$return       table
     --$param        object      | Object    | The object to check.
     --$optional     x           | number    | The x position to check at. <br>Uses this instance's current position by default.
     --$optional     y           | number    | The y position to check at. <br>Uses this instance's current position by default.
     --[[
-    Returns a table of all instances of the specified object that this instance is colliding with,
-    and a boolean that is `true` if the table is *not* empty.
+    Returns a table of all instances of the specified object that this instance is colliding with.
 
     **NOTE:** The execution time scales with the number of
     instances found, and can be somewhat expensive at high numbers.
@@ -469,17 +467,67 @@ Util.table_append(methods_instance, {
         
         list:destroy()
 
-        return insts, #insts
+        return insts
+    end,
+
+
+    --$instance
+    --$return       number or nil
+    --$param        x           | number    | The target x position.
+    --$param        y           | number    | The target y position.
+    --[[
+    Returns the distance between this instance's position and a point.
+    Returns `nil` if this instance does not exist.
+    ]]
+    distance_to = function(self, x, y)
+        -- Return `nil` if wrapper is invalid
+        if self.value == -4 then return nil end
+
+        local holder = RValue.new_holder(4)
+        holder[0] = RValue.new(self.x)
+        holder[1] = RValue.new(self.y)
+        holder[2] = RValue.new(x)
+        holder[3] = RValue.new(y)
+        local out = RValue.new(0)
+        gmf.point_distance(out, nil, nil, 4, holder)
+        return out.value
+    end,
+
+
+    --$instance
+    --$return       number or nil
+    --$param        x           | number    | The target x position.
+    --$param        y           | number    | The target y position.
+    --[[
+    Returns the angle to face a point from this instance's position.
+    Returns `nil` if this instance does not exist.
+    ]]
+    direction_to = function(self, x, y)
+        -- Return `nil` if wrapper is invalid
+        if self.value == -4 then return nil end
+
+        local holder = RValue.new_holder(4)
+        holder[0] = RValue.new(self.x)
+        holder[1] = RValue.new(self.y)
+        holder[2] = RValue.new(x)
+        holder[3] = RValue.new(y)
+        local out = RValue.new(0)
+        gmf.point_direction(out, nil, nil, 4, holder)
+        return out.value
     end,
 
 
     --$instance
     --$return       bool
+    --$param        tag         | string    | The tag to check.
     --[[
-    Returns `true` if this instance is a projectile.
+    Returns `true` if this instance is of an object with the specified tag.
     ]]
-    is_projectile = function(self)
-        if __is_projectile[self:get_object_index()] then return true end
+    has_tag = function(self, tag)
+        if type(tag) ~= "string" then log.error("has_tag: tag must be a string", 2) end
+
+        if not __object_tags[tag] then return false end
+        if __object_tags[tag][self:get_object_index()] then return true end
         return false
     end,
 
@@ -541,6 +589,15 @@ make_table_once("metatable_instance", {
 
         -- For attack instances from `actor:fire_` methods, wrap `attack_info`
         if k == "attack_info" then return AttackInfo.wrap(ret) end
+
+        -- If Script, automatically "bind"
+        -- script as self/other
+        if type(ret) == "table"
+        and ret.RAPI == "Script" then
+            local cinst = self.CInstance
+            ret.self = cinst
+            ret.other = cinst
+        end
 
         -- Standard return
         return ret

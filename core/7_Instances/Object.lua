@@ -3,8 +3,7 @@
 Object = new_class()
 
 run_once(function()
-    __is_projectile = {}    -- List of objects that can be seen as "projectiles"
-                            -- Vanilla objects are added at the bottom of this file
+    __object_tags = {}
     __object_wrapper_cache = {}
     __object_array_cache = {}
 end)
@@ -141,6 +140,33 @@ Object.find = function(identifier, namespace, default_namespace)
 end
 
 
+Object.find_all = function()
+
+end
+
+
+--$static
+--$return       table
+--$param        tag         | string    | The tag to search by.
+--[[
+Returns a table of all objects with the specified tag.
+]]
+Object.find_by_tag = function(tag)
+    if type(tag) ~= "string" then log.error("Object.find_by_tag: tag must be a string", 2) end
+
+    -- Check if tag subtable exists
+    local subtable = __object_tags[tag]
+    if not subtable then return {}, 0 end
+
+    -- Return copy of tag subtable
+    local copy = {}
+    for k, v in pairs(subtable) do
+        if k ~= "count" then copy[k] = v end
+    end
+    return copy, subtable.count
+end
+
+
 Object.add_serializers = function(namespace, object, serializer, deserializer)
     -- Notes:
     -- Remove on hotload
@@ -213,13 +239,66 @@ methods_object = {
 
 
     --$instance
-    --$param        bool        | bool      | 
+    --$param        tag         | string    | The tag to add.
     --[[
-    Whether or not to mark this object as a projectile.
+    Adds a tag to this object for easier lookup grouping.
     ]]
-    mark_as_projectile = function(self, bool)
-        if not bool then log.error("Object.mark_as_projectile: `bool` argument not provided", 2) end
-        __is_projectile[self.value] = bool
+    add_tag = function(self, tag)
+        if type(tag) ~= "string" then log.error("add_tag: tag must be a string", 2) end
+
+        -- Create subtable if existn't
+        if not __object_tags[tag] then __object_tags[tag] = { count = 0 } end
+
+        -- Add to subtable
+        __object_tags[tag][self.value] = self
+        __object_tags[tag].count = __object_tags[tag].count + 1
+    end,
+
+
+    --$instance
+    --$param        tag         | string    | The tag to remove.
+    --[[
+    Removes a tag from this object.
+    ]]
+    remove_tag = function(self, tag)
+        if type(tag) ~= "string" then log.error("remove_tag: tag must be a string", 2) end
+        if not __object_tags[tag] then return end
+
+        -- Remove from subtable
+        __object_tags[tag][self.value] = nil
+        __object_tags[tag].count = __object_tags[tag].count - 1
+
+        -- Delete subtable if there are no more objects
+        if __object_tags[tag].count <= 0 then __object_tags[tag] = nil end
+    end,
+
+
+    --$instance
+    --$return       bool
+    --$param        tag         | string    | The tag to check.
+    --[[
+    Returns `true` if this object has the specified tag.
+    ]]
+    has_tag = function(self, tag)
+        if type(tag) ~= "string" then log.error("has_tag: tag must be a string", 2) end
+
+        if not __object_tags[tag] then return false end
+        if __object_tags[tag][self.value] then return true end
+        return false
+    end,
+
+
+    --$instance
+    --$return       table
+    --[[
+    Returns a table of this object's tags.
+    ]]
+    get_tags = function(self)
+        local tags = {}
+        for tag, subtable in pairs(__object_tags) do
+            if subtable[self.value] then table.insert(tags, tag) end
+        end
+        return tags
     end
 
 }
@@ -286,12 +365,12 @@ make_table_once("metatable_object", {
 
 
 
--- ========== Populate `__is_projectile` with vanilla objects ==========
+-- ========== Assign some object tags ==========
 
 run_once(function()
-    local t = {
 
-        -- Enemy projectiles from RMT's `instance.lua`
+    -- enemy_projectile
+    local t = {
         gm.constants.oJellyMissile,
         gm.constants.oWurmMissile,
         gm.constants.oShamBMissile,
@@ -303,14 +382,11 @@ run_once(function()
         gm.constants.oGuardBulletNoSync,        gm.constants.oGuardBullet,
         gm.constants.oBugBulletNoSync,          gm.constants.oBugBullet,
         gm.constants.oScavengerBulletNoSync,    gm.constants.oScavengerBullet,
-
-        -- TODO add the rest
-
     }
-
     for _, obj_id in ipairs(t) do
-        __is_projectile[obj_id] = true
+        Object.wrap(obj_id):add_tag("enemy_projectile")
     end
+    
 end)
 
 

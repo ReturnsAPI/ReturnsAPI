@@ -15,7 +15,7 @@ v Make Instance find_all, is_colliding, and get_collisions work with custom obje
     v Solution: On getting method from struct, auto"bind" the struct to self/other of the wrapper
 - Change Hook to take in gm.constants instead of strings (maybe)
 - Classes
-    - Equipment
+    v Equipment
     - Achievement
 
     - Stage
