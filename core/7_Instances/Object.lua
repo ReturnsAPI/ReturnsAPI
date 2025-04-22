@@ -244,7 +244,9 @@ methods_object = {
     --$instance
     --$param        tag         | string    | The tag to add.
     --[[
-    Adds a tag to this object for easier lookup grouping.
+    Adds a tag to this object.
+    The purpose of this is to allow for easier lookup
+    for groups of objects (see $`Object.find_by_tag`, Object#find_by_tag$).
     ]]
     add_tag = function(self, tag)
         if type(tag) ~= "string" then log.error("add_tag: tag must be a string", 2) end
