@@ -94,7 +94,44 @@ Color.Text = ReadOnly.new({
 
 
 
+-- ========== Internal ==========
+
+local hex_symbols_l = "0123456789abcdef"
+local hex_symbols_u = "0123456789ABCDEF"
+
+-- `hex` is a string
+Color.internal.hex2dec = function(hex)
+    if type(hex) ~= "string" then log.error("hex2dec: hex must be a string", 2) end
+    local sum = 0
+    local place = 0
+    for i = #hex, 1, -1 do
+        local symbol = hex:sub(i, i)
+        local value = hex_symbols_l:find(symbol) or hex_symbols_u:find(symbol)
+        if not value then log.error("hex2dec: hex is invalid", 2) end
+        value = (value - 1) * math.pow(16, place)
+        sum = sum + value
+        place = place + 1
+    end
+    return sum
+end
+
+
+
 -- ========== Static Methods ==========
+
+--$static
+--$return       number
+--$param        hex         | string    | The hex string of the color (in RGB).
+--[[
+Returns a decimal color value from a hex string.
+Can also be called via `Color(<hex>)`.
+]]
+Color.from_hex = function(hex)
+    if (type(hex) ~= "string") or (#hex ~= 6) then log.error("Color.from_hex: hex must be a string of length 6", 2) end
+    hex = hex:sub(5, 6)..hex:sub(3, 4)..hex:sub(1, 2)
+    return Color.internal.hex2dec(hex)
+end
+
 
 -- Bitwise doesn't seem to exist here
 -- so these will have to be rewritten
@@ -201,9 +238,9 @@ Color.Text = ReadOnly.new({
 -- ========== Metatables ==========
 
 make_table_once("metatable_color", {
-    -- __call = function(t, hex)
-    --     return Color.from_hex(hex)
-    -- end,
+    __call = function(t, hex)
+        return Color.from_hex(hex)
+    end,
 
 
     __metatable = "RAPI.Class.Color"

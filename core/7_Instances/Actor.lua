@@ -71,6 +71,7 @@ methods_actor = {
     `.attack_info` will return an AttackInfo.
     
     This can be called from host or client, and automatically syncs.
+    The attack info can be modified before DamageCalculate callbacks run.
     ]]
     fire_bullet = function(self, x, y, range, direction, damage, pierce_multiplier, hit_sprite, tracer, can_proc)
         -- Return if wrapper is invalid
@@ -124,6 +125,7 @@ methods_actor = {
     `.attack_info` will return an AttackInfo.
 
     This can be called from host or client, and automatically syncs.
+    The attack info can be modified before DamageCalculate callbacks run.
     ]]
     fire_explosion = function(self, x, y, width, height, damage, explosion_sprite, sparks_sprite, can_proc)
         -- Return if wrapper is invalid
@@ -170,6 +172,7 @@ methods_actor = {
     `.attack_info` will return an AttackInfo.
 
     This attack is not synced.
+    The attack info can be modified before DamageCalculate callbacks run.
     ]]
     fire_explosion_local = function(self, x, y, width, height, damage, explosion_sprite, sparks_sprite, can_proc)
         -- Return if wrapper is invalid
@@ -226,6 +229,7 @@ methods_actor = {
     `.attack_info` will return an AttackInfo.
 
     This can be called from host or client, and automatically syncs.
+    The attack info can be modified before DamageCalculate callbacks run.
     ]]
     fire_direct = function(self, target, damage, direction, x, y, hit_sprite, can_proc)
         -- Return if wrapper is invalid

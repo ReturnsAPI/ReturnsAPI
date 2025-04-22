@@ -58,8 +58,65 @@ end
 
 methods_attackinfo = {
 
-    abc = function(self)
+    --$instance
+    --[[
+    If called, treats the attack's damage as a raw value,
+    instead of having been multiplied as a damage coefficient.
+    *Technical:* Divides `damage` by `parent.damage`.
+    ]]
+    use_raw_damage = function(self)
+        local parent = self.parent
+        if not parent:exists() then log.error("use_raw_damage: Parent does not exist", 2) end
         
+        self.damage = math.ceil(self.damage / parent.damage)
+    end,
+
+
+    --$instance
+    --$return       number
+    --[[
+    Returns the attack's damage *before* critical calculation.
+    ]]
+    get_damage_nocrit = function(self)
+        if Util.bool(self.critical) then
+            return math.ceil(self.damage / 2)
+        end
+        return self.damage
+    end,
+
+
+    --$instance
+    --$param        damage      | number    | The damage to set.
+    --[[
+    Sets the damage of the attack *before* critical calculation.
+    ]]
+    set_damage = function(self, damage)
+        if not damage then log.error("set_damage: Missing damage argument", 2) end
+        
+        if Util.bool(self.critical) then damage = damage * 2 end
+        self.damage = math.ceil(damage)
+    end,
+
+
+    --$instance
+    --$param        bool        | bool      | `true` - Crit <br>`false` - Non-crit
+    --[[
+    Sets whether or not this attack is a critical hit.
+    ]]
+    set_critical = function(self, bool)
+        if bool == nil then log.error("set_critical: Missing bool argument", 2) end
+
+        -- Enable crit
+        if bool and (not Util.bool(self.critical)) then
+            self.critical = true
+            self.damage = self.damage * 2
+
+        -- Disable crit
+        elseif (not bool) and Util.bool(self.critical) then
+            self.critical = false
+            self.damage = math.ceil(self.damage / 2)
+
+        end
     end
 
 }

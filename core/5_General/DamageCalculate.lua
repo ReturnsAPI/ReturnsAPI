@@ -83,14 +83,14 @@ local api_internal = {
         if bool == nil then log.error("set_critical: Missing bool argument", 2) end
 
         -- Enable crit
-        if (not api.critical) and bool then
+        if bool and (not api.critical) then
             api.critical = true
             api.damage = api.damage * 2
             params.damage_true = params.damage_true * 2
             params.damage_fake = params.damage_fake * 2
 
         -- Disable crit
-        elseif api.critical and (not bool) then
+        elseif (not bool) and api.critical then
             api.critical = false
             api.damage = math.ceil(api.damage / 2)
             params.damage_true = math.ceil(params.damage_true / 2)
