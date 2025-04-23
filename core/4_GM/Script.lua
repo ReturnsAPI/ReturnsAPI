@@ -85,27 +85,27 @@ make_table_once("metatable_script", {
         if k == "other" then return Proxy.get(proxy)[4] end
 
         -- Call with manual self/other
-        if k == "call" then
+        if k == "SO" then
             return function(self, other, ...)
                 if self then self = self.CInstance end
                 if other then other = other.CInstance end
-
+            
                 local args = table.pack(...)
                 local holder = nil
                 if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
-
+            
                 -- Populate holder
                 for i = 1, args.n do
                     holder[i - 1] = RValue.from_wrapper(args[i])
                 end
-
+            
                 local out = RValue.new(0)
                 gmf[proxy.name](self, other, out, args.n, holder)
                 return RValue.to_wrapper(out)
             end
         end
     end,
-
+    
 
     __newindex = function(proxy, k, v)
         -- Throw read-only error for certain keys
@@ -114,7 +114,7 @@ make_table_once("metatable_script", {
         or k == "RAPI"
         or k == "yy_object_base"
         or k == "name"
-        or k == "call" then
+        or k == "SO" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
