@@ -56,10 +56,30 @@ Also exists as an $instance method, Instance#exists-instance$.
 ]]
 Instance.exists = function(inst)
     local holder = RValue.new_holder(1)
-    holder[0] = RValue.new(Wrap.unwrap(inst))
+    holder[0] = RValue.new(Wrap.unwrap(inst), RValue.Type.REF)
     local out = RValue.new(0)
     gmf.instance_exists(out, nil, nil, 1, holder)
     return out.value == 1
+end
+
+
+--$static
+--$aref         destroy-static
+--$param        inst        | Instance  | The instance to destroy.
+--[[
+Destroys the instance.
+
+Also exists as an $instance method, Instance#destroy-instance$.
+]]
+Instance.destroy = function(inst)
+    inst = Wrap.unwrap(inst)
+
+    local holder = RValue.new_holder(1)
+    holder[0] = RValue.new(inst, RValue.Type.REF)
+    gmf.instance_destroy(RValue.new(0), nil, nil, 1, holder)
+
+    -- Clear instance data
+    __instance_data[inst] = nil
 end
 
 
@@ -299,8 +319,11 @@ Util.table_append(methods_instance, {
 
 
     --$instance
+    --$aref         destroy-instance
     --[[
     Destroys the instance.
+
+    Also exists as a $static method, Instance#destroy-static$.
     ]]
     destroy = function(self)
         -- Return if wrapper is invalid

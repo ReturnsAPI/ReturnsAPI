@@ -305,7 +305,7 @@ memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"void*"
         -- start cooldown if necessary. ugly because orig already calls this before this hook, but oh well
         local auto_restock = class_skill:get(skill_id):get(10) or false
         if auto_restock then
-            -- Auto"binds" `self_struct` as self/other
+            -- Autobinds `self_struct` as self/other
             -- (See Struct class metatable)
             self_struct.skill_start_cooldown()
         end

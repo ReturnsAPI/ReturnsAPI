@@ -102,6 +102,7 @@ methods_attackinfo = {
     --$param        bool        | bool      | `true` - Crit <br>`false` - Non-crit
     --[[
     Sets whether or not this attack is a critical hit.
+    *Technical:* Multiplies/divides `damage` by 2 alongside setting `critical`.
     ]]
     set_critical = function(self, bool)
         if bool == nil then log.error("set_critical: Missing bool argument", 2) end
