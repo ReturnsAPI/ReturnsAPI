@@ -54,6 +54,7 @@ Automatically called when you hotload your mod.
 ]]
 DamageCalculate.remove_all = function(namespace)
     local ns_table = __damage_calc_namespace[namespace]
+    if not ns_table then return end
     for _, fn_table in pairs(ns_table) do
         local priority = fn_table.priority
         Util.table_remove_value(__damage_calc_priority[priority], fn_table)
