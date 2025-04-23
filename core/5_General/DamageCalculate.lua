@@ -71,10 +71,10 @@ local api_internal = {
         if update_damage_number ~= false then
             params.damage_fake = math.ceil(params.damage_fake * value)
 
-        -- Return difference between current and previous damage
+        -- Otherwise, return difference between current and previous damage
         -- This value can then be drawn separately
         else
-            return prev_damage - api.damage
+            return api.damage - prev_damage
         end
     end,
 
