@@ -1,6 +1,7 @@
 * [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#static-methods)
   * [`Instance.create`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#create)
   * [`Instance.exists`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists-static)
+  * [`Instance.destroy`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#destroy-static)
   * [`Instance.find`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#find)
   * [`Instance.find_all`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#find_all)
   * [`Instance.count`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#count)
@@ -10,8 +11,15 @@
 
 * [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#instance-methods)
   * [`instance:exists`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#exists-instance)
-  * [`instance:destroy`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#destroy)
+  * [`instance:destroy`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#destroy-instance)
+  * [`instance:get_object`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#get_object)
+  * [`instance:get_object_index`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#get_object_index)
   * [`instance:is_colliding`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#is_colliding)
+  * [`instance:get_collisions`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#get_collisions)
+  * [`instance:distance_to`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#distance_to)
+  * [`instance:direction_to`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#direction_to)
+  * [`instance:has_tag`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#has_tag)
+  * [`instance:print_variables`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#print_variables)
 
 <br><br>
 
@@ -53,28 +61,44 @@ Parameter | Type | Description
 
 <br><br>
 
-<a name="find"></a>
+<a name="destroy-static"></a>
 ```lua
-Instance.find(object) -> Instance
+Instance.destroy(inst) -> nil
 ```
 
-Returns the first instance of the specified object,  
+Destroys the instance.  
+  
+Also exists as an [instance method](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#destroy-instance).  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`inst` | Instance | The instance to destroy.
+
+<br><br>
+
+<a name="find"></a>
+```lua
+Instance.find(object, n) -> Instance
+```
+
+Returns the first (or *n*-th) instance of the specified object,  
 or an invalid instance (value of `-4`).  
 
 **Parameters**  
 Parameter | Type | Description
 | - | - | -
 `object` | Object | The object to check.
+`n` | number | The *n*-th instance, indexed from 1. <br>`1` by default.
 
 <br><br>
 
 <a name="find_all"></a>
 ```lua
-Instance.find_all(object) -> table, bool
+Instance.find_all(object) -> table
 ```
 
-Returns a table of all instances of the specified object,  
-and a boolean that is `true` if the table is *not* empty.  
+Returns a table of all instances of the specified object.  
   
 **NOTE:** The execution time scales with the number of  
 instances of the object, and can be *very* expensive at high numbers.  
@@ -167,12 +191,38 @@ None
 
 <br><br>
 
-<a name="destroy"></a>
+<a name="destroy-instance"></a>
 ```lua
 instance:destroy() -> nil
 ```
 
 Destroys the instance.  
+  
+Also exists as a [static method](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Instance#destroy-static).  
+
+**Parameters**  
+None
+
+<br><br>
+
+<a name="get_object"></a>
+```lua
+instance:get_object() -> Object
+```
+
+Returns the object that the instance is a type of.  
+
+**Parameters**  
+None
+
+<br><br>
+
+<a name="get_object_index"></a>
+```lua
+instance:get_object_index() -> number
+```
+
+Returns the instance's correct object index, accounting for custom objects.  
 
 **Parameters**  
 None
@@ -185,6 +235,10 @@ instance:is_colliding(object, [x], [y]) -> bool
 ```
 
 Returns `true` if this instance is colliding with *any* instance of the specified object.  
+  
+**NOTE:** Checking for custom object collision  
+is *much* slower than a vanilla object.  
+Be mindful of this.  
 
 **Parameters**  
 Parameter | Type | Description
@@ -192,6 +246,84 @@ Parameter | Type | Description
 `object` | Object | The object to check.
 `[x]` | number | *Optional.* The x position to check at. <br>Uses this instance's current position by default.
 `[y]` | number | *Optional.* The y position to check at. <br>Uses this instance's current position by default.
+
+<br><br>
+
+<a name="get_collisions"></a>
+```lua
+instance:get_collisions(object, [x], [y]) -> table
+```
+
+Returns a table of all instances of the specified object that this instance is colliding with.  
+  
+**NOTE:** The execution time scales with the number of  
+instances found, and can be somewhat expensive at high numbers.  
+Be mindful of this.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`object` | Object | The object to check.
+`[x]` | number | *Optional.* The x position to check at. <br>Uses this instance's current position by default.
+`[y]` | number | *Optional.* The y position to check at. <br>Uses this instance's current position by default.
+
+<br><br>
+
+<a name="distance_to"></a>
+```lua
+instance:distance_to(x, y) -> number or nil
+```
+
+Returns the distance between this instance's position and a point.  
+Returns `nil` if this instance does not exist.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x` | number | The target x position.
+`y` | number | The target y position.
+
+<br><br>
+
+<a name="direction_to"></a>
+```lua
+instance:direction_to(x, y) -> number or nil
+```
+
+Returns the angle to face a point from this instance's position.  
+Returns `nil` if this instance does not exist.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x` | number | The target x position.
+`y` | number | The target y position.
+
+<br><br>
+
+<a name="has_tag"></a>
+```lua
+instance:has_tag(tag) -> bool
+```
+
+Returns `true` if this instance is of an object with the specified tag.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`tag` | string | The tag to check.
+
+<br><br>
+
+<a name="print_variables"></a>
+```lua
+instance:print_variables() -> nil
+```
+
+Prints the instances's variables.  
+
+**Parameters**  
+None
 
 <br><br>
 

@@ -11,6 +11,7 @@
   * [`actor:buff_apply`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#buff_apply)
   * [`actor:buff_remove`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#buff_remove)
   * [`actor:buff_count`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#buff_count)
+  * [`actor:equipment_get`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Actor#equipment_get)
 
 <br><br>
 
@@ -52,6 +53,7 @@ Fires a bullet attack from the actor, and returns the attack instance.
 `.attack_info` will return an AttackInfo.  
   
 This can be called from host or client, and automatically syncs.  
+The attack info can be modified before DamageCalculate callbacks run.  
 
 **Parameters**  
 Parameter | Type | Description
@@ -77,6 +79,7 @@ Fires an explosion attack from the actor, and returns the attack instance.
 `.attack_info` will return an AttackInfo.  
   
 This can be called from host or client, and automatically syncs.  
+The attack info can be modified before DamageCalculate callbacks run.  
 
 **Parameters**  
 Parameter | Type | Description
@@ -101,6 +104,7 @@ Fires an explosion attack from the actor, and returns the attack instance.
 `.attack_info` will return an AttackInfo.  
   
 This attack is not synced.  
+The attack info can be modified before DamageCalculate callbacks run.  
 
 **Parameters**  
 Parameter | Type | Description
@@ -125,6 +129,7 @@ Fires a direct attack from the actor, and returns the attack instance.
 `.attack_info` will return an AttackInfo.  
   
 This can be called from host or client, and automatically syncs.  
+The attack info can be modified before DamageCalculate callbacks run.  
 
 **Parameters**  
 Parameter | Type | Description
@@ -228,6 +233,19 @@ Returns the number of stacks of the specified buff the actor has.
 Parameter | Type | Description
 | - | - | -
 `buff` | Buff | The buff to check.
+
+<br><br>
+
+<a name="equipment_get"></a>
+```lua
+actor:equipment_get() -> Equipment or nil
+```
+
+Returns the player's current equipment.  
+Always `nil` for non-player actors.  
+
+**Parameters**  
+None
 
 <br><br>
 

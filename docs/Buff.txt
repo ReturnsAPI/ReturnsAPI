@@ -6,6 +6,9 @@
 * [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Buff#static-methods)
   * [`Buff.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Buff#new)
 
+* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Buff#instance-methods)
+  * [`buff:print_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Buff#print_properties)
+
 <br><br>
 
 ---
@@ -79,6 +82,22 @@ or returns the existing one if it does.
 Parameter | Type | Description
 | - | - | -
 `identifier` | string | The identifier for the buff.
+
+<br><br>
+
+---
+
+## Instance Methods
+
+<a name="print_properties"></a>
+```lua
+buff:print_properties() -> nil
+```
+
+Prints the buff's properties.  
+
+**Parameters**  
+None
 
 <br><br>
 

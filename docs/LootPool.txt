@@ -8,8 +8,10 @@
 
 * [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#instance-methods)
   * [`lootPool:print_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#print_properties)
-  * [`lootPool:add`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#add)
-  * [`lootPool:remove`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#remove)
+  * [`lootPool:add_item`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#add_item)
+  * [`lootPool:remove_item`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#remove_item)
+  * [`lootPool:add_equipment`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#add_equipment)
+  * [`lootPool:remove_equipment`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#remove_equipment)
   * [`lootPool:roll`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/LootPool#roll)
 
 <br><br>
@@ -111,9 +113,9 @@ None
 
 <br><br>
 
-<a name="add"></a>
+<a name="add_item"></a>
 ```lua
-lootPool:add(item) -> nil
+lootPool:add_item(item) -> nil
 ```
 
 Adds an item to the loot pool.  
@@ -125,9 +127,9 @@ Parameter | Type | Description
 
 <br><br>
 
-<a name="remove"></a>
+<a name="remove_item"></a>
 ```lua
-lootPool:remove(item) -> nil
+lootPool:remove_item(item) -> nil
 ```
 
 Removes an item from the loot pool.  
@@ -136,6 +138,34 @@ Removes an item from the loot pool.
 Parameter | Type | Description
 | - | - | -
 `item` | Item | The item to remove.
+
+<br><br>
+
+<a name="add_equipment"></a>
+```lua
+lootPool:add_equipment(equip) -> nil
+```
+
+Adds an equipment to the loot pool.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`equip` | Equipment | The equipment to add.
+
+<br><br>
+
+<a name="remove_equipment"></a>
+```lua
+lootPool:remove_equipment(equip) -> nil
+```
+
+Removes an equipment from the loot pool.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`equip` | Equipment | The equipment to remove.
 
 <br><br>
 

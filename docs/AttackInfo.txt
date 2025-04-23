@@ -4,6 +4,12 @@
 * [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/AttackInfo#static-methods)
   * [`AttackInfo.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/AttackInfo#wrap)
 
+* [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/AttackInfo#instance-methods)
+  * [`attackInfo:use_raw_damage`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/AttackInfo#use_raw_damage)
+  * [`attackInfo:get_damage_nocrit`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/AttackInfo#get_damage_nocrit)
+  * [`attackInfo:set_damage`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/AttackInfo#set_damage)
+  * [`attackInfo:set_critical`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/AttackInfo#set_critical)
+
 <br><br>
 
 ---
@@ -61,6 +67,65 @@ Returns an AttackInfo wrapper containing the provided `attack_info` struct.
 Parameter | Type | Description
 | - | - | -
 `attack_info` | Struct | The `attack_info` struct to wrap.
+
+<br><br>
+
+---
+
+## Instance Methods
+
+<a name="use_raw_damage"></a>
+```lua
+attackInfo:use_raw_damage() -> nil
+```
+
+If called, treats the attack's damage as a raw value,  
+instead of having been multiplied as a damage coefficient.  
+*Technical:* Divides `damage` by `parent.damage`.  
+
+**Parameters**  
+None
+
+<br><br>
+
+<a name="get_damage_nocrit"></a>
+```lua
+attackInfo:get_damage_nocrit() -> number
+```
+
+Returns the attack's damage *before* critical calculation.  
+
+**Parameters**  
+None
+
+<br><br>
+
+<a name="set_damage"></a>
+```lua
+attackInfo:set_damage(damage) -> nil
+```
+
+Sets the damage of the attack *before* critical calculation.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`damage` | number | The damage to set.
+
+<br><br>
+
+<a name="set_critical"></a>
+```lua
+attackInfo:set_critical(bool) -> nil
+```
+
+Sets whether or not this attack is a critical hit.  
+*Technical:* Multiplies/divides `damage` by 2 alongside setting `critical`.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`bool` | bool | `true` - Crit <br>`false` - Non-crit
 
 <br><br>
 

@@ -21,7 +21,7 @@ v Make Instance find_all, is_colliding, and get_collisions work with custom obje
     v Equipment
     - Achievement
 
-    - Stage
+    ~ Stage
     - EnvironmentLog
     
     - InteractableCard

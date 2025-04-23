@@ -91,11 +91,10 @@ Parameter | Type | Description
 
 <a name="find_all"></a>
 ```lua
-Particle.find_all([namespace]) -> table, bool
+Particle.find_all([namespace]) -> table
 ```
 
-Returns a table of all particles in the specified namespace,  
-and a boolean that is `true` if the table is *not* empty.  
+Returns a table of all particles in the specified namespace.  
 If no namespace is provided, retrieves from both your mod's namespace and "ror".  
 
 **Parameters**  

@@ -1,4 +1,5 @@
 * [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Initialize#static-methods)
+  * [`Initialize.add`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Initialize#add)
   * [`Initialize.has_started`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Initialize#has_started)
   * [`Initialize.is_done`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Initialize#is_done)
 
@@ -8,13 +9,26 @@
 
 ## Static Methods
 
+<a name="add"></a>
+```lua
+Initialize.add() -> bool
+```
+
+Adds a new function to run during ReturnsAPI's initialization loop.  
+This happens after all vanilla content has loaded.  
+
+**Parameters**  
+None
+
+<br><br>
+
 <a name="has_started"></a>
 ```lua
 Initialize.has_started() -> bool
 ```
 
 Returns `true` if ReturnsAPI's initialization loop has started.  
-This happens after all vanilla content is loaded.  
+This happens after all vanilla content has loaded.  
 
 **Parameters**  
 None

@@ -42,7 +42,7 @@ Parameter | Type | Description
 
 <a name="wrap_yyobjectbase"></a>
 ```lua
-Struct.wrap_yyobjectbase(struct) -> Struct
+Struct.wrap_yyobjectbase(struct_yy) -> Struct
 ```
 
 Returns a Struct wrapper containing the provided struct.  
@@ -50,7 +50,7 @@ Returns a Struct wrapper containing the provided struct.
 **Parameters**  
 Parameter | Type | Description
 | - | - | -
-`struct` |  | `struct YYObjectBase*` pointing to a struct.
+`struct_yy` |  | `struct YYObjectBase*` pointing to a struct.
 
 <br><br>
 

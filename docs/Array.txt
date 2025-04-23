@@ -45,7 +45,7 @@ Parameter | Type | Description
 
 <a name="wrap_i64"></a>
 ```lua
-Array.wrap_i64(array) -> Array
+Array.wrap_i64(array_i64) -> Array
 ```
 
 Returns an Array wrapper containing the provided array.  
@@ -53,7 +53,7 @@ Returns an Array wrapper containing the provided array.
 **Parameters**  
 Parameter | Type | Description
 | - | - | -
-`array` | number | `i64` reference to an array.
+`array_i64` | number | `i64` reference to an array.
 
 <br><br>
 

@@ -1,7 +1,8 @@
 * [**Constants**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#constants)
 
 * [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#static-methods)
-  * [`Hook.add`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#add)
+  * [`Hook.pre`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#pre)
+  * [`Hook.post`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#post)
   * [`Hook.remove`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#remove)
   * [`Hook.remove_all`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Hook#remove_all)
 
@@ -22,12 +23,12 @@ Hook.POST    = 1
 
 ## Static Methods
 
-<a name="add"></a>
+<a name="pre"></a>
 ```lua
-Hook.add(script, type, fn, [priority]) -> number
+Hook.pre(script, fn, [priority]) -> number
 ```
 
-Registers a function under a game function hook.  
+Registers a function under a game function pre-hook.  
 Returns the unique ID of the registered function.  
   
 **Priority Convention**  
@@ -39,7 +40,28 @@ If you need to be more specific than that, try to keep a distance of at least `1
 Parameter | Type | Description
 | - | - | -
 `script` | string | The game function to hook.
-`type` | number | Either `Hook.PRE` or `Hook.POST`.
+`fn` | function | The function to register. <br>The parameters for it are `self, other, result, args`.
+`[priority]` | number | *Optional.* The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+
+<br><br>
+
+<a name="post"></a>
+```lua
+Hook.post(script, fn, [priority]) -> number
+```
+
+Registers a function under a game function post-hook.  
+Returns the unique ID of the registered function.  
+  
+**Priority Convention**  
+To allow for a decent amount of space between priorities,  
+use the enum values in [`Callback.Priority`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Callback#Priority).  
+If you need to be more specific than that, try to keep a distance of at least `100`.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`script` | string | The game function to hook.
 `fn` | function | The function to register. <br>The parameters for it are `self, other, result, args`.
 `[priority]` | number | *Optional.* The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 

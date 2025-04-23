@@ -4,6 +4,9 @@
   * [`Color.Item`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#Item)
   * [`Color.Text`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#Text)
 
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#static-methods)
+  * [`Color.from_hex`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Color#from_hex)
+
 <br><br>
 
 ---
@@ -69,6 +72,25 @@ Color.Text = {
     DKGREY  = 0x808080
 }
 ```
+
+<br><br>
+
+---
+
+## Static Methods
+
+<a name="from_hex"></a>
+```lua
+Color.from_hex(hex) -> number
+```
+
+Returns a decimal color value from a hex string.  
+Can also be called via `Color(<hex>)`.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`hex` | string | The hex string of the color (in RGB).
 
 <br><br>
 

@@ -5,10 +5,17 @@
 * [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#static-methods)
   * [`Object.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#new)
   * [`Object.find`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#find)
+  * [`Object.find_by_tag`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#find_by_tag)
   * [`Object.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#wrap)
 
 * [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#instance-methods)
   * [`object:create`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#create)
+  * [`object:set_sprite`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#set_sprite)
+  * [`object:set_depth`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#set_depth)
+  * [`object:add_tag`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#add_tag)
+  * [`object:remove_tag`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#remove_tag)
+  * [`object:has_tag`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#has_tag)
+  * [`object:get_tags`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#get_tags)
 
 <br><br>
 
@@ -87,6 +94,23 @@ Parameter | Type | Description
 
 <br><br>
 
+<a name="find_by_tag"></a>
+```lua
+Object.find_by_tag(tag) -> table, number
+```
+
+Returns a key-value pair table of all objects with the specified tag,  
+and the number of objects in the table.  
+  
+Each key-value pair is `object_index, Object wrapper`.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`tag` | string | The tag to search by.
+
+<br><br>
+
 <a name="wrap"></a>
 ```lua
 Object.wrap(object) -> Object
@@ -119,6 +143,90 @@ Parameter | Type | Description
 | - | - | -
 `x` | number | The x spawn coordinate. <br>`0` by default.
 `y` | number | The y spawn coordinate. <br>`0` by default.
+
+<br><br>
+
+<a name="set_sprite"></a>
+```lua
+object:set_sprite(sprite) -> nil
+```
+
+Sets the sprite of the object.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`sprite` | sprite | The sprite to set.
+
+<br><br>
+
+<a name="set_depth"></a>
+```lua
+object:set_depth(depth) -> nil
+```
+
+Sets the depth of the object.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`depth` | number | The depth to set.
+
+<br><br>
+
+<a name="add_tag"></a>
+```lua
+object:add_tag(tag) -> nil
+```
+
+Adds a tag to this object.  
+The purpose of this is to allow for easier lookup  
+for groups of objects (see [`Object.find_by_tag`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#find_by_tag)).  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`tag` | string | The tag to add.
+
+<br><br>
+
+<a name="remove_tag"></a>
+```lua
+object:remove_tag(tag) -> nil
+```
+
+Removes a tag from this object.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`tag` | string | The tag to remove.
+
+<br><br>
+
+<a name="has_tag"></a>
+```lua
+object:has_tag(tag) -> bool
+```
+
+Returns `true` if this object has the specified tag.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`tag` | string | The tag to check.
+
+<br><br>
+
+<a name="get_tags"></a>
+```lua
+object:get_tags() -> table
+```
+
+Returns a table of this object's tags.  
+
+**Parameters**  
+None
 
 <br><br>
 

@@ -26,6 +26,10 @@ end
 local class_wrappers = {}
 
 Class.internal.initialize = function()
+    -- For reference:
+    -- __class_find_tables[name_global][namespace][identifier]  = element_table
+    -- __class_find_tables[name_global][id]                     = element_table
+
     -- Populate class_wrappers on initialize
     -- since some class arrays existn't before then
     for name_rapi, name_global in pairs(class_name_r2g) do
@@ -34,7 +38,9 @@ Class.internal.initialize = function()
         -- Update cached wrappers in __class_find_tables
         local find_table = __class_find_tables[name_global]
         for id, element_table in pairs(find_table) do
-            element_table.wrapper = __class[name_rapi].wrap(element_table.id)
+            if type(id) == "number" then
+                element_table.wrapper = __class[name_rapi].wrap(element_table.id)
+            end
         end
     end
 end

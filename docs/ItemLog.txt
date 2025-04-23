@@ -7,6 +7,7 @@
 * [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#static-methods)
   * [`ItemLog.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#new)
   * [`ItemLog.new_from_item`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#new_from_item)
+  * [`ItemLog.new_from_equipment`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#new_from_equipment)
 
 * [**Instance Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#instance-methods)
   * [`itemLog:print_properties`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ItemLog#print_properties)
@@ -107,6 +108,22 @@ setting the item's `item_log_id` property.
 Parameter | Type | Description
 | - | - | -
 `item` | Item | The item to use as a base.
+
+<br><br>
+
+<a name="new_from_equipment"></a>
+```lua
+ItemLog.new_from_equipment(equip) -> ItemLog
+```
+
+Creates a new item log using an equipment as a base,  
+automatically populating the log's properties and  
+setting the equipment's `item_log_id` property.  
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`equip` | Equipment | The equipment to use as a base.
 
 <br><br>
 
