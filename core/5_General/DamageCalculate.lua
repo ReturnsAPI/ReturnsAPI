@@ -3,7 +3,9 @@
 DamageCalculate = new_class()
 
 run_once(function()
-    __damage_calc_callbacks = {}
+    __damage_calc_namespace     = {}    -- Contains fn_tables sorted by namespace
+    __damage_calc_priority      = {}    -- Contains fn_tables sorted by priority
+    __damage_calc_priorities    = {}    -- Contains list of priorities in use (in order)
 end)
 
 
@@ -12,14 +14,35 @@ end)
 
 --$static
 --$param        fn          | function  | The function to register. <br>The parameters for it are `api`.
+--$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --[[
 Registers a function for modifying damage calculation.
-]]
-DamageCalculate.add = function(namespace, fn)
-    -- Create namespace subtable if it does not exist
-    if not __damage_calc_callbacks[namespace] then __damage_calc_callbacks[namespace] = {} end
 
-    table.insert(__damage_calc_callbacks[namespace], fn)
+**Priority Convention**
+To allow for a decent amount of space between priorities,
+use the enum values in $`Callback.Priority`, Callback#Priority$.
+If you need to be more specific than that, try to keep a distance of at least `100`.
+]]
+DamageCalculate.add = function(namespace, fn, priority)
+    -- Default priority is 0
+    priority = priority or 0
+
+    local fn_table = {
+        fn          = fn,
+        priority    = priority
+    }
+
+    -- Create namespace subtable if it does not exist
+    if not __damage_calc_namespace[namespace] then __damage_calc_namespace[namespace] = {} end
+    table.insert(__damage_calc_namespace[namespace], fn_table)
+
+    -- Create priority subtable if it does not exist
+    if not __damage_calc_priority[priority] then
+        __damage_calc_priority[priority] = {}
+        table.insert(__damage_calc_priorities, priority)
+        table.sort(__damage_calc_priorities, function(a, b) return a > b end)
+    end
+    table.insert(__damage_calc_priority[priority], fn_table)
 end
 
 
@@ -30,7 +53,16 @@ Removes all registered damage calculation functions from your namespace.
 Automatically called when you hotload your mod.
 ]]
 DamageCalculate.remove_all = function(namespace)
-    __damage_calc_callbacks[namespace] = nil
+    local ns_table = __damage_calc_namespace[namespace]
+    for _, fn_table in pairs(ns_table) do
+        local priority = fn_table.priority
+        Util.table_remove_value(__damage_calc_priority[priority], fn_table)
+        if #__damage_calc_priority[priority] <= 0 then
+            __damage_calc_priority[priority] = nil
+            Util.table_remove_value(__damage_calc_priorities, priority)
+        end
+    end
+    __damage_calc_namespace[namespace] = nil
 end
 
 
@@ -160,12 +192,13 @@ memory.dynamic_hook_mid("RAPI.DamageCalculate.damager_calculate_damage", {"r14",
     reset_params()
 
     -- Gather params
-    -- Loop through all namespace subtables
-    for namespace, funcs in pairs(__damage_calc_callbacks) do
+    -- Loop through all priorities
+    for _, priority in pairs(__damage_calc_priorities) do
 
-        -- Call each registered function in the namespace
-        for _, fn in ipairs(funcs) do
-            fn(api) -- TODO pass actor, hit, etc.
+        -- Call each registered function in the priority subtable
+        local subtable = __damage_calc_priority[priority]
+        for _, fn_table in ipairs(subtable) do
+            fn_table.fn(api)
         end
     end
 
