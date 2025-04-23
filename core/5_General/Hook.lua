@@ -1,8 +1,5 @@
 -- Hook
 
--- Issues (TODO):
--- `memory.dynamic_hook`s are not re-added on RAPI hotload
-
 Hook = new_class()
 
 run_once(function()

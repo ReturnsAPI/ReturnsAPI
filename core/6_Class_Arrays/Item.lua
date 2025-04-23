@@ -177,15 +177,19 @@ Util.table_append(methods_class_array[name_rapi], {
 
         -- Look for drop (because gm.item_drop_object does not actually return the instance for some reason)
         local drop = nil
-        local drops = Instance.find_all(gm.constants.pPickupItem) --, gm.constants.oCustomObject_pPickupItem)   -- TODO custom items
-        for _, d in ipairs(drops) do
-            local dData = Instance.get_data(d)
-            if math.abs(d.x - x) <= 1 and math.abs(d.y - y) <= 1
-            and (not dData.returned_drop) then
-                drop = d
-                dData.returned_drop = true
-                break
+        local objs = {gm.constants.pPickupItem, gm.constants.oCustomObject_pPickupItem}
+        for _, obj in ipairs(objs) do
+            local drops = Instance.find_all(obj)
+            for _, d in ipairs(drops) do
+                local dData = Instance.get_data(d)
+                if math.abs(d.x - x) <= 1 and math.abs(d.y - y) <= 1
+                and (not dData.returned_drop) then
+                    drop = d
+                    dData.returned_drop = true
+                    break
+                end
             end
+            if drop then break end
         end
 
         return drop

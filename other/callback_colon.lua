@@ -99,7 +99,7 @@ metatable_callback_type = {
 
             local t = {
                 -- id          = cbank.id_counter,
-                namespace   = "TODO",
+                namespace   = "namespace",
                 fn          = fn
             }
             id_lookup[id_counter] = {self, t}

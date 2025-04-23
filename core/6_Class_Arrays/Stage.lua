@@ -1,16 +1,75 @@
 -- Stage
 
-local rapi_name = class_gm_to_rapi["class_stage"]
-Stage = __class[rapi_name]
+local name_rapi = class_name_g2r["class_stage"]
+Stage = __class[name_rapi]
 
-if not __stage_populate_biome then __stage_populate_biome = {} end  -- Preserve on hotload
+run_once(function()
+    __stage_populate_biome = {}
+end)
+
+
+
+-- ========== Enums ==========
+
+--$enum
+--$name Property
+--[[
+NAMESPACE                   0
+IDENTIFIER                  1
+TOKEN_NAME                  2
+TOKEN_SUBNAME               3
+SPAWN_ENEMIES               4
+SPAWN_ENEMIES_LOOP          5
+SPAWN_INTERACTABLES         6
+SPAWN_INTERACTABLES_LOOP    7
+SPAWN_INTERACTABLE_RARITY   8
+INTERACTABLE_SPAWN_POINTS   9
+ALLOW_MOUNTAIN_SHRINE_SPAWN 10
+CLASSIC_VARIANT_COUNT       11
+IS_NEW_STAGE                12
+ROOM_LIST                   13
+MUSIC_ID                    14
+TELEPORTER_INDEX            15
+POPULATE_BIOME_PROPERTIES   16
+LOG_ID                      17
+]]
+
+
+--$properties
+--[[
+namespace                   | string    | The namespace the stage is in.
+identifier                  | string    | The identifier for the stage within the namespace.
+token_name                  | string    | The localization token for the stage's name.
+token_subname               | string    | The localization token for the stage's subname.
+spawn_enemies               |           | 
+spawn_enemies_loop          |           | 
+spawn_interactables         |           | 
+spawn_interactables_loop    |           | 
+spawn_interactable_rarity   |           | 
+interactable_spawn_points   |           | 
+allow_mountain_shrine_spawn |           | 
+classic_variant_count       |           | 
+is_new_stage                | bool      | 
+room_list                   |           | 
+music_id                    | number    | The ID of the sound to play as background music.
+teleporter_index            |           | 
+populate_biome_properties   |           | 
+log_id                      | number    | The environment log ID of the stage.
+]]
 
 
 
 -- ========== Static Methods ==========
 
+--$static
+--$return   Stage
+--$param    identifier  | string    | The identifier for the stage.
+--[[
+Creates a new stage with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
 Stage.new = function(namespace, identifier)
-    Initialize.internal.check_if_done()
+    Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing stage if found
@@ -23,11 +82,42 @@ Stage.new = function(namespace, identifier)
         identifier
     ))
 
+    -- Remove `is_new_stage` flag
+    stage.is_new_stage = false
+
     return stage
 end
 
 
-Stage.show_tiers = function()
+--$static
+--$name         find
+--$return       Stage or nil
+--$param        identifier  | string    | The identifier to search for.
+--$optional     namespace   | string    | The namespace to search in.
+--[[
+Searches for the specified stage and returns it.
+If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+]]
+
+
+--$static
+--$name         find_all
+--$return       table
+--$param        filter      |           | The filter to search by.
+--$optional     property    | number    | The property to check. <br>$`Stage.Property.NAMESPACE`, Stage#Property$ by default.
+--[[
+Returns a table of stages matching the specified filter and property.
+
+**NOTE:** Filtering by a non-namespace property is *very slow*!
+Try not to do that too much.
+]]
+
+
+--$static
+--[[
+Prints the stage progression order.
+]]
+Stage.print_tiers = function()
     local order = Global.stage_progression_order    -- Array of Lists
     local str = ""
 
@@ -49,13 +139,22 @@ Stage.show_tiers = function()
 end
 
 
+--$static
+--$name         wrap
+--$return       Stage
+--$param        stage_id    | number    | The stage ID to wrap.
+--[[
+Returns a Stage wrapper containing the provided stage ID.
+]]
+
+
 
 -- ========== Instance Methods ==========
 
-methods_class[rapi_name] = {
+Util.table_append(methods_class_array[name_rapi], {
 
     --$instance
-    --$optional     ...     |           | A variable number of tiers. <br>Alternatively, a table may be provided.
+    --$optional     ...         |           | A variable number of tiers. <br>Alternatively, a table may be provided.
     --[[
     Adds the stage to the specified tiers after removing it from its previous ones.
     If no arguments are provided, removes the stage from progression.
@@ -68,6 +167,8 @@ methods_class[rapi_name] = {
         local order = Global.stage_progression_order    -- Array of Lists
 
         -- Remove from existing tier(s)
+        -- Prevent full removal from tiers 1 to 5,
+        -- so that those lists don't get deleted
         for tier, list_id in ipairs(order) do
             local list = List.wrap(list_id)
             if tier <= 5 and #list == 1 and list:contains(self) then
@@ -111,7 +212,7 @@ methods_class[rapi_name] = {
 
     -- TODO populate rest of methods
 
-}
+})
 
 
 

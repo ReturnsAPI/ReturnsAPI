@@ -21,7 +21,9 @@ end)
 --$param        fn          | function  | The function to call.
 --$optional     ...         |           | A variable number of arguments to pass to the function.
 --[[
-Returns an AttackInfo wrapper containing the provided `attack_info` struct.
+Creates a new alarm which calls the provided function
+with passed args after the specified amount of time.
+Returns the unique ID of the alarm.
 ]]
 Alarm.new = function(namespace, time, fn, ...)
     -- Check arguments
