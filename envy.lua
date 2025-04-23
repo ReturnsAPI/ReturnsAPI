@@ -121,10 +121,24 @@ function public.auto(properties)
     if RecalculateStats then RecalculateStats.remove_all(namespace) end
     if DamageCalculate  then DamageCalculate.remove_all(namespace) end
     if Alarm            then Alarm.remove_all(namespace) end
+    if Object           then Object.remove_all_serializers(namespace) end
 
     -- Autoregister to Language
     if Language         then Language.register_autoload(env) end
 end
+
+
+-- Remove internal RAPI hooks on hotload
+run_on_hotload(function()
+    local namespace = _ENV["!guid"]
+    if Callback         then Callback.remove_all(namespace) end
+    if Hook             then Hook.remove_all(namespace) end
+    if Initialize       then Initialize.internal.remove_all(namespace) end
+    if RecalculateStats then RecalculateStats.remove_all(namespace) end
+    if DamageCalculate  then DamageCalculate.remove_all(namespace) end
+    if Alarm            then Alarm.remove_all(namespace) end
+    if Object           then Object.remove_all_serializers(namespace) end
+end)
 
 
 run_on_hotload(function()

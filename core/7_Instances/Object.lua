@@ -3,9 +3,13 @@
 Object = new_class()
 
 run_once(function()
-    __object_tags = {}
     __object_wrapper_cache = {}
     __object_array_cache = {}
+
+    __object_tags = {}
+
+    __object_serializers = {}
+    __object_deserializers = {}
 end)
 
 local find_cache = {}
@@ -140,11 +144,6 @@ Object.find = function(identifier, namespace, default_namespace)
 end
 
 
-Object.find_all = function()
-
-end
-
-
 --$static
 --$return       table, number
 --$param        tag         | string    | The tag to search by.
@@ -171,10 +170,50 @@ end
 
 
 Object.add_serializers = function(namespace, object, serializer, deserializer)
-    -- Notes:
-    -- Remove on hotload
+    -- TODO for description
     -- Write a note that the deserializer should read *everything* written in serialize,
     -- since it seems that all custom objects share the same packet
+
+    if not object                       then log.error("Object.add_serializers: Missing object argument", 2) end
+    if type(serializer)   ~= "function" then log.error("Object.add_serializers: serializer should be a function", 2) end
+    if type(deserializer) ~= "function" then log.error("Object.add_serializers: deserializer should be a function", 2) end
+
+    object = Wrap.unwrap(object)
+
+    if not __object_serializers[object] then __object_serializers[object] = {} end
+    table.insert(__object_serializers[object], {
+        namespace   = namespace,
+        fn          = serializer
+    })
+
+    if not __object_deserializers[object] then __object_deserializers[object] = {} end
+    table.insert(__object_deserializers[object], {
+        namespace   = namespace,
+        fn          = deserializer
+    })
+end
+
+
+Object.remove_all_serializers = function(namespace)
+    for object, subtable in pairs(__object_serializers) do
+        for i = #subtable, 1, -1 do
+            local fn_table = subtable[i]
+            if fn_table.namespace == namespace then
+                table.remove(subtable, i)
+            end
+        end
+        if #subtable <= 0 then __object_serializers[object] = nil end
+    end
+
+    for object, subtable in pairs(__object_deserializers) do
+        for i = #subtable, 1, -1 do
+            local fn_table = subtable[i]
+            if fn_table.namespace == namespace then
+                table.remove(subtable, i)
+            end
+        end
+        if #subtable <= 0 then __object_deserializers[object] = nil end
+    end
 end
 
 
@@ -367,6 +406,45 @@ make_table_once("metatable_object", {
     
     __metatable = "RAPI.Wrapper.Object"
 })
+
+
+
+-- ========== Hooks ==========
+
+memory.dynamic_hook("RAPI.Object.serialize", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__lf_init_multiplayer_globals_customobject_serialize),
+    -- Pre-hook
+    {nil,
+
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local inst = Instance.wrap(ffi.cast("struct CInstance *", self:get_address()).id)
+        local subtable = __object_serializers[inst:get_object_index()]
+        if subtable then
+            local buffer = Buffer.wrap(Global.multiplayer_buffer)
+            for _, fn_table in ipairs(subtable) do
+                fn_table.fn(inst, buffer)
+            end
+        end
+    end}
+)
+
+
+memory.dynamic_hook("RAPI.Object.deserialize", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__lf_init_multiplayer_globals_customobject_deserialize),
+    -- Pre-hook
+    {nil,
+
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local inst = Instance.wrap(ffi.cast("struct CInstance *", self:get_address()).id)
+        local subtable = __object_deserializers[inst:get_object_index()]
+        if subtable then
+            local buffer = Buffer.wrap(Global.multiplayer_buffer)
+            for _, fn_table in ipairs(subtable) do
+                fn_table.fn(inst, buffer)
+            end
+        end
+    end}
+)
 
 
 
