@@ -85,7 +85,7 @@ def parse_file(file_path, filename):
 
                     blocks.append(current_block)
                     current_block = []
-                    
+
                 line = line.lstrip("-")
             
             line = line.lstrip(" ")
@@ -352,7 +352,7 @@ def generate(docs):
         "Instance Methods"
     ]
 
-    pass
+    # TODO
 
 
 
