@@ -175,7 +175,7 @@ def state_text(vars, tokens):
             tokens.pop(0)
             vars["state_stack"].append(state_link)
             vars["link"] = ["", ""]
-            vars["link_state"] = 0
+            vars["link_part"] = 0
 
 
         # Add token as word
@@ -194,7 +194,7 @@ def state_link(vars, tokens):
 
     def end_link(vars, tokens):
         # Add link to text
-        link = f"[{vars["link"][0]}]({vars["link"][1]}) "
+        link = f"[{vars["link"][0].strip()}]({vars["link"][1].strip()}) "
         vars["text"] += link
 
         tokens.pop(0)
@@ -219,15 +219,16 @@ def state_link(vars, tokens):
 
         # Middle break
         case "|":
-            vars["link_state"] = 1
+            vars["link_part"] = 1
             tokens.pop(0)
         
 
         # Add token as word to link part
         case _:
             if "}" not in token:
-                word = token.strip("{")
-                vars["link"][vars["link_state"]] += word
+                # Strip opening { if it is not spaced from the first word
+                word = f"{token.strip("{")} "
+                vars["link"][vars["link_part"]] += word
                 tokens.pop(0)
 
             # End link
