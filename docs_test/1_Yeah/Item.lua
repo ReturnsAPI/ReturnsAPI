@@ -65,9 +65,12 @@ ON_STAGE_START 14
 
 
 -- @static
--- @name     new
--- @return   Item yeyeyey
--- @param    identifier  | string    | The identifier for the item.
+-- @name        new
+-- @return      Item yeyeyey
+-- @param       identifier      | string    | The identifier for the item.
+-- @param       ...             |           | A variable amount of whatever.
+-- @overload
+-- @optional    ...             |           | description!!
 --[[
 Creates a new item with the given identifier if it does not already exist,
 or returns the existing one if it does.

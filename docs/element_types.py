@@ -45,3 +45,16 @@ class Signature():
         self.ret = ""
         self.params = []
         self.optional = []
+
+
+
+class Param():
+    """
+    Parameter of Method element
+    (both required and optional)
+    """
+
+    def __init__(self, name = "", type = "", text = ""):
+        self.name = name
+        self.type = type
+        self.text = text

@@ -34,8 +34,9 @@ Methods
 import os
 from pprint import pprint
 
-from states import *
 from element_types import *
+
+global WIKI; WIKI = "https://github.com/ReturnsAPI/ReturnsAPI/wiki"
 
 
 
@@ -145,6 +146,18 @@ def parse_file(file_path, filename):
     pprint(docs["sections"]["my section"][4].signatures[0].name)
     pprint(docs["sections"]["my section"][4].signatures[0].ret)
 
+    pprint(docs["sections"]["my section"][4].signatures[0].params[0].name)
+    pprint(docs["sections"]["my section"][4].signatures[0].params[0].type)
+    pprint(docs["sections"]["my section"][4].signatures[0].params[0].text)
+
+    pprint(docs["sections"]["my section"][4].signatures[0].params[1].name)
+    pprint(docs["sections"]["my section"][4].signatures[0].params[1].type)
+    pprint(docs["sections"]["my section"][4].signatures[0].params[1].text)
+
+    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].name)
+    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].type)
+    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].text)
+
 
 
 def parse_block(block, docs):
@@ -153,17 +166,147 @@ def parse_block(block, docs):
     pprint(block)
 
     # Initialize variables
-    state = [ state_none ]  # State stack
     docs["element"] = None
 
+
     # Loop through lines
-    # and pass to current state
-    for line in block:
-        state[-1](line, docs, state)
+    while len(block) > 0:
+        line = block.pop(0)
+        tokens = line.split()
+    
+        if len(tokens) <= 0:
+            continue
+
+        match tokens[0]:
+
+            # Set current section; if empty, default to None
+            case "@section":
+
+                # Get section name
+                tokens = line.split(None, 1)
+                section_id = None
+                if len(tokens) >= 2:
+                    section_id = tokens[1]
+                docs["section"] = section_id
+
+                # Create new section list if existn't
+                section = docs["sections"].get(section_id)
+                if not section:
+                    docs["sections"][section_id] = []
+
+
+            # Parse text
+            case "@mlstart":
+                # Start new standalone text element
+                # if not adding as part of another element
+                if not docs["element"]:
+                    docs["element"] = Text()
+                
+                docs["element"].text = parse_text(block, docs)
+
+
+            # Start new enum
+            case "@enum":
+                docs["element"] = Enum()
+
+
+            # Start new static method
+            case "@static":
+                docs["element"] = Method()
+
+
+            # Start new instance method
+            case "@instance":
+                docs["element"] = Method()
+                docs["element"].is_instance = True
+
+
+            # Start new signature for method
+            case "@overload":
+                docs["element"].signatures.append(Signature())
+
+
+            # Set name; if empty, autofinds
+            case "@name":
+                if isinstance(docs["element"], Enum):
+                    docs["element"].name = tokens[1]
+
+                elif isinstance(docs["element"], Method):
+                    docs["element"].signatures[-1].name = tokens[1]
+
+
+            # Set return; if empty, will be `nil`
+            case "@return":
+                ret = line.split(None, 1)
+                docs["element"].signatures[-1].ret = ret[1]
+
+
+            # Add required parameter
+            case "@param":
+                parts = [p.strip() for p in line.split(None, 1)[1].split("|")]
+                param = Param(parts[0], parts[1], parse_line(parts[2]))
+                docs["element"].signatures[-1].params.append(param)
+
+
+            # Add optional parameter
+            case "@optional":
+                parts = [p.strip() for p in line.split(None, 1)[1].split("|")]
+                param = Param(parts[0], parts[1], parse_line(parts[2]))
+                docs["element"].signatures[-1].optional.append(param)
+
 
     # Add finalized element to section
     section_id = docs["section"]
     docs["sections"][section_id].append(docs["element"])
+
+
+
+def parse_text(block, docs):
+    text = []
+
+    # Loop through lines
+    while len(block) > 0:
+        line = block.pop(0)
+        parsed = parse_line(line)
+
+        # End text
+        if "@mlend" in parsed:
+            return text
+
+        # Add parsed line to element.text
+        text.append(parsed)
+
+
+
+def parse_line(line):
+    parsed = ""
+
+    tokens = line.split()
+    while len(tokens) > 0:
+        token = tokens.pop(0)
+        match token:
+
+            # Add link
+            case "@link":
+                
+                # Join remaining tokens together
+                remainder = " ".join(tokens).lstrip(" {")
+
+                # Split by | and } to get three parts
+                parts = [p.strip() for p in remainder.replace("}", "|").split("|")]
+
+                # Add link-formatted part
+                parsed += f"[{parts[0]}]({WIKI}/{parts[1]}) "
+
+                # Place last part back into remaining tokens
+                tokens = parts[2].strip().split()
+
+            
+            # Add line to text
+            case _:
+                parsed += token + " "
+
+    return parsed.strip()
 
 
 
