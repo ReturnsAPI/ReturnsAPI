@@ -5,6 +5,8 @@ General
 -- @section  <name>                         Sets the current page section; remains this until changed later in the file
 -- @link     {<name> | <url path>}          Link to another section/page of the wiki (e.g., @link {some display text | Item#LootTag})
                                             Can be placed within the text parameters of any other keyword
+-- @image    <path>                         (Optional)  Display an image; path is relative to docs/out/images
+--[[ ]]                                     Multiline text, used for method descriptions, etc.
                                             
 Constants
 -- @constants                               Denotes a set of constants
@@ -16,15 +18,14 @@ Enums
 Methods
 -- @static                                  Denotes a static method; normally auto-finds
 -- @instance                                Denotes an instance method; normally auto-finds
+-- @overload                                (Optional)  @name, @return, @param, and @optional keywords after this will be displayed separately
+                                                        If @name is not specified, uses previous name
 -- @name                                    (Optional)  The name of the method
--- @href                                    (Optional)  Section link of wiki page (only needed if multiple methods have the same name)
+-- @href     <#tag (w/o class name)>        (Optional)  Section link of wiki page (only needed if multiple methods have the same name)
 -- @return   <return value(s)>              (Optional)  Takes the remainder of the line as the return value; "nil" if not provided
 -- @param    <name> | <type(s)> | <desc>    (Optional)  A required parameter of the method
 -- @optional <name> | <type(s)> | <desc>    (Optional)  An optional parameter of the method
--- @overload                                (Optional)  @name, @return, @param, and @optional keywords after this will be displayed separately
-                                                        If @name is not specified, uses previous name
 -- @ptable                                  (Optional)  Display the parameter table at this position, allowing for text after it
--- @image    <path>                         (Optional)  Display an image; path is relative to docs/out/images
 """
 
 

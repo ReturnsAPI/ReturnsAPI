@@ -5,6 +5,8 @@ General
 -- @section  <name>                         Sets the current page section; remains this until changed later in the file
 -- @link     {<name> | <url path>}          Link to another section/page of the wiki (e.g., @link {some display text | Item#LootTag})
                                             Can be placed within the text parameters of any other keyword
+-- @image    <path>                         (Optional)  Display an image; path is relative to docs/out/images
+--[[ ]]                                     Multiline text, used for method descriptions, etc.
                                             
 Constants
 -- @constants                               Denotes a set of constants
@@ -16,15 +18,14 @@ Enums
 Methods
 -- @static                                  Denotes a static method; normally auto-finds
 -- @instance                                Denotes an instance method; normally auto-finds
+-- @overload                                (Optional)  @name, @return, @param, and @optional keywords after this will be displayed separately
+                                                        If @name is not specified, uses previous name
 -- @name                                    (Optional)  The name of the method
--- @href                                    (Optional)  Section link of wiki page (only needed if multiple methods have the same name)
+-- @href     <#tag (w/o class name)>        (Optional)  Section link of wiki page (only needed if multiple methods have the same name)
 -- @return   <return value(s)>              (Optional)  Takes the remainder of the line as the return value; "nil" if not provided
 -- @param    <name> | <type(s)> | <desc>    (Optional)  A required parameter of the method
 -- @optional <name> | <type(s)> | <desc>    (Optional)  An optional parameter of the method
--- @overload                                (Optional)  @name, @return, @param, and @optional keywords after this will be displayed separately
-                                                        If @name is not specified, uses previous name
 -- @ptable                                  (Optional)  Display the parameter table at this position, allowing for text after it
--- @image    <path>                         (Optional)  Display an image; path is relative to docs/out/images
 """
 
 
@@ -84,8 +85,10 @@ def parse_file(file_path, filename):
 
                     blocks.append(current_block)
                     current_block = []
+                    
+                line = line.lstrip("-")
             
-            line = line.lstrip("- ")
+            line = line.lstrip(" ")
             current_block.append(line)
 
         else:
@@ -128,35 +131,40 @@ def parse_file(file_path, filename):
     for block in blocks:
         parse_block(block, docs)
 
+
+    # Generate wiki files
+    generate(docs)
+
     
     # DEBUG
     pprint(docs)
 
     print("\nMY SECTION\n")
-    print(docs["sections"]["my section"][0].text)
+    print(docs["sections"]["my section"][0]["element"].text)
     
-    pprint(docs["sections"]["my section"][1].name)
-    pprint(docs["sections"]["my section"][1].text)
+    pprint(docs["sections"]["my section"][1]["element"].name)
+    pprint(docs["sections"]["my section"][1]["element"].text)
     
-    pprint(docs["sections"]["my section"][2].name)
-    pprint(docs["sections"]["my section"][2].text)
+    pprint(docs["sections"]["my section"][2]["element"].name)
+    pprint(docs["sections"]["my section"][2]["element"].text)
 
-    pprint(docs["sections"]["my section"][3].text)
+    pprint(docs["sections"]["my section"][3]["element"].text)
     
-    pprint(docs["sections"]["my section"][4].signatures[0].name)
-    pprint(docs["sections"]["my section"][4].signatures[0].ret)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].name)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].ret)
+    pprint(docs["sections"]["my section"][4]["code"])
 
-    pprint(docs["sections"]["my section"][4].signatures[0].params[0].name)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[0].type)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[0].text)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[0].name)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[0].type)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[0].text)
 
-    pprint(docs["sections"]["my section"][4].signatures[0].params[1].name)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[1].type)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[1].text)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[1].name)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[1].type)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[1].text)
 
-    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].name)
-    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].type)
-    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].text)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[1].optional[0].name)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[1].optional[0].type)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[1].optional[0].text)
 
 
 
@@ -167,6 +175,7 @@ def parse_block(block, docs):
 
     # Initialize variables
     docs["element"] = None
+    code = []
 
 
     # Loop through lines
@@ -223,7 +232,12 @@ def parse_block(block, docs):
 
             # Start new signature for method
             case "@overload":
-                docs["element"].signatures.append(Signature())
+                signature = Signature()
+
+                # Take name of original signature by default
+                signature.name = docs["element"].signatures[0].name
+                
+                docs["element"].signatures.append(signature)
 
 
             # Set name; if empty, autofinds
@@ -233,6 +247,11 @@ def parse_block(block, docs):
 
                 elif isinstance(docs["element"], Method):
                     docs["element"].signatures[-1].name = tokens[1]
+
+
+            # Set href; if empty, autosets based on name
+            case "@href":
+                docs["element"].href = tokens[1]
 
 
             # Set return; if empty, will be `nil`
@@ -254,10 +273,18 @@ def parse_block(block, docs):
                 param = Param(parts[0], parts[1], parse_line(parts[2]))
                 docs["element"].signatures[-1].optional.append(param)
 
+            
+            # Add code
+            case _:
+                code.append(line)
+
 
     # Add finalized element to section
     section_id = docs["section"]
-    docs["sections"][section_id].append(docs["element"])
+    docs["sections"][section_id].append({
+        "element"   : docs["element"],
+        "code"      : code
+    })
 
 
 
@@ -301,12 +328,31 @@ def parse_line(line):
                 # Place last part back into remaining tokens
                 tokens = parts[2].strip().split()
 
+
+            # Add image
+            case "@image":
+                pass
+
             
             # Add line to text
             case _:
                 parsed += token + " "
 
     return parsed.strip()
+
+
+
+def generate(docs):
+    section_order = [
+        None,
+        "Constants",
+        "Enums",
+        "Properties",
+        "Static Methods",
+        "Instance Methods"
+    ]
+
+    pass
 
 
 
