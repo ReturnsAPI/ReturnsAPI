@@ -1,3 +1,8 @@
+# REPLACED WITH THE ONE IN `docs`,
+# which autoruns on git push
+
+# ==================================================
+
 # shitty docs generator cause idk how ldoc works
 
 """
