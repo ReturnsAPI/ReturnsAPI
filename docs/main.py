@@ -34,7 +34,8 @@ Methods
 import os
 from pprint import pprint
 
-global WIKI; WIKI = "https://github.com/ReturnsAPI/ReturnsAPI/wiki"
+from states import *
+from element_types import *
 
 
 
@@ -65,7 +66,6 @@ def parse_file(file_path, filename):
     # Initialize variables
     blocks = []
     current_block = []
-    multiline = []
     in_multiline = False
     in_code = True
 
@@ -84,27 +84,29 @@ def parse_file(file_path, filename):
                     blocks.append(current_block)
                     current_block = []
             
+            line = line.lstrip("- ")
             current_block.append(line)
 
         else:
             # Start multiline
             if line.startswith("--[["):
-                multiline = []
                 in_multiline = True
+                current_block.append("@mlstart")
 
             # Parse multiline content
             elif in_multiline:
 
                 # End multiline
                 if line.startswith("]]"):
-                    current_block.append(multiline)
                     in_multiline = False
+                    current_block.append("@mlend")
 
                 else:
-                    multiline.append(line)
+                    current_block.append(line)
 
             # Standard comment
             elif line.startswith("--"):
+                line = line.lstrip("- ")
                 current_block.append(line)
 
             # End block
@@ -125,25 +127,43 @@ def parse_file(file_path, filename):
     for block in blocks:
         parse_block(block, docs)
 
+    
+    # DEBUG
+    pprint(docs)
+
+    print("\nMY SECTION\n")
+    print(docs["sections"]["my section"][0].text)
+    
+    pprint(docs["sections"]["my section"][1].name)
+    pprint(docs["sections"]["my section"][1].text)
+    
+    pprint(docs["sections"]["my section"][2].name)
+    pprint(docs["sections"]["my section"][2].text)
+
+    pprint(docs["sections"]["my section"][3].text)
+    
+    pprint(docs["sections"]["my section"][4].signatures[0].name)
+    pprint(docs["sections"]["my section"][4].signatures[0].ret)
+
 
 
 def parse_block(block, docs):
 
+    # DEBUG
     pprint(block)
 
-    # State stack
-    stack = [ state_none ]
+    # Initialize variables
+    state = [ state_none ]  # State stack
+    docs["element"] = None
 
     # Loop through lines
     # and pass to current state
     for line in block:
-        stack[-1](line, docs, stack)
+        state[-1](line, docs, state)
 
-
-
-def state_none(line, docs, stack):
-
-    pass
+    # Add finalized element to section
+    section_id = docs["section"]
+    docs["sections"][section_id].append(docs["element"])
 
 
 

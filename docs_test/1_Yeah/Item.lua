@@ -1,7 +1,7 @@
 -- @section my section
 --[[
 this is text
-line 2 @link { some text | Item#Property }
+line 2 @link {some text | Item#Property} yeyeye
 
 line 4      (skipped one)
 ]]
@@ -62,3 +62,36 @@ ON_GAME_END 12
 ON_DIRECTOR_POPULATE_SPAWN_ARRAYS 13
 ON_STAGE_START 14
 ]]
+
+
+-- @static
+-- @name     new
+-- @return   Item yeyeyey
+-- @param    identifier  | string    | The identifier for the item.
+--[[
+Creates a new item with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+Item.new = function(namespace, identifier)
+    Initialize.internal.check_if_started()
+    if not identifier then log.error("No identifier provided", 2) end
+
+    -- Return existing item if found
+    local item = Item.find(identifier, namespace)
+    if item then return item end
+
+    -- Create new
+    item = Item.wrap(GM.item_create(
+        namespace,
+        identifier,
+        nil,    -- item ID; if nil, it is auto-set
+        ItemTier.NOTIER,
+        GM.object_add_w(namespace, identifier, gm.constants.pPickupItem),
+        0       -- loot_tags (?)
+    ))
+
+    -- Remove `is_new_item` flag
+    item.is_new_item = false
+
+    return item
+end
