@@ -158,16 +158,20 @@ def state_text(vars, tokens):
         case "]]":
             section_list = vars["sections"][vars["section"]]
 
-            tokens.pop(0)
-            vars["state_stack"].pop()
+            # A non-finalized element exists if
+            # section_list[-1] is a List
+            # (This list gets assembled into a string later)
 
             # Add text as standalone element
-            if vars["state_stack"][-1] == state_none:
-                section_list.append( [ ("text", vars["text"]) ] )
+            if len(section_list) <= 0 or type(section_list[-1]) != list:
+                section_list.append(vars["text"])
 
             # Add text as part of another element
             else:
-                section_list[-1].append( [ ("text", vars["text"]) ] )
+                section_list[-1].append(("text", vars["text"]))
+
+            tokens.pop(0)
+            vars["state_stack"].pop()
 
         
         # Start new link
