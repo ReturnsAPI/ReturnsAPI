@@ -22,6 +22,7 @@ Methods
 -- @param    <name> | <type(s)> | <desc>    (Optional)  A required parameter of the method
 -- @optional <name> | <type(s)> | <desc>    (Optional)  An optional parameter of the method
 -- @overload                                (Optional)  @name, @return, @param, and @optional keywords after this will be displayed separately
+                                                        If @name is not specified, uses previous name
 -- @ptable                                  (Optional)  Display the parameter table at this position, allowing for text after it
 -- @image    <path>                         (Optional)  Display an image; path is relative to docs/out/images
 """
@@ -32,7 +33,7 @@ Methods
 
 import os
 
-# WIKI = "https://github.com/ReturnsAPI/ReturnsAPI/wiki"
+global WIKI; WIKI = "https://github.com/ReturnsAPI/ReturnsAPI/wiki"
 
 
 
@@ -45,14 +46,14 @@ def main():
         if os.path.isdir(dir_path):
             
             # Loop through all Lua files in directory
-            for file in os.listdir(dir_path):
-                if file.endswith(".lua"):
-                    file_path = os.path.join(dir_path, file)
-                    parse_file(file_path)
+            for filename in os.listdir(dir_path):
+                if filename.endswith(".lua"):
+                    file_path = os.path.join(dir_path, filename)
+                    parse_file(file_path, filename)
 
 
 
-def parse_file(file_path):
+def parse_file(file_path, filename):
 
     # Initialize variables
     vars = {
@@ -70,12 +71,15 @@ def parse_file(file_path):
 
 
     # Read lines
-    for line in lines:
+    while len(lines) > 0:
+        line = lines[0]
 
-        # TODO temp; handle when code is reached
-        if "--" not in line:
-            # continue
-            pass
+        # Finalize element list into a string
+        if ("--" not in line) and (state_text not in vars["state_stack"]) and (type(vars["sections"][vars["section"]][-1]) == list):
+            finalize_element(vars, lines, filename)
+            while len(vars["state_stack"]) > 1:
+                vars["state_stack"].pop()
+            continue
 
         # Strip front and back whitespace,
         # remove "--", and split line into tokens
@@ -87,10 +91,81 @@ def parse_file(file_path):
             # Pass to current state function
             vars["state_stack"][-1](vars, tokens)
 
+        # Remove current line from list
+        lines.pop(0)
+
     
     # Write to file
     # TODO
     print(vars)
+
+    section = vars["sections"]["my section"]
+    for s in section:
+        print(s)
+
+
+
+def finalize_element(vars, lines, filename):
+    element = vars["sections"][vars["section"]][-1]
+    class_name = filename[:-4]
+    string = ""
+
+    match element[0]:
+
+        case "enum":
+            name = ""
+            values = []
+            length = 0
+
+            # Name
+            for tuple in element:
+                if tuple[0] == "name":
+                    name = class_name + "." + tuple[1] + " = {  \n"
+
+            # Values
+            for tuple in element:
+                if tuple[0] == "text":
+                    values = tuple[1].split("\n")   # Split by newline
+                    values = [t.strip().split() for t in values]
+
+            # Auto-find missing fields
+            # Loop code until next set of comments
+            no_name = (name == "")
+            no_values = (len(values) <= 0)
+
+            for line in lines:
+                if "--" not in line:
+                    if "{" in line:
+                        if no_name:
+                            tok = line.strip().split()
+                            name = tok[0] + " = {  \n"
+                    elif "=" in line:
+                        if no_values:
+                            tok = line.strip(" ").split()
+                            values.append([tok[0], tok[2].strip(",")])
+                else:
+                    break
+
+            # Get longest enum value name
+            for pair in values:
+                if len(pair) > 0:
+                    length = max(len(pair[0]), length)
+
+            # Format pairs to string
+            text = ""
+            padding = length + 4    # Add 4 space padding to right
+            for pair in values:
+                if len(pair) > 0:
+                    text += f"    {pair[0].ljust(padding)}= {pair[1]},  \n"
+                else:
+                    text += "  \n"
+            text = text[:-4] + "  \n}"
+
+            string = "```lua  \n" + name + text + "  \n```"
+
+
+    # Replace element list with finalized string
+    vars["sections"][vars["section"]][-1] = string
 
 
 
@@ -117,6 +192,13 @@ def state_none(vars, tokens):
             tokens.pop(0)
             vars["state_stack"].append(state_text)
             vars["text"] = ""
+
+        
+        # Start new enum
+        case "@enum":
+            tokens.pop(0)
+            vars["state_stack"].append(state_enum)
+            vars["sections"][vars["section"]].append([ "enum" ])
 
         
         # Discard unused tokens
@@ -159,7 +241,7 @@ def state_text(vars, tokens):
             section_list = vars["sections"][vars["section"]]
 
             # A non-finalized element exists if
-            # section_list[-1] is a List
+            # section_list[-1] is a list
             # (This list gets assembled into a string later)
 
             # Add text as standalone element
@@ -198,11 +280,15 @@ def state_link(vars, tokens):
 
     def end_link(vars, tokens):
         # Add link to text
-        link = f"[{vars["link"][0].strip()}]({vars["link"][1].strip()}) "
+        link = f"[{vars["link"][0].strip()}]({WIKI}/{vars["link"][1].strip()}) "
         vars["text"] += link
 
         tokens.pop(0)
         vars["state_stack"].pop()
+
+        # Add line break at EOL
+        if len(tokens) <= 0:
+            vars["text"] += " \n"
 
 
     # Get current token
@@ -238,6 +324,45 @@ def state_link(vars, tokens):
             # End link
             else:
                 end_link(vars, tokens)
+
+
+
+def state_enum(vars, tokens):
+    # Get current token
+    token = tokens[0]
+
+    match token:
+
+        # Start new name
+        case "@name":
+            tokens.pop(0)
+            vars["state_stack"].append(state_name)
+
+        
+        # Start new text
+        case "[[":
+            tokens.pop(0)
+            vars["state_stack"].append(state_text)
+            vars["text"] = ""
+
+        
+        # Discard unused tokens
+        case _:
+            tokens.pop(0)
+
+
+
+def state_name(vars, tokens):
+    # Get current token
+    token = tokens[0]
+
+    # Add name to element
+    name = f"{token}"
+    section_list = vars["sections"][vars["section"]]
+    section_list[-1].append(("name", name))
+
+    tokens.pop(0)
+    vars["state_stack"].pop()
 
 
 
