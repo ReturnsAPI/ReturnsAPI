@@ -526,11 +526,12 @@ def generate(docs, filename):
 
 
                 case "Constants":
-                    # If previous element is Constants or Enum,
+                    # If previous element is Text, Constants, or Enum,
                     # remove the <br>
                     if i > 0:
+                        remove_for = ["Text", "Constants", "Enum"]
                         prev_type = typeof(section[i - 1])
-                        if (prev_type == "Constants") or (prev_type == "Enum"):
+                        if prev_type in remove_for:
                             out = out[:-10]
 
                     # Code block opener
@@ -553,11 +554,12 @@ def generate(docs, filename):
 
 
                 case "Enum":
-                    # If previous element is Constants or Enum,
+                    # If previous element is Text, Constants, or Enum,
                     # remove the <br>
                     if i > 0:
+                        remove_for = ["Text", "Constants", "Enum"]
                         prev_type = typeof(section[i - 1])
-                        if (prev_type == "Constants") or (prev_type == "Enum"):
+                        if prev_type in remove_for:
                             out = out[:-10]
 
                     # <a>
