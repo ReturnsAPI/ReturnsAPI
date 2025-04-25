@@ -163,7 +163,7 @@ Returns a Stage wrapper containing the provided stage ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@optional     ...         |           | A variable number of tiers. <br>Alternatively, a table may be provided.
+    --@param        ...         |           | A variable number of tiers. <br>Alternatively, a table may be provided.
     --[[
     Adds the stage to the specified tiers after removing it from its previous ones.
     If no arguments are provided, removes the stage from progression.
