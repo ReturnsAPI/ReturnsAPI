@@ -323,20 +323,21 @@ def parse_line(line):
                 if len(parts) >= 2:
                     parsed += f"[{parts[0]}]({WIKI}/{parts[1]})"
                 else:
-                    print("@link parsing error")
+                    print("\n@link parsing error")
                     print(f"remainder:  {remainder}")
                     print(parts)
+                    print("")
 
                 # Place last part back into remaining tokens
                 if len(parts) >= 3:
-                    tokens = parts[2].strip().split()
+                    tokens = parts[2].split()
                 else:
                     tokens = []
 
                 # Add space if the first character of the next token is *not* punctuation
                 # This is very goofy but whatever
                 if len(tokens) > 0:
-                    punc = ".)]/"
+                    punc = ".)]"
                     if tokens[0] not in punc:
                         parsed += " "
 
