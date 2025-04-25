@@ -129,6 +129,12 @@ methods_map = {
     end,
 
 
+    --@instance
+    --@param        key         | RValue    | The key to set to.
+    --@param        value       | RValue    | The value to set.
+    --[[
+    Variant of `set` that accepts RValues.
+    ]]
     set_rvalue = function(self, key, value)
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value)
@@ -166,6 +172,11 @@ methods_map = {
     end,
 
 
+    --@instance
+    --@param        key         | RValue    | The key to delete.
+    --[[
+    Variant of `delete` that accepts an RValue.
+    ]]
     delete_rvalue = function(self, key)
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value)
