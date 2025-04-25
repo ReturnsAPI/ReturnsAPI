@@ -12,4 +12,4 @@ jobs:
         steps:
             - name: Run parser
             #   run: python docs/main.py
-              run: ls
+              run: ls -R
