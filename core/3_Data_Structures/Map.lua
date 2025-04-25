@@ -16,7 +16,7 @@ Map = new_class()
 
 --@static
 --@return       Map
---@optional     table       | table     | A string-indexed Lua table to convert into a list.
+--@optional     table       | table     | A key-value pair table to convert into a map.
 --[[
 Returns a newly created GameMaker map.
 ]]
