@@ -3,7 +3,8 @@ name: Update Docs
 on:
     push:
         branches:
-            - docs-testing
+            - main
+            - Klehrik-luajit-3
 
 jobs:
     generate:
