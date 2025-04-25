@@ -319,6 +319,11 @@ def parse_line(line):
                 # Split by | and } to get three parts
                 parts = [p.strip() for p in remainder.replace("}", "|", 1).split("|")]
 
+                print("")
+                print(remainder)
+                print(parts)
+                print("")
+
                 # Add link-formatted part
                 if len(parts) >= 2:
                     parsed += f"[{parts[0]}]({WIKI}/{parts[1]})"
