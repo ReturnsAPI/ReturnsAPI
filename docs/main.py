@@ -368,6 +368,8 @@ def parse_code(code, docs):
                 code.pop()
                 for line in code:
                     docs["element"].text.append(line)
+                    if "}" in line:
+                        break
 
 
         case "Method":
