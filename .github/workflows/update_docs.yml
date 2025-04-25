@@ -25,7 +25,7 @@ jobs:
             - name: Run parser and copy out to wiki repo
               run: |
                 python docs/main.py
-                cp docs/out/ wiki/
+                cp docs/out/* wiki/
 
             - name: Push changes to wiki repo
               working-directory: wiki
