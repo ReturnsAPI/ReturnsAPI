@@ -1,5 +1,9 @@
 -- Buffer
 
+--[[
+Buffer wrappers are used internally by @link {Packet | Packet}.
+]]
+
 -- The class table is private, but the wrappers are publicly accessible
 
 Buffer = new_class()
