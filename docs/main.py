@@ -373,21 +373,20 @@ def parse_code(code, docs):
 
 
         case "Method":
-            if len(code) <= 0:
-                return
+            if len(code) > 0:
             
-            # Name
-            line = code[0]
+                # Name
+                line = code[0]
 
-            # Get first part of assignment (which has the name)
-            name = line.split("=")[0].strip()
-            if "." in name:
-                name = name.split(".")[1]
+                # Get first part of assignment (which has the name)
+                name = line.split("=")[0].strip()
+                if "." in name:
+                    name = name.split(".")[1]
 
-            # Set name for all unassigned signatures
-            for signature in docs["element"].signatures:
-                if not signature.name:
-                    signature.name = name
+                # Set name for all unassigned signatures
+                for signature in docs["element"].signatures:
+                    if not signature.name:
+                        signature.name = name
 
 
             # href
