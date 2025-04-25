@@ -456,7 +456,7 @@ def generate(docs, filename):
     if len(section) > 0:
         for line in section[0].text:
             out += line + "  \n"
-        out += "  \n"
+        out += "  \n<br>"
 
 
     # Index
