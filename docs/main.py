@@ -77,7 +77,7 @@ def parse_file(file_path, filename):
 
     # Loop through lines
     for line in lines:
-        line = line.rstrip()
+        line = line.strip()
         
         if in_code:
             if line.startswith("--"):
