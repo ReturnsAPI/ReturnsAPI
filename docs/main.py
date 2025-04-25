@@ -637,6 +637,8 @@ def generate(docs, filename):
                                     string += f"\n`{p.name}` | {p.type} | {p.text}"
                                 for p in signature.optional:
                                     string += f"\n`[{p.name}]` | {p.type} | {p.text}"
+                            else:
+                                string += "\nNone"
                         return string
                     
                     ptable_shown = False
