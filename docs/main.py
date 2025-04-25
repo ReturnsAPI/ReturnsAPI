@@ -325,11 +325,6 @@ def parse_line(line):
                 # Place last part back into remaining tokens
                 tokens = parts[2].strip().split()
 
-                # Add space in front of next token;
-                # this prevents a space between the link and punctuation
-                if len(tokens) > 0:
-                    tokens[0] = " " + tokens[0]
-
 
             # Add image
             case "@image":
