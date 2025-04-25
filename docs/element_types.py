@@ -19,6 +19,7 @@ class Enum():
         self.name = ""
         self.href = ""
         self.text = []
+        self.values = []
 
 
 
@@ -42,7 +43,7 @@ class Signature():
 
     def __init__(self):
         self.name = ""
-        self.ret = ""
+        self.ret = "nil"
         self.params = []
         self.optional = []
 
@@ -51,7 +52,7 @@ class Signature():
 class Param():
     """
     Parameter of Method element
-    (both required and optional)
+    (for both required and optional)
     """
 
     def __init__(self, name = "", type = "", text = ""):

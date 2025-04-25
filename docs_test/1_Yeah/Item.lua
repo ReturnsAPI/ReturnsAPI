@@ -65,7 +65,6 @@ ON_STAGE_START 14
 
 
 -- @static
--- @name        new
 -- @return      Item yeyeyey
 -- @param       identifier      | string    | The identifier for the item.
 -- @param       ...             |           | A variable amount of whatever.

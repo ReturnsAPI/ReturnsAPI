@@ -140,32 +140,31 @@ def parse_file(file_path, filename):
     pprint(docs)
 
     print("\nMY SECTION\n")
-    print(docs["sections"]["my section"][0].text)
+    print(docs["sections"]["my section"][0]["element"].text)
     
-    pprint(docs["sections"]["my section"][1].name)
-    pprint(docs["sections"]["my section"][1].text)
-    pprint(docs["sections"]["my section"][1].values)
+    pprint(docs["sections"]["my section"][1]["element"].name)
+    pprint(docs["sections"]["my section"][1]["element"].text)
     
-    pprint(docs["sections"]["my section"][2].name)
-    pprint(docs["sections"]["my section"][2].text)
-    pprint(docs["sections"]["my section"][2].values)
+    pprint(docs["sections"]["my section"][2]["element"].name)
+    pprint(docs["sections"]["my section"][2]["element"].text)
 
-    pprint(docs["sections"]["my section"][3].text)
+    pprint(docs["sections"]["my section"][3]["element"].text)
     
-    pprint(docs["sections"]["my section"][4].signatures[0].name)
-    pprint(docs["sections"]["my section"][4].signatures[0].ret)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].name)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].ret)
+    pprint(docs["sections"]["my section"][4]["code"])
 
-    pprint(docs["sections"]["my section"][4].signatures[0].params[0].name)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[0].type)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[0].text)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[0].name)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[0].type)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[0].text)
 
-    pprint(docs["sections"]["my section"][4].signatures[0].params[1].name)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[1].type)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[1].text)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[1].name)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[1].type)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[0].params[1].text)
 
-    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].name)
-    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].type)
-    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].text)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[1].optional[0].name)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[1].optional[0].type)
+    pprint(docs["sections"]["my section"][4]["element"].signatures[1].optional[0].text)
 
 
 
@@ -280,18 +279,12 @@ def parse_block(block, docs):
                 code.append(line)
 
 
-    # Autofind unset properties from code
-    parse_code(code, docs)
-
-
-    # Enum : Parse text into value pairs
-    if isinstance(docs["element"], Enum):
-        docs["element"].values = convert_text_to_pairs(docs["element"].text)
-
-
     # Add finalized element to section
     section_id = docs["section"]
-    docs["sections"][section_id].append(docs["element"])
+    docs["sections"][section_id].append({
+        "element"   : docs["element"],
+        "code"      : code
+    })
 
 
 
@@ -346,71 +339,6 @@ def parse_line(line):
                 parsed += token + " "
 
     return parsed.strip()
-
-
-
-def parse_code(code, docs):
-    
-    # Enum
-    if isinstance(docs["element"], Enum):
-
-        # Name
-        if not docs["element"].name:
-            line = code[0]
-
-            # Get first part of assignment (which has the name)
-            name = line.split("=")[0].strip()
-            if "." in name:
-                name = name.split(".")[1]
-
-            docs["element"].name = name
-
-            
-        # Set text to be code
-        if not docs["element"].text:
-            code.pop(0)
-            code.pop()
-            for line in code:
-                docs["element"].text.append(line)
-
-
-    # Method
-    elif isinstance(docs["element"], Method):
-        
-        # Name
-        line = code[0]
-
-        # Get first part of assignment (which has the name)
-        name = line.split("=")[0].strip()
-        if "." in name:
-            name = name.split(".")[1]
-
-        # Set name for all unassigned signatures
-        for signature in docs["element"].signatures:
-            if not signature.name:
-                signature.name = name
-
-
-
-def convert_text_to_pairs(text):
-    pairs = []
-
-    for line in text:
-        if ("function" not in line) and ("{" not in line) and ("}" not in line):
-            
-            # Split correctly
-            pair = line.split()
-            if "=" in line:
-                pair = line.rstrip(",").split("=")
-
-            # If empty line, add empty pair
-            if len(pair) >= 2:
-                pair = (pair[0].strip(), pair[1].strip())
-                pairs.append(pair)
-            else:
-                pairs.append(("", ""))
-
-    return pairs
 
 
 
