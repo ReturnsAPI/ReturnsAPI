@@ -649,7 +649,7 @@ def generate(docs, filename):
         if not os.path.exists(path):
             os.makedirs(path)
 
-        path = os.path.join(path, f"{filename}.txt")
+        path = os.path.join(path, f"{filename}.md")
         with open(path, "w") as f:
             f.write(out)
 

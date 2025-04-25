@@ -15,9 +15,6 @@ jobs:
               with:
                 token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Run parser
-              run: python docs/main.py
-
             - name: Checkout wiki repo
               uses: actions/checkout@v4
               with:
@@ -25,15 +22,16 @@ jobs:
                 token: ${{ secrets.GITHUB_TOKEN }}
                 path: wiki
 
-            - name: What's inside?
-              run: ls -R wiki
+            - name: Run parser and copy out to wiki repo
+              run: |
+                python docs/main.py
+                cp docs/out/ wiki/
 
-            # - name: Add
-
-            # - name: Push changes to repo
-            #   run: |
-            #     git config user.name "github-actions"
-            #     git config user.email "github-actions@github.com"
-            #     git add docs/out
-            #     git commit -m "Update docs"
-            #     git push
+            - name: Push changes to wiki repo
+              working-directory: wiki
+              run: |
+                git config user.name "github-actions"
+                git config user.email "github-actions@github.com"
+                git add docs/out
+                git commit -m "Update docs"
+                git push
