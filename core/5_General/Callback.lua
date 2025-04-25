@@ -53,7 +53,9 @@ local callback_arg_types = {}
 
 -- ========== Constants and Enums ==========
 
---$constants
+--@section Constants
+
+--@constants
 --[[
 ON_LOAD 0
 POST_LOAD 1
@@ -128,7 +130,9 @@ for num_id, _ in ipairs(callback_constants) do
 end
 
 
---$enum
+--@section Enums
+
+--@enum
 Callback.Priority = ReadOnly.new({
     NORMAL  = 0,
     BEFORE  = 1000,
@@ -139,9 +143,11 @@ Callback.Priority = ReadOnly.new({
 
 -- ========== Static Methods ==========
 
---$static
---$return       string
---$param        num_id      | number    | The numerical ID of the callback type.
+--@section Static Methods
+
+--@static
+--@return       string
+--@param        num_id      | number    | The numerical ID of the callback type.
 --[[
 Returns the string name of the callback type with the given ID.
 ]]
@@ -151,21 +157,21 @@ Callback.get_type_name = function(num_id)
 end
 
 
---$static
---$return       number
---$param        callback    | number    | The $callback type, Callback#constants$ to register under.
---$param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
---$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@static
+--@return       number
+--@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
+--@param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
+--@optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --[[
 Registers a function under a callback type.
 Returns the unique ID of the registered function.
 
 **Priority Convention**
 To allow for a decent amount of space between priorities,
-use the enum values in $`Callback.Priority`, Callback#Priority$.
+use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 
---$ptable
+--@ptable
 
 **Callbacks**
 Parameters are listed in order for each callback.
@@ -260,11 +266,11 @@ Callback.add = function(namespace, callback, fn, priority)
 end
 
 
---$static
---$param        id          | number    | The unique ID of the registered function to remove.
+--@static
+--@param        id          | number    | The unique ID of the registered function to remove.
 --[[
 Removes a registered callback function.
-The ID is the one from $`Callback.add`, Callback#add$.
+The ID is the one from @link {`Callback.add` | Callback#add}.
 ]]
 Callback.remove = function(id)
     -- Look up ID
@@ -284,7 +290,7 @@ Callback.remove = function(id)
 end
 
 
---$static
+--@static
 --[[
 Removes all registered callbacks functions from your namespace.
 

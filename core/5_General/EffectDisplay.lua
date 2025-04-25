@@ -6,7 +6,9 @@ EffectDisplay = new_class()
 
 -- ========== Enums ==========
 
---$enum
+--@section Enums
+
+--@enum
 EffectDisplay.DrawPriority = ReadOnly.new({
 	BARRIER_BEHIND  = 1020,
 	HIDDEN_BEHIND   = 1010,
@@ -30,13 +32,15 @@ EffectDisplay.DrawPriority = ReadOnly.new({
 
 -- ========== Static Methods ==========
 
---$static
---$return       Struct
---$param        sprite		| sprite   	| The sprite ID.
---$optional		priority	| number 	| The $draw priority, EffectDisplay#DrawPriority$. <br>`EffectDisplay.DrawPriority.ABOVE` by default.
---$optional     anim_speed 	| number    | The animation speed. <br>`0` by default.
---$optional     x_origin  	| number    | The x coordinate of the origin (offset). <br>`0` by default.
---$optional     y_origin  	| number    | The y coordinate of the origin (offset). <br>`0` by default.
+--@section Static Methods
+
+--@static
+--@return       Struct
+--@param        sprite		| sprite   	| The sprite ID.
+--@optional		priority	| number 	| The @link {draw priority | EffectDisplay#DrawPriority}. <br>`EffectDisplay.DrawPriority.ABOVE` by default.
+--@optional     anim_speed 	| number    | The animation speed. <br>`0` by default.
+--@optional     x_origin  	| number    | The x coordinate of the origin (offset). <br>`0` by default.
+--@optional     y_origin  	| number    | The y coordinate of the origin (offset). <br>`0` by default.
 --[[
 Returns a EffectDisplaySprite struct.
 ]]
@@ -51,10 +55,10 @@ EffectDisplay.sprite = function(sprite_id, priority, anim_speed, x_offset, y_off
 end
 
 
---$static
---$return       Struct
---$param        func		| function	| The function to bind.
---$optional		priority	| number 	| The $draw priority, EffectDisplay#DrawPriority$. <br>`EffectDisplay.DrawPriority.BODY` by default.
+--@static
+--@return       Struct
+--@param        func		| function	| The function to bind.
+--@optional		priority	| number 	| The @link {draw priority | EffectDisplay#DrawPriority}. <br>`EffectDisplay.DrawPriority.BODY` by default.
 --[[
 Returns a EffectDisplayFunction struct.
 ]]
@@ -67,10 +71,10 @@ EffectDisplay.func = function(func, priority)
 end
 
 
---$static
---$return       Struct
---$param        object		| Object	| The object.
---$optional		host_only	| bool		| desc. <br>`false` by default.
+--@static
+--@return       Struct
+--@param        object		| Object	| The object.
+--@optional		host_only	| bool		| desc. <br>`false` by default.
 --[[
 Returns a EffectDisplayInstance struct.
 ]]
@@ -83,15 +87,15 @@ EffectDisplay.instance = function(object, host_only)
 end
 
 
---$static
---$return       Struct
---$param        particle_type	| Particle	| The particle type.
---$param        rate			| number	| 
---$param        amount			| number	| 
---$optional     system			| number	| The $particle system, Particle#System$ to use. <br>`Particle.System.ABOVE` by default.
---$optional     xrand			| number	| 
---$optional     yrand			| number	| 
---$optional     color			| color		| The color to blend with. <br>`Color.WHITE` by default.
+--@static
+--@return       Struct
+--@param        particle_type	| Particle	| The particle type.
+--@param        rate			| number	| 
+--@param        amount			| number	| 
+--@optional     system			| number	| The @link {particle system | Particle#System} to use. <br>`Particle.System.ABOVE` by default.
+--@optional     xrand			| number	| 
+--@optional     yrand			| number	| 
+--@optional     color			| color		| The color to blend with. <br>`Color.WHITE` by default.
 --[[
 Returns a EffectDisplayParticles struct.
 ]]

@@ -8,7 +8,9 @@ local find_cache = {}
 
 -- ========== Enums ==========
 
---$enum
+--@section Enums
+
+--@enum
 Particle.System = ReadOnly.new({
     ABOVE           = 0,
     BELOW           = 1,
@@ -20,7 +22,7 @@ Particle.System = ReadOnly.new({
 })
 
 
---$enum
+--@enum
 Particle.Shape = ReadOnly.new({
     PIXEL       = 0,
     DISK        = 1,
@@ -42,9 +44,11 @@ Particle.Shape = ReadOnly.new({
 
 -- ========== Static Methods ==========
 
---$static
---$return       Particle
---$param        identifier  | string    | The identifier for the particle type.
+--@section Static Methods
+
+--@static
+--@return       Particle
+--@param        identifier  | string    | The identifier for the particle type.
 --[[
 Creates a new particle type with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -64,10 +68,10 @@ Particle.new = function(namespace, identifier)
 end
 
 
---$static
---$return       Particle or nil
---$param        identifier  | string    | The identifier to search for.
---$optional     namespace   | string    | The namespace to search in.
+--@static
+--@return       Particle or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified particle and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
@@ -115,9 +119,9 @@ Particle.find = function(identifier, namespace, default_namespace)
 end
 
 
---$static
---$return       table
---$optional     namespace   | string    | The namespace to check.
+--@static
+--@return       table
+--@optional     namespace   | string    | The namespace to check.
 --[[
 Returns a table of all particles in the specified namespace.
 If no namespace is provided, retrieves from both your mod's namespace and "ror".
@@ -146,9 +150,9 @@ Particle.find_all = function(namespace, _namespace)
 end
 
 
---$static
---$return       Particle
---$param        particle    | number    | The particle type to wrap.
+--@static
+--@return       Particle
+--@param        particle    | number    | The particle type to wrap.
 --[[
 Returns a Particle wrapper containing the provided particle type.
 ]]
@@ -160,13 +164,15 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_particle = {
 
-    --$instance
-    --$param        x           | number    | The x coordinate to spawn at.
-    --$param        y           | number    | The y coordinate to spawn at.
-    --$optional     count       | number    | The number of particles to spawn. <br>`1` by default.
-    --$optional     system      | number    | The $particle system, Particle#System$ to use. <br>`Particle.System.ABOVE` by default.
+    --@instance
+    --@param        x           | number    | The x coordinate to spawn at.
+    --@param        y           | number    | The y coordinate to spawn at.
+    --@optional     count       | number    | The number of particles to spawn. <br>`1` by default.
+    --@optional     system      | number    | The @link {particle system | Particle#System} to use. <br>`Particle.System.ABOVE` by default.
     --[[
     Spawns particles at the specified location.
     ]]
@@ -181,12 +187,12 @@ methods_particle = {
     end,
 
 
-    --$instance
-    --$param        x           | number    | The x coordinate to spawn at.
-    --$param        y           | number    | The y coordinate to spawn at.
-    --$optional     color       | color     | The color to blend. <br>`Color.WHITE` by default.
-    --$optional     count       | number    | The number of particles to spawn. <br>`1` by default.
-    --$optional     system      | number    | The $particle system, Particle#System$ to use. <br>`Particle.System.ABOVE` by default.
+    --@instance
+    --@param        x           | number    | The x coordinate to spawn at.
+    --@param        y           | number    | The y coordinate to spawn at.
+    --@optional     color       | color     | The color to blend. <br>`Color.WHITE` by default.
+    --@optional     count       | number    | The number of particles to spawn. <br>`1` by default.
+    --@optional     system      | number    | The @link {particle system | Particle#System} to use. <br>`Particle.System.ABOVE` by default.
     --[[
     Spawns colored particles at the specified location.
     ]]
@@ -205,8 +211,8 @@ methods_particle = {
     end,
 
 
-    --$instance
-    --$return       string
+    --@instance
+    --@return       string
     --[[
     Returns the identifier of the particle.
     ]]

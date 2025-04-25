@@ -8,10 +8,12 @@ local find_cache = {}
 
 -- ========== Static Methods ==========
 
---$static
---$return       Sound
---$param        identifier  | string    | The identifier for the sound.
---$param        path        | string    | The file path to the sound. <br>`~` expands to your mod folder (without a trailing slash).
+--@section Static Methods
+
+--@static
+--@return       Sound
+--@param        identifier  | string    | The identifier for the sound.
+--@param        path        | string    | The file path to the sound. <br>`~` expands to your mod folder (without a trailing slash).
 --[[
 Creates a new sound with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -46,10 +48,10 @@ Sound.new = function(namespace, identifier, path)
 end
 
 
---$static
---$return       Sound or nil
---$param        identifier  | string    | The identifier to search for.
---$optional     namespace   | string    | The namespace to search in.
+--@static
+--@return       Sound or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified sound and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
@@ -97,9 +99,9 @@ Sound.find = function(identifier, namespace, default_namespace)
 end
 
 
---$static
---$return       table
---$optional     namespace   | string    | The namespace to check.
+--@static
+--@return       table
+--@optional     namespace   | string    | The namespace to check.
 --[[
 Returns a table of all sounds in the specified namespace.
 If no namespace is provided, retrieves from both your mod's namespace and "ror".
@@ -128,9 +130,9 @@ Sound.find_all = function(namespace, _namespace)
 end
 
 
---$static
---$return       Sound
---$param        sound       | number    | The sound ID to wrap.
+--@static
+--@return       Sound
+--@param        sound       | number    | The sound ID to wrap.
 --[[
 Returns a Sound wrapper containing the provided sound ID.
 ]]

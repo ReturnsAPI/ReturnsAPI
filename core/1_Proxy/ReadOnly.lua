@@ -36,9 +36,19 @@ run_once(function()
     }
 
     ReadOnly = {
+
+        --@section Static Methods
+
+        --@static
+        --@return       table
+        --@param        t       | table     | The table to make read=only.
+        --[[
+        Returns a read-only version of the provided table.
+        ]]
         new = function(t)
             return Proxy.new(t, metatable_readonly)
         end
+
     }
 end)
 

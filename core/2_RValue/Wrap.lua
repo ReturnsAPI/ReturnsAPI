@@ -6,9 +6,11 @@ Wrap = new_class()
 
 -- ========== Static Methods ==========
 
---$static
---$return       any
---$param        value       |           | The value to unwrap (if applicable).
+--@section Static Methods
+
+--@static
+--@return       any
+--@param        value       |           | The value to unwrap (if applicable).
 --[[
 Returns the unwrapped value of a RAPI wrapper,
 or `value` if it is not a wrapper.

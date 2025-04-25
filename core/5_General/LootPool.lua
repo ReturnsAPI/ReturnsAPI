@@ -10,7 +10,9 @@ end)
 
 -- ========== Constants ==========
 
---$constants
+--@section Constants
+
+--@constants
 --[[
 COMMON          0
 UNCOMMON        1
@@ -64,9 +66,11 @@ end
 
 -- ========== Static Methods ==========
 
---$static
---$return   LootPool
---$param    identifier      | string    | The identifier for the loot pool.
+--@section Static Methods
+
+--@static
+--@return   LootPool
+--@param    identifier      | string    | The identifier for the loot pool.
 --[[
 Creates a new loot pool with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -112,9 +116,9 @@ LootPool.new = function(namespace, identifier)
 end
 
 
---$static
---$return   LootPool
---$param    tier            | ItemTier  | The item tier to use as a base.
+--@static
+--@return   LootPool
+--@param    tier            | ItemTier  | The item tier to use as a base.
 --[[
 Creates a new loot pool using an item tier as a base,
 automatically populating the pool's properties and
@@ -142,10 +146,10 @@ LootPool.new_from_tier = function(namespace, tier)
 end
 
 
---$static
---$return       LootPool or nil
---$param        identifier  | string    | The identifier to search for.
---$optional     namespace   | string    | The namespace to search in.
+--@static
+--@return       LootPool or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified loot pool and returns it.
 If no namespace is provided, searches in your mod's namespace first, and vanilla pools second.
@@ -170,9 +174,9 @@ LootPool.find = function(identifier, namespace, default_namespace)
 end
 
 
---$static
---$return       LootPool
---$param        pool        | number    | The loot pool to wrap.
+--@static
+--@return       LootPool
+--@param        pool        | number    | The loot pool to wrap.
 --[[
 Returns an LootPool wrapper containing the provided loot pool.
 ]]
@@ -184,9 +188,11 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_loot_pool = {
 
-    --$instance
+    --@instance
     --[[
     Prints the loot pool's properties.
     ]]
@@ -200,8 +206,8 @@ methods_loot_pool = {
     end,
 
 
-    --$instance
-    --$param        item        | Item      | The item to add.
+    --@instance
+    --@param        item        | Item      | The item to add.
     --[[
     Adds an item to the loot pool.
     ]]
@@ -210,8 +216,8 @@ methods_loot_pool = {
     end,
 
 
-    --$instance
-    --$param        item        | Item      | The item to remove.
+    --@instance
+    --@param        item        | Item      | The item to remove.
     --[[
     Removes an item from the loot pool.
     ]]
@@ -220,8 +226,8 @@ methods_loot_pool = {
     end,
 
 
-    --$instance
-    --$param        equip       | Equipment | The equipment to add.
+    --@instance
+    --@param        equip       | Equipment | The equipment to add.
     --[[
     Adds an equipment to the loot pool.
     ]]
@@ -230,8 +236,8 @@ methods_loot_pool = {
     end,
 
 
-    --$instance
-    --$param        equip       | Equipment | The equipment to remove.
+    --@instance
+    --@param        equip       | Equipment | The equipment to remove.
     --[[
     Removes an equipment from the loot pool.
     ]]
@@ -240,9 +246,9 @@ methods_loot_pool = {
     end,
 
 
-    --$instance
-    --$optional     required_loot_tags      | number or table   | A bit sum of flags; the chosen item must have at least one. <br>Alternatively, table containing multiple flags can be provided. <br>`0` by default.
-    --$optional     disallowed_loot_tags    | number or table   | A bit sum of flags; the chosen item must not have any of these. <br>Alternatively, table containing multiple flags can be provided. <br>`0` by default.
+    --@instance
+    --@optional     required_loot_tags      | number or table   | A bit sum of flags; the chosen item must have at least one. <br>Alternatively, table containing multiple flags can be provided. <br>`0` by default.
+    --@optional     disallowed_loot_tags    | number or table   | A bit sum of flags; the chosen item must not have any of these. <br>Alternatively, table containing multiple flags can be provided. <br>`0` by default.
     --[[
     Rolls for a random item from the loot pool, taking
     into account allowed and disallowed loot tags.

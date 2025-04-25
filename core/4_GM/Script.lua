@@ -13,9 +13,11 @@ local name_cache = setmetatable({}, {__mode = "k"})     -- Cache for script.name
 
 -- ========== Static Methods ==========
 
---$static
---$return       Script
---$param        func        | function  | The function to bind.
+--@section Static Methods
+
+--@static
+--@return       Script
+--@param        func        | function  | The function to bind.
 --[[
 Binds a Lua function to a GML script function and returns it.
 ]]
@@ -42,9 +44,9 @@ Script.bind = function(func)
 end
 
 
---$static
---$return       Script
---$param        script      | RValue or Script wrapper  | The script to wrap.
+--@static
+--@return       Script
+--@param        script      | RValue or Script wrapper  | The script to wrap.
 --[[
 Returns a Script wrapper containing the provided script.
 ]]

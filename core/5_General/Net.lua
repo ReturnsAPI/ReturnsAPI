@@ -6,8 +6,10 @@ Net = new_class()
 
 -- ========== Static Methods ==========
 
---$static
---$return   bool
+--@section Static Methods
+
+--@static
+--@return   bool
 --[[
 Returns `true` if the game client is currently connected online.
 ]]
@@ -18,8 +20,8 @@ Net.is_online = function()
 end
 
 
---$static
---$return   bool
+--@static
+--@return   bool
 --[[
 Returns `true` if the game client is currently the lobby host.
 ]]
@@ -30,8 +32,8 @@ Net.is_host = function()
 end
 
 
---$static
---$return   bool
+--@static
+--@return   bool
 --[[
 Returns `true` if the game client is currently a lobby client.
 ]]

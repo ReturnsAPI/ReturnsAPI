@@ -1,6 +1,8 @@
 -- Global
 
--- Allows for accessing global variables via `Global.<variable>`
+--[[
+Allows for accessing global variables via `Global.<variable>`
+]]
 
 Global = new_class()
 

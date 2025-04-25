@@ -11,8 +11,10 @@ end)
 
 -- ========== Enums ==========
 
---$enum
---$name Property
+--@section Enums
+
+--@enum
+--@name Property
 --[[
 NAMESPACE           0
 IDENTIFIER          1
@@ -31,7 +33,7 @@ IS_NEW_EQUIPMENT    13
 ]]
 
 
---$properties
+--@properties
 --[[
 namespace           | string    | The namespace the equipment is in.
 identifier          | string    | The identifier for the equipment within the namespace.
@@ -53,9 +55,11 @@ is_new_equipment    | bool      | `true` for new vanilla equipment added in *Ret
 
 -- ========== Static Methods ==========
 
---$static
---$return   Equipment
---$param    identifier  | string    | The identifier for the equipment.
+--@section Static Methods
+
+--@static
+--@return   Equipment
+--@param    identifier  | string    | The identifier for the equipment.
 --[[
 Creates a new equipment with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -99,22 +103,22 @@ Equipment.new = function(namespace, identifier)
 end
 
 
---$static
---$name         find
---$return       Equipment or nil
---$param        identifier  | string    | The identifier to search for.
---$optional     namespace   | string    | The namespace to search in.
+--@static
+--@name         find
+--@return       Equipment or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified equipment and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
 
 
---$static
---$name         find_all
---$return       table
---$param        filter      |           | The filter to search by.
---$optional     property    | number    | The property to check. <br>$`Equipment.Property.NAMESPACE`, Equipment#Property$ by default.
+--@static
+--@name         find_all
+--@return       table
+--@param        filter      |           | The filter to search by.
+--@optional     property    | number    | The property to check. <br>@link {`Equipment.Property.NAMESPACE` | Equipment#Property} by default.
 --[[
 Returns a table of equipment matching the specified filter and property
 
@@ -123,10 +127,10 @@ Try not to do that too much.
 ]]
 
 
---$static
---$name         wrap
---$return       Equipment
---$param        equip_id    | number    | The equipment ID to wrap.
+--@static
+--@name         wrap
+--@return       Equipment
+--@param        equip_id    | number    | The equipment ID to wrap.
 --[[
 Returns an Equipment wrapper containing the provided equipment ID.
 ]]
@@ -135,20 +139,22 @@ Returns an Equipment wrapper containing the provided equipment ID.
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 Util.table_append(methods_class_array[name_rapi], {
 
-    --$instance
-    --$name         print_properties
+    --@instance
+    --@name         print_properties
     --[[
     Prints the equipment's properties.
     ]]
 
 
-    --$instance
-    --$return       Instance
-    --$param        x           | number    | The x spawn coordinate.
-    --$param        y           | number    | The y spawn coordinate.
-    --$optional     target      | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
+    --@instance
+    --@return       Instance
+    --@param        x           | number    | The x spawn coordinate.
+    --@param        y           | number    | The y spawn coordinate.
+    --@optional     target      | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
     --[[
     Spawns and returns an equipment drop.
     ]]
@@ -186,8 +192,8 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    --$instance
-    --$param        sprite      | Sprite    | The sprite to set.
+    --@instance
+    --@param        sprite      | Sprite    | The sprite to set.
     --[[
     Sets the sprite of the equipment.
     ]]
@@ -203,8 +209,8 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    --$instance
-    --$param        tier        | number   | The $tier, ItemTier#constants$ to set.
+    --@instance
+    --@param        tier        | number   | The @link {tier | ItemTier#constants} to set.
     --[[
     Sets the tier of the equipment, and assigns it to the appropriate
     loot pool (will remove from all previous loot pools).
@@ -226,8 +232,8 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    --$instance
-    --$param        ...         | number(s) | A variable number of $loot tags, Item#LootTag$ to add.
+    --@instance
+    --@param        ...         | number(s) | A variable number of @link {loot tags | Item#LootTag} to add.
     --[[
     Sets the loot tags of the equipment.
     ]]
@@ -243,8 +249,8 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    --$instance
-    --$return       bool
+    --@instance
+    --@return       bool
     --[[
     Returns `true` if this equipment is marked as passive.
     ]]
@@ -253,8 +259,8 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    --$instance
-    --$param        bool        | bool      | `true` (passive) or `false` (active)
+    --@instance
+    --@param        bool        | bool      | `true` (passive) or `false` (active)
     --[[
     Sets whether or not the equipment is passive (i.e., cannot be activated).
     ]]

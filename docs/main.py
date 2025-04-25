@@ -42,7 +42,7 @@ global WIKI; WIKI = "https://github.com/ReturnsAPI/ReturnsAPI/wiki"
 
 
 def main():
-    core_path = os.path.join(os.path.dirname(__file__), "../docs_test") # debug
+    core_path = os.path.join(os.path.dirname(__file__), "../core")
     
     # Loop through all directories in `core`
     for dir in os.listdir(core_path):
@@ -58,6 +58,10 @@ def main():
 
 
 def parse_file(file_path, filename):
+
+    # Log current file
+    print("Processing " + filename)
+
 
     # Get file data
     with open(file_path, "r") as f:
@@ -242,14 +246,14 @@ def parse_block(block, docs):
 
             # Add required parameter
             case "@param":
-                parts = [p.strip() for p in line.split(None, 1)[1].split("|")]
+                parts = [p.strip() for p in line.split(None, 1)[1].split("|", 2)]
                 param = Param(parts[0], parts[1], parse_line(parts[2]))
                 docs["element"].signatures[-1].params.append(param)
 
 
             # Add optional parameter
             case "@optional":
-                parts = [p.strip() for p in line.split(None, 1)[1].split("|")]
+                parts = [p.strip() for p in line.split(None, 1)[1].split("|", 2)]
                 param = Param(parts[0], parts[1], parse_line(parts[2]))
                 docs["element"].signatures[-1].optional.append(param)
 
@@ -299,6 +303,11 @@ def parse_line(line):
     tokens = line.split()
     while len(tokens) > 0:
         token = tokens.pop(0)
+
+        if token.startswith("<br>"):
+            parsed += "<br>"
+            token = token[4:]
+
         match token:
 
             # Add link
@@ -362,6 +371,8 @@ def parse_code(code, docs):
 
 
         case "Method":
+            if len(code) <= 0:
+                return
             
             # Name
             line = code[0]
@@ -457,7 +468,7 @@ def generate(docs, filename):
 
             # Add if name is valid
             if name:
-                out += f"  * [**{prefix}{name}**]({WIKI}/{filename}#{element.href})  \n"
+                out += f"  * [`{prefix}{name}`]({WIKI}/{filename}#{element.href})  \n"
 
         out += "\n"
 

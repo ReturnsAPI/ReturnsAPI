@@ -6,8 +6,10 @@ Color = new_class()
 
 -- ========== Constants and Enums ==========
 
+--@section Constants
+
 -- These are in BGR
---$constants
+--@constants
 --[[
 AQUA            0xffff00
 BLACK           0x000000
@@ -66,7 +68,9 @@ for k, v in pairs(color_constants) do
 end
 
 
---$enum
+--@section Enums
+
+--@enum
 Color.Item = ReadOnly.new({
     WHITE   = 0xffffff,
     GREEN   = 0x58b475,
@@ -79,7 +83,7 @@ Color.Item = ReadOnly.new({
 })
 
 
---$enum
+--@enum
 Color.Text = ReadOnly.new({
     YELLOW  = 0x7bd2ef,
     BLUE    = 0xd29a31,
@@ -119,9 +123,11 @@ end
 
 -- ========== Static Methods ==========
 
---$static
---$return       number
---$param        hex         | string    | The hex string of the color (in RGB).
+--@section Static Methods
+
+--@static
+--@return       number
+--@param        hex         | string    | The hex string of the color (in RGB).
 --[[
 Returns a decimal color value from a hex string.
 Can also be called via `Color(<hex>)`.

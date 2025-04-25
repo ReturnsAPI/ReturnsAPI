@@ -24,15 +24,17 @@ instance_wrappers = {
 
 -- ========== Static Methods ==========
 
---$static
---$return       Instance
---$param        object      | Object    | The object to spawn.
---$param        x           | number    | The x spawn coordinate. <br>`0` by default.
---$param        y           | number    | The y spawn coordinate. <br>`0` by default.
+--@section Static Methods
+
+--@static
+--@return       Instance
+--@param        object      | Object    | The object to spawn.
+--@param        x           | number    | The x spawn coordinate. <br>`0` by default.
+--@param        y           | number    | The y spawn coordinate. <br>`0` by default.
 --[[
 Creates and returns an instance of the specified object.
 
-Also exists as a $method of Object, Object#create$.
+Also exists as a @link {method of Object | Object#create}.
 ]]
 Instance.create = function(x, y, object)
     local holder = RValue.new_holder_scr(3)
@@ -45,14 +47,14 @@ Instance.create = function(x, y, object)
 end
 
 
---$static
---$aref         exists-static
---$return       bool
---$param        inst        | Instance  | The instance to check.
+--@static
+--@href         exists-static
+--@return       bool
+--@param        inst        | Instance  | The instance to check.
 --[[
 Returns `true` if the instance exists, and `false` otherwise.
 
-Also exists as an $instance method, Instance#exists-instance$.
+Also exists as an @link {instance method | Instance#exists-instance}.
 ]]
 Instance.exists = function(inst)
     local holder = RValue.new_holder(1)
@@ -63,13 +65,13 @@ Instance.exists = function(inst)
 end
 
 
---$static
---$aref         destroy-static
---$param        inst        | Instance  | The instance to destroy.
+--@static
+--@href         destroy-static
+--@param        inst        | Instance  | The instance to destroy.
 --[[
 Destroys the instance.
 
-Also exists as an $instance method, Instance#destroy-instance$.
+Also exists as an @link {instance method | Instance#destroy-instance}.
 ]]
 Instance.destroy = function(inst)
     inst = Wrap.unwrap(inst)
@@ -83,10 +85,10 @@ Instance.destroy = function(inst)
 end
 
 
---$static
---$return       Instance
---$param        object      | Object    | The object to check.
---$param        n           | number    | The *n*-th instance, indexed from 1. <br>`1` by default.
+--@static
+--@return       Instance
+--@param        object      | Object    | The object to check.
+--@param        n           | number    | The *n*-th instance, indexed from 1. <br>`1` by default.
 --[[
 Returns the first (or *n*-th) instance of the specified object,
 or an invalid instance (value of `-4`).
@@ -125,9 +127,9 @@ Instance.find = function(object, n)
 end
 
 
---$static
---$return       table
---$param        object      | Object    | The object to check.
+--@static
+--@return       table
+--@param        object      | Object    | The object to check.
 --[[
 Returns a table of all instances of the specified object.
 
@@ -148,9 +150,9 @@ Instance.find_all = function(object)
 end
 
 
---$static
---$return       number
---$param        object      | Object    | The object to check.
+--@static
+--@return       number
+--@param        object      | Object    | The object to check.
 --[[
 Returns the instance count of the specified object.
 ]]
@@ -163,11 +165,11 @@ Instance.count = function(object)
 end
 
 
---$static
---$return       table
---$param        instance    | Instance  | The instance to get the table from.
---$optional     subtable    | string    | If specified, returns a different table under the ID `subtable`. <br>Useful for organization and preventing variable name conflicts within a mod itself. <br>This string can be whatever you want.
---$optional     namespace   | string    | If specified, returns another mod's table for the instance.
+--@static
+--@return       table
+--@param        instance    | Instance  | The instance to get the table from.
+--@optional     subtable    | string    | If specified, returns a different table under the ID `subtable`. <br>Useful for organization and preventing variable name conflicts within a mod itself. <br>This string can be whatever you want.
+--@optional     namespace   | string    | If specified, returns another mod's table for the instance.
 --[[
 Returns a table unique to each instance (will be initially empty) and unique to each mod calling this.
 (e.g., Given the same instance and two mods A and B, A calling `get_data` will return a different table to B calling `get_data`).
@@ -188,9 +190,9 @@ Instance.get_data = function(instance, subtable, namespace, default_namespace)
 end
 
 
---$static
---$return       Instance
---$param        id          | number    | The instance ID to wrap.
+--@static
+--@return       Instance
+--@param        id          | number    | The instance ID to wrap.
 --[[
 Returns an Instance wrapper containing the provided instance.
 ]]
@@ -257,9 +259,9 @@ Instance.wrap = function(id)
 end
 
 
---$static
---$return       bool
---$param        value       | RValue or Instance wrapper    | The value to check.
+--@static
+--@return       bool
+--@param        value       | RValue or Instance wrapper    | The value to check.
 --[[
 Returns `true` if `value` is an instance, and `false` otherwise.
 ]]
@@ -274,6 +276,8 @@ end
 
 
 -- ========== Instance Methods ==========
+
+--@section Instance Methods
 
 methods_instance = {}
 
@@ -293,13 +297,13 @@ end
 
 Util.table_append(methods_instance, {
 
-    --$instance
-    --$aref         exists-instance
-    --$return       bool
+    --@instance
+    --@href         exists-instance
+    --@return       bool
     --[[
     Returns `true` if the instance exists, and `false` otherwise.
 
-    Also exists as a $static method, Instance#exists-static$.
+    Also exists as a @link {static method | Instance#exists-static}.
     ]]
     exists = function(self)
         -- Return `false` if wrapper is invalid
@@ -318,12 +322,12 @@ Util.table_append(methods_instance, {
     end,
 
 
-    --$instance
-    --$aref         destroy-instance
+    --@instance
+    --@href         destroy-instance
     --[[
     Destroys the instance.
 
-    Also exists as a $static method, Instance#destroy-static$.
+    Also exists as a @link {static method | Instance#destroy-static}.
     ]]
     destroy = function(self)
         -- Return if wrapper is invalid
@@ -340,8 +344,8 @@ Util.table_append(methods_instance, {
     end,
 
 
-    --$instance
-    --$return       Object
+    --@instance
+    --@return       Object
     --[[
     Returns the object that the instance is a type of.
     ]]
@@ -350,8 +354,8 @@ Util.table_append(methods_instance, {
     end,
 
 
-    --$instance
-    --$return       number
+    --@instance
+    --@return       number
     --[[
     Returns the instance's correct object index, accounting for custom objects.
     ]]
@@ -367,11 +371,11 @@ Util.table_append(methods_instance, {
     end,
 
 
-    --$instance
-    --$return       bool
-    --$param        object      | Object    | The object to check.
-    --$optional     x           | number    | The x position to check at. <br>Uses this instance's current position by default.
-    --$optional     y           | number    | The y position to check at. <br>Uses this instance's current position by default.
+    --@instance
+    --@return       bool
+    --@param        object      | Object    | The object to check.
+    --@optional     x           | number    | The x position to check at. <br>Uses this instance's current position by default.
+    --@optional     y           | number    | The y position to check at. <br>Uses this instance's current position by default.
     --[[
     Returns `true` if this instance is colliding with *any* instance of the specified object.
 
@@ -429,11 +433,11 @@ Util.table_append(methods_instance, {
     end,
 
 
-    --$instance
-    --$return       table
-    --$param        object      | Object    | The object to check.
-    --$optional     x           | number    | The x position to check at. <br>Uses this instance's current position by default.
-    --$optional     y           | number    | The y position to check at. <br>Uses this instance's current position by default.
+    --@instance
+    --@return       table
+    --@param        object      | Object    | The object to check.
+    --@optional     x           | number    | The x position to check at. <br>Uses this instance's current position by default.
+    --@optional     y           | number    | The y position to check at. <br>Uses this instance's current position by default.
     --[[
     Returns a table of all instances of the specified object that this instance is colliding with.
 
@@ -494,10 +498,10 @@ Util.table_append(methods_instance, {
     end,
 
 
-    --$instance
-    --$return       number or nil
-    --$param        x           | number    | The target x position.
-    --$param        y           | number    | The target y position.
+    --@instance
+    --@return       number or nil
+    --@param        x           | number    | The target x position.
+    --@param        y           | number    | The target y position.
     --[[
     Returns the distance between this instance's position and a point.
     Returns `nil` if this instance does not exist.
@@ -517,10 +521,10 @@ Util.table_append(methods_instance, {
     end,
 
 
-    --$instance
-    --$return       number or nil
-    --$param        x           | number    | The target x position.
-    --$param        y           | number    | The target y position.
+    --@instance
+    --@return       number or nil
+    --@param        x           | number    | The target x position.
+    --@param        y           | number    | The target y position.
     --[[
     Returns the angle to face a point from this instance's position.
     Returns `nil` if this instance does not exist.
@@ -540,9 +544,9 @@ Util.table_append(methods_instance, {
     end,
 
 
-    --$instance
-    --$return       bool
-    --$param        tag         | string    | The tag to check.
+    --@instance
+    --@return       bool
+    --@param        tag         | string    | The tag to check.
     --[[
     Returns `true` if this instance is of an object with the specified tag.
     ]]
@@ -555,7 +559,7 @@ Util.table_append(methods_instance, {
     end,
 
 
-    --$instance
+    --@instance
     --[[
     Prints the instances's variables.
     ]]

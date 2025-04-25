@@ -6,7 +6,9 @@ AttackInfo = new_class()
 
 -- ========== Enums ==========
 
---$enum
+--@section Enums
+
+--@enum
 AttackInfo.Tracer = ReadOnly.new({
     NONE                    = 0,
     WISPG                   = 1,
@@ -42,9 +44,11 @@ AttackInfo.Tracer = ReadOnly.new({
 
 -- ========== Static Methods ==========
 
---$static
---$return       AttackInfo
---$param        attack_info | Struct    | The `attack_info` struct to wrap.
+--@section Static Methods
+
+--@static
+--@return       AttackInfo
+--@param        attack_info | Struct    | The `attack_info` struct to wrap.
 --[[
 Returns an AttackInfo wrapper containing the provided `attack_info` struct.
 ]]
@@ -56,9 +60,11 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_attackinfo = {
 
-    --$instance
+    --@instance
     --[[
     If called, treats the attack's damage as a raw value,
     instead of having been multiplied as a damage coefficient.
@@ -72,8 +78,8 @@ methods_attackinfo = {
     end,
 
 
-    --$instance
-    --$return       number
+    --@instance
+    --@return       number
     --[[
     Returns the attack's damage *before* critical calculation.
     ]]
@@ -85,8 +91,8 @@ methods_attackinfo = {
     end,
 
 
-    --$instance
-    --$param        damage      | number    | The damage to set.
+    --@instance
+    --@param        damage      | number    | The damage to set.
     --[[
     Sets the damage of the attack *before* critical calculation.
     ]]
@@ -98,8 +104,8 @@ methods_attackinfo = {
     end,
 
 
-    --$instance
-    --$param        bool        | bool      | `true` - Crit <br>`false` - Non-crit
+    --@instance
+    --@param        bool        | bool      | `true` - Crit <br>`false` - Non-crit
     --[[
     Sets whether or not this attack is a critical hit.
     *Technical:* Multiplies/divides `damage` by 2 alongside setting `critical`.

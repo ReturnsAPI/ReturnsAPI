@@ -8,13 +8,15 @@ local find_cache = {}
 
 -- ========== Static Methods ==========
 
---$static
---$return       Sprite
---$param        identifier      | string    | The identifier for the sprite.
---$param        path            | string    | The file path to the sprite. <br>`~` expands to your mod folder (without a trailing slash).
---$optional     image_number    | number    | The number of subimages. <br>`1` by default.
---$optional     x_origin        | number    | The x coordinate of the origin (offset). <br>`0` by default.
---$optional     y_origin        | number    | The y coordinate of the origin (offset). <br>`0` by default.
+--@section Static Methods
+
+--@static
+--@return       Sprite
+--@param        identifier      | string    | The identifier for the sprite.
+--@param        path            | string    | The file path to the sprite. <br>`~` expands to your mod folder (without a trailing slash).
+--@optional     image_number    | number    | The number of subimages. <br>`1` by default.
+--@optional     x_origin        | number    | The x coordinate of the origin (offset). <br>`0` by default.
+--@optional     y_origin        | number    | The y coordinate of the origin (offset). <br>`0` by default.
 --[[
 Creates a new sprite with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -56,10 +58,10 @@ Sprite.new = function(namespace, identifier, path, image_number, x_origin, y_ori
 end
 
 
---$static
---$return       Sprite or nil
---$param        identifier  | string    | The identifier to search for.
---$optional     namespace   | string    | The namespace to search in.
+--@static
+--@return       Sprite or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified sprite and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
@@ -107,9 +109,9 @@ Sprite.find = function(identifier, namespace, default_namespace)
 end
 
 
---$static
---$return       table
---$optional     namespace   | string    | The namespace to check.
+--@static
+--@return       table
+--@optional     namespace   | string    | The namespace to check.
 --[[
 Returns a table of all sprites in the specified namespace.
 If no namespace is provided, retrieves from both your mod's namespace and "ror".
@@ -138,9 +140,9 @@ Sprite.find_all = function(namespace, _namespace)
 end
 
 
---$static
---$return       Sprite
---$param        sprite      | number    | The sprite ID to wrap.
+--@static
+--@return       Sprite
+--@param        sprite      | number    | The sprite ID to wrap.
 --[[
 Returns a Sprite wrapper containing the provided sprite ID.
 ]]
@@ -152,11 +154,13 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_sprite = {
 
-    --$instance
-    --$optional     x_origin    | number    | The x coordinate of the origin (offset). <br>`0` by default.
-    --$optional     y_origin    | number    | The y coordinate of the origin (offset). <br>`0` by default.
+    --@instance
+    --@optional     x_origin    | number    | The x coordinate of the origin (offset). <br>`0` by default.
+    --@optional     y_origin    | number    | The y coordinate of the origin (offset). <br>`0` by default.
     --[[
     Sets the origin of the sprite.
     Resets unspecified coordinates to `0`.
@@ -170,8 +174,8 @@ methods_sprite = {
     end,
 
 
-    --$instance
-    --$param        speed       | number    | The animation speed, in "sprite frames per game frame".
+    --@instance
+    --@param        speed       | number    | The animation speed, in "sprite frames per game frame".
     --[[
     Sets the animation speed of the sprite.
     ]]
@@ -184,11 +188,11 @@ methods_sprite = {
     end,
 
 
-    --$instance
-    --$param        bbox_left   | number    | The left side, relative to the origin.
-    --$param        bbox_top    | number    | The top side, relative to the origin.
-    --$param        bbox_right  | number    | The right side, relative to the origin.
-    --$param        bbox_bottom | number    | The bottom side, relative to the origin.
+    --@instance
+    --@param        bbox_left   | number    | The left side, relative to the origin.
+    --@param        bbox_top    | number    | The top side, relative to the origin.
+    --@param        bbox_right  | number    | The right side, relative to the origin.
+    --@param        bbox_bottom | number    | The bottom side, relative to the origin.
     --[[
     Sets the collision mask of the sprite, relative to the origin.
 

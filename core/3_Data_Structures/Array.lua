@@ -6,18 +6,17 @@ Array = new_class()
 
 -- ========== Static Methods ==========
 
---$static
---$return       Array
---$optional     size        | number    | The size of the array. <br>`0` by default.
---$optional     value       |           | The value to populate the array with. <br>`0` by default.
+--@section Static Methods
+
+--@static
+--@return       Array
+--@optional     size        | number    | The size of the array. <br>`0` by default.
+--@optional     value       |           | The value to populate the array with. <br>`0` by default.
+--@overload
+--@return       Array
+--@param        table       | table     | A numerically-indexed Lua table to convert into an array.
 --[[
 Returns a newly created GameMaker array.
-
---$ptable
-
-| Parameter | Type  | Description
-| --------- | ----- | -----------
-| `table`   | table | A numerically-indexed Lua table to convert into an array.
 ]]
 Array.new = function(arg1, arg2)
     -- Overload 1
@@ -48,9 +47,9 @@ Array.new = function(arg1, arg2)
 end
 
 
---$static
---$return       Array
---$param        array       | RValue or Array wrapper   | The array to wrap.
+--@static
+--@return       Array
+--@param        array       | RValue or Array wrapper   | The array to wrap.
 --[[
 Returns an Array wrapper containing the provided array.
 ]]
@@ -67,9 +66,9 @@ Array.wrap = function(array)
 end
 
 
---$static
---$return       Array
---$param        array_i64   | number    | `i64` reference to an array.
+--@static
+--@return       Array
+--@param        array_i64   | number    | `i64` reference to an array.
 --[[
 Returns an Array wrapper containing the provided array.
 ]]
@@ -85,9 +84,9 @@ Array.wrap_i64 = function(array_i64)
 end
 
 
---$static
---$return       bool
---$param        value       | RValue or Array wrapper   | The value to check.
+--@static
+--@return       bool
+--@param        value       | RValue or Array wrapper   | The value to check.
 --[[
 Returns `true` if `value` is an array, and `false` otherwise.
 ]]

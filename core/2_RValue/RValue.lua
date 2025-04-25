@@ -49,7 +49,9 @@ end)
 
 -- ========== Enums ==========
 
---$enum
+--@section Enums
+
+--@enum
 RValue.Type = {
     REAL        = 0,
     STRING      = 1,
@@ -100,10 +102,12 @@ local rvalue_type_lookup = {
 
 -- ========== Static Methods (Creation) ==========
 
---$static
---$return       RValue
---$param        value       |           | The value to wrap.
---$optional     rvalue_type | number    | The $`RValue.Type`, RValue#Type$ to wrap as. <br>Not required for Lua primitives.
+--@section Static Methods
+
+--@static
+--@return       RValue
+--@param        value       |           | The value to wrap.
+--@optional     rvalue_type | number    | The @link {`RValue.Type` | RValue#Type} to wrap as. <br>Not required for Lua primitives.
 --[[
 Wraps a value as an RValue and returns it.
 ]]
@@ -183,9 +187,9 @@ RValue.new = function(val, rvalue_type)
 end
 
 
---$static
---$param        rvalue_dest | RValue    | The RValue to copy to.
---$param        rvalue_src  | RValue    | The RValue to copy from.
+--@static
+--@param        rvalue_dest | RValue    | The RValue to copy to.
+--@param        rvalue_src  | RValue    | The RValue to copy from.
 --[[
 Copies the contents of `src` RValue to `dest` RValue.
 ]]
@@ -213,9 +217,9 @@ RValue.copy = function(rvalue_dest, rvalue_src)
 end
 
 
---$static
---$return       RValue[]
---$param        size        | number    | The size of the holder.
+--@static
+--@return       RValue[]
+--@param        size        | number    | The size of the holder.
 --[[
 Returns a new RValue holder of the specified size (for builtin functions).
 ]]
@@ -240,9 +244,9 @@ RValue.new_holder = function(size)
 end
 
 
---$static
---$return       RValue*[]
---$param        size        | number    | The size of the holder.
+--@static
+--@return       RValue*[]
+--@param        size        | number    | The size of the holder.
 --[[
 Returns a new RValue* holder of the specified size (for script functions).
 ]]
@@ -267,9 +271,9 @@ RValue.new_holder_scr = function(size)
 end
 
 
---$static
---$param        rvalue      | RValue    | The RValue to peek at.
---$optional     label       | string    | Prepend text to the print.
+--@static
+--@param        rvalue      | RValue    | The RValue to peek at.
+--@optional     label       | string    | Prepend text to the print.
 --[[
 Prints the contents of an RValue.
 ]]
@@ -304,9 +308,11 @@ end
 
 -- ========== Static Methods (Conversions) ==========
 
---$static
---$return       RAPI wrapper or Lua primitive
---$param        rvalue      | RValue    | The RValue to convert.
+--@section Static Methods (Conversions)
+
+--@static
+--@return       RAPI wrapper or Lua primitive
+--@param        rvalue      | RValue    | The RValue to convert.
 --[[
 Converts an RValue into the appropriate RAPI wrapper or Lua primitive.
 ]]
@@ -336,9 +342,9 @@ RValue.to_wrapper = function(rvalue)
 end
 
 
---$static
---$return       RValue
---$param        value       |           | The value to convert.
+--@static
+--@return       RValue
+--@param        value       |           | The value to convert.
 --[[
 Converts a RAPI wrapper or Lua primitive into the appropriate RValue.
 ]]

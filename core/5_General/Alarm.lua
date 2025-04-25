@@ -15,11 +15,13 @@ end)
 
 -- ========== Static Methods ==========
 
---$static
---$return       number
---$param        time        | number    | The number of frames before the function is called.
---$param        fn          | function  | The function to call.
---$optional     ...         |           | A variable number of arguments to pass to the function.
+--@section Static Methods
+
+--@static
+--@return       number
+--@param        time        | number    | The number of frames before the function is called.
+--@param        fn          | function  | The function to call.
+--@optional     ...         |           | A variable number of arguments to pass to the function.
 --[[
 Creates a new alarm which calls the provided function
 with passed args after the specified amount of time.

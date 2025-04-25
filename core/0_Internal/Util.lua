@@ -11,8 +11,10 @@ end)
 
 -- ========== Static Methods ==========
 
---$static
---$param        ...         |           | A variable amount of arguments to print.
+--@section Static Methods
+
+--@static
+--@param        ...         |           | A variable amount of arguments to print.
 --[[
 Prints a variable number of arguments.
 Works just like regular `print`, but prints wrapper types instead of "table".
@@ -29,10 +31,10 @@ Util.print = function(...)
 end
 
 
---$static
---$return       string, [bool]
---$param        value       |           | The value to check.
---$optional     is_RAPI?    | bool      | If `true`, will return a bool as a second argument. <br>It will be `true` if the type is a RAPI wrapper, and `false` otherwise.
+--@static
+--@return       string, [bool]
+--@param        value       |           | The value to check.
+--@optional     is_RAPI?    | bool      | If `true`, will return a bool as a second argument. <br>It will be `true` if the type is a RAPI wrapper, and `false` otherwise.
 --[[
 Returns the type of the value as a string.
 Wrappers (which are just tables) will have their type returned instead of "table".
@@ -53,9 +55,9 @@ Util.type = function(value, is_RAPI)
 end
 
 
---$static
---$return       string
---$param        value       |           | The value to make a string representation of.
+--@static
+--@return       string
+--@param        value       |           | The value to make a string representation of.
 --[[
 Returns the string representation of the value.
 Works just like regular `tostring`, but "table" substrings
@@ -72,7 +74,7 @@ Util.tostring = function(value)
 end
 
 
---$static
+--@static
 --[[
 Prints the results of `GM.debug_get_callstack()`.
 The value at the top was the most recent previous call.
@@ -85,9 +87,9 @@ Util.gm_trace = function(value)
 end
 
 
---$static
---$return       bool
---$param        value       |           | The value to convert.
+--@static
+--@return       bool
+--@param        value       |           | The value to convert.
 --[[
 Converts a numerical value into a bool,
 returning `true` if > 0.5, and `false` otherwise.
@@ -104,9 +106,9 @@ Util.bool = function(value)
 end
 
 
---$static
---$return       bool
---$param        n           | number    | The chance to succeed, between `0` and `1`.
+--@static
+--@return       bool
+--@param        n           | number    | The chance to succeed, between `0` and `1`.
 --[[
 Rolls for a binary outcome.
 Returns `true` on success, and `false` otherwise.
@@ -116,11 +118,11 @@ Util.chance = function(n)
 end
 
 
---$static
---$return       number
---$param        n           | number    | The number to clamp.
---$param        min         | number    | The minimum clamp value.
---$param        max         | number    | The maximum clamp value.
+--@static
+--@return       number
+--@param        n           | number    | The number to clamp.
+--@param        min         | number    | The minimum clamp value.
+--@param        max         | number    | The maximum clamp value.
 --[[
 Clamps the given value between two boundaries.
 ]]
@@ -129,10 +131,10 @@ Util.clamp = function(n, _min, _max)
 end
 
 
---$static
---$return       number
---$param        x           | number    | The value to ease, between `0` and `1`.
---$optional     n           | number    | The easing power. <br>`2` (quadratic) by default.
+--@static
+--@return       number
+--@param        x           | number    | The value to ease, between `0` and `1`.
+--@optional     n           | number    | The easing power. <br>`2` (quadratic) by default.
 --[[
 Returns an ease-in value for a given value `x` between `0` and `1`.
 ]]
@@ -141,10 +143,10 @@ Util.ease_in = function(x, n)
 end
 
 
---$static
---$return       number
---$param        x           | number    | The value to ease, between `0` and `1`.
---$optional     n           | number    | The easing power. <br>`2` (quadratic) by default.
+--@static
+--@return       number
+--@param        x           | number    | The value to ease, between `0` and `1`.
+--@optional     n           | number    | The easing power. <br>`2` (quadratic) by default.
 --[[
 Returns an ease-out value for a given value `x` between `0` and `1`.
 ]]
@@ -153,10 +155,10 @@ Util.ease_out = function(x, n)
 end
 
 
---$static
---$return       bool
---$param        table       | table     | The table to search through.
---$param        value       |           | The value to search for.
+--@static
+--@return       bool
+--@param        table       | table     | The table to search through.
+--@param        value       |           | The value to search for.
 --[[
 Returns `true` if the table contains the value, and `false` otherwise.
 ]]
@@ -168,10 +170,10 @@ Util.table_has = function(t, value)
 end
 
 
---$static
---$return       string
---$param        table       | table     | The table to search through.
---$param        value       |           | The value to search for.
+--@static
+--@return       string
+--@param        table       | table     | The table to search through.
+--@param        value       |           | The value to search for.
 --[[
 Returns the key of the value to search for.
 ]]
@@ -183,9 +185,9 @@ Util.table_find = function(t, value)
 end
 
 
---$static
---$param        table       | table     | The table to search through.
---$param        value       |           | The value to remove.
+--@static
+--@param        table       | table     | The table to search through.
+--@param        value       |           | The value to remove.
 --[[
 Removes the first occurence of the specified value from the table.
 ]]
@@ -199,9 +201,9 @@ Util.table_remove_value = function(t, value)
 end
 
 
---$static
---$return       table
---$param        table       | table     | The table to get the keys of.
+--@static
+--@return       table
+--@param        table       | table     | The table to get the keys of.
 --[[
 Returns a table of keys of the specified table.
 ]]
@@ -214,9 +216,9 @@ Util.table_get_keys = function(t)
 end
 
 
---$static
---$return       table
---$param        ...         |           | A variable amount of tables to combine.
+--@static
+--@return       table
+--@param        ...         |           | A variable amount of tables to combine.
 --[[
 Returns a new table containing the values from input tables.
 The tables are merged in order.
@@ -239,9 +241,9 @@ Util.table_merge = function(...)
 end
 
 
---$static
---$param        dest        | table     | The original table to append to.
---$param        src         | table     | The table to append.
+--@static
+--@param        dest        | table     | The original table to append to.
+--@param        src         | table     | The table to append.
 --[[
 Appends keys from `src` to `dest`.
 Existing keys will be overwritten.
@@ -253,9 +255,9 @@ Util.table_append = function(dest, src)
 end
 
 
---$static
---$param        dest        | table     | The original table to append to.
---$param        src         | table     | The table to append.
+--@static
+--@param        dest        | table     | The original table to append to.
+--@param        src         | table     | The table to append.
 --[[
 Inserts a table of values (`src`) to `dest`.
 Both should be numerically-indexed tables.
@@ -267,9 +269,9 @@ Util.table_insert = function(dest, src)
 end
 
 
---$static
---$return       string
---$param        table       | table     | The table to encode.
+--@static
+--@return       string
+--@param        table       | table     | The table to encode.
 --[[
 Returns a string encoding of a *numerically-indexed* table.
 The table should contain only basic Lua types (`bool`, `number`, `string`, `table`, `nil`).
@@ -286,11 +288,11 @@ Util.table_to_string = function(table_)
 end
 
 
---$static
---$return       table
---$param        string      | string     | The string to decode.
+--@static
+--@return       table
+--@param        string      | string     | The string to decode.
 --[[
-Returns the table from a $string encoding, Util#table_to_string$.
+Returns the table from a @link {string encoding | Util#table_to_string}.
 ]]
 Util.string_to_table = function(string_)
     local raw = gm.string_split(string_, "||")
@@ -326,10 +328,10 @@ Util.string_to_table = function(string_)
 end
 
 
---$static
---$return       table
---$param        table       | table     | 
---$param        metatable   | table     | The metatable to assign to the table.
+--@static
+--@return       table
+--@param        table       | table     | 
+--@param        metatable   | table     | The metatable to assign to the table.
 --[[
 A version of `setmetatable()` that allows for Lua 5.2's `__gc` metamethod.
 ]]
@@ -364,11 +366,11 @@ end
 -- end
 
 
---$static
---$return       number
---$param        stack_count | number    | The stack count.
---$param        chance      | number    | The proc chance/scaling/etc. *per stack*, between `0` and `1`.
---$optional     base_chance | number    | A base value (between `0` and `1`), should the additional <br>stack value be different from the first stack.
+--@static
+--@return       number
+--@param        stack_count | number    | The stack count.
+--@param        chance      | number    | The proc chance/scaling/etc. *per stack*, between `0` and `1`.
+--@optional     base_chance | number    | A base value (between `0` and `1`), should the additional <br>stack value be different from the first stack.
 --[[
 Returns the % chance (between `0` and `1`) of the stack count using a variant of hyperbolic scaling.
 The first stack will always equal the stack %, and not slightly under (as is with the normal hyperbolic formula used).
@@ -384,10 +386,10 @@ Util.mixed_hyperbolic = function(stack_count, chance, base_chance)
 end
 
 
---$static
---$param        n       | number    | The number of calls to make.
---$param        fn      | function  | The function to call.
---$optional     ...     |           | A variable number of arguments to pass.
+--@static
+--@param        n       | number    | The number of calls to make.
+--@param        fn      | function  | The function to call.
+--@optional     ...     |           | A variable number of arguments to pass.
 --[[
 Benchmarks a function and prints the results (in milliseconds, up to 7 decimal places).
 The amount of milliseconds per frame is 16.66~ ms.
@@ -411,11 +413,11 @@ Util.benchmark = function(n, fn, ...)
 end
 
 
---$static
---$return       strings
---$param        str         | string    | The string to pad.
---$param        length      | number    | The desired string length.
---$optional     char        | string    | The character to use. <br>`" "` (space) by default.
+--@static
+--@return       strings
+--@param        str         | string    | The string to pad.
+--@param        length      | number    | The desired string length.
+--@optional     char        | string    | The character to use. <br>`" "` (space) by default.
 --[[
 Returns a string with character padding on the
 left side to match the desired string length.
@@ -431,11 +433,11 @@ Util.pad_string_left = function(str, length, char)
 end
 
 
---$static
---$return       strings
---$param        str         | string    | The string to pad.
---$param        length      | number    | The desired string length.
---$optional     char        | string    | The character to use. <br>`" "` (space) by default.
+--@static
+--@return       strings
+--@param        str         | string    | The string to pad.
+--@param        length      | number    | The desired string length.
+--@optional     char        | string    | The character to use. <br>`" "` (space) by default.
 --[[
 Returns a string with character padding on the
 right side to match the desired string length.
@@ -451,12 +453,12 @@ Util.pad_string_right = function(str, length, char)
 end
 
 
---$static
---$return       strings
---$param        fn          | function or table  | A function or table of functions.
+--@static
+--@return       strings
+--@param        fn          | function or table  | A function or table of functions.
 --[[
 Returns back the function (or table of functions) with JIT compilation disabled.
-Use in tandem with memory hooks.
+Use in tandem with ImGui callbacks.
 ]]
 Util.jit_off = function(fn)
     if type(fn) == "table" then

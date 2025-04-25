@@ -10,8 +10,10 @@ end)
 
 -- ========== Static Methods ==========
 
---$static
---$param        fn          | function  | The function to register. <br>The parameters for it are `actor, api`.
+--@section Static Methods
+
+--@static
+--@param        fn          | function  | The function to register. <br>The parameters for it are `actor, api`.
 --[[
 Registers a function for stat recalculation.
 ]]
@@ -23,7 +25,7 @@ RecalculateStats.add = function(namespace, fn)
 end
 
 
---$static
+--@static
 --[[
 Removes all registered stat recalculation functions from your namespace.
 

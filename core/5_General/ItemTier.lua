@@ -10,7 +10,9 @@ end)
 
 -- ========== Constants ==========
 
---$constants
+--@section Constants
+
+--@constants
 --[[
 COMMON      0
 UNCOMMON    1
@@ -66,9 +68,11 @@ end
 
 -- ========== Static Methods ==========
 
---$static
---$return   ItemTier
---$param    identifier      | string    | The identifier for the item tier.
+--@section Static Methods
+
+--@static
+--@return   ItemTier
+--@param    identifier      | string    | The identifier for the item tier.
 --[[
 Creates a new item tier with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -123,10 +127,10 @@ ItemTier.new = function(namespace, identifier)
 end
 
 
---$static
---$return       ItemTier or nil
---$param        identifier  | string    | The identifier to search for.
---$optional     namespace   | string    | The namespace to search in.
+--@static
+--@return       ItemTier or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified item tier and returns it.
 If no namespace is provided, searches in your mod's namespace first, and vanilla tiers second.
@@ -151,9 +155,9 @@ ItemTier.find = function(identifier, namespace, default_namespace)
 end
 
 
---$static
---$return       ItemTier
---$param        tier        | number    | The item tier to wrap.
+--@static
+--@return       ItemTier
+--@param        tier        | number    | The item tier to wrap.
 --[[
 Returns an ItemTier wrapper containing the provided item tier.
 ]]
@@ -165,9 +169,11 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_item_tier = {
 
-    --$instance
+    --@instance
     --[[
     Prints the item tier's properties.
     ]]

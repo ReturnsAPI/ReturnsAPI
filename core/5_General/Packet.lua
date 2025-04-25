@@ -12,8 +12,10 @@ end)
 
 -- ========== Static Methods ==========
 
---$static
---$return       Packet
+--@section Static Methods
+
+--@static
+--@return       Packet
 --[[
 Creates a new Packet and returns it.
 ]]
@@ -23,9 +25,9 @@ Packet.new = function()
 end
 
 
---$static
---$return       Packet
---$param        packet_id   | number    | The packet ID to wrap.
+--@static
+--@return       Packet
+--@param        packet_id   | number    | The packet ID to wrap.
 --[[
 Returns a Packet wrapper containing the provided packet ID.
 ]]
@@ -46,11 +48,13 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_packet = {
 
-    --$instance
-    --$param        serializer      | function  | The serialization function.
-    --$param        deserializer    | function  | The deserialization function.
+    --@instance
+    --@param        serializer      | function  | The serialization function.
+    --@param        deserializer    | function  | The deserialization function.
     --[[
     Set the serialization and deserialization functions for the packet.
     ]]
@@ -60,8 +64,8 @@ methods_packet = {
     end,
 
 
-    --$instance
-    --$optional     ...         |           | A variable number of arguments to pass to the serialization function.
+    --@instance
+    --@optional     ...         |           | A variable number of arguments to pass to the serialization function.
     --[[
     Sends a packet message to all clients.
     Must be called as host.
@@ -79,9 +83,9 @@ methods_packet = {
     end,
 
 
-    --$instance
-    --$param        target      |           | The target player to send to.
-    --$optional     ...         |           | A variable number of arguments to pass to the serialization function.
+    --@instance
+    --@param        target      |           | The target player to send to.
+    --@optional     ...         |           | A variable number of arguments to pass to the serialization function.
     --[[
     Sends a packet message to a specific client.
     Must be called as host.
@@ -99,9 +103,9 @@ methods_packet = {
     end,
 
 
-    --$instance
-    --$param        target      |           | The target player to exclude.
-    --$optional     ...         |           | A variable number of arguments to pass to the serialization function.
+    --@instance
+    --@param        target      |           | The target player to exclude.
+    --@optional     ...         |           | A variable number of arguments to pass to the serialization function.
     --[[
     Sends a packet message all clients *except* a specific one.
     Must be called as host.
@@ -119,8 +123,8 @@ methods_packet = {
     end,
 
 
-    --$instance
-    --$optional     ...         |           | A variable number of arguments to pass to the serialization function.
+    --@instance
+    --@optional     ...         |           | A variable number of arguments to pass to the serialization function.
     --[[
     Sends a packet message to the host.
     Must be called as client.

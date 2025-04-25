@@ -7,8 +7,10 @@ ItemLog = __class[name_rapi]
 
 -- ========== Enums ==========
 
---$enum
---$name Property
+--@section Enums
+
+--@enum
+--@name Property
 --[[
 NAMESPACE           0
 IDENTIFIER          1
@@ -25,7 +27,7 @@ ACHIEVEMENT_ID      11
 ]]
 
 
---$enum
+--@enum
 ItemLog.Group = ReadOnly.new({
     COMMON              = 0,
     COMMON_LOCKED       = 1,
@@ -41,7 +43,7 @@ ItemLog.Group = ReadOnly.new({
 })
 
 
---$properties
+--@properties
 --[[
 namespace           | string    | The namespace the log is in.
 identifier          | string    | The identifier for the log within the namespace.
@@ -60,9 +62,11 @@ achievement_id      | number    | The achievement ID of the log. <br>If *not* `-
 
 -- ========== Static Methods ==========
 
---$static
---$return   ItemLog
---$param    identifier  | string    | The identifier for the item log.
+--@section Static Methods
+
+--@static
+--@return   ItemLog
+--@param    identifier  | string    | The identifier for the item log.
 --[[
 Creates a new item log with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -91,9 +95,9 @@ ItemLog.new = function(namespace, identifier)
 end
 
 
---$static
---$return   ItemLog
---$param    item            | Item      | The item to use as a base.
+--@static
+--@return   ItemLog
+--@param    item            | Item      | The item to use as a base.
 --[[
 Creates a new item log using an item as a base,
 automatically populating the log's properties and
@@ -129,9 +133,9 @@ ItemLog.new_from_item = function(namespace, item)
 end
 
 
---$static
---$return   ItemLog
---$param    equip           | Equipment | The equipment to use as a base.
+--@static
+--@return   ItemLog
+--@param    equip           | Equipment | The equipment to use as a base.
 --[[
 Creates a new item log using an equipment as a base,
 automatically populating the log's properties and
@@ -170,17 +174,19 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 Util.table_append(methods_class_array[name_rapi], {
 
-    --$instance
-    --$name         print_properties
+    --@instance
+    --@name         print_properties
     --[[
     Prints the item log's properties.
     ]]
 
 
-    --$instance
-    --$param        group       | number    | The group to set.
+    --@instance
+    --@param        group       | number    | The group to set.
     --[[
     Sets the group of the item log.
     ]]

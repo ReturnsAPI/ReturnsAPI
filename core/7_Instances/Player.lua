@@ -8,8 +8,10 @@ Player = new_class()
 
 -- ========== Static Methods ==========
 
---$static
---$return       Player or Instance
+--@section Static Methods
+
+--@static
+--@return       Player or Instance
 --[[
 Returns the Player instance of this game client,
 or an invalid Instance if they do not exist.
@@ -34,10 +36,12 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_player = {
 
-    --$instance
-    --$return       Equipment or nil
+    --@instance
+    --@return       Equipment or nil
     --[[
     Returns the player's current equipment.
     Always `nil` for non-player actors.
@@ -54,8 +58,8 @@ methods_player = {
     end,
 
 
-    --$instance
-    --$param        equip       | Equipment | The equipment to set. <br>If `-1`, removes equipment.
+    --@instance
+    --@param        equip       | Equipment | The equipment to set. <br>If `-1`, removes equipment.
     --[[
     Sets the player's equipment.
     ]]

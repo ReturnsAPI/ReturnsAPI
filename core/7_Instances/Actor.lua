@@ -22,10 +22,12 @@ local explosion_mask_height = GM.sprite_get_height(explosion_mask)
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_actor = {
 
-    --$instance
-    --$return       bool
+    --@instance
+    --@return       bool
     --[[
     Returns `true` if the actor is on the
     ground and is *not* climbing on a rope.
@@ -41,8 +43,8 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$return       bool
+    --@instance
+    --@return       bool
     --[[
     Returns `true` if the actor is climbing on a rope.
     ]]
@@ -55,17 +57,17 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$return       Instance
-    --$param        x                   | number    | The x coordinate of the origin.
-    --$param        y                   | number    | The y coordinate of the origin.
-    --$param        range               | number    | The range of the bullet (in pixels).
-    --$param        direction           | number    | The angle to fire the bullet (in degrees).
-    --$param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
-    --$optional     pierce_multiplier   | number    | Remaining damage is multiplied by this value per pierce. <br>If `nil` or `0`, no piercing happens.
-    --$optional     hit_sprite          | sprite    | The sprite to draw on collision with an actor or wall. <br>`nil` by default (no sprite).
-    --$optional     tracer              | number    | The bullet tracer to use. <br>$`AttackInfo.Tracer.NONE`, AttackInfo#Tracer$ by default.
-    --$optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
+    --@instance
+    --@return       Instance
+    --@param        x                   | number    | The x coordinate of the origin.
+    --@param        y                   | number    | The y coordinate of the origin.
+    --@param        range               | number    | The range of the bullet (in pixels).
+    --@param        direction           | number    | The angle to fire the bullet (in degrees).
+    --@param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+    --@optional     pierce_multiplier   | number    | Remaining damage is multiplied by this value per pierce. <br>If `nil` or `0`, no piercing happens.
+    --@optional     hit_sprite          | sprite    | The sprite to draw on collision with an actor or wall. <br>`nil` by default (no sprite).
+    --@optional     tracer              | number    | The bullet tracer to use. <br>@link {`AttackInfo.Tracer.NONE` | AttackInfo#Tracer} by default.
+    --@optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
     --[[
     Fires a bullet attack from the actor, and returns the attack instance.
     `.attack_info` will return an AttackInfo.
@@ -110,16 +112,16 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$return       Instance
-    --$param        x                   | number    | The x coordinate of the origin.
-    --$param        y                   | number    | The y coordinate of the origin.
-    --$param        width               | number    | The width of the explosion, centered at `x` (in pixels).
-    --$param        height              | number    | The height of the explosion, centered at `y` (in pixels).
-    --$param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
-    --$optional     explosion_sprite    | sprite    | The sprite to use for the explosion. <br>`nil` by default (no sprite).
-    --$optional     sparks_sprite       | sprite    | The sprite to draw on hit actors. <br>`nil` by default (no sprite).
-    --$optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
+    --@instance
+    --@return       Instance
+    --@param        x                   | number    | The x coordinate of the origin.
+    --@param        y                   | number    | The y coordinate of the origin.
+    --@param        width               | number    | The width of the explosion, centered at `x` (in pixels).
+    --@param        height              | number    | The height of the explosion, centered at `y` (in pixels).
+    --@param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+    --@optional     explosion_sprite    | sprite    | The sprite to use for the explosion. <br>`nil` by default (no sprite).
+    --@optional     sparks_sprite       | sprite    | The sprite to draw on hit actors. <br>`nil` by default (no sprite).
+    --@optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
     --[[
     Fires an explosion attack from the actor, and returns the attack instance.
     `.attack_info` will return an AttackInfo.
@@ -157,16 +159,16 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$return       Instance
-    --$param        x                   | number    | The x coordinate of the origin.
-    --$param        y                   | number    | The y coordinate of the origin.
-    --$param        width               | number    | The width of the explosion, centered at `x` (in pixels).
-    --$param        height              | number    | The height of the explosion, centered at `y` (in pixels).
-    --$param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
-    --$optional     explosion_sprite    | sprite    | The sprite to use for the explosion. <br>`nil` by default (no sprite).
-    --$optional     sparks_sprite       | sprite    | The sprite to draw on hit actors. <br>`nil` by default (no sprite).
-    --$optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
+    --@instance
+    --@return       Instance
+    --@param        x                   | number    | The x coordinate of the origin.
+    --@param        y                   | number    | The y coordinate of the origin.
+    --@param        width               | number    | The width of the explosion, centered at `x` (in pixels).
+    --@param        height              | number    | The height of the explosion, centered at `y` (in pixels).
+    --@param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+    --@optional     explosion_sprite    | sprite    | The sprite to use for the explosion. <br>`nil` by default (no sprite).
+    --@optional     sparks_sprite       | sprite    | The sprite to draw on hit actors. <br>`nil` by default (no sprite).
+    --@optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
     --[[
     Fires an explosion attack from the actor, and returns the attack instance.
     `.attack_info` will return an AttackInfo.
@@ -215,15 +217,15 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$return       Instance
-    --$param        target              | Instance  | The target instance of the attack.
-    --$param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
-    --$optional     direction           | number    | The angle of the attack (in degrees). <br>`0` by default.
-    --$optional     x                   | number    | The x coordinate. <br>`target.x` by default.
-    --$optional     y                   | number    | The y coordinate. <br>`target.y` by default.
-    --$optional     hit_sprite          | sprite    | The sprite to draw on collision with an actor or wall. <br>`nil` by default (no sprite).
-    --$optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
+    --@instance
+    --@return       Instance
+    --@param        target              | Instance  | The target instance of the attack.
+    --@param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
+    --@optional     direction           | number    | The angle of the attack (in degrees). <br>`0` by default.
+    --@optional     x                   | number    | The x coordinate. <br>`target.x` by default.
+    --@optional     y                   | number    | The y coordinate. <br>`target.y` by default.
+    --@optional     hit_sprite          | sprite    | The sprite to draw on collision with an actor or wall. <br>`nil` by default (no sprite).
+    --@optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
     --[[
     Fires a direct attack from the actor, and returns the attack instance.
     `.attack_info` will return an AttackInfo.
@@ -263,10 +265,10 @@ methods_actor = {
     end,
 
     
-    --$instance
-    --$param        item        | Item      | The item to give.
-    --$optional     count       | number    | The amount of stacks to give. <br>`1` by default.
-    --$optional     kind        | number    | The $kind, Item#StackKind$ of item. <br>`Item.StackKind.NORMAL` by default.
+    --@instance
+    --@param        item        | Item      | The item to give.
+    --@optional     count       | number    | The amount of stacks to give. <br>`1` by default.
+    --@optional     kind        | number    | The @link {kind | Item#StackKind} of item. <br>`Item.StackKind.NORMAL` by default.
     --[[
     Gives stacks of the specified item to the actor.
     ]]
@@ -287,10 +289,10 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$param        item        | Item      | The item to take.
-    --$optional     count       | number    | The amount of stacks to take. <br>`1` by default.
-    --$optional     kind        | number    | The $kind, Item#StackKind$ of item. <br>`Item.StackKind.NORMAL` by default.
+    --@instance
+    --@param        item        | Item      | The item to take.
+    --@optional     count       | number    | The amount of stacks to take. <br>`1` by default.
+    --@optional     kind        | number    | The @link {kind | Item#StackKind} of item. <br>`Item.StackKind.NORMAL` by default.
     --[[
     Takes (removes) stacks of the specified item from the actor.
     ]]
@@ -311,10 +313,10 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$return       number
-    --$param        item        | Item      | The item to check.
-    --$optional     kind        | number    | The $kind, Item#StackKind$ of item. <br>`Item.StackKind.NORMAL` by default.
+    --@instance
+    --@return       number
+    --@param        item        | Item      | The item to check.
+    --@optional     kind        | number    | The @link {kind | Item#StackKind} of item. <br>`Item.StackKind.NORMAL` by default.
     --[[
     Returns the number of stacks of the specified item the actor has.
     ]]
@@ -350,10 +352,10 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$param        buff        | Buff      | The buff to apply.
-    --$param        duration    | number    | The duration of the buff (in frames).
-    --$optional     count       | number    | The amount of stacks to apply. <br>`1` by default.
+    --@instance
+    --@param        buff        | Buff      | The buff to apply.
+    --@param        duration    | number    | The duration of the buff (in frames).
+    --@optional     count       | number    | The amount of stacks to apply. <br>`1` by default.
     --[[
     Applies stacks of the specified buff to the actor.
     ]]
@@ -379,9 +381,9 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$param        buff        | Buff      | The buff to remove.
-    --$optional     count       | number    | The amount of stacks to remove. <br>`1` by default.
+    --@instance
+    --@param        buff        | Buff      | The buff to remove.
+    --@optional     count       | number    | The amount of stacks to remove. <br>`1` by default.
     --[[
     Removes stacks of the specified buff from the actor.
     ]]
@@ -411,9 +413,9 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$return       number
-    --$param        buff        | Buff      | The buff to check.
+    --@instance
+    --@return       number
+    --@param        buff        | Buff      | The buff to check.
     --[[
     Returns the number of stacks of the specified buff the actor has.
     ]]
@@ -445,8 +447,8 @@ methods_actor = {
     end,
 
 
-    --$instance
-    --$return       Equipment or nil
+    --@instance
+    --@return       Equipment or nil
     --[[
     Returns the player's current equipment.
     Always `nil` for non-player actors.

@@ -49,8 +49,10 @@ end
 
 -- ========== Static Methods ==========
 
---$static
---$return   bool
+--@section Static Methods
+
+--@static
+--@return   bool
 --[[
 Adds a new function to run during ReturnsAPI's initialization loop.
 This happens after all vanilla content has loaded.
@@ -74,8 +76,8 @@ Initialize.add = function(namespace, func, priority)
 end
 
 
---$static
---$return   bool
+--@static
+--@return   bool
 --[[
 Returns `true` if ReturnsAPI's initialization loop has started.
 This happens after all vanilla content has loaded.
@@ -85,8 +87,8 @@ Initialize.has_started = function()
 end
 
 
---$static
---$return   bool
+--@static
+--@return   bool
 --[[
 Returns `true` if ReturnsAPI's initialization loop has finished.
 ]]

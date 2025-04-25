@@ -11,8 +11,10 @@ end)
 
 -- ========== Enums ==========
 
---$enum
---$name Property
+--@section Enums
+
+--@enum
+--@name Property
 --[[
 NAMESPACE                   0
 IDENTIFIER                  1
@@ -35,7 +37,7 @@ LOG_ID                      17
 ]]
 
 
---$properties
+--@properties
 --[[
 namespace                   | string    | The namespace the stage is in.
 identifier                  | string    | The identifier for the stage within the namespace.
@@ -61,9 +63,11 @@ log_id                      | number    | The environment log ID of the stage.
 
 -- ========== Static Methods ==========
 
---$static
---$return   Stage
---$param    identifier  | string    | The identifier for the stage.
+--@section Static Methods
+
+--@static
+--@return   Stage
+--@param    identifier  | string    | The identifier for the stage.
 --[[
 Creates a new stage with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -89,22 +93,22 @@ Stage.new = function(namespace, identifier)
 end
 
 
---$static
---$name         find
---$return       Stage or nil
---$param        identifier  | string    | The identifier to search for.
---$optional     namespace   | string    | The namespace to search in.
+--@static
+--@name         find
+--@return       Stage or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified stage and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
 
 
---$static
---$name         find_all
---$return       table
---$param        filter      |           | The filter to search by.
---$optional     property    | number    | The property to check. <br>$`Stage.Property.NAMESPACE`, Stage#Property$ by default.
+--@static
+--@name         find_all
+--@return       table
+--@param        filter      |           | The filter to search by.
+--@optional     property    | number    | The property to check. <br>@link {`Stage.Property.NAMESPACE` | Stage#Property} by default.
 --[[
 Returns a table of stages matching the specified filter and property.
 
@@ -113,7 +117,7 @@ Try not to do that too much.
 ]]
 
 
---$static
+--@static
 --[[
 Prints the stage progression order.
 ]]
@@ -139,10 +143,10 @@ Stage.print_tiers = function()
 end
 
 
---$static
---$name         wrap
---$return       Stage
---$param        stage_id    | number    | The stage ID to wrap.
+--@static
+--@name         wrap
+--@return       Stage
+--@param        stage_id    | number    | The stage ID to wrap.
 --[[
 Returns a Stage wrapper containing the provided stage ID.
 ]]
@@ -151,10 +155,12 @@ Returns a Stage wrapper containing the provided stage ID.
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 Util.table_append(methods_class_array[name_rapi], {
 
-    --$instance
-    --$optional     ...         |           | A variable number of tiers. <br>Alternatively, a table may be provided.
+    --@instance
+    --@optional     ...         |           | A variable number of tiers. <br>Alternatively, a table may be provided.
     --[[
     Adds the stage to the specified tiers after removing it from its previous ones.
     If no arguments are provided, removes the stage from progression.

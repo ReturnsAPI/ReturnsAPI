@@ -18,7 +18,9 @@ local find_cache = {}
 
 -- ========== Constants and Enums ==========
 
---$enum
+--@section Enums
+
+--@enum
 Object.Property = ReadOnly.new({
     BASE        = 0,
     OBJ_DEPTH   = 1,
@@ -32,7 +34,7 @@ Object.Property = ReadOnly.new({
 })
 
 
---$enum
+--@enum
 Object.Parent = ReadOnly.new({
     ACTOR               = gm.constants.pActor,
     ENEMY_CLASSIC       = gm.constants.pEnemyClassic,
@@ -56,9 +58,11 @@ Object.CUSTOM_START = 800
 
 -- ========== Static Methods ==========
 
---$static
---$return   Object
---$param    identifier      | string    | The identifier for the object.
+--@section Static Methods
+
+--@static
+--@return   Object
+--@param    identifier      | string    | The identifier for the object.
 --[[
 Creates a new object with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -85,10 +89,10 @@ Object.new = function(namespace, identifier, parent)
 end
 
 
---$static
---$return       Object or nil
---$param        identifier  | string    | The identifier to search for.
---$optional     namespace   | string    | The namespace to search in.
+--@static
+--@return       Object or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified object and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
@@ -144,9 +148,9 @@ Object.find = function(identifier, namespace, default_namespace)
 end
 
 
---$static
---$return       table, number
---$param        tag         | string    | The tag to search by.
+--@static
+--@return       table, number
+--@param        tag         | string    | The tag to search by.
 --[[
 Returns a key-value pair table of all objects with the specified tag,
 and the number of objects in the table.
@@ -217,9 +221,9 @@ Object.remove_all_serializers = function(namespace)
 end
 
 
---$static
---$return       Object
---$param        object      | number    | The object index to wrap.
+--@static
+--@return       Object
+--@param        object      | number    | The object index to wrap.
 --[[
 Returns an Object wrapper containing the provided object index.
 ]]
@@ -236,16 +240,18 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_object = {
 
-    --$instance
-    --$return       Instance
-    --$param        x           | number    | The x spawn coordinate. <br>`0` by default.
-    --$param        y           | number    | The y spawn coordinate. <br>`0` by default.
+    --@instance
+    --@return       Instance
+    --@param        x           | number    | The x spawn coordinate. <br>`0` by default.
+    --@param        y           | number    | The y spawn coordinate. <br>`0` by default.
     --[[
     Creates and returns an instance of the specified object.
 
-    Also exists as a $method of Instance, Instance#create$.
+    Also exists as a @link {method of Instance | Instance#create}.
     ]]
     create = function(self, x, y)
         local holder = RValue.new_holder_scr(3)
@@ -258,8 +264,8 @@ methods_object = {
     end,
 
 
-    --$instance
-    --$param        sprite      | sprite    | The sprite to set.
+    --@instance
+    --@param        sprite      | sprite    | The sprite to set.
     --[[
     Sets the sprite of the object.
     ]]
@@ -269,8 +275,8 @@ methods_object = {
     end,
 
 
-    --$instance
-    --$param        depth       | number    | The depth to set.
+    --@instance
+    --@param        depth       | number    | The depth to set.
     --[[
     Sets the depth of the object.
     ]]
@@ -280,12 +286,12 @@ methods_object = {
     end,
 
 
-    --$instance
-    --$param        tag         | string    | The tag to add.
+    --@instance
+    --@param        tag         | string    | The tag to add.
     --[[
     Adds a tag to this object.
     The purpose of this is to allow for easier lookup
-    for groups of objects (see $`Object.find_by_tag`, Object#find_by_tag$).
+    for groups of objects (see @link {`Object.find_by_tag` | Object#find_by_tag}).
     ]]
     add_tag = function(self, tag)
         if type(tag) ~= "string" then log.error("add_tag: tag must be a string", 2) end
@@ -299,8 +305,8 @@ methods_object = {
     end,
 
 
-    --$instance
-    --$param        tag         | string    | The tag to remove.
+    --@instance
+    --@param        tag         | string    | The tag to remove.
     --[[
     Removes a tag from this object.
     ]]
@@ -317,9 +323,9 @@ methods_object = {
     end,
 
 
-    --$instance
-    --$return       bool
-    --$param        tag         | string    | The tag to check.
+    --@instance
+    --@return       bool
+    --@param        tag         | string    | The tag to check.
     --[[
     Returns `true` if this object has the specified tag.
     ]]
@@ -332,8 +338,8 @@ methods_object = {
     end,
 
 
-    --$instance
-    --$return       table
+    --@instance
+    --@return       table
     --[[
     Returns a table of this object's tags.
     ]]

@@ -6,13 +6,15 @@ Draw = new_class()
 
 -- ========== Static Methods ==========
 
---$static
---$param        x1          | number    | The left coordinate.
---$param        y1          | number    | The top coordinate.
---$param        x2          | number    | The right coordinate.
---$param        y2          | number    | The bottom coordinate.
---$optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
---$optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
+--@section Static Methods
+
+--@static
+--@param        x1          | number    | The left coordinate.
+--@param        y1          | number    | The top coordinate.
+--@param        x2          | number    | The right coordinate.
+--@param        y2          | number    | The bottom coordinate.
+--@optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
+--@optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
 --[[
 Draws a rectangle.
 ]]
@@ -44,12 +46,12 @@ Draw.rectangle = function(x1, y1, x2, y2, outline, color)
 end
 
 
---$static
---$param        x           | number    | The x coordinate of the center.
---$param        y           | number    | The y coordinate of the center.
---$param        r           | number    | The radius of the circle.
---$optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
---$optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
+--@static
+--@param        x           | number    | The x coordinate of the center.
+--@param        y           | number    | The y coordinate of the center.
+--@param        r           | number    | The radius of the circle.
+--@optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
+--@optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
 --[[
 Draws a circle.
 ]]
@@ -77,13 +79,13 @@ Draw.circle = function(x, y, r, outline, color)
 end
 
 
---$static
---$param        x1          | number    | The left coordinate.
---$param        y1          | number    | The top coordinate.
---$param        x2          | number    | The right coordinate.
---$param        y2          | number    | The bottom coordinate.
---$optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
---$optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
+--@static
+--@param        x1          | number    | The left coordinate.
+--@param        y1          | number    | The top coordinate.
+--@param        x2          | number    | The right coordinate.
+--@param        y2          | number    | The bottom coordinate.
+--@optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
+--@optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
 --[[
 Draws an ellipse.
 ]]
@@ -113,15 +115,15 @@ Draw.ellipse = function(x1, y1, x2, y2, outline, color)
 end
 
 
---$static
---$param        x1          | number    | The x coordinate of corner 1.
---$param        y1          | number    | The y coordinate of corner 1.
---$param        x2          | number    | The x coordinate of corner 2.
---$param        y2          | number    | The y coordinate of corner 2.
---$param        x3          | number    | The x coordinate of corner 3.
---$param        y3          | number    | The y coordinate of corner 3.
---$optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
---$optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
+--@static
+--@param        x1          | number    | The x coordinate of corner 1.
+--@param        y1          | number    | The y coordinate of corner 1.
+--@param        x2          | number    | The x coordinate of corner 2.
+--@param        y2          | number    | The y coordinate of corner 2.
+--@param        x3          | number    | The x coordinate of corner 3.
+--@param        y3          | number    | The y coordinate of corner 3.
+--@optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
+--@optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
 --[[
 Draws a triangle.
 ]]
@@ -156,13 +158,13 @@ Draw.triangle = function(x1, y1, x2, y2, x3, y3, outline, color)
 end
 
 
---$static
---$param        x1          | number    | The x coordinate of end 1.
---$param        y1          | number    | The y coordinate of end 1.
---$param        x2          | number    | The x coordinate of end 2.
---$param        y2          | number    | The y coordinate of end 2.
---$optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
---$optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
+--@static
+--@param        x1          | number    | The x coordinate of end 1.
+--@param        y1          | number    | The y coordinate of end 1.
+--@param        x2          | number    | The x coordinate of end 2.
+--@param        y2          | number    | The y coordinate of end 2.
+--@optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
+--@optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
 --[[
 Draws a line.
 ]]
@@ -192,10 +194,10 @@ Draw.line = function(x1, y1, x2, y2, width, color)
 end
 
 
---$static
---$param        x           | number    | The x coordinate.
---$param        y           | number    | The y coordinate.
---$optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
+--@static
+--@param        x           | number    | The x coordinate.
+--@param        y           | number    | The y coordinate.
+--@optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
 --[[
 Draws a single pixel.
 ]]
@@ -234,9 +236,9 @@ Draw.text = function()
 end
 
 
---$static
---$return       color or nil
---$optional     color       | color     | The new draw color to set.
+--@static
+--@return       color or nil
+--@optional     color       | color     | The new draw color to set.
 --[[
 Returns the current draw color, or sets a new one.
 ]]
@@ -256,9 +258,9 @@ end
 Draw.colour = function(color) Draw.color(color) end
 
 
---$static
---$return       number or nil
---$optional     alpha       | number    | The new draw alpha to set.
+--@static
+--@return       number or nil
+--@optional     alpha       | number    | The new draw alpha to set.
 --[[
 Returns the current draw alpha, or sets a new one.
 ]]

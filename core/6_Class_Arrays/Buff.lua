@@ -7,8 +7,10 @@ Buff = __class[name_rapi]
 
 -- ========== Enums ==========
 
---$enum
---$name Property
+--@section Enums
+
+--@enum
+--@name Property
 --[[
 NAMESPACE               0
 IDENTIFIER              1
@@ -30,7 +32,7 @@ EFFECT_DISPLAY          16
 ]]
 
 
---$properties
+--@properties
 --[[
 namespace               | string    | The namespace the buff is in.
 identifier              | string    | The identifier for the buff within the namespace.
@@ -55,9 +57,11 @@ effect_display          |           |
 
 -- ========== Static Methods ==========
 
---$static
---$return   Buff
---$param    identifier  | string    | The identifier for the buff.
+--@section Static Methods
+
+--@static
+--@return   Buff
+--@param    identifier  | string    | The identifier for the buff.
 --[[
 Creates a new buff with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -86,10 +90,12 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 Util.table_append(methods_class_array[name_rapi], {
 
-    --$instance
-    --$name         print_properties
+    --@instance
+    --@name         print_properties
     --[[
     Prints the buff's properties.
     ]]

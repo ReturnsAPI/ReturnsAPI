@@ -57,7 +57,9 @@ end)
 
 -- ========== Constants and Enums ==========
 
---$constants
+--@section Constants
+
+--@constants
 --[[
 PRE 0
 POST 1
@@ -356,18 +358,20 @@ end)
 
 -- ========== Static Methods ==========
 
---$static
---$return       number
---$param        script      | string    | The game function to hook.
---$param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
---$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@section Static Methods
+
+--@static
+--@return       number
+--@param        script      | string    | The game function to hook.
+--@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
+--@optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --[[
 Registers a function under a game function pre-hook.
 Returns the unique ID of the registered function.
 
 **Priority Convention**
 To allow for a decent amount of space between priorities,
-use the enum values in $`Callback.Priority`, Callback#Priority$.
+use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 Hook.pre = function(namespace, script, fn, priority)
@@ -375,18 +379,18 @@ Hook.pre = function(namespace, script, fn, priority)
 end
 
 
---$static
---$return       number
---$param        script      | string    | The game function to hook.
---$param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
---$optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@static
+--@return       number
+--@param        script      | string    | The game function to hook.
+--@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
+--@optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --[[
 Registers a function under a game function post-hook.
 Returns the unique ID of the registered function.
 
 **Priority Convention**
 To allow for a decent amount of space between priorities,
-use the enum values in $`Callback.Priority`, Callback#Priority$.
+use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 Hook.post = function(namespace, script, fn, priority)
@@ -394,11 +398,11 @@ Hook.post = function(namespace, script, fn, priority)
 end
 
 
---$static
---$param        id          | number    | The unique ID of the registered function to remove.
+--@static
+--@param        id          | number    | The unique ID of the registered function to remove.
 --[[
 Removes a registered hook function.
-The ID is the one from $`Hook.add`, Hook#add$.
+The ID is the one from @link {`Hook.add` | Hook#add}.
 ]]
 Hook.remove = function(id)
     local lookup_table = __hook_id_lookup[id]
@@ -417,7 +421,7 @@ Hook.remove = function(id)
 end
 
 
---$static
+--@static
 --[[
 Removes all registered hook functions from your namespace.
 

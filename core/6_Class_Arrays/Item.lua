@@ -7,8 +7,10 @@ Item = __class[name_rapi]
 
 -- ========== Enums ==========
 
---$enum
---$name Property
+--@section Enums
+
+--@enum
+--@name Property
 --[[
 NAMESPACE           0
 IDENTIFIER          1
@@ -29,7 +31,7 @@ IS_NEW_ITEM         15
 ]]
 
 
---$enum
+--@enum
 Item.LootTag = ReadOnly.new({
     CATEGORY_DAMAGE                 = 1,
     CATEGORY_HEALING                = 2,
@@ -43,7 +45,7 @@ Item.LootTag = ReadOnly.new({
 })
 
 
---$enum
+--@enum
 Item.StackKind = ReadOnly.new({
     NORMAL          = 0,
     TEMPORARY_BLUE  = 1,
@@ -53,7 +55,7 @@ Item.StackKind = ReadOnly.new({
 })
 
 
---$properties
+--@properties
 --[[
 namespace       | string    | The namespace the item is in.
 identifier      | string    | The identifier for the item within the namespace.
@@ -77,9 +79,11 @@ is_new_item     | bool      | `true` for new vanilla items added in *Returns*.
 
 -- ========== Static Methods ==========
 
---$static
---$return   Item
---$param    identifier  | string    | The identifier for the item.
+--@section Static Methods
+
+--@static
+--@return   Item
+--@param    identifier  | string    | The identifier for the item.
 --[[
 Creates a new item with the given identifier if it does not already exist,
 or returns the existing one if it does.
@@ -109,22 +113,22 @@ Item.new = function(namespace, identifier)
 end
 
 
---$static
---$name         find
---$return       Item or nil
---$param        identifier  | string    | The identifier to search for.
---$optional     namespace   | string    | The namespace to search in.
+--@static
+--@name         find
+--@return       Item or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified item and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
 
 
---$static
---$name         find_all
---$return       table
---$param        filter      |           | The filter to search by.
---$optional     property    | number    | The property to check. <br>$`Item.Property.NAMESPACE`, Item#Property$ by default.
+--@static
+--@name         find_all
+--@return       table
+--@param        filter      |           | The filter to search by.
+--@optional     property    | number    | The property to check. <br>@link {`Item.Property.NAMESPACE` | Item#Property} by default.
 --[[
 Returns a table of items matching the specified filter and property.
 
@@ -133,10 +137,10 @@ Try not to do that too much.
 ]]
 
 
---$static
---$name         wrap
---$return       Item
---$param        item_id     | number    | The item ID to wrap.
+--@static
+--@name         wrap
+--@return       Item
+--@param        item_id     | number    | The item ID to wrap.
 --[[
 Returns an Item wrapper containing the provided item ID.
 ]]
@@ -145,20 +149,22 @@ Returns an Item wrapper containing the provided item ID.
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 Util.table_append(methods_class_array[name_rapi], {
 
-    --$instance
-    --$name         print_properties
+    --@instance
+    --@name         print_properties
     --[[
     Prints the item's properties.
     ]]
 
 
-    --$instance
-    --$return       Instance
-    --$param        x           | number    | The x spawn coordinate.
-    --$param        y           | number    | The y spawn coordinate.
-    --$optional     target      | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
+    --@instance
+    --@return       Instance
+    --@param        x           | number    | The x spawn coordinate.
+    --@param        y           | number    | The y spawn coordinate.
+    --@optional     target      | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
     --[[
     Spawns and returns an item drop.
     ]]
@@ -196,8 +202,8 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    --$instance
-    --$param        sprite      | Sprite    | The sprite to set.
+    --@instance
+    --@param        sprite      | Sprite    | The sprite to set.
     --[[
     Sets the sprite of the item.
     ]]
@@ -213,8 +219,8 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    --$instance
-    --$param        tier        | number   | The $tier, ItemTier#constants$ to set.
+    --@instance
+    --@param        tier        | number   | The @link {tier | ItemTier#constants} to set.
     --[[
     Sets the tier of the item, and assigns it to the appropriate
     loot pool (will remove from all previous loot pools).
@@ -236,8 +242,8 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    --$instance
-    --$param        ...         | number(s) | A variable number of $loot tags, Item#LootTag$ to add.
+    --@instance
+    --@param        ...         | number(s) | A variable number of @link {loot tags | Item#LootTag} to add.
     --[[
     Sets the loot tags of the item.
     ]]

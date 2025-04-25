@@ -6,9 +6,11 @@ List = new_class()
 
 -- ========== Static Methods ==========
 
---$static
---$return       List
---$optional     table       | table     | A numerically-indexed Lua table to convert into a list.
+--@section Static Methods
+
+--@static
+--@return       List
+--@optional     table       | table     | A numerically-indexed Lua table to convert into a list.
 --[[
 Returns a newly created GameMaker list.
 ]]
@@ -31,9 +33,9 @@ List.new = function(table)
 end
 
 
---$static
---$return       List
---$param        list        | number    | The ID of the list.
+--@static
+--@return       List
+--@param        list        | number    | The ID of the list.
 --[[
 Returns a List wrapper containing the provided list ID.
 ]]

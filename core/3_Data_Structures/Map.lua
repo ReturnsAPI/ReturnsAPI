@@ -6,9 +6,11 @@ Map = new_class()
 
 -- ========== Static Methods ==========
 
---$static
---$return       Map
---$optional     table       | table     | A string-indexed Lua table to convert into a list.
+--@section Static Methods
+
+--@static
+--@return       Map
+--@optional     table       | table     | A string-indexed Lua table to convert into a list.
 --[[
 Returns a newly created GameMaker map.
 ]]
@@ -31,9 +33,9 @@ Map.new = function(table)
 end
 
 
---$static
---$return       Map
---$param        map         | number    | The ID of the map.
+--@static
+--@return       Map
+--@param        map         | number    | The ID of the map.
 --[[
 Returns a Map wrapper containing the provided map ID.
 ]]

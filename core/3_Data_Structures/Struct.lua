@@ -8,10 +8,12 @@ local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for struct.
 
 -- ========== Static Methods ==========
 
---$static
---$return       Struct
---$optional     constructor | number    | The constructor to use.
---$optional     ...         |           | Arguments to pass to the constructor.
+--@section Static Methods
+
+--@static
+--@return       Struct
+--@optional     constructor | number    | The constructor to use.
+--@optional     ...         |           | Arguments to pass to the constructor.
 --[[
 Returns a newly created GameMaker struct.
 Can also create one from a constructor.
@@ -39,9 +41,9 @@ Struct.new = function(constructor, ...)
 end
 
 
---$static
---$return       Struct
---$param        struct      | RValue or Struct wrapper  | The struct to wrap.
+--@static
+--@return       Struct
+--@param        struct      | RValue or Struct wrapper  | The struct to wrap.
 --[[
 Returns a Struct wrapper containing the provided struct.
 ]]
@@ -58,9 +60,9 @@ Struct.wrap = function(struct)
 end
 
 
---$static
---$return       Struct
---$param        struct_yy   |           | `struct YYObjectBase*` pointing to a struct.
+--@static
+--@return       Struct
+--@param        struct_yy   |           | `struct YYObjectBase*` pointing to a struct.
 --[[
 Returns a Struct wrapper containing the provided struct.
 ]]
@@ -76,9 +78,9 @@ Struct.wrap_yyobjectbase = function(struct_yy)
 end
 
 
---$static
---$return       bool
---$param        value       | RValue or Array wrapper   | The value to check.
+--@static
+--@return       bool
+--@param        value       | RValue or Array wrapper   | The value to check.
 --[[
 Returns `true` if `value` is a struct, and `false` otherwise.
 ]]

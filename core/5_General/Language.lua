@@ -11,9 +11,11 @@ end)
 
 -- ========== Static Methods ==========
 
---$static
---$return       string
---$param        token       | string    | The localization token (e.g., `item.barbedWire.name`)
+--@section Static Methods
+
+--@static
+--@return       string
+--@param        token       | string    | The localization token (e.g., `item.barbedWire.name`)
 --[[
 Returns the actual text of the localization token in the current language,
 or `token` if none is found.
@@ -27,9 +29,9 @@ Language.translate_token = function(token)
 end
 
 
---$static
---$return       string
---$param        env         | table     | The environment table of the mod to register.
+--@static
+--@return       string
+--@param        env         | table     | The environment table of the mod to register.
 --[[
 Registers a mod to autoload language files in a `language` folder.
 

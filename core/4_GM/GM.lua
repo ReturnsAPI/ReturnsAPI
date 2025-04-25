@@ -1,6 +1,8 @@
 -- GM
 
--- RAPI version of `gm` that automatically wraps/unwraps values
+--[[
+ReturnsAPI version of `gm` that automatically wraps/unwraps values
+]]
 
 GM = new_class()
 GM_callso = new_class()
