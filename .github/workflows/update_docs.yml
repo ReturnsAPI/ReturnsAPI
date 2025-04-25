@@ -13,11 +13,8 @@ jobs:
             - name: Checkout repo
               uses: actions/checkout@v4
 
-            - name: What is in here
-              run: ls -R
-
-            - name: Give directory perms
-              run: chmod u+rwx docs/out
+            - name: Make docs/out
+              run: mkdir -p docs/out
 
             - name: Run parser
               run: python docs/main.py
