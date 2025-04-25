@@ -320,10 +320,18 @@ def parse_line(line):
                 parts = [p.strip() for p in remainder.replace("}", "|", 1).split("|")]
 
                 # Add link-formatted part
-                parsed += f"[{parts[0]}]({WIKI}/{parts[1]})"
+                if len(parts) >= 2:
+                    parsed += f"[{parts[0]}]({WIKI}/{parts[1]})"
+                else:
+                    print("@link parsing error")
+                    print(f"remainder:  {remainder}")
+                    print(parts)
 
                 # Place last part back into remaining tokens
-                tokens = parts[2].strip().split()
+                if len(parts) >= 3:
+                    tokens = parts[2].strip().split()
+                else:
+                    tokens = []
 
                 # Add space if the first character of the next token is *not* punctuation
                 # This is very goofy but whatever
