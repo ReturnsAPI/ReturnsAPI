@@ -455,8 +455,8 @@ def generate(docs, filename):
     section = docs["sections"].get(None)
     if len(section) > 0:
         for line in section[0].text:
-            out += line + "\n"
-        out += "\n"
+            out += line + "  \n"
+        out += "  \n"
 
 
     # Index
