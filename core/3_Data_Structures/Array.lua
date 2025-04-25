@@ -1,5 +1,9 @@
 -- Array
 
+--[[
+This class allows for manipulation of GameMaker arrays.
+]]
+
 Array = new_class()
 
 
@@ -102,8 +106,17 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_array = {
 
+    --@instance
+    --@return       any
+    --@param        index       | number    | The index to get from.
+    --[[
+    Returns the value at the specified index, starting at `0`.
+    You can also use Lua syntax (e.g., `array[4]`), which starts at `1`.
+    ]]
     get = function(self, index, size)
         size = size or self:size()
         if index >= size then log.error("Array index out of bounds", 2) end
@@ -116,6 +129,13 @@ methods_array = {
     end,
 
 
+    --@instance
+    --@param        index       | number    | The index to set to.
+    --@param        value       |           | The value to set.
+    --[[
+    Sets the value at the specified index, starting at `0`.
+    You can also use Lua syntax (e.g., `array[4] = 56`), which starts at `1`.
+    ]]
     set = function(self, index, value)
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
@@ -125,6 +145,12 @@ methods_array = {
     end,
 
 
+    --@instance
+    --@return       number
+    --[[
+    Returns the size (length) of the array.
+    You can also use Lua syntax (i.e., `#array`).
+    ]]
     size = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
@@ -134,6 +160,24 @@ methods_array = {
     end,
 
 
+    --@instance
+    --@param        size        | number    | The new size.
+    --[[
+    Resizes the array.
+    ]]
+    resize = function(self, size)
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
+        holder[1] = RValue.new(Wrap.unwrap(size))
+        gmf.array_resize(RValue.new(0), nil, nil, 2, holder)
+    end,
+
+
+    --@instance
+    --@param        ...         |           | A variable amount of values to push.
+    --[[
+    Appends values to the end of the array.
+    ]]
     push = function(self, ...)
         local values = {...}
         local count = #values + 1
@@ -149,6 +193,11 @@ methods_array = {
     end,
 
 
+    --@instance
+    --@return       any
+    --[[
+    Removes and returns the last element of the array.
+    ]]
     pop = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
@@ -158,6 +207,12 @@ methods_array = {
     end,
 
 
+    --@instance
+    --@param        index       | number    | The index to insert at.
+    --@param        value       |           | The value to insert.
+    --[[
+    Inserts a value at the specified index, starting at `0`.
+    ]]
     insert = function(self, index, value)
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
@@ -167,6 +222,12 @@ methods_array = {
     end,
 
 
+    --@instance
+    --@param        index       | number    | The index to delete at.
+    --@optional     number      | number    | The number of values to delete. <br>`1` by default.
+    --[[
+    Deletes value(s) from the specified index, starting at `0`.
+    ]]
     delete = function(self, index, number)
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
@@ -176,17 +237,26 @@ methods_array = {
     end,
 
 
+    --@instance
+    --@param        value       |           | The value to delete.
+    --[[
+    Deletes the first occurence of the specified value.
+    ]]
     delete_value = function(self, value)
         local index = self:find(value)
         if not index then return end
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
-        holder[1] = RValue.from_wrapper(index)
+        holder[1] = RValue.new(index)
         holder[2] = RValue.new(1)
         gmf.array_delete(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
+    --@instance
+    --[[
+    Deletes all elements in the array and resizes it to 0.
+    ]]
     clear = function(self)
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
@@ -196,6 +266,14 @@ methods_array = {
     end,
 
 
+    --@instance
+    --@return       bool
+    --@param        value       |           | The value to check.
+    --@optional     offset      | number    | The starting index of a subset to search in (`0`-based). <br>`0` by default.
+    --@optional     length      | number    | The length of the subset. <br>`#array` by default.
+    --[[
+    Returns `true` if the array contains the specified value.
+    ]]
     contains = function(self, value, offset, length)
         local holder = RValue.new_holder(4)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
@@ -208,6 +286,12 @@ methods_array = {
     end,
 
 
+    --@instance
+    --@return       number
+    --@param        value       |           | The value to search for.
+    --[[
+    Returns the index of the first occurence of the specified value.
+    ]]
     find = function(self, value)
         value = Wrap.unwrap(value)
         for i, v in ipairs(self) do
@@ -217,6 +301,11 @@ methods_array = {
     end,
 
 
+    --@instance
+    --@optional     descending  | bool      | If `true`, will sort in descending order. <br>`false` by default.
+    --[[
+    Returns the index of the first occurence of the specified value.
+    ]]
     sort = function(self, descending)
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value, RValue.Type.ARRAY)
@@ -224,7 +313,11 @@ methods_array = {
         gmf.array_sort(RValue.new(0), nil, nil, 2, holder)
     end,
 
-    
+
+    --@instance
+    --[[
+    Prints the array.
+    ]]
     print = function(self)
         local str = ""
         local padding = #tostring(#self) + 2

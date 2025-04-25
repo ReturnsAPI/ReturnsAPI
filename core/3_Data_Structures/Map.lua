@@ -1,5 +1,11 @@
 -- Map
 
+--[[
+This class allows for easier manipulation of GameMaker DS Maps.
+DS structures should always be destroyed once
+they are no longer in use to free up memory.
+]]
+
 Map = new_class()
 
 
@@ -56,8 +62,15 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_map = {
 
+    --@instance
+    --@return       bool
+    --[[
+    Returns `true` if the DS Map exists.
+    ]]
     exists = function(self)
         if self.value == -4 then return false end
         local holder = RValue.new_holder(2)
@@ -71,6 +84,10 @@ methods_map = {
     end,
 
 
+    --@instance
+    --[[
+    Destroys the DS Map.
+    ]]
     destroy = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value)
@@ -79,6 +96,13 @@ methods_map = {
     end,
 
 
+    --@instance
+    --@return       any
+    --@param        key         |           | The key to get from.
+    --[[
+    Returns the value of the specified key.
+    You can also use Lua syntax (e.g., `map.my_key`).
+    ]]
     get = function(self, key)
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value)
@@ -89,6 +113,13 @@ methods_map = {
     end,
 
 
+    --@instance
+    --@param        key         |           | The key to set to.
+    --@param        value       |           | The value to set.
+    --[[
+    Sets the value of the specified key.
+    You can also use Lua syntax (e.g., `map.my_key = 123`).
+    ]]
     set = function(self, key, value)
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value)
@@ -107,6 +138,12 @@ methods_map = {
     end,
 
 
+    --@instance
+    --@return       number
+    --[[
+    Returns the size (length) of the map.
+    You can also use Lua syntax (i.e., `#map`).
+    ]]
     size = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value)
@@ -116,6 +153,11 @@ methods_map = {
     end,
 
 
+    --@instance
+    --@param        key         |           | The key to delete.
+    --[[
+    Deletes the key-value pair of the specified key.
+    ]]
     delete = function(self, key)
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value)
@@ -132,6 +174,10 @@ methods_map = {
     end,
 
 
+    --@instance
+    --[[
+    Deletes all key-value pairs in the map.
+    ]]
     clear = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value)

@@ -1,5 +1,10 @@
 -- Struct
 
+--[[
+This class allows for manipulation of GameMaker structs.
+Struct wrappers can be get/set to using dot syntax (e.g., `struct.my_key = 123`).
+]]
+
 Struct = new_class()
 
 local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for struct.CInstance
@@ -96,8 +101,15 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_struct = {
 
+    --@instance
+    --@return       table
+    --[[
+    Returns a table of keys in use by the struct.
+    ]]
     get_keys = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value, RValue.Type.OBJECT)
@@ -110,6 +122,10 @@ methods_struct = {
     end,
 
 
+    --@instance
+    --[[
+    Prints the struct.
+    ]]
     print = function(self)
         local str = ""
         local keys = self:get_keys()

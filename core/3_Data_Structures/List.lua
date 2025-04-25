@@ -1,5 +1,11 @@
 -- List
 
+--[[
+This class allows for easier manipulation of GameMaker DS Lists.
+DS structures should always be destroyed once
+they are no longer in use to free up memory.
+]]
+
 List = new_class()
 
 
@@ -49,8 +55,15 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_list = {
 
+    --@instance
+    --@return       bool
+    --[[
+    Returns `true` if the DS List exists.
+    ]]
     exists = function(self)
         if self.value == -4 then return false end
         local holder = RValue.new_holder(2)
@@ -64,6 +77,10 @@ methods_list = {
     end,
 
 
+    --@instance
+    --[[
+    Destroys the DS List.
+    ]]
     destroy = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value)
@@ -72,6 +89,13 @@ methods_list = {
     end,
 
 
+    --@instance
+    --@return       any
+    --@param        index       | number    | The index to get from.
+    --[[
+    Returns the value at the specified index, starting at `0`.
+    You can also use Lua syntax (e.g., `list[4]`), which starts at `1`.
+    ]]
     get = function(self, index, size)
         size = size or self:size()
         if index >= size then log.error("List index out of bounds", 2) end
@@ -84,6 +108,13 @@ methods_list = {
     end,
 
 
+    --@instance
+    --@param        index       | number    | The index to set to.
+    --@param        value       |           | The value to set.
+    --[[
+    Sets the value at the specified index, starting at `0`.
+    You can also use Lua syntax (e.g., `list[4] = 56`), which starts at `1`.
+    ]]
     set = function(self, index, value)
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value)
@@ -93,6 +124,12 @@ methods_list = {
     end,
 
 
+    --@instance
+    --@return       number
+    --[[
+    Returns the size (length) of the list.
+    You can also use Lua syntax (i.e., `#list`).
+    ]]
     size = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value)
@@ -102,6 +139,11 @@ methods_list = {
     end,
 
 
+    --@instance
+    --@param        ...         |           | A variable amount of values to add.
+    --[[
+    Appends values to the end of the array.
+    ]]
     add = function(self, ...)
         local values = {...}
         local count = #values + 1
@@ -117,6 +159,12 @@ methods_list = {
     end,
 
 
+    --@instance
+    --@param        index       | number    | The index to insert at.
+    --@param        value       |           | The value to insert.
+    --[[
+    Inserts a value at the specified index, starting at `0`.
+    ]]
     insert = function(self, index, value)
         local holder = RValue.new_holder(3)
         holder[0] = RValue.new(self.value)
@@ -126,6 +174,11 @@ methods_list = {
     end,
 
 
+    --@instance
+    --@param        index       | number    | The index to delete at.
+    --[[
+    Deletes the value from the specified index, starting at `0`.
+    ]]
     delete = function(self, index)
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value)
@@ -134,6 +187,11 @@ methods_list = {
     end,
 
 
+    --@instance
+    --@param        value       |           | The value to delete.
+    --[[
+    Deletes the first occurence of the specified value.
+    ]]
     delete_value = function(self, value)
         local index = self:find(value)
         if not index then return end
@@ -144,6 +202,10 @@ methods_list = {
     end,
 
 
+    --@instance
+    --[[
+    Deletes all elements in the list.
+    ]]
     clear = function(self)
         local holder = RValue.new_holder(1)
         holder[0] = RValue.new(self.value)
@@ -151,6 +213,12 @@ methods_list = {
     end,
 
 
+    --@instance
+    --@return       bool
+    --@param        value       |           | The value to check.
+    --[[
+    Returns `true` if the list contains the specified value.
+    ]]
     contains = function(self, value)
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value)
@@ -162,6 +230,12 @@ methods_list = {
     end,
 
 
+    --@instance
+    --@return       number
+    --@param        value       |           | The value to search for.
+    --[[
+    Returns the index of the first occurence of the specified value.
+    ]]
     find = function(self, value)
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value)
@@ -174,6 +248,11 @@ methods_list = {
     end,
 
 
+    --@instance
+    --@optional     descending  | bool      | If `true`, will sort in descending order. <br>`false` by default.
+    --[[
+    Returns the index of the first occurence of the specified value.
+    ]]
     sort = function(self, descending)
         local holder = RValue.new_holder(2)
         holder[0] = RValue.new(self.value)
@@ -182,6 +261,10 @@ methods_list = {
     end,
 
     
+    --@instance
+    --[[
+    Prints the list.
+    ]]
     print = function(self)
         local str = ""
         local padding = #tostring(#self) + 2
