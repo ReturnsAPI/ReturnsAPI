@@ -1,1 +1,0 @@
-Allows for accessing global variables via `Global.<variable>`
