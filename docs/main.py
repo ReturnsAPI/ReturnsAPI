@@ -322,7 +322,6 @@ def parse_line(line):
                 print("")
                 print(remainder)
                 print(parts)
-                print("")
 
                 # Add link-formatted part
                 if len(parts) >= 2:
@@ -338,6 +337,9 @@ def parse_line(line):
                     tokens = parts[2].split()
                 else:
                     tokens = []
+
+                print(tokens)
+                print("")
 
                 # Add space if the first character of the next token is *not* punctuation
                 # This is very goofy but whatever
