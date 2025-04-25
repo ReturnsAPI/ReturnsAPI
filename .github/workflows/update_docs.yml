@@ -12,10 +12,17 @@ jobs:
         steps:
             - name: Checkout repo
               uses: actions/checkout@v4
-
-            - run: ls -lR
+              with:
+                token: ${{ secrets.GH_TOKEN }}
 
             - name: Run parser
               run: python docs/main.py
-              
-            - run: ls -lR
+
+            - name: Push changes to repo
+              run: |
+                git config --global user.name "github-actions[bot]"
+                git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                
+                git add docs/out
+                git commit -m "Update docs"
+                git push
