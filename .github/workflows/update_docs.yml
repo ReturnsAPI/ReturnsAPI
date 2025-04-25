@@ -13,8 +13,9 @@ jobs:
             - name: Checkout repo
               uses: actions/checkout@v4
 
-            - name: Make docs/out
-              run: mkdir -p docs/out
+            - run: ls -lR
 
             - name: Run parser
               run: python docs/main.py
+              
+            - run: ls -lR
