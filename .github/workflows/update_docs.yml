@@ -1,1 +1,14 @@
+name: Update Docs
 
+on:
+    push:
+        branches:
+            - docs-testing
+
+jobs:
+    generate:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Run parser
+              run: python docs/main.py
