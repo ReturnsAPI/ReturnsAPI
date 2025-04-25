@@ -517,6 +517,14 @@ def generate(docs, filename):
             match _type:
 
                 case "Text":
+                    # If previous element is Text
+                    # remove the <br>
+                    if i > 0:
+                        remove_for = ["Text"]
+                        prev_type = typeof(section[i - 1])
+                        if prev_type in remove_for:
+                            out = out[:-10]
+
                     out += "\n\n"
 
                     for line in element.text:
