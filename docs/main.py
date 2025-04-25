@@ -317,7 +317,7 @@ def parse_line(line):
                 remainder = " ".join(tokens).lstrip(" {")
 
                 # Split by | and } to get three parts
-                parts = [p.strip() for p in remainder.replace("}", "|").split("|")]
+                parts = [p.strip() for p in remainder.replace("}", "|", 1).split("|")]
 
                 # Add link-formatted part
                 parsed += f"[{parts[0]}]({WIKI}/{parts[1]})"
