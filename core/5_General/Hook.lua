@@ -57,13 +57,7 @@ end)
 
 -- ========== Constants and Enums ==========
 
---@section Constants
-
---@constants
---[[
-PRE 0
-POST 1
-]]
+-- This is now internal
 Hook.PRE    = 0
 Hook.POST   = 1
 
@@ -402,7 +396,7 @@ end
 --@param        id          | number    | The unique ID of the registered function to remove.
 --[[
 Removes a registered hook function.
-The ID is the one from @link {`Hook.add` | Hook#add}.
+The ID is the one from @link {`Hook.pre` | Hook#pre}/@link {`Hook.post` | Hook#post}.
 ]]
 Hook.remove = function(id)
     local lookup_table = __hook_id_lookup[id]

@@ -328,7 +328,7 @@ def parse_line(line):
                 # Add space if the first character of the next token is *not* punctuation
                 # This is very goofy but whatever
                 if len(tokens) > 0:
-                    punc = ".)]"
+                    punc = ".)]/"
                     if tokens[0] not in punc:
                         parsed += " "
 
