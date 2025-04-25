@@ -53,7 +53,7 @@ def main():
             for filename in os.listdir(dir_path):
                 if filename.endswith(".lua"):
                     file_path = os.path.join(dir_path, filename)
-                    parse_file(file_path, filename)
+                    parse_file(file_path, filename.split(".")[0])
 
 
 
@@ -80,13 +80,19 @@ def parse_file(file_path, filename):
                 in_code = False
                 if current_block:
                     # Remove trailing newlines from block
-                    while current_block[-1] == "":
+                    while current_block and (current_block[-1] == ""):
                         current_block.pop(-1)
 
                     blocks.append(current_block)
                     current_block = []
 
-                line = line.lstrip("-")
+                # Start multiline
+                if line.startswith("--[["):
+                    in_multiline = True
+                    line = "@mlstart"
+
+                else:
+                    line = line.lstrip("-")
             
             line = line.lstrip(" ")
             current_block.append(line)
@@ -132,51 +138,12 @@ def parse_file(file_path, filename):
         parse_block(block, docs)
 
 
-    # Generate wiki files
-    generate(docs)
-
-    
-    # DEBUG
-    pprint(docs)
-
-    print("\nMY SECTION\n")
-    print(type(docs["sections"]["my section"][0]).__name__)
-    print(docs["sections"]["my section"][0].text)
-    
-    pprint(docs["sections"]["my section"][1].name)
-    pprint(docs["sections"]["my section"][1].text)
-    pprint(docs["sections"]["my section"][1].values)
-    
-    pprint(docs["sections"]["my section"][2].name)
-    pprint(docs["sections"]["my section"][2].text)
-    pprint(docs["sections"]["my section"][2].values)
-
-    pprint(docs["sections"]["my section"][3].text)
-    pprint(docs["sections"]["my section"][3].values)
-
-    pprint(docs["sections"]["my section"][4].href)
-    
-    pprint(docs["sections"]["my section"][4].signatures[0].name)
-    pprint(docs["sections"]["my section"][4].signatures[0].ret)
-
-    pprint(docs["sections"]["my section"][4].signatures[0].params[0].name)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[0].type)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[0].text)
-
-    pprint(docs["sections"]["my section"][4].signatures[0].params[1].name)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[1].type)
-    pprint(docs["sections"]["my section"][4].signatures[0].params[1].text)
-
-    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].name)
-    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].type)
-    pprint(docs["sections"]["my section"][4].signatures[1].optional[0].text)
+    # Generate md files
+    generate(docs, filename)
 
 
 
 def parse_block(block, docs):
-
-    # DEBUG
-    pprint(block)
 
     # Initialize variables
     docs["element"] = None
@@ -304,7 +271,8 @@ def parse_block(block, docs):
 
     # Add finalized element to section
     section_id = docs["section"]
-    docs["sections"][section_id].append(docs["element"])
+    if docs["element"]:
+        docs["sections"][section_id].append(docs["element"])
 
 
 
@@ -437,9 +405,8 @@ def convert_text_to_pairs(text):
 
 
 
-def generate(docs):
+def generate(docs, filename):
     section_order = [
-        None,
         "Constants",
         "Enums",
         "Properties",
@@ -447,7 +414,228 @@ def generate(docs):
         "Instance Methods"
     ]
 
-    # TODO
+    # Add sections that are not part of the above (if they exist)
+    for key in docs["sections"].keys():
+        if key and (key not in section_order):
+            section_order.append(key)
+
+    
+    out = ""
+
+
+    # Class top description
+    section = docs["sections"].get(None)
+    if len(section) > 0:
+        for line in section[0].text:
+            out += line + "\n"
+        out += "\n"
+
+
+    # Index
+    for section_id in section_order:
+        section = docs["sections"].get(section_id)
+
+        if not section:
+            continue
+
+        # Section name
+        href = "-".join([p.lower() for p in section_id.split()])
+        out += f"* [**{section_id}**]({WIKI}/{filename}#{href})  \n"
+
+        # Element names
+        for element in section:
+
+            # Get name
+            name = ""
+            prefix = f"{filename}."
+            if hasattr(element, "name"):
+                name = element.name
+            elif typeof(element) == "Method":
+                name = element.signatures[0].name
+                if element.is_instance:
+                    prefix = f"{filename[0].lower() + filename[1:]}:"
+
+            # Add if name is valid
+            if name:
+                out += f"  * [**{prefix}{name}**]({WIKI}/{filename}#{element.href})  \n"
+
+        out += "\n"
+
+    out = out[:-2]  # Remove 2 \n
+
+
+    # Loop through sections in order
+    for section_id in section_order:
+        section = docs["sections"].get(section_id)
+
+        if not section:
+            continue
+
+        # Section name
+        if section_id:
+            out += f"\n\n<br><br>\n\n---\n\n## {section_id}  "
+
+        # Loop through section elements in order
+        for i in range(len(section)):
+            element = section[i]
+
+            # Insert <br> for consecutive elements
+            if i > 0:
+                out += "\n\n<br><br>"
+
+
+            # Get element type
+            _type = typeof(element)
+            match _type:
+
+                case "Text":
+                    out += "\n\n"
+
+                    for line in element.text:
+                        out += line + "\n"
+
+                    out = out[:-1]  # Remove a \n
+
+
+                case "Constants":
+                    # If previous element is Constants or Enum,
+                    # remove the <br>
+                    if i > 0:
+                        prev_type = typeof(section[i - 1])
+                        if (prev_type == "Constants") or (prev_type == "Enum"):
+                            out = out[:-10]
+
+                    # Code block opener
+                    out += "\n\n```lua\n"
+
+                    # Get longest constant name
+                    length = 0
+                    for pair in element.values:
+                        length = max(len(pair[0]), length)
+
+                    # Add pairs
+                    for pair in element.values:
+                        if pair[0]:
+                            out += f"{filename}.{pair[0].ljust(length)}    = {pair[1]}  \n"
+                        else:
+                            out += "  \n"
+                    
+                    # Code block closer
+                    out += "```"
+
+
+                case "Enum":
+                    # If previous element is Constants or Enum,
+                    # remove the <br>
+                    if i > 0:
+                        prev_type = typeof(section[i - 1])
+                        if (prev_type == "Constants") or (prev_type == "Enum"):
+                            out = out[:-10]
+
+                    # <a>
+                    out += f"\n\n<a name=\"{element.href}\"></a>"
+
+                    # Code block opener
+                    out += "\n```lua\n"
+                    out += filename + "." + element.name + " = {\n"
+
+                    # Get longest constant name
+                    length = 0
+                    for pair in element.values:
+                        length = max(len(pair[0]), length)
+
+                    # Add pairs
+                    for pair in element.values:
+                        if pair[0]:
+                            out += f"    {pair[0].ljust(length)}    = {pair[1]}  \n"
+                        else:
+                            out += "  \n"
+                    
+                    # Code block closer
+                    out += "}\n```"
+
+
+                case "Method":
+                    # Prefix
+                    prefix = filename + "."
+                    if element.is_instance:
+                        prefix = filename[0].lower() + filename[1:] + ":"
+
+                    # <a>
+                    out += f"\n\n<a name=\"{element.href}\"></a>"
+
+                    # Code block opener
+                    out += "\n```lua\n"
+
+                    # Method signature(s)
+                    for signature in element.signatures:
+
+                        # Name
+                        out += prefix + signature.name + "("
+
+                        # Params
+                        has_one = False
+
+                        for p in signature.params:
+                            if has_one:
+                                out += ", "
+                            out += p.name
+                            has_one = True
+
+                        for p in signature.optional:
+                            if has_one:
+                                out += ", "
+                            out += f"[{p.name}]"
+                            has_one = True
+
+                        # Return
+                        out += f") -> {signature.ret}  \n"
+
+                    # Code block closer
+                    out += "```\n\n"
+
+
+                    # Parameter table display function
+                    def parameter_table():
+                        string = "**Parameters**  "
+                        has_one = False
+                        for signature in element.signatures:
+                            if has_one:
+                                string += "\n"
+                            has_one = True
+                            if len(signature.params) + len(signature.optional) > 0:
+                                string += "\nParameter | Type | Description\n| - | - | -"
+                                for p in signature.params:
+                                    string += f"\n`{p.name}` | {p.type} | {p.text}"
+                                for p in signature.optional:
+                                    string += f"\n`[{p.name}]` | {p.type} | {p.text}"
+                        return string
+                    
+                    ptable_shown = False
+
+
+                    # Description
+                    for line in element.text:
+                        # Parameters
+                        if "@ptable" in line:
+                            out += parameter_table() + "\n"
+                            ptable_shown = True
+                        
+                        else:
+                            out += line + "\n"
+
+                    # Display parameter table if not already shown
+                    if not ptable_shown:
+                        out += "\n" + parameter_table()
+                    else:
+                        out = out[:-2]  # Remove a \n
+
+
+    # Write to file
+    if out:
+        path = os.path.join(os.path.dirname(__file__), f"out/{filename}.txt")
+        with open(path, "w") as f:
+            f.write(out)
 
 
 
