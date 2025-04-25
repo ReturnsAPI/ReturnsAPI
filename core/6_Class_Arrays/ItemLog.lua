@@ -48,17 +48,17 @@ ItemLog.Group = ReadOnly.new({
 --[[
 Property | Type | Description
 | - | - | -
-namespace           | string    | The namespace the log is in.
-identifier          | string    | The identifier for the log within the namespace.
-token_name          | string    | The localization token for the log's name.
-token_description   | string    | The localization token for the log's description.
-token_story         | string    | The localization token for the log's story.
-token_date          | string    | The localization token for the log's date.
-token_destination   | string    | The localization token for the log's destination.
-token_priority      | string    | The localization token for the log's priority.
-sprite_id           | sprite    | The sprite ID of the log.
-group               | number    | The ordering "group" the log is placed in.
-achievement_id      | number    | The achievement ID of the log. <br>If *not* `-1`, the log will be locked until the achievement is unlocked.
+`namespace`         | string    | The namespace the log is in.
+`identifier`        | string    | The identifier for the log within the namespace.
+`token_name`        | string    | The localization token for the log's name.
+`token_description` | string    | The localization token for the log's description.
+`token_story`       | string    | The localization token for the log's story.
+`token_date`        | string    | The localization token for the log's date.
+`token_destination` | string    | The localization token for the log's destination.
+`token_priority`    | string    | The localization token for the log's priority.
+`sprite_id`         | sprite    | The sprite ID of the log.
+`group`             | number    | The ordering "group" the log is placed in.
+`achievement_id`    | number    | The achievement ID of the log. <br>If *not* `-1`, the log will be locked until the achievement is unlocked.
 ]]
 
 

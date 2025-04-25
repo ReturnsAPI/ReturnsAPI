@@ -37,23 +37,23 @@ EFFECT_DISPLAY          16
 --[[
 Property | Type | Description
 | - | - | -
-namespace               | string    | The namespace the buff is in.
-identifier              | string    | The identifier for the buff within the namespace.
-show_icon               | bool      | `true` if the icon should be shown.
-icon_sprite             | sprite    | 
-icon_subimage           | number    | 
-icon_frame_speed        | number    | 
-icon_stack_subimage     | number    | 
-draw_stack_number       | bool      | `true` if the buff stack count should be displayed beside the icon.
-stack_number_col        | Array     | 
-max_stack               | number    | The maximum number of stacks.
-on_apply                | number    | The ID of the callback that runs when the buff is applied.
-on_remove               | number    | The ID of the callback that runs when the buff is removed.
-on_step                 | number    | The ID of the callback that runs every frame.
-is_timed                | bool      | 
-is_debuff               | bool      | `true` if the buff is considered a debuff.
-client_handles_removal  | bool      | 
-effect_display          |           | 
+`namespace`                 | string    | The namespace the buff is in.
+`identifier`                | string    | The identifier for the buff within the namespace.
+`show_icon`                 | bool      | `true` if the icon should be shown.
+`icon_sprite`               | sprite    | 
+`icon_subimage`             | number    | 
+`icon_frame_speed`          | number    | 
+`icon_stack_subimage`       | number    | 
+`draw_stack_number`         | bool      | `true` if the buff stack count should be displayed beside the icon.
+`stack_number_col`          | Array     | 
+`max_stack`                 | number    | The maximum number of stacks.
+`on_apply`                  | number    | The ID of the callback that runs when the buff is applied.
+`on_remove`                 | number    | The ID of the callback that runs when the buff is removed.
+`on_step`                   | number    | The ID of the callback that runs every frame.
+`is_timed`                  | bool      | 
+`is_debuff`                 | bool      | `true` if the buff is considered a debuff.
+`client_handles_removal`    | bool      | 
+`effect_display`            |           | 
 ]]
 
 

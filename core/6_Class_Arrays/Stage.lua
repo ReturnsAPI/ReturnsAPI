@@ -42,24 +42,24 @@ LOG_ID                      17
 --[[
 Property | Type | Description
 | - | - | -
-namespace                   | string    | The namespace the stage is in.
-identifier                  | string    | The identifier for the stage within the namespace.
-token_name                  | string    | The localization token for the stage's name.
-token_subname               | string    | The localization token for the stage's subname.
-spawn_enemies               |           | 
-spawn_enemies_loop          |           | 
-spawn_interactables         |           | 
-spawn_interactables_loop    |           | 
-spawn_interactable_rarity   |           | 
-interactable_spawn_points   |           | 
-allow_mountain_shrine_spawn |           | 
-classic_variant_count       |           | 
-is_new_stage                | bool      | 
-room_list                   |           | 
-music_id                    | number    | The ID of the sound to play as background music.
-teleporter_index            |           | 
-populate_biome_properties   |           | 
-log_id                      | number    | The environment log ID of the stage.
+`namespace`                     | string    | The namespace the stage is in.
+`identifier`                    | string    | The identifier for the stage within the namespace.
+`token_name`                    | string    | The localization token for the stage's name.
+`token_subname`                 | string    | The localization token for the stage's subname.
+`spawn_enemies`                 |           | 
+`spawn_enemies_loop`            |           | 
+`spawn_interactables`           |           | 
+`spawn_interactables_loop`      |           | 
+`spawn_interactable_rarity`     |           | 
+`interactable_spawn_points`     |           | 
+`allow_mountain_shrine_spawn`   |           | 
+`classic_variant_count`         |           | 
+`is_new_stage`                  | bool      | 
+`room_list`                     |           | 
+`music_id`                      | number    | The ID of the sound to play as background music.
+`teleporter_index`              |           | 
+`populate_biome_properties`     |           | 
+`log_id`                        | number    | The environment log ID of the stage.
 ]]
 
 
