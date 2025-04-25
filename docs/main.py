@@ -452,7 +452,7 @@ def generate(docs, filename):
             continue
 
         # Section name
-        href = "-".join([p.lower() for p in section_id.split()])
+        href = "-".join([p.lower() for p in section_id.strip("()").split()])
         out += f"* [**{section_id}**]({WIKI}/{filename}#{href})  \n"
 
         # Element names
