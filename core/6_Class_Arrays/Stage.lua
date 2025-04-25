@@ -37,8 +37,11 @@ LOG_ID                      17
 ]]
 
 
---@properties
+--@section Properties
+
 --[[
+Property | Type | Description
+| - | - | -
 namespace                   | string    | The namespace the stage is in.
 identifier                  | string    | The identifier for the stage within the namespace.
 token_name                  | string    | The localization token for the stage's name.

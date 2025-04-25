@@ -43,8 +43,11 @@ ItemLog.Group = ReadOnly.new({
 })
 
 
---@properties
+--@section Properties
+
 --[[
+Property | Type | Description
+| - | - | -
 namespace           | string    | The namespace the log is in.
 identifier          | string    | The identifier for the log within the namespace.
 token_name          | string    | The localization token for the log's name.

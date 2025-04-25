@@ -55,8 +55,11 @@ Item.StackKind = ReadOnly.new({
 })
 
 
---@properties
+--@section Properties
+
 --[[
+Property | Type | Description
+| - | - | -
 namespace       | string    | The namespace the item is in.
 identifier      | string    | The identifier for the item within the namespace.
 token_name      | string    | The localization token for the item's name.

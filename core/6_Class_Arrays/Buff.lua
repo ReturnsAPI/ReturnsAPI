@@ -32,8 +32,11 @@ EFFECT_DISPLAY          16
 ]]
 
 
---@properties
+--@section Properties
+
 --[[
+Property | Type | Description
+| - | - | -
 namespace               | string    | The namespace the buff is in.
 identifier              | string    | The identifier for the buff within the namespace.
 show_icon               | bool      | `true` if the icon should be shown.
