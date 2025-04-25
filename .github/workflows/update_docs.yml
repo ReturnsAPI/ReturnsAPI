@@ -18,6 +18,18 @@ jobs:
             - name: Run parser
               run: python docs/main.py
 
+            - name: Checkout wiki repo
+              uses: actions/checkout@v4
+              with:
+                repository: ReturnsAPI/ReturnsAPI.wiki
+                token: ${{ secrets.GITHUB_TOKEN }}
+                path: wiki
+
+            - name: What's inside?
+              run: ls -R wiki
+
+            # - name: Add
+
             # - name: Push changes to repo
             #   run: |
             #     git config user.name "github-actions"
