@@ -505,7 +505,7 @@ def generate(docs, filename):
                     out += "\n\n"
 
                     for line in element.text:
-                        out += line + "\n"
+                        out += line + "  \n"
 
                     out = out[:-1]  # Remove a \n
 
