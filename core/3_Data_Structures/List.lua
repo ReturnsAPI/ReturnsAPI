@@ -2,7 +2,8 @@
 
 --[[
 This class allows for easier manipulation of GameMaker DS Lists.
-DS structures should always be destroyed once
+
+DS resources should always be destroyed once
 they are no longer in use to free up memory.
 ]]
 

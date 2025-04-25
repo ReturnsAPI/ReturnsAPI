@@ -1,5 +1,9 @@
 -- Object
 
+--[[
+This class provides some functionality for manipulating GameMaker objects.
+]]
+
 Object = new_class()
 
 run_once(function()

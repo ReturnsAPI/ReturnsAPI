@@ -1,6 +1,8 @@
 -- Player
 
--- "Child" class of Instance and Actor
+--[[
+Player wrappers are "children" of both @link {`Instance` | Instance} and @link {`Actor` | Actor}, and can use their instance methods.
+]]
 
 Player = new_class()
 

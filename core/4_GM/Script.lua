@@ -1,5 +1,29 @@
 -- Script
 
+--[[
+This class provides functionality for calling GameMaker script functions.
+
+Calling one directly will use the `self` and `other` binded to the wrapper.
+If you need to directly pass a struct/instance into `self`/`other`, use `script.SO`.
+
+E.g.,
+```lua
+-- `script` is some Script wrapper
+-- The first two arguments are `self, other`
+script.SO(instance, instance, arg1, arg2)
+```
+
+Getting a script function from a Struct or
+Instance will automatically bind it as `self`/`other`.
+
+E.g.,
+```lua
+-- Automatically binds `self_struct` as self/other when calling
+-- `skill_start_cooldown` since it was gotten from `self_struct`
+self_struct.skill_start_cooldown()
+```
+]]
+
 Script = {}
 
 run_once(function()

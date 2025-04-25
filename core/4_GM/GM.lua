@@ -1,7 +1,21 @@
 -- GM
 
 --[[
-ReturnsAPI version of `gm` that automatically wraps/unwraps values
+This class is a version of `gm` that automatically
+wraps/unwraps values with ReturnsAPI wrappers.
+
+E.g.,
+```lua
+GM.instance_create(x, y, Object.find("lizard"))
+```
+
+If you need to pass a struct/instance into `self`/`other`, use `GM.SO`.
+
+E.g.,
+```lua
+-- The first two arguments are `self, other`
+GM.SO.recalculate_stats(actor, actor)
+```
 ]]
 
 GM = new_class()

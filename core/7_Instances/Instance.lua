@@ -1,5 +1,11 @@
 -- Instance
 
+--[[
+This class provides get/set functionality for GameMaker instances,
+as well as allowing GM function calls with the
+instance passed in as `self`/`other` using `:` syntax.
+]]
+
 Instance = new_class()
 
 run_once(function()
