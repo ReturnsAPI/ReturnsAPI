@@ -1,0 +1,18 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Player#static-methods)  
+  * [`Player.get_local`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Player#get_local)  
+
+<br><br>
+
+---
+
+## Static Methods  
+
+<a name="get_local"></a>
+```lua
+Player.get_local() -> Player or Instance  
+```
+
+Returns the Player instance of this game client,
+or an invalid Instance if they do not exist.
+
+**Parameters**  

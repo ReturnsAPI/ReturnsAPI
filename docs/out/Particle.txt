@@ -1,0 +1,112 @@
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Particle#enums)  
+  * [`Particle.System`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Particle#System)  
+  * [`Particle.Shape`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Particle#Shape)  
+
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Particle#static-methods)  
+  * [`Particle.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Particle#new)  
+  * [`Particle.find`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Particle#find)  
+  * [`Particle.find_all`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Particle#find_all)  
+  * [`Particle.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Particle#wrap)  
+
+<br><br>
+
+---
+
+## Enums  
+
+<a name="System"></a>
+```lua
+Particle.System = {
+    ABOVE           = 0  
+    BELOW           = 1  
+    MIDDLE          = 2  
+    BACKGROUND      = 3  
+    VERYABOVE       = 4  
+    DAMAGE          = 5  
+    DAMAGE_ABOVE    = 6  
+}
+```
+
+<a name="Shape"></a>
+```lua
+Particle.Shape = {
+    PIXEL        = 0  
+    DISK         = 1  
+    SQUARE       = 2  
+    LINE         = 3  
+    STAR         = 4  
+    CIRCLE       = 5  
+    RING         = 6  
+    SPHERE       = 7  
+    FLARE        = 8  
+    SPARK        = 9  
+    EXPLOSION    = 10  
+    CLOUD        = 11  
+    SMOKE        = 12  
+    SNOW         = 13  
+}
+```
+
+<br><br>
+
+---
+
+## Static Methods  
+
+<a name="new"></a>
+```lua
+Particle.new(identifier) -> Particle  
+```
+
+Creates a new particle type with the given identifier if it does not already exist,
+or returns the existing one if it does.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier for the particle type.
+
+<br><br>
+
+<a name="find"></a>
+```lua
+Particle.find(identifier, [namespace]) -> Particle or nil  
+```
+
+Searches for the specified particle and returns it.
+If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier to search for.
+`[namespace]` | string | The namespace to search in.
+
+<br><br>
+
+<a name="find_all"></a>
+```lua
+Particle.find_all([namespace]) -> table  
+```
+
+Returns a table of all particles in the specified namespace.
+If no namespace is provided, retrieves from both your mod's namespace and "ror".
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`[namespace]` | string | The namespace to check.
+
+<br><br>
+
+<a name="wrap"></a>
+```lua
+Particle.wrap(particle) -> Particle  
+```
+
+Returns a Particle wrapper containing the provided particle type.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`particle` | number | The particle type to wrap.

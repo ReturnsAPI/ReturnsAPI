@@ -1,0 +1,153 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Draw#static-methods)  
+  * [`Draw.rectangle`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Draw#rectangle)  
+  * [`Draw.circle`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Draw#circle)  
+  * [`Draw.ellipse`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Draw#ellipse)  
+  * [`Draw.triangle`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Draw#triangle)  
+  * [`Draw.line`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Draw#line)  
+  * [`Draw.point`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Draw#point)  
+  * [`Draw.color`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Draw#color)  
+  * [`Draw.alpha`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Draw#alpha)  
+
+<br><br>
+
+---
+
+## Static Methods  
+
+<a name="rectangle"></a>
+```lua
+Draw.rectangle(x1, y1, x2, y2, [outline], [color]) -> nil  
+```
+
+Draws a rectangle.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x1` | number | The left coordinate.
+`y1` | number | The top coordinate.
+`x2` | number | The right coordinate.
+`y2` | number | The bottom coordinate.
+`[outline]` | bool | If `true`, the shape is drawn as an outline. <br>`false` by default.
+`[color]` | color | The color of the shape. <br>Uses the current draw color by default.
+
+<br><br>
+
+<a name="circle"></a>
+```lua
+Draw.circle(x, y, r, [outline], [color]) -> nil  
+```
+
+Draws a circle.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x` | number | The x coordinate of the center.
+`y` | number | The y coordinate of the center.
+`r` | number | The radius of the circle.
+`[outline]` | bool | If `true`, the shape is drawn as an outline. <br>`false` by default.
+`[color]` | color | The color of the shape. <br>Uses the current draw color by default.
+
+<br><br>
+
+<a name="ellipse"></a>
+```lua
+Draw.ellipse(x1, y1, x2, y2, [outline], [color]) -> nil  
+```
+
+Draws an ellipse.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x1` | number | The left coordinate.
+`y1` | number | The top coordinate.
+`x2` | number | The right coordinate.
+`y2` | number | The bottom coordinate.
+`[outline]` | bool | If `true`, the shape is drawn as an outline. <br>`false` by default.
+`[color]` | color | The color of the shape. <br>Uses the current draw color by default.
+
+<br><br>
+
+<a name="triangle"></a>
+```lua
+Draw.triangle(x1, y1, x2, y2, x3, y3, [outline], [color]) -> nil  
+```
+
+Draws a triangle.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x1` | number | The x coordinate of corner 1.
+`y1` | number | The y coordinate of corner 1.
+`x2` | number | The x coordinate of corner 2.
+`y2` | number | The y coordinate of corner 2.
+`x3` | number | The x coordinate of corner 3.
+`y3` | number | The y coordinate of corner 3.
+`[outline]` | bool | If `true`, the shape is drawn as an outline. <br>`false` by default.
+`[color]` | color | The color of the shape. <br>Uses the current draw color by default.
+
+<br><br>
+
+<a name="line"></a>
+```lua
+Draw.line(x1, y1, x2, y2, [outline], [color]) -> nil  
+```
+
+Draws a line.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x1` | number | The x coordinate of end 1.
+`y1` | number | The y coordinate of end 1.
+`x2` | number | The x coordinate of end 2.
+`y2` | number | The y coordinate of end 2.
+`[outline]` | bool | If `true`, the shape is drawn as an outline. <br>`false` by default.
+`[color]` | color | The color of the shape. <br>Uses the current draw color by default.
+
+<br><br>
+
+<a name="point"></a>
+```lua
+Draw.point(x, y, [color]) -> nil  
+```
+
+Draws a single pixel.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`x` | number | The x coordinate.
+`y` | number | The y coordinate.
+`[color]` | color | The color of the shape. <br>Uses the current draw color by default.
+
+<br><br>
+
+<a name="color"></a>
+```lua
+Draw.color([color]) -> color or nil  
+```
+
+Returns the current draw color, or sets a new one.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`[color]` | color | The new draw color to set.
+
+<br><br>
+
+<a name="alpha"></a>
+```lua
+Draw.alpha([alpha]) -> number or nil  
+```
+
+Returns the current draw alpha, or sets a new one.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`[alpha]` | number | The new draw alpha to set.

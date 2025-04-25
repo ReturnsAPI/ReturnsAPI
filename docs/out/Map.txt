@@ -1,0 +1,35 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Map#static-methods)  
+  * [`Map.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Map#new)  
+  * [`Map.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Map#wrap)  
+
+<br><br>
+
+---
+
+## Static Methods  
+
+<a name="new"></a>
+```lua
+Map.new([table]) -> Map  
+```
+
+Returns a newly created GameMaker map.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`[table]` | table | A string-indexed Lua table to convert into a list.
+
+<br><br>
+
+<a name="wrap"></a>
+```lua
+Map.wrap(map) -> Map  
+```
+
+Returns a Map wrapper containing the provided map ID.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`map` | number | The ID of the map.

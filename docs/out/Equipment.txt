@@ -1,0 +1,118 @@
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Equipment#enums)  
+  * [`Equipment.Property`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Equipment#Property)  
+
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Equipment#static-methods)  
+  * [`Equipment.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Equipment#new)  
+  * [`Equipment.find`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Equipment#)  
+  * [`Equipment.find_all`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Equipment#)  
+  * [`Equipment.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Equipment#)  
+
+<br><br>
+
+---
+
+## Enums  
+
+<a name="Property"></a>
+```lua
+Equipment.Property = {
+    NAMESPACE           = 0  
+    IDENTIFIER          = 1  
+    TOKEN_NAME          = 2  
+    TOKEN_TEXT          = 3  
+    ON_USE              = 4  
+    COOLDOWN            = 5  
+    TIER                = 6  
+    SPRITE_ID           = 7  
+    OBJECT_ID           = 8  
+    ITEM_LOG_ID         = 9  
+    ACHIEVEMENT_ID      = 10  
+    EFFECT_DISPLAY      = 11  
+    LOOT_TAGS           = 12  
+    IS_NEW_EQUIPMENT    = 13  
+}
+```
+
+<br><br>
+
+namespace | string | The namespace the equipment is in.
+identifier | string | The identifier for the equipment within the namespace.
+token_name | string | The localization token for the equipment's name.
+token_text | string | The localization token for the equipment's pickup text.
+on_use | number | The ID of the callback that runs when the equipment is activated.
+cooldown | number | The cooldown of the equipment (in frames).
+tier | number | The tier of the equipment.
+sprite_id | sprite | The sprite ID of the equipment.
+object_id | object | The object ID of the equipment.
+item_log_id | number | The item log ID of the equipment.
+achievement_id | number | The achievement ID of the equipment. <br>If *not* `-1`, the equipment will be locked until the achievement is unlocked.
+effect_display | |
+loot_tags | number | The sum of all loot tags applied to the item.
+is_new_equipment | bool | `true` for new vanilla equipment added in *Returns*.
+
+<br><br>
+
+---
+
+## Static Methods  
+
+<a name="new"></a>
+```lua
+Equipment.new(identifier) -> Equipment  
+```
+
+Creates a new equipment with the given identifier if it does not already exist,
+or returns the existing one if it does.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier for the equipment.
+
+<br><br>
+
+<a name=""></a>
+```lua
+Equipment.find(identifier, [namespace]) -> Equipment or nil  
+```
+
+Searches for the specified equipment and returns it.
+If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier to search for.
+`[namespace]` | string | The namespace to search in.
+
+<br><br>
+
+<a name=""></a>
+```lua
+Equipment.find_all(filter, [property]) -> table  
+```
+
+Returns a table of equipment matching the specified filter and property
+
+**NOTE:** Filtering by a non-namespace property is *very slow*!
+Try not to do that too much.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`filter` |  | The filter to search by.
+`[property]` | number | The property to check. <br>[`Equipment.Property.NAMESPACE`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Equipment#Property) by default.
+
+<br><br>
+
+<a name=""></a>
+```lua
+Equipment.wrap(equip_id) -> Equipment  
+```
+
+Returns an Equipment wrapper containing the provided equipment ID.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`equip_id` | number | The equipment ID to wrap.

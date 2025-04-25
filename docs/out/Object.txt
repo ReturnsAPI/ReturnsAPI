@@ -1,0 +1,115 @@
+* [**Enums**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#enums)  
+  * [`Object.Property`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#Property)  
+  * [`Object.Parent`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#Parent)  
+
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#static-methods)  
+  * [`Object.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#new)  
+  * [`Object.find`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#find)  
+  * [`Object.find_by_tag`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#find_by_tag)  
+  * [`Object.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Object#wrap)  
+
+<br><br>
+
+---
+
+## Enums  
+
+<a name="Property"></a>
+```lua
+Object.Property = {
+    BASE          = 0  
+    OBJ_DEPTH     = 1  
+    OBJ_SPRITE    = 2  
+    IDENTIFIER    = 3  
+    NAMESPACE     = 4  
+    ON_CREATE     = 5  
+    ON_DESTROY    = 6  
+    ON_STEP       = 7  
+    ON_DRAW       = 8  
+}
+```
+
+<a name="Parent"></a>
+```lua
+Object.Parent = {
+    ACTOR                 = gm.constants.pActor  
+    ENEMY_CLASSIC         = gm.constants.pEnemyClassic  
+    ENEMY_FLYING          = gm.constants.pEnemyFlying  
+    BOSS                  = gm.constants.pBoss  
+    BOSS_CLASSIC          = gm.constants.pBossClassic  
+    PICKUP_ITEM           = gm.constants.pPickupItem  
+    PICKUP_EQUIPMENT      = gm.constants.pPickupEquipment  
+    DRONE                 = gm.constants.pDrone  
+    MAP_OBJECTS           = gm.constants.pMapObjects  
+    INTERACTABLE          = gm.constants.pInteractable  
+    INTERACTABLE_CHEST    = gm.constants.pInteractableChest  
+    INTERACTABLE_CRATE    = gm.constants.pInteractableCrate  
+    INTERACTABLE_DRONE    = gm.constants.pInteractableDrone  
+}
+```
+
+<br><br>
+
+---
+
+## Static Methods  
+
+<a name="new"></a>
+```lua
+Object.new(identifier) -> Object  
+```
+
+Creates a new object with the given identifier if it does not already exist,
+or returns the existing one if it does.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier for the object.
+
+<br><br>
+
+<a name="find"></a>
+```lua
+Object.find(identifier, [namespace]) -> Object or nil  
+```
+
+Searches for the specified object and returns it.
+If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`identifier` | string | The identifier to search for.
+`[namespace]` | string | The namespace to search in.
+
+<br><br>
+
+<a name="find_by_tag"></a>
+```lua
+Object.find_by_tag(tag) -> table, number  
+```
+
+Returns a key-value pair table of all objects with the specified tag,
+and the number of objects in the table.
+
+Each key-value pair is `object_index, Object wrapper`.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`tag` | string | The tag to search by.
+
+<br><br>
+
+<a name="wrap"></a>
+```lua
+Object.wrap(object) -> Object  
+```
+
+Returns an Object wrapper containing the provided object index.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`object` | number | The object index to wrap.

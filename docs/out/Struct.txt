@@ -1,0 +1,67 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Struct#static-methods)  
+  * [`Struct.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Struct#new)  
+  * [`Struct.wrap`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Struct#wrap)  
+  * [`Struct.wrap_yyobjectbase`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Struct#wrap_yyobjectbase)  
+  * [`Struct.is`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Struct#is)  
+
+<br><br>
+
+---
+
+## Static Methods  
+
+<a name="new"></a>
+```lua
+Struct.new([constructor], [...]) -> Struct  
+```
+
+Returns a newly created GameMaker struct.
+Can also create one from a constructor.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`[constructor]` | number | The constructor to use.
+`[...]` |  | Arguments to pass to the constructor.
+
+<br><br>
+
+<a name="wrap"></a>
+```lua
+Struct.wrap(struct) -> Struct  
+```
+
+Returns a Struct wrapper containing the provided struct.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`struct` | RValue or Struct wrapper | The struct to wrap.
+
+<br><br>
+
+<a name="wrap_yyobjectbase"></a>
+```lua
+Struct.wrap_yyobjectbase(struct_yy) -> Struct  
+```
+
+Returns a Struct wrapper containing the provided struct.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`struct_yy` |  | `struct YYObjectBase*` pointing to a struct.
+
+<br><br>
+
+<a name="is"></a>
+```lua
+Struct.is(value) -> bool  
+```
+
+Returns `true` if `value` is a struct, and `false` otherwise.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`value` | RValue or Array wrapper | The value to check.

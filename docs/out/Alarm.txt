@@ -1,0 +1,24 @@
+* [**Static Methods**](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Alarm#static-methods)  
+  * [`Alarm.new`](https://github.com/ReturnsAPI/ReturnsAPI/wiki/Alarm#new)  
+
+<br><br>
+
+---
+
+## Static Methods  
+
+<a name="new"></a>
+```lua
+Alarm.new(time, fn, [...]) -> number  
+```
+
+Creates a new alarm which calls the provided function
+with passed args after the specified amount of time.
+Returns the unique ID of the alarm.
+
+**Parameters**  
+Parameter | Type | Description
+| - | - | -
+`time` | number | The number of frames before the function is called.
+`fn` | function | The function to call.
+`[...]` |  | A variable number of arguments to pass to the function.
