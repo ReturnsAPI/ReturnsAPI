@@ -631,11 +631,11 @@ def generate(docs, filename):
                     for line in element.text:
                         # Parameters
                         if "@ptable" in line:
-                            out += parameter_table() + "\n"
+                            out += parameter_table() + "  \n"
                             ptable_shown = True
                         
                         else:
-                            out += line + "\n"
+                            out += line + "  \n"
 
                     # Display parameter table if not already shown
                     if not ptable_shown:
