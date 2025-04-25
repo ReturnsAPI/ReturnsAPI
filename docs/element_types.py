@@ -10,6 +10,17 @@ class Text():
 
 
 
+class Constants():
+    """
+    Constants element
+    """
+
+    def __init__(self):
+        self.text = []
+        self.values = []
+
+
+
 class Enum():
     """
     Enum element
@@ -59,3 +70,8 @@ class Param():
         self.name = name
         self.type = type
         self.text = text
+
+
+
+def typeof(object):
+    return type(object).__name__

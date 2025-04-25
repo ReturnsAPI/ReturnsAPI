@@ -140,6 +140,7 @@ def parse_file(file_path, filename):
     pprint(docs)
 
     print("\nMY SECTION\n")
+    print(type(docs["sections"]["my section"][0]).__name__)
     print(docs["sections"]["my section"][0].text)
     
     pprint(docs["sections"]["my section"][1].name)
@@ -151,6 +152,9 @@ def parse_file(file_path, filename):
     pprint(docs["sections"]["my section"][2].values)
 
     pprint(docs["sections"]["my section"][3].text)
+    pprint(docs["sections"]["my section"][3].values)
+
+    pprint(docs["sections"]["my section"][4].href)
     
     pprint(docs["sections"]["my section"][4].signatures[0].name)
     pprint(docs["sections"]["my section"][4].signatures[0].ret)
@@ -215,6 +219,11 @@ def parse_block(block, docs):
                 docs["element"].text = parse_text(block, docs)
 
 
+            # Start new constants
+            case "@constants":
+                docs["element"] = Constants()
+
+
             # Start new enum
             case "@enum":
                 docs["element"] = Enum()
@@ -243,11 +252,14 @@ def parse_block(block, docs):
 
             # Set name; if empty, autofinds
             case "@name":
-                if isinstance(docs["element"], Enum):
-                    docs["element"].name = tokens[1]
+                _type = typeof(docs["element"])
+                match _type:
 
-                elif isinstance(docs["element"], Method):
-                    docs["element"].signatures[-1].name = tokens[1]
+                    case "Enum":
+                        docs["element"].name = tokens[1]
+
+                    case "Method":
+                        docs["element"].signatures[-1].name = tokens[1]
 
 
             # Set href; if empty, autosets based on name
@@ -284,8 +296,9 @@ def parse_block(block, docs):
     parse_code(code, docs)
 
 
-    # Enum : Parse text into value pairs
-    if isinstance(docs["element"], Enum):
+    # Constants, Enum : Parse text into value pairs
+    _type = typeof(docs["element"])
+    if (_type == "Constants") or (_type == "Enum"):
         docs["element"].values = convert_text_to_pairs(docs["element"].text)
 
 
@@ -350,12 +363,39 @@ def parse_line(line):
 
 
 def parse_code(code, docs):
+    _type = typeof(docs["element"])
+    match _type:
     
-    # Enum
-    if isinstance(docs["element"], Enum):
+        case "Enum":
 
-        # Name
-        if not docs["element"].name:
+            # Name
+            if not docs["element"].name:
+                line = code[0]
+
+                # Get first part of assignment (which has the name)
+                name = line.split("=")[0].strip()
+                if "." in name:
+                    name = name.split(".")[1]
+
+                docs["element"].name = name
+
+
+            # href
+            if not docs["element"].href:
+                docs["element"].href = docs["element"].name
+
+                
+            # Set text to be code
+            if not docs["element"].text:
+                code.pop(0)
+                code.pop()
+                for line in code:
+                    docs["element"].text.append(line)
+
+
+        case "Method":
+            
+            # Name
             line = code[0]
 
             # Get first part of assignment (which has the name)
@@ -363,32 +403,15 @@ def parse_code(code, docs):
             if "." in name:
                 name = name.split(".")[1]
 
-            docs["element"].name = name
-
-            
-        # Set text to be code
-        if not docs["element"].text:
-            code.pop(0)
-            code.pop()
-            for line in code:
-                docs["element"].text.append(line)
+            # Set name for all unassigned signatures
+            for signature in docs["element"].signatures:
+                if not signature.name:
+                    signature.name = name
 
 
-    # Method
-    elif isinstance(docs["element"], Method):
-        
-        # Name
-        line = code[0]
-
-        # Get first part of assignment (which has the name)
-        name = line.split("=")[0].strip()
-        if "." in name:
-            name = name.split(".")[1]
-
-        # Set name for all unassigned signatures
-        for signature in docs["element"].signatures:
-            if not signature.name:
-                signature.name = name
+            # href
+            if not docs["element"].href:
+                docs["element"].href = docs["element"].signatures[0].name
 
 
 
