@@ -636,7 +636,7 @@ def generate(docs, filename):
                                 for p in signature.params:
                                     string += f"\n`{p.name}` | {p.type} | {p.text}"
                                 for p in signature.optional:
-                                    string += f"\n`[{p.name}]` | {p.type} | {p.text}"
+                                    string += f"\n`[{p.name}]` | {p.type} | *Optional.* {p.text}"
                             else:
                                 string += "\nNone"
                         return string
