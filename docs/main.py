@@ -644,7 +644,12 @@ def generate(docs, filename):
 
     # Write to file
     if out:
-        path = os.path.join(os.path.dirname(__file__), f"out/{filename}.txt")
+        # Make directory if existn't
+        path = os.path.join(os.path.dirname(__file__), "out")
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        path = os.path.join(path, f"{filename}.txt")
         with open(path, "w") as f:
             f.write(out)
 
