@@ -35,6 +35,22 @@ local name_cache = setmetatable({}, {__mode = "k"})     -- Cache for script.name
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+Property | Type | Description
+| - | - | -
+`cscriptref`        |                       | *Read-only.* Alias for `value`.
+`yy_object_base`    |                       | *Read-only.* A `struct YYObjectBase *` of type `3`.
+`name`              | string                | The script name.
+`self`              | Struct or Instance    | The struct/instance binded as `self`; used when calling.
+`other`             | Struct or Instance    | The struct/instance binded as `other`; used when calling.
+]]
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods

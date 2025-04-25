@@ -55,6 +55,9 @@ Item.StackKind = ReadOnly.new({
 })
 
 
+
+-- ========== Properties ==========
+
 --@section Properties
 
 --[[

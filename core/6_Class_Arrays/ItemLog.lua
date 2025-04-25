@@ -43,6 +43,9 @@ ItemLog.Group = ReadOnly.new({
 })
 
 
+
+-- ========== Properties ==========
+
 --@section Properties
 
 --[[

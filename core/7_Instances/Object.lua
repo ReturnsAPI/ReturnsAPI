@@ -56,7 +56,35 @@ Object.Parent = ReadOnly.new({
 })
 
 
+--@constants
+--[[
+CUSTOM_START    800
+]]
 Object.CUSTOM_START = 800
+
+
+
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+These properties only exist for custom objects.
+]]
+
+--[[
+Property | Type | Description
+| - | - | -
+`base`          | number    | The object_index of the parent object.
+`obj_depth`     | number    | The object depth.
+`obj_sprite`    | sprite    | The object sprite.
+`identifier`    | string    | The identifier for the object within the namespace.
+`namespace`     | string    | The namespace the object is in.
+`on_create`     | number    | The ID of the callback that runs when an instance of the object is created.
+`on_destroy`    | number    | The ID of the callback that runs when an instance of the object is destroyed.
+`on_step`       | number    | The ID of the callback that runs every step for an instance of the object.
+`on_draw`       | number    | The ID of the callback that runs every step for an instance of the object (for drawing).
+]]
 
 
 

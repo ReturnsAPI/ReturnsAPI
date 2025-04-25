@@ -33,6 +33,9 @@ IS_NEW_EQUIPMENT    13
 ]]
 
 
+
+-- ========== Properties ==========
+
 --@properties
 --[[
 namespace           | string    | The namespace the equipment is in.
