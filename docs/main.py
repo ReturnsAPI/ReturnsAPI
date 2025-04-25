@@ -325,6 +325,13 @@ def parse_line(line):
                 # Place last part back into remaining tokens
                 tokens = parts[2].strip().split()
 
+                # Add space if the first character of the next token is *not* punctuation
+                # This is very goofy but whatever
+                if len(tokens) > 0:
+                    punc = ".)]"
+                    if tokens[0] not in punc:
+                        parsed += " "
+
 
             # Add image
             case "@image":
