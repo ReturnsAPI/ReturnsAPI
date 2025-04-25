@@ -396,7 +396,7 @@ end
 --@param        id          | number    | The unique ID of the registered function to remove.
 --[[
 Removes a registered hook function.
-The ID is the one from @link {`Hook.pre` | Hook#pre}/@link {`Hook.post` | Hook#post}.
+The ID is the one from @link {`Hook.pre` | Hook#pre} / @link {`Hook.post` | Hook#post}.
 ]]
 Hook.remove = function(id)
     local lookup_table = __hook_id_lookup[id]
