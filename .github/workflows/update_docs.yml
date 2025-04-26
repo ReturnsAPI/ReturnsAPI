@@ -2,9 +2,9 @@ name: Update Docs
 
 on:
     push:
-        branches:
-            - main
-            - Klehrik-luajit-3
+        # branches:
+        #     - main
+        #     - Klehrik-luajit-3
 
 jobs:
     generate:
