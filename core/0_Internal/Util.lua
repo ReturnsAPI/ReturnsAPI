@@ -143,6 +143,28 @@ end
 
 --@static
 --@return       number
+--@param        angle       | number    | The angle (in degrees).
+--[[
+Returns the cosine of the angle (in degrees).
+]]
+Util.dcos = function(angle)
+    return math.cos(angle * 0.01745329251)
+end
+
+
+--@static
+--@return       number
+--@param        angle       | number    | The angle (in degrees).
+--[[
+Returns the sine of the angle (in degrees).
+]]
+Util.dsin = function(angle)
+    return math.sin(angle * 0.01745329251)
+end
+
+
+--@static
+--@return       number
 --@param        n           | number    | The number to clamp.
 --@param        min         | number    | The minimum clamp value.
 --@param        max         | number    | The maximum clamp value.
