@@ -54,13 +54,10 @@ end
 
 
 --@static
---@href         exists-static
 --@return       bool
 --@param        inst        | Instance  | The instance to check.
 --[[
 Returns `true` if the instance exists, and `false` otherwise.
-
-Also exists as an @link {instance method | Instance#exists-instance}.
 ]]
 Instance.exists = function(inst)
     local holder = RValue.new_holder(1)
@@ -303,29 +300,21 @@ end
 
 Util.table_append(methods_instance, {
 
-    --@instance
-    --@href         exists-instance
-    --@return       bool
-    --[[
-    Returns `true` if the instance exists, and `false` otherwise.
+    -- exists = function(self)
+    --     -- Return `false` if wrapper is invalid
+    --     if self.value == -4 then return false end
 
-    Also exists as a @link {static method | Instance#exists-static}.
-    ]]
-    exists = function(self)
-        -- Return `false` if wrapper is invalid
-        if self.value == -4 then return false end
+    --     local holder = RValue.new_holder(1)
+    --     holder[0] = RValue.new(self.value, RValue.Type.REF)
+    --     local out = RValue.new(0)
+    --     gmf.instance_exists(out, nil, nil, 1, holder)
+    --     local ret = (RValue.to_wrapper(out) == 1)
 
-        local holder = RValue.new_holder(1)
-        holder[0] = RValue.new(self.value, RValue.Type.REF)
-        local out = RValue.new(0)
-        gmf.instance_exists(out, nil, nil, 1, holder)
-        local ret = (RValue.to_wrapper(out) == 1)
+    --     -- Make this wrapper invalid if the instance actually existn't
+    --     if not ret then Proxy.set(self, -4) end
 
-        -- Make this wrapper invalid if the instance actually existn't
-        if not ret then Proxy.set(self, -4) end
-
-        return ret
-    end,
+    --     return ret
+    -- end,
 
 
     --@instance

@@ -72,7 +72,7 @@ methods_attackinfo = {
     ]]
     use_raw_damage = function(self)
         local parent = self.parent
-        if not parent:exists() then log.error("use_raw_damage: Parent does not exist", 2) end
+        if not Instance.exists(parent) then log.error("use_raw_damage: Parent does not exist", 2) end
         
         self.damage = math.ceil(self.damage / parent.damage)
     end,

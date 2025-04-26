@@ -53,7 +53,7 @@ gui.add_imgui(Util.jit_off(function()
 
         if ImGui.Button("Spawn 100 Lemurians on player") then
             local p = Player.get_local()
-            if p:exists() then
+            if Instance.exists(p) then
                 local obj = Object.find("lizard", nil, "RAPI")
                 for i = 1, 100 do obj:create(p.x, p.y) end
             end
@@ -108,7 +108,7 @@ end))
 Hook.post(_ENV["!guid"], "__input_system_tick", function(self, other, result, args)
     if spawning then return end
     local director = Instance.find(gm.constants.oDirectorControl)
-    if director:exists() then director:alarm_set(1, 60) end
+    if Instance.exists(director) then director:alarm_set(1, 60) end
 end)
 
 

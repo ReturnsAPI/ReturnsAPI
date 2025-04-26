@@ -35,6 +35,16 @@ GM.internal.object  = require("./core/data/gmfObject.lua")
 GM.internal.script  = require("./core/data/gmfScript.lua")
 
 
+-- TODO uh maybe figure out a fix so these don't have to be jit.offed?
+for k, v in pairs(GM.internal.object) do
+    jit.off(gmf[k])
+end
+
+for k, v in pairs(GM.internal.script) do
+    jit.off(gmf[k])
+end
+
+
 
 -- ========== Methods ==========
 
