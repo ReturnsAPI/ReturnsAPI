@@ -144,6 +144,8 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
 methods_sound = {
 
     --@instance
