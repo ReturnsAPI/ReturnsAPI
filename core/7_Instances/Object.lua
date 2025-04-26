@@ -205,11 +205,18 @@ Object.find_by_tag = function(tag)
 end
 
 
-Object.add_serializers = function(namespace, object, serializer, deserializer)
-    -- TODO for description
-    -- Write a note that the deserializer should read *everything* written in serialize,
-    -- since it seems that all custom objects share the same packet
+--@static
+--@param        object          | Object    | The object to set for.
+--@param        serializer      | function  | The serialization function.
+--@param        deserializer    | function  | The deserialization function.
+--[[
+Adds serialization and deserialization functions for the object.
+The arguments for each are `self, buffer`.
 
+**NOTE:** You must read all data you send in `serializer`,
+as all object serializations share the same packet.
+]]
+Object.add_serializers = function(namespace, object, serializer, deserializer)
     if not object                       then log.error("Object.add_serializers: Missing object argument", 2) end
     if type(serializer)   ~= "function" then log.error("Object.add_serializers: serializer should be a function", 2) end
     if type(deserializer) ~= "function" then log.error("Object.add_serializers: deserializer should be a function", 2) end
@@ -230,6 +237,12 @@ Object.add_serializers = function(namespace, object, serializer, deserializer)
 end
 
 
+--@static
+--[[
+Removes all registered serializers from your namespace.
+
+Automatically called when you hotload your mod.
+]]
 Object.remove_all_serializers = function(namespace)
     for object, subtable in pairs(__object_serializers) do
         for i = #subtable, 1, -1 do

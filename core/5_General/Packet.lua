@@ -57,6 +57,7 @@ methods_packet = {
     --@param        deserializer    | function  | The deserialization function.
     --[[
     Set the serialization and deserialization functions for the packet.
+    The arguments for each are `buffer, player`.
     ]]
     set_serializers = function(self, serializer, deserializer)
         __callbacks_onSerialize[self.value] = serializer
