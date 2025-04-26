@@ -163,7 +163,7 @@ end
 --@param        y1          | number    | The y coordinate of end 1.
 --@param        x2          | number    | The x coordinate of end 2.
 --@param        y2          | number    | The y coordinate of end 2.
---@optional     outline     | bool      | If `true`, the shape is drawn as an outline. <br>`false` by default.
+--@optional     width       | number    | The width of the line. <br>`1` by default.
 --@optional     color       | color     | The color of the shape. <br>Uses the current draw color by default.
 --[[
 Draws a line.
@@ -187,10 +187,10 @@ Draw.line = function(x1, y1, x2, y2, width, color)
     holder[1] = RValue.new(y1)
     holder[2] = RValue.new(x2)
     holder[3] = RValue.new(y2)
-    holder[4] = RValue.new(color)
+    holder[4] = RValue.new(width or 1)
     holder[5] = RValue.new(color)
-    holder[6] = RValue.new(width or 1)
-    gmf.draw_line_color(RValue.new(0), nil, nil, 7, holder)
+    holder[6] = RValue.new(color)
+    gmf.draw_line_width_color(RValue.new(0), nil, nil, 7, holder)
 end
 
 

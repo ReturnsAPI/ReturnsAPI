@@ -120,6 +120,29 @@ end
 
 --@static
 --@return       number
+--@param        a           | number    | The lower bound (inclusive).
+--@param        b           | number    | The upper bound (exclusive).
+--[[
+Returns a random float between `a` (inclusive) and `b` (exclusive).
+]]
+Util.randomf = function(a, b)
+    return a + (math.random() * (b - a))
+end
+
+
+--@static
+--@return       number
+--@param        n           | number    | The value to get the sign of.
+--[[
+Returns the sign of the value (either `1`, `-1`, or `0`).
+]]
+Util.sign = function(n)
+    return (n > 0 and 1) or (n < 0 and -1) or 0
+end
+
+
+--@static
+--@return       number
 --@param        n           | number    | The number to clamp.
 --@param        min         | number    | The minimum clamp value.
 --@param        max         | number    | The maximum clamp value.
