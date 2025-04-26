@@ -32,6 +32,10 @@ SILVER          0xc0c0c0
 TEAL            0x808000
 WHITE           0xffffff
 YELLOW          0x00ffff
+]]
+
+--@constants
+--[[
 WHITE_ALMOST    0xfffffe
 ]]
 
