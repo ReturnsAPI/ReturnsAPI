@@ -146,9 +146,22 @@ end
 
 methods_sound = {
 
-    -- TODO
-    play = function()
-        
+    --@instance
+    --@param        x           | number    | The x coordinate to play at.
+    --@param        y           | number    | The y coordinate to play at.
+    --@optional     volume      | number    | The volume of the sound. <br>`1` by default.
+    --@optional     pitch       | number    | The pitch of the sound. <br>`1` by default.
+    --[[
+    Plays the sound at the specified location.
+    ]]
+    play = function(self, x, y, volume, pitch)
+        local holder = RValue.new_holder_scr(5)
+        holder[0] = RValue.new(self.value)
+        holder[1] = RValue.new(volume or 1)
+        holder[2] = RValue.new(pitch or 1)
+        holder[3] = RValue.new(x)
+        holder[4] = RValue.new(y)
+        gmf.sound_play_at(nil, nil, RValue.new(0), 5, holder)
     end
 
 }
