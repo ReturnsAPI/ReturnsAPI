@@ -1,5 +1,10 @@
 -- Class
 
+--[[
+Allows for accessing class arrays via `Class.<class>`.
+(E.g., `Class.Item`)
+]]
+
 Class = new_class()
 
 

@@ -52,10 +52,16 @@ end
 --@section Static Methods
 
 --@static
---@return   bool
+--@param        fn          | function  | The function to register.
+--@optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --[[
 Adds a new function to run during ReturnsAPI's initialization loop.
 This happens after all vanilla content has loaded.
+
+**Priority Convention**
+To allow for a decent amount of space between priorities,
+use the enum values in @link {`Callback.Priority` | Callback#Priority}.
+If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 Initialize.add = function(namespace, func, priority)
     -- Default priority is 0

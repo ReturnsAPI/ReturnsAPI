@@ -41,7 +41,7 @@ run_once(function()
 
         --@static
         --@return       table
-        --@param        t       | table     | The table to make read=only.
+        --@param        t       | table     | The table to make read-only.
         --[[
         Returns a read-only version of the provided table.
         ]]
