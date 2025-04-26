@@ -125,6 +125,11 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
         log.error("Hook.add: script '"..script.."' does not exist", 2)
     end
 
+    -- * Prevent hooking builtin functions
+    if GM.internal.builtin[script] then
+        log.error("Hook.add: Builtin function hooking is disabled", 2)
+    end
+
     -- Throw error if _type is not 0 or 1
     if _type ~= Hook.PRE and _type ~= Hook.POST then
         log.error("Hook.add: type should be `Hook.PRE` or `Hook.POST`", 2)
