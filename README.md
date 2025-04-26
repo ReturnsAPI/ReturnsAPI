@@ -7,6 +7,8 @@ Include `ReturnsAPI-ReturnsAPI-1.0.0` as a dependency in `manifest.json`, and im
 -- and performs other actions (such as autoregistering for language loading)
 mods["ReturnsAPI-ReturnsAPI"].auto()
 
+-- or
+
 -- Stores class references in a variable
 local RAPI = mods["ReturnsAPI-ReturnsAPI"].setup()
 ```
