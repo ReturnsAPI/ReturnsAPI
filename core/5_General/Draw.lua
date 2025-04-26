@@ -279,6 +279,18 @@ Draw.alpha = function(alpha)
 end
 
 
+--@static
+--@optional     prec        | number    | The new precision. <br>Must be *divisible by 4*, between `4` and `64`. <br>`24` by default.
+--[[
+Sets the circle precision (number of sides) for subsequently drawn circles.
+]]
+Draw.circle_precision = function(prec)
+    local holder = RValue.new_holder(1)
+    holder[0] = RValue.new(prec or 24)
+    gmf.draw_set_circle_precision(RValue.new(0), nil, nil, 1, holder)
+end
+
+
 
 -- Public export
 __class.Draw = Draw
