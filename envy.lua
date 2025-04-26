@@ -113,6 +113,13 @@ function public.auto(properties)
     env.type = Util.type
     env.tostring = Util.tostring
 
+    -- Add Math functions to `math`
+    for k, v in pairs(Math) do
+        if k ~= "internal" then
+            env.math[k] = v
+        end
+    end
+
     -- Clear callbacks and other stuff associated with namespace
     local namespace = properties.namespace or env["!guid"]:gsub("-", ".")
     if Callback         then Callback.remove_all(namespace) end
