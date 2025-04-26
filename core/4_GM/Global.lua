@@ -35,12 +35,8 @@ metatable_global = {
     __index = function(t, k)
         -- Check cache
         if __global_cache[k] then return __global_cache[k] end
-
-        local holder = RValue.new_holder(1)
-        holder[0] = RValue.new(k)
-        local out = RValue.new(0)
-        gmf.variable_global_get(out, nil, nil, 1, holder)
-        return RValue.to_wrapper(out)
+        
+        return GM.variable_global_get(k)
     end,
 
 
@@ -48,10 +44,7 @@ metatable_global = {
         -- Prevent setting any global that is in cache
         if __global_cache[k] then log.error("Do not set global variable '"..k.."'", 2) end
         
-        local holder = RValue.new_holder(2)
-        holder[0] = RValue.new(k)
-        holder[1] = RValue.from_wrapper(v)
-        gmf.variable_global_set(RValue.new(0), nil, nil, 2, holder)
+        GM.variable_global_set(k, v)
     end,
 
 

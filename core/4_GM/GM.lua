@@ -34,6 +34,15 @@ GM.internal.builtin = require("./core/data/gmfBuiltin.lua")
 GM.internal.object  = require("./core/data/gmfObject.lua")
 GM.internal.script  = require("./core/data/gmfScript.lua")
 
+GM.internal.builtin_globals = {}
+for i = 0, gm.gmf_builtin_variables_count() - 1 do
+    local builtin_var = gmf.__builtin_variables[i]
+    if builtin_var.name then
+        local str = ffi.string(builtin_var.name)
+        GM.internal.builtin_globals[str] = builtin_var
+    end
+end
+
 
 -- TODO uh maybe figure out a fix so these don't have to be jit.offed?
 for k, v in pairs(GM.internal.object) do
@@ -52,7 +61,41 @@ local call = function(k)
     if not __GM_function_cache[k] then
         if not gmf[k] then log.error("GM."..k.." does not exist", 2) end
 
-        if GM.internal.builtin[k] then
+        if k == "variable_global_get" then
+            __GM_function_cache[k] = function(name)
+                -- Built-in globals
+                local builtin_var = GM.internal.builtin_globals[name]
+                if builtin_var then
+                    local out = RValue.new(0)
+                    builtin_var.getter(nil, nil, out)
+                    return RValue.to_wrapper(out)
+                end
+
+                -- Game-defined globals
+                local holder = RValue.new_holder(1)
+                holder[0] = RValue.new(name)
+                local out = RValue.new(0)
+                gmf.variable_global_get(out, nil, nil, 1, holder)
+                return RValue.to_wrapper(out)
+            end
+
+        elseif k == "variable_global_set" then
+            __GM_function_cache[k] = function(name, value)
+                -- Built-in globals
+                local builtin_var = GM.internal.builtin_globals[name]
+                if builtin_var then
+                    local val = RValue.from_wrapper(value)
+                    builtin_var.setter(nil, nil, val)
+                end
+
+                -- Game-defined globals
+                local holder = RValue.new_holder(2)
+                holder[0] = RValue.new(name)
+                holder[1] = RValue.from_wrapper(value)
+                gmf.variable_global_set(RValue.new(0), nil, nil, 2, holder)
+            end
+
+        elseif GM.internal.builtin[k] then
             __GM_function_cache[k] = function(...)
                 local args = table.pack(...)
                 local holder = nil
