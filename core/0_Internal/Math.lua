@@ -83,3 +83,27 @@ Clamps the given value between two boundaries.
 Math.clamp = function(n, _min, _max)
     return math.min(math.max(n, _min), _max)
 end
+
+
+--@static
+--@return       number
+--@param        x           | number    | The value to ease, between `0` and `1`.
+--@optional     n           | number    | The easing power. <br>`2` (quadratic) by default.
+--[[
+Returns an ease-in value for a given value `x` between `0` and `1`.
+]]
+Math.easein = function(x, n)
+    return x^(n or 2)
+end
+
+
+--@static
+--@return       number
+--@param        x           | number    | The value to ease, between `0` and `1`.
+--@optional     n           | number    | The easing power. <br>`2` (quadratic) by default.
+--[[
+Returns an ease-out value for a given value `x` between `0` and `1`.
+]]
+Math.easeout = function(x, n)
+    return 1 - (1 - x)^(n or 2)
+end
