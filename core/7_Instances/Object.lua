@@ -315,7 +315,7 @@ methods_object = {
     Sets the sprite of the object.
     ]]
     set_sprite = function(self, sprite)
-        self.obj_sprite = sprite
+        if self.value >= Object.CUSTOM_START then self.obj_sprite = sprite end
         GM.object_set_sprite_w(self.value, sprite)
     end,
 
@@ -326,7 +326,7 @@ methods_object = {
     Sets the depth of the object.
     ]]
     set_depth = function(self, depth)
-        self.obj_depth = depth
+        if self.value >= Object.CUSTOM_START then self.obj_depth = depth end
         Global.object_depths:set(self.value, depth) -- Does not apply retroactively to existing instances
     end,
 
