@@ -479,10 +479,10 @@ methods_actor = {
     apply_knockback = function(self, direction, duration, force, kind)
         local holder = RValue.new_holder_scr(5)
         holder[0] = RValue.new(self.value, RValue.Type.REF)
-        holder[1] = RValue.from_wrapper(kind or Actor.KnockbackKind.STANDARD)
-        holder[2] = RValue.from_wrapper(direction)
-        holder[3] = RValue.from_wrapper(duration)
-        holder[4] = RValue.from_wrapper(force)
+        holder[1] = RValue.new(kind or Actor.KnockbackKind.STANDARD)
+        holder[2] = RValue.new(direction)
+        holder[3] = RValue.new(duration)
+        holder[4] = RValue.new(force)
         gmf.actor_knockback_inflict(nil, nil, RValue.new(0), 5, holder)
     end
 
