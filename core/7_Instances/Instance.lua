@@ -28,6 +28,16 @@ instance_wrappers = {
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+Instances possess all the builtin [GameMaker instance variables](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Asset_Management/Instances/Instance_Variables/Instance_Variables.htm).
+]]
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods

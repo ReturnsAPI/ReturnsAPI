@@ -1,7 +1,7 @@
 -- Actor
 
 --[[
-Actor wrappers are "children" of @link {`Instance` | Instance}, and can use their instance methods.
+Actor wrappers are "children" of @link {`Instance` | Instance}, and can use their properties and instance methods.
 ]]
 
 Actor = new_class()
@@ -37,7 +37,6 @@ Notable variables belonging to actors.
 
 Variable            | Type          | Description
 | ----------------- | ------------- | -----------
-`free`              | bool          | `false` if the actor is grounded, and <br>`true` otherwise (in the air, climbing, etc.)
 `hp`                | number        | The current health of the actor.
 `maxhp`             | number        | The maximum health of the actor.
 `shield`            | number        | The current shield of the actor.
@@ -53,6 +52,7 @@ Variable            | Type          | Description
 `pVmax`             | number        | The maximum vertical velocity of the actor.
 `pGravity1`         | number        | Gravity applied to the actor's `pVspeed`.
 `pGravity2`         | number        | Gravity applied to the actor's `pGravity1`.
+`free`              | bool          | `false` if the actor is grounded, and <br>`true` otherwise (in the air, climbing, etc.)
 ]]
 
 
