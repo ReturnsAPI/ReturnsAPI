@@ -152,12 +152,13 @@ end
 --@param        table       | table     | The table to search through.
 --@param        value       |           | The value to remove.
 --[[
-Removes the first occurence of the specified value from the table.
+Removes the first occurence of the specified
+value from a numerically-indexed table.
 ]]
 Util.table_remove_value = function(t, value)
-    for k, v in pairs(t) do
+    for i, v in ipairs(t) do
         if v == value then
-            t[k] = nil
+            table.remove(t, i)
             return
         end
     end

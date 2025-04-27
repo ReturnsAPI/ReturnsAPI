@@ -106,9 +106,11 @@ function public.auto(properties)
     __auto_setups[env] = { namespace = properties.namespace }   -- Save for calling again on RAPI hotload
 
     -- Override default `print`, `type`, and `tostring` with Util's versions
-    env.lua_print = env.print
-    env.lua_type = env.type
-    env.lua_tostring = env.tostring
+    if not env.lua_print then
+        env.lua_print = env.print
+        env.lua_type = env.type
+        env.lua_tostring = env.tostring
+    end
     env.print = Util.print
     env.type = Util.type
     env.tostring = Util.tostring
