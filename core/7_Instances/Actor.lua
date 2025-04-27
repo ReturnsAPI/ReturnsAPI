@@ -13,6 +13,21 @@ end)
 
 
 
+-- ========== Enums ==========
+
+--@section Enums
+
+--@enum
+Actor.KnockbackKind = ReadOnly.new({
+    NONE        = 0,
+    STANDARD    = 1,
+    FREEZE      = 2,
+    DEEPFREEZE  = 3,
+    PULL        = 4
+})
+
+
+
 -- ========== Internal ==========
 
 -- For `fire_explosion_local`
@@ -31,17 +46,10 @@ methods_actor = {
     --@instance
     --@return       bool
     --[[
-    Returns `true` if the actor is on the
-    ground and is *not* climbing on a rope.
+    Returns `true` if the actor is on the ground.
     ]]
     is_grounded = function(self)
-        local holder = RValue.new_holder(3)
-        holder[0] = RValue.new(self.x)
-        holder[1] = RValue.new(self.y + 1)
-        holder[2] = RValue.new(gm.constants.oB)
-        local out = RValue.new(0)
-        gmf.place_meeting(out, self.CInstance, nil, 3, holder)
-        return (out.value == 1) and (not self:is_climbing())
+        return (not Util.bool(self.free))
     end,
 
 
@@ -457,6 +465,25 @@ methods_actor = {
     ]]
     equipment_get = function(self)
         return nil
+    end,
+
+
+    --@instance
+    --@param        direction   | number    | The direction of knockback. <br>`-1` is left, and `1` is right. <br>Other values will stretch/compress the sprite horizontally.
+    --@optional     duration    | number    | The duration of knockback (in frames). <br>`20` by default.
+    --@optional     force       | number    | The force of knockback. <br>`3` by default.
+    --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
+    --[[
+    Applies knockback to the actor.
+    ]]
+    apply_knockback = function(self, direction, duration, force, kind)
+        local holder = RValue.new_holder_scr(5)
+        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        holder[1] = RValue.from_wrapper(kind or Actor.KnockbackKind.STANDARD)
+        holder[2] = RValue.from_wrapper(direction)
+        holder[3] = RValue.from_wrapper(duration)
+        holder[4] = RValue.from_wrapper(force)
+        gmf.actor_knockback_inflict(nil, nil, RValue.new(0), 5, holder)
     end
 
 }
