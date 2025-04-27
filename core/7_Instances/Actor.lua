@@ -21,8 +21,8 @@ end)
 Actor.KnockbackKind = ReadOnly.new({
     NONE        = 0,    -- Does nothing; do not use
     STANDARD    = 1,    -- Applies stun; actor cannot move horizontally or act, but can jump
-    FREEZE      = 2,    -- Frozen color shader vfx; actor cannot move horizontally, but can jump and attack
-    DEEPFREEZE  = 3,    -- Ice cube vfx; actor cannot move horizontally, but can jump and attack
+    FREEZE      = 2,    -- Frozen color shader vfx; actor cannot move horizontally, but can jump and attack; actor also slides with less friction
+    DEEPFREEZE  = 3,    -- Ice cube vfx; actor cannot move horizontally, but can jump and attack; actor also slides with less friction
     PULL        = 4     -- STANDARD, but in the opposite direction
 })
 
@@ -334,6 +334,7 @@ methods_actor = {
     --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
     --[[
     Applies knockback to the actor.
+    This can be called multiple times to stack effects from different `kind`s.
     ]]
     apply_knockback = function(self, direction, duration, force, kind)
         local holder = RValue.new_holder_scr(5)
