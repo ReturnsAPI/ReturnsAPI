@@ -686,7 +686,7 @@ __class.Actor = Actor
 --@section Notable Variables
 
 --[[
-Variable | 
+Variable | Description
 | - | -
 `free` | `false` if the actor is grounded, and <br>`true` otherwise (in the air, climbing, etc.)
 ]]
