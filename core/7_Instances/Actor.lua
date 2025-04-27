@@ -471,7 +471,7 @@ methods_actor = {
     --@instance
     --@param        direction   | number    | The direction of knockback. <br>`-1` is left, and `1` is right. <br>Other values will stretch/compress the sprite horizontally.
     --@optional     duration    | number    | The duration of knockback (in frames). <br>`20` by default.
-    --@optional     force       | number    | The force of knockback. <br>`3` by default.
+    --@optional     force       | number    | The force of knockback (in some unknown metric). <br>`3` by default.
     --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
     --[[
     Applies knockback to the actor.
