@@ -678,3 +678,15 @@ memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*",
 
 -- Public export
 __class.Actor = Actor
+
+
+
+-- ========== Notable Variables ==========
+
+--@section Notable Variables
+
+--[[
+Variable | 
+| - | -
+`free` | `false` if the actor is grounded, and <br>`true` otherwise (in the air, climbing, etc.)
+]]
