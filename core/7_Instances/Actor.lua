@@ -19,7 +19,7 @@ end)
 
 --@enum
 Actor.KnockbackKind = ReadOnly.new({
-    NONE        = 0,
+    NONE        = 0,    -- Does nothing; do not use
     STANDARD    = 1,    -- Applies stun; actor cannot move horizontally or act, but can jump
     FREEZE      = 2,    -- Frozen color shader vfx; actor cannot move horizontally, but can jump and attack
     DEEPFREEZE  = 3,    -- Ice cube vfx; actor cannot move horizontally, but can jump and attack
