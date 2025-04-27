@@ -73,7 +73,7 @@ Variable                | Type          | Description
 `level`                 | number        | The level of the actor.
 `free`                  | bool          | `false` if the actor is grounded, and <br>`true` otherwise (in the air, climbing, etc.)
 `team`                  | number        | The team the actor is on.
-`invincible`            | number        | If more than `0`, the actor is "IMMUNE". <br>If more than `1000`, the actor is "INVINCIBLE". <br>Ticks down by `1` per frame. <br>This is a bool value when set by <br>Commando's roll for some reason.
+`invincible`            | number        | If more than `0`, the actor is "IMMUNE". <br>If more than `1000`, the actor is "INVINCIBLE". <br>Ticks down by `1` per frame. <br><br>This is a bool value when set by <br>Commando's roll for some reason.
 `still_timer`           | number        | The amount of time the actor has been still (in frames) <br>(i.e., no moving, attacking, etc.) <br>Resets to `0` on acting.
 `stunned`               | bool          | `true` if the actor is stunned.
 ]]
