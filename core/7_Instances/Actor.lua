@@ -35,9 +35,24 @@ Actor.KnockbackKind = ReadOnly.new({
 --[[
 Notable variables belonging to actors.
 
-Variable | Description
-| - | -
-`free` | `false` if the actor is grounded, and <br>`true` otherwise (in the air, climbing, etc.)
+Variable            | Type          | Description
+| ----------------- | ------------- | -----------
+`free`              | bool          | `false` if the actor is grounded, and <br>`true` otherwise (in the air, climbing, etc.)
+`hp`                | number        | The current health of the actor.
+`maxhp`             | number        | The maximum health of the actor.
+`shield`            | number        | The current shield of the actor.
+`maxshield`         | number        | The maximum shield of the actor.
+`maxbarrier`        | number        | The maximum barrier of the actor.
+`armor`             | number        | The armor of the actor.
+`damage`            | number        | The base damage of the actor.
+`critical_chance`   | number        | The critical chance of the actor. <br>E.g., `7` = 7% critical chance
+`attack_speed`      | number        | The attack speed of the actor. <br>E.g., `1.4` = +40% attack speed from base
+`pHspeed`           | number        | The horizontal velocity of the actor.
+`pHmax`             | number        | The maximum horizontal velocity of the actor.
+`pVspeed`           | number        | The vertical velocity of the actor.
+`pVmax`             | number        | The maximum vertical velocity of the actor.
+`pGravity1`         | number        | Gravity applied to the actor's `pVspeed`.
+`pGravity2`         | number        | Gravity applied to the actor's `pGravity1`.
 ]]
 
 
