@@ -21,8 +21,8 @@ end)
 Actor.KnockbackKind = ReadOnly.new({
     NONE        = 0,
     STANDARD    = 1,    -- Applies stun; actor cannot move horizontally or act, but can jump
-    FREEZE      = 2,    -- Frozen color shader vfx; actor cannot move horizontally, but can still jump and attack
-    DEEPFREEZE  = 3,    -- Ice cube vfx; actor cannot move horizontally, but can still jump and attack
+    FREEZE      = 2,    -- Frozen color shader vfx; actor cannot move horizontally, but can jump and attack
+    DEEPFREEZE  = 3,    -- Ice cube vfx; actor cannot move horizontally, but can jump and attack
     PULL        = 4     -- STANDARD, but in the opposite direction
 })
 
