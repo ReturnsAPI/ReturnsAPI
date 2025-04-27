@@ -35,24 +35,47 @@ Actor.KnockbackKind = ReadOnly.new({
 --[[
 Notable variables belonging to actors.
 
-Variable            | Type          | Description
-| ----------------- | ------------- | -----------
-`hp`                | number        | The current health of the actor.
-`maxhp`             | number        | The maximum health of the actor.
-`shield`            | number        | The current shield of the actor.
-`maxshield`         | number        | The maximum shield of the actor.
-`maxbarrier`        | number        | The maximum barrier of the actor.
-`armor`             | number        | The armor of the actor.
-`damage`            | number        | The base damage of the actor.
-`critical_chance`   | number        | The critical chance of the actor. <br>E.g., `7` = 7% critical chance
-`attack_speed`      | number        | The attack speed of the actor. <br>E.g., `1.4` = +40% attack speed from base
-`pHspeed`           | number        | The horizontal velocity of the actor.
-`pHmax`             | number        | The maximum horizontal velocity of the actor.
-`pVspeed`           | number        | The vertical velocity of the actor.
-`pVmax`             | number        | The maximum vertical velocity of the actor.
-`pGravity1`         | number        | Gravity applied to the actor's `pVspeed`.
-`pGravity2`         | number        | Gravity applied to the actor's `pGravity1`.
-`free`              | bool          | `false` if the actor is grounded, and <br>`true` otherwise (in the air, climbing, etc.)
+Variable                | Type          | Description
+| --------------------- | ------------- | -----------
+`hp`                    | number        | The current health of the actor.
+`maxhp`                 | number        | The maximum health of the actor.
+`maxhp_base`            | number        | The starting maximum health of the actor.
+`maxhp_level`           | number        | The maximum health gained from each level up.
+`maxhp_cap`             | number        | The cap for maximum health. <br>`9999` by default.
+`infusion_hp`           | number        | The amount of maximum health this actor has gained from Infusion.
+`shield`                | number        | The current shield of the actor.
+`maxshield`             | number        | The maximum shield of the actor.
+`barrier`               | number        | The barrier of the actor.
+`maxbarrier`            | number        | The maximum barrier of the actor.
+`armor`                 | number        | The armor of the actor.
+`armor_base`            | number        | The starting armor of the actor.
+`armor_level`           | number        | The armor gained from each level up.
+`damage`                | number        | The damage of the actor.
+`damage_base`           | number        | The starting damage of the actor.
+`damage_level`          | number        | The damage gained from each level up.
+`critical_chance`       | number        | The critical chance of the actor. <br>E.g., `7` = 7% critical chance
+`critical_chance_base`  | number        | The starting critical chance of the actor.
+`critical_chance_level` | number        | The critical chance gained from each level up.
+`attack_speed`          | number        | The attack speed of the actor. <br>E.g., `1.4` = +40% attack speed from base
+`attack_speed_base`     | number        | The starting attack speed of the actor.
+`attack_speed_level`    | number        | The attack speed gained from each level up.
+`pHspeed`               | number        | The horizontal velocity of the actor.
+`pHmax`                 | number        | The maximum horizontal velocity of the actor.
+`pVspeed`               | number        | The vertical velocity of the actor.
+`pVmax`                 | number        | The maximum vertical velocity of the actor.
+`pGravity1`             | number        | Gravity applied to the actor's `pVspeed`.
+`pGravity1_base`        | number        | The starting `pGravity1`.
+`pGravity2`             | number        | Gravity applied to the actor's `pGravity1`.
+`pGravity2_base`        | number        | The starting `pGravity2`.
+`pAccel`                | number        | The acceleration of the actor.
+`pAccel_base`           | number        | The starting acceleration of the actor.
+`pFriction`             | number        | The friction of the actor. <br>Affects `pHspeed`.
+`level`                 | number        | The level of the actor.
+`free`                  | bool          | `false` if the actor is grounded, and <br>`true` otherwise (in the air, climbing, etc.)
+`team`                  | number        | The team the actor is on.
+`invincible`            | number        | If more than `0`, the actor is "IMMUNE". <br>If more than `1000`, the actor is "INVINCIBLE". <br>Ticks down by `1` per frame.
+`still_timer`           | number        | The amount of time the actor has been still (in frames) <br>(i.e., no moving, attacking, etc.) <br>Resets to `0` on acting.
+`stunned`               | bool          | `true` if the actor is stunned.
 ]]
 
 
@@ -303,6 +326,25 @@ methods_actor = {
         return inst
     end,
 
+
+    --@instance
+    --@param        direction   | number    | The direction of knockback. <br>`-1` is left, and `1` is right. <br>Other values will stretch/compress the sprite horizontally.
+    --@optional     duration    | number    | The duration of knockback (in frames). <br>`20` by default.
+    --@optional     force       | number    | The force of knockback (in some unknown metric). <br>`3` by default.
+    --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
+    --[[
+    Applies knockback to the actor.
+    ]]
+    apply_knockback = function(self, direction, duration, force, kind)
+        local holder = RValue.new_holder_scr(5)
+        holder[0] = RValue.new(self.value, RValue.Type.REF)
+        holder[1] = RValue.new(kind or Actor.KnockbackKind.STANDARD)
+        holder[2] = RValue.new(direction)
+        holder[3] = RValue.new(duration)
+        holder[4] = RValue.new(force)
+        gmf.actor_knockback_inflict(nil, nil, RValue.new(0), 5, holder)
+    end,
+
     
     --@instance
     --@param        item        | Item      | The item to give.
@@ -494,25 +536,6 @@ methods_actor = {
     ]]
     equipment_get = function(self)
         return nil
-    end,
-
-
-    --@instance
-    --@param        direction   | number    | The direction of knockback. <br>`-1` is left, and `1` is right. <br>Other values will stretch/compress the sprite horizontally.
-    --@optional     duration    | number    | The duration of knockback (in frames). <br>`20` by default.
-    --@optional     force       | number    | The force of knockback (in some unknown metric). <br>`3` by default.
-    --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
-    --[[
-    Applies knockback to the actor.
-    ]]
-    apply_knockback = function(self, direction, duration, force, kind)
-        local holder = RValue.new_holder_scr(5)
-        holder[0] = RValue.new(self.value, RValue.Type.REF)
-        holder[1] = RValue.new(kind or Actor.KnockbackKind.STANDARD)
-        holder[2] = RValue.new(direction)
-        holder[3] = RValue.new(duration)
-        holder[4] = RValue.new(force)
-        gmf.actor_knockback_inflict(nil, nil, RValue.new(0), 5, holder)
     end
 
 }
