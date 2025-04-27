@@ -70,9 +70,7 @@ Object.CUSTOM_START = 800
 
 --[[
 These properties only exist for custom objects.
-]]
 
---[[
 Property | Type | Description
 | - | - | -
 `base`          | number    | The object_index of the parent object.
