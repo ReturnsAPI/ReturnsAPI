@@ -17,6 +17,7 @@ v Make Instance find_all, is_colliding, and get_collisions work with custom obje
 - Figure out every Callback arg, and also write if it runs for host-only, etc.
 - In docs, also write list of general variables for instances, etc.
     - Also list useful GM functions
+- Hook : disable dynamic hooks that are not actually in use anymore (i.e., all callbacks removed)
 - Classes
     v Equipment
     - Achievement

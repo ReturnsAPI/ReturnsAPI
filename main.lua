@@ -7,11 +7,12 @@ gmf = require("ReturnOfModding-GLOBAL/gmf")
 
 -- Turn JIT compilation off for gmf
 -- It is what it is
-for k, v in pairs(gmf) do
-    if type(v) == "function" then
-        jit.off(v)
-    end
-end
+-- This is automatically done now
+-- for k, v in pairs(gmf) do
+--     if type(v) == "function" then
+--         jit.off(v)
+--     end
+-- end
 
 
 -- ENVY initial setup
