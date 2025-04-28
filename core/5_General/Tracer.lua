@@ -43,7 +43,7 @@ DRILL                   26
 PLAYER_DRONE            27
 ]]
 
-local tracer_constants = ReadOnly.new({
+local tracer_constants = {
     NONE                    = 0,
     WISPG                   = 1,
     WISPG2                  = 2,
@@ -72,7 +72,7 @@ local tracer_constants = ReadOnly.new({
     END_SPARKS_ON_PIERCE    = 25,
     DRILL                   = 26,
     PLAYER_DRONE            = 27,
-})
+}
 
 -- Add to Tracer directly (e.g., Tracer.COMMANDO1)
 for k, v in pairs(tracer_constants) do
@@ -171,7 +171,8 @@ make_table_once("metatable_tracer", {
     __newindex = function(proxy, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
-        or k == "RAPI" then
+        or k == "RAPI"
+        or k == "struct" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
@@ -193,17 +194,17 @@ memory.dynamic_hook("RAPI.Tracer.bullet_draw_tracer", "void*", {"void*", "void*"
         local arg_count = arg_count:get()
         local args_typed = ffi.cast("struct RValue**", args:get_address())
 
-        local tracer_kind = RValue.to_wrapper(args_typed[0])
+        local tracer_kind = args_typed[0].value
 
         -- don't waste time on vanilla tracers
         if tracer_kind <= tracer_constants.PLAYER_DRONE then return end
 
 
-        local tracer_col = tonumber(args_typed[1].value)
-        local x1 = tonumber(args_typed[2].value)
-        local y1 = tonumber(args_typed[3].value)
-        local x2 = tonumber(args_typed[4].value)
-        local y2 = tonumber(args_typed[5].value)
+        local tracer_col = args_typed[1].value
+        local x1 = args_typed[2].value
+        local y1 = args_typed[3].value
+        local x2 = args_typed[4].value
+        local y2 = args_typed[5].value
 
         local fn = __tracer_funcs[tracer_kind]
         if fn then
