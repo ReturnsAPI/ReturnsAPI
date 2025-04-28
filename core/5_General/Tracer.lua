@@ -1,0 +1,215 @@
+-- Tracer
+
+Tracer = new_class()
+
+run_once(function()
+    __tracer_funcs = {}
+    __tracer_find_table = {}
+end)
+
+-- ========== Constants ==========
+
+--@section Constants
+
+--@constants
+--[[
+NONE                    0
+WISPG                   1
+WISPG2                  2
+PILOT_RAID              3
+PILOT_RAID_BOOSTED      4
+PILOT_PRIMARY           5
+PILOT_PRIMARY_STRONG    6
+PILOT_PRIMARY_ALT       7
+COMMANDO1               8
+COMMANDO2               9
+COMMANDO3               10
+COMMANDO3_R             11
+SNIPER1                 12
+SNIPER2                 13
+ENGI_TURRET             14
+ENFORCER1               15
+ROBOMANDO1              16
+ROBOMANDO2              17
+BANDIT1                 18
+BANDIT2                 19
+BANDIT2_R               20
+BANDIT3                 21
+BANDIT3_R               22
+ACRID                   23
+NO_SPARKS_ON_MISS       24
+END_SPARKS_ON_PIERCE    25
+DRILL                   26
+PLAYER_DRONE            27
+]]
+
+local tracer_constants = ReadOnly.new({
+    NONE                    = 0,
+    WISPG                   = 1,
+    WISPG2                  = 2,
+    PILOT_RAID              = 3,
+    PILOT_RAID_BOOSTED      = 4,
+    PILOT_PRIMARY           = 5,
+    PILOT_PRIMARY_STRONG    = 6,
+    PILOT_PRIMARY_ALT       = 7,
+    COMMANDO1               = 8,
+    COMMANDO2               = 9,
+    COMMANDO3               = 10,
+    COMMANDO3_R             = 11,
+    SNIPER1                 = 12,
+    SNIPER2                 = 13,
+    ENGI_TURRET             = 14,
+    ENFORCER1               = 15,
+    ROBOMANDO1              = 16,
+    ROBOMANDO2              = 17,
+    BANDIT1                 = 18,
+    BANDIT2                 = 19,
+    BANDIT2_R               = 20,
+    BANDIT3                 = 21,
+    BANDIT3_R               = 22,
+    ACRID                   = 23,
+    NO_SPARKS_ON_MISS       = 24,
+    END_SPARKS_ON_PIERCE    = 25,
+    DRILL                   = 26,
+    PLAYER_DRONE            = 27,
+})
+
+-- Add to Tracer directly (e.g., Tracer.COMMANDO1)
+for k, v in pairs(tracer_constants) do
+    Tracer[k] = v
+end
+
+Tracer.wrap = function(tracer_id)
+    tracer_id = Wrap.unwrap(tracer_id)
+    return Proxy.new(tracer_id, metatable_tracer)
+end
+
+Tracer.new = function(namespace, identifier)
+    local tracer = Tracer.find(identifier, namespace)
+    if tracer then return tracer end
+
+    local tracer_info_array = Global.tracer_info
+    local index = #tracer_info_array
+
+    local struct = Struct.new()
+    struct.namespace                       = namespace     -- RAPI custom variable
+    struct.identifier                      = identifier    -- RAPI custom variable
+    struct.consistent_sparks_flip          = false
+    struct.show_sparks_if_miss             = true
+    struct.sparks_offset_y                 = 0
+    struct.show_end_sparks_on_piercing_hit = false
+    struct.override_sparks_miss            = -1
+    struct.override_sparks_solid           = -1
+    struct.draw_tracer                     = true
+
+    tracer_info_array:push(struct)
+
+    local element_table = {
+        index       = index,
+        namespace   = namespace,
+        identifier  = identifier,
+        struct      = loot_struct,
+        wrapper     = Tracer.wrap(index)
+    }
+
+    if not __tracer_find_table[namespace] then __tracer_find_table[namespace] = {} end
+    __tracer_find_table[namespace][identifier] = element_table
+    __tracer_find_table[index] = element_table
+
+    return element_table.wrapper
+end
+
+Tracer.find = function(identifier, namespace, default_namespace)
+    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
+
+    -- Search in namespace
+    local namespace_table = __tracer_find_table[namespace]
+    if namespace_table then
+        local element_table = namespace_table[identifier]
+        if element_table then return element_table.wrapper end
+    end
+
+    return nil
+end
+
+-- ========== Instance Methods ==========
+
+--@section Instance Methods
+
+methods_tracer = {
+    --@instance
+    --[[
+    Sets the function that gets called whenever the tracer spawns
+    ]]
+    set_func = function(self, func)
+        __tracer_funcs[self.value] = func
+    end
+}
+
+
+-- ========== Metatables ==========
+
+make_table_once("metatable_tracer", {
+    __index = function(proxy, k)
+        -- Get wrapped value
+        if k == "value" then return Proxy.get(proxy) end
+        if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
+        if k == "struct" then
+            return Global.tracer_info:get(proxy.value)
+        end
+
+        -- Methods
+        if methods_tracer[k] then
+            return methods_tracer[k]
+        end
+
+        -- Pass to metatable_struct
+        return metatable_struct.__index(proxy.struct, k)
+    end,
+
+
+    __newindex = function(proxy, k, v)
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+
+        -- Pass to metatable_struct
+        return metatable_struct.__newindex(proxy.struct, k, v)
+    end,
+
+    __metatable = "RAPI.Wrapper.Tracer"
+})
+
+-- ========== Hooks ==========
+
+memory.dynamic_hook("RAPI.Tracer.bullet_draw_tracer", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.bullet_draw_tracer),
+    -- Pre-hook
+    {nil,
+
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local arg_count = arg_count:get()
+        local args_typed = ffi.cast("struct RValue**", args:get_address())
+
+        local tracer_kind = RValue.to_wrapper(args_typed[0])
+
+        -- don't waste time on vanilla tracers
+        if tracer_kind <= tracer_constants.PLAYER_DRONE then return end
+
+
+        local tracer_col = tonumber(args_typed[1].value)
+        local x1 = tonumber(args_typed[2].value)
+        local y1 = tonumber(args_typed[3].value)
+        local x2 = tonumber(args_typed[4].value)
+        local y2 = tonumber(args_typed[5].value)
+
+        local fn = __tracer_funcs[tracer_kind]
+        if fn then
+            fn(x1, y1, x2, y2, tracer_col)
+        end
+    end}
+)
+-- Public export
+__class.Tracer = Tracer

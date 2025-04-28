@@ -4,44 +4,6 @@ AttackInfo = new_class()
 
 
 
--- ========== Enums ==========
-
---@section Enums
-
---@enum
-AttackInfo.Tracer = ReadOnly.new({
-    NONE                    = 0,
-    WISPG                   = 1,
-    WISPG2                  = 2,
-    PILOT_RAID              = 3,
-    PILOT_RAID_BOOSTED      = 4,
-    PILOT_PRIMARY           = 5,
-    PILOT_PRIMARY_STRONG    = 6,
-    PILOT_PRIMARY_ALT       = 7,
-    COMMANDO1               = 8,
-    COMMANDO2               = 9,
-    COMMANDO3               = 10,
-    COMMANDO3_R             = 11,
-    SNIPER1                 = 12,
-    SNIPER2                 = 13,
-    ENGI_TURRET             = 14,
-    ENFORCER1               = 15,
-    ROBOMANDO1              = 16,
-    ROBOMANDO2              = 17,
-    BANDIT1                 = 18,
-    BANDIT2                 = 19,
-    BANDIT2_R               = 20,
-    BANDIT3                 = 21,
-    BANDIT3_R               = 22,
-    ACRID                   = 23,
-    NO_SPARKS_ON_MISS       = 24,
-    END_SPARKS_ON_PIERCE    = 25,
-    DRILL                   = 26,
-    PLAYER_DRONE            = 27
-})
-
-
-
 -- ========== Static Methods ==========
 
 --@section Static Methods
