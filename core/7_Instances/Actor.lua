@@ -493,7 +493,7 @@ methods_actor = {
         -- Decrease count in array
         -- Must manually call `recalculate_stats` when doing this
         self.buff_stack:set(buff, current_count - count)
-        self:recalculate_stats()
+        self:queue_dirty()
     end,
 
 
@@ -530,6 +530,16 @@ methods_actor = {
         return count
     end,
 
+    --@instance
+    --[[
+    Queues the actor's stats to be recalculated next frame.
+    Prevents running recalculate_stats more than once per frame, so it's preferable over calling recalculate_stats directly.
+    ]]
+    queue_dirty = function(actor)
+        local holder = RValue.new_holder_scr(1)
+        holder[0] = RValue.new(actor.id, RValue.Type.REF)
+        gmf.actor_queue_dirty(nil, nil, RValue.new(0), 1, holder)
+    end,
 
     --@instance
     --@return       Equipment or nil
