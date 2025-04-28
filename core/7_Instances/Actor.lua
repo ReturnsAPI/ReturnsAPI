@@ -128,7 +128,7 @@ methods_actor = {
     --@param        damage              | number    | The damage coefficient of the attack, <br>scaled off of the `actor`'s base damage. <br>`1` is 100% damage.
     --@optional     pierce_multiplier   | number    | Remaining damage is multiplied by this value per pierce. <br>If `nil` or `0`, no piercing happens.
     --@optional     hit_sprite          | sprite    | The sprite to draw on collision with an actor or wall. <br>`nil` by default (no sprite).
-    --@optional     tracer              | number    | The bullet tracer to use. <br>@link {`AttackInfo.Tracer.NONE` | AttackInfo#Tracer} by default.
+    --@optional     tracer              | Tracer    | The bullet tracer to use. <br>@link {`Tracer.NONE` | Tracer#constants} by default.
     --@optional     can_proc            | bool      | If `false` the attack will not proc. <br>`true` by default.
     --[[
     Fires a bullet attack from the actor, and returns the attack instance.
