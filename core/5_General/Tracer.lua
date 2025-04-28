@@ -7,6 +7,8 @@ run_once(function()
     __tracer_find_table = {}
 end)
 
+
+
 -- ========== Constants ==========
 
 --@section Constants
@@ -79,10 +81,9 @@ for k, v in pairs(tracer_constants) do
     Tracer[k] = v
 end
 
-Tracer.wrap = function(tracer_id)
-    tracer_id = Wrap.unwrap(tracer_id)
-    return Proxy.new(tracer_id, metatable_tracer)
-end
+
+
+-- ========== Static Methods ==========
 
 Tracer.new = function(namespace, identifier)
     local tracer = Tracer.find(identifier, namespace)
@@ -119,6 +120,7 @@ Tracer.new = function(namespace, identifier)
     return element_table.wrapper
 end
 
+
 Tracer.find = function(identifier, namespace, default_namespace)
     local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
 
@@ -132,19 +134,29 @@ Tracer.find = function(identifier, namespace, default_namespace)
     return nil
 end
 
+
+Tracer.wrap = function(tracer_id)
+    tracer_id = Wrap.unwrap(tracer_id)
+    return Proxy.new(tracer_id, metatable_tracer)
+end
+
+
+
 -- ========== Instance Methods ==========
 
 --@section Instance Methods
 
 methods_tracer = {
     --@instance
+    --@param        func        | function  | The function to set.
     --[[
-    Sets the function that gets called whenever the tracer spawns
+    Sets the function that gets called whenever the tracer spawns.
     ]]
     set_func = function(self, func)
         __tracer_funcs[self.value] = func
     end
 }
+
 
 
 -- ========== Metatables ==========
@@ -183,6 +195,8 @@ make_table_once("metatable_tracer", {
     __metatable = "RAPI.Wrapper.Tracer"
 })
 
+
+
 -- ========== Hooks ==========
 
 memory.dynamic_hook("RAPI.Tracer.bullet_draw_tracer", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.bullet_draw_tracer),
@@ -212,5 +226,8 @@ memory.dynamic_hook("RAPI.Tracer.bullet_draw_tracer", "void*", {"void*", "void*"
         end
     end}
 )
+
+
+
 -- Public export
 __class.Tracer = Tracer
