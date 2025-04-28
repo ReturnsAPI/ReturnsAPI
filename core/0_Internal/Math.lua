@@ -74,6 +74,34 @@ end
 
 --@static
 --@return       number
+--@param        x1          | number    | The x coordinate of point 1.
+--@param        y1          | number    | The y coordinate of point 1.
+--@param        x2          | number    | The x coordinate of point 2.
+--@param        y2          | number    | The y coordinate of point 2.
+--[[
+Returns the distance between two points.
+]]
+Math.distance = function(x1, y1, x2, y2)
+    return math.sqrt( (x2 - x1)^2 + (y2 - y1)^2 )
+end
+
+
+--@static
+--@return       number
+--@param        x1          | number    | The x coordinate of point 1.
+--@param        y1          | number    | The y coordinate of point 1.
+--@param        x2          | number    | The x coordinate of point 2.
+--@param        y2          | number    | The y coordinate of point 2.
+--[[
+Returns the angle (in degrees) to face point 2 from point 1.
+]]
+Math.direction = function(x1, y1, x2, y2)
+    return math.atan2(y2 - y1, x2 - x1) * Math.RAD2DEG
+end
+
+
+--@static
+--@return       number
 --@param        n           | number    | The number to clamp.
 --@param        min         | number    | The minimum clamp value.
 --@param        max         | number    | The maximum clamp value.
