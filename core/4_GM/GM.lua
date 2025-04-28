@@ -45,6 +45,10 @@ end
 
 
 -- TODO uh maybe figure out a fix so these don't have to be jit.offed?
+-- for k, v in pairs(GM.internal.builtin) do
+--     jit.off(gmf[k])
+-- end
+
 for k, v in pairs(GM.internal.object) do
     jit.off(gmf[k])
 end
