@@ -626,9 +626,8 @@ make_table_once("metatable_instance", {
         -- script as self/other
         if type(ret) == "table"
         and ret.RAPI == "Script" then
-            local cinst = self.CInstance
-            ret.self = cinst
-            ret.other = cinst
+            ret.self = proxy
+            ret.other = proxy
         end
 
         -- Standard return
