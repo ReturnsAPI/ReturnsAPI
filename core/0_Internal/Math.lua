@@ -135,3 +135,8 @@ Returns an ease-out value for a given value `x` between `0` and `1`.
 Math.easeout = function(x, n)
     return 1 - (1 - x)^(n or 2)
 end
+
+
+
+-- Public export
+__class.Math = Math
