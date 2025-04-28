@@ -100,8 +100,8 @@ Property | Type | Description
 ### Methods
 Method | Arguments | Description
 | - | - | -
-`damage_mult( value, update_damage_number )` | `value` (number) <br>The damage multiplier. <br>`1` leaves damage unchanged. <br><br>`update_damage_number` (bool) <br>Whether or not to update the damage number. <br>`true` by default. | Multiplies damage by `value`. <br>If `update_damage_number` is `false`, the damage number will not be updated; instead, the difference between the new and old damage will be returned, which can be manually drawn.
-`set_critical( bool )` | `bool` (bool) <br>If `true`, the attack will be a critical hit. <br><br>If `false`, the attack will not crit. | Sets the critical hit state of the attack.
+`damage_mult( value, update_damage_number )` | `value` (number) <br>* The damage multiplier. <br>* `1` leaves damage unchanged. <br><br>`update_damage_number` (bool) <br>* Whether or not to update the damage number. <br>* `true` by default. | Multiplies damage by `value`. <br>If `update_damage_number` is `false`, the damage number will not be updated; instead, the difference between the new and old damage will be returned, which can be manually drawn.
+`set_critical( bool )` | `bool` (bool) <br>* If `true`, the attack will be a critical hit. <br>* If `false`, the attack will not crit. | Sets the critical hit state of the attack.
 ]]
 
 
