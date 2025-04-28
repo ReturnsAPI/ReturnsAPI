@@ -168,7 +168,7 @@ methods_actor = {
         local attack_info = inst.attack_info    -- Autowraps as AttackInfo
         attack_info.damage_color = Color.WHITE_ALMOST
         if pierce_multiplier    then attack_info.damage_degrade = (1 - pierce_multiplier) end
-        if tracer               then attack_info.tracer_kind = tracer end
+        if tracer               then attack_info.tracer_kind = Wrap.unwrap(tracer) end
 
         return inst
     end,
