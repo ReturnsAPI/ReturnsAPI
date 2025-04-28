@@ -39,6 +39,53 @@ end
 
 -- ========== Internal ==========
 
+--@section `api`
+
+--[[
+### Methods
+Method | Arguments | Description
+| - | - | -
+`maxhp_add( value )`        | `value` (number) <br>* The value to add.      | 
+`maxhp_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`hp_regen_add( value )`        | `value` (number) <br>* The value to add.      | 
+`hp_regen_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`pHmax_add( value )`        | `value` (number) <br>* The value to add.      | 
+`pHmax_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`pVmax_add( value )`        | `value` (number) <br>* The value to add.      | 
+`pVmax_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`pGravity1_add( value )`        | `value` (number) <br>* The value to add.      | 
+`pGravity1_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`pGravity2_add( value )`        | `value` (number) <br>* The value to add.      | 
+`pGravity2_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`damage_add( value )`        | `value` (number) <br>* The value to add.      | 
+`damage_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`attack_speed_add( value )`        | `value` (number) <br>* The value to add.      | 
+`attack_speed_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`critical_chance_add( value )`        | `value` (number) <br>* The value to add.      | 
+`critical_chance_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`maxshield_add( value )`        | `value` (number) <br>* The value to add.      | 
+`maxshield_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`maxshield_from_maxhp( value )`        | `value` (number) <br>* The value to add.      | Adds `maxshield` based on % of `maxhp`.
+`maxhp_to_maxshield( value )`        | `value` (number) <br>* The value to convert.      | Converts % of `maxhp` to `maxshield`.
+`armor_add( value )`        | `value` (number) <br>* The value to add.      | 
+`armor_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`_add( value )`        | `value` (number) <br>* The value to add.      | 
+`cooldown_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`_add( value )`        | `value` (number) <br>* The value to add.      | 
+`equipment_cooldown_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`knockback_cap_add( value )`        | `value` (number) <br>* The value to add.      | 
+`knockback_cap_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`maxbarrier_add( value )`        | `value` (number) <br>* The value to add.      | 
+`maxbarrier_mult( value )`        | `value` (number) <br>* The value to multiply by.   | 
+`skill_secondary.max_stock_add( value )`        | `value` (number) <br>* The value to add.      | 
+`skill_secondary.cooldown_mult( value )`        | `value` (number) <br>* The value to multiply by.      | 
+`skill_utility.max_stock_add( value )`        | `value` (number) <br>* The value to add.      | 
+`skill_utility.cooldown_mult( value )`        | `value` (number) <br>* The value to multiply by.      | 
+`skill_special.max_stock_add( value )`        | `value` (number) <br>* The value to add.      | 
+`skill_special.cooldown_mult( value )`        | `value` (number) <br>* The value to multiply by.      | 
+]]
+
+
 local params = {
     --skill_primary = {},
     skill_secondary = {},
