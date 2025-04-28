@@ -36,22 +36,25 @@ IS_NEW_EQUIPMENT    13
 
 -- ========== Properties ==========
 
---@properties
+--@section Properties
+
 --[[
-namespace           | string    | The namespace the equipment is in.
-identifier          | string    | The identifier for the equipment within the namespace.
-token_name          | string    | The localization token for the equipment's name.
-token_text          | string    | The localization token for the equipment's pickup text.
-on_use              | number    | The ID of the callback that runs when the equipment is activated.
-cooldown            | number    | The cooldown of the equipment (in frames).
-tier                | number    | The tier of the equipment.
-sprite_id           | sprite    | The sprite ID of the equipment.
-object_id           | object    | The object ID of the equipment.
-item_log_id         | number    | The item log ID of the equipment.
-achievement_id      | number    | The achievement ID of the equipment. <br>If *not* `-1`, the equipment will be locked until the achievement is unlocked.
-effect_display      |           | 
-loot_tags           | number    | The sum of all loot tags applied to the item.
-is_new_equipment    | bool      | `true` for new vanilla equipment added in *Returns*.
+Property | Type | Description
+| - | - | -
+`namespace`          | string    | The namespace the equipment is in.
+`identifier`         | string    | The identifier for the equipment within the namespace.
+`token_name`         | string    | The localization token for the equipment's name.
+`token_text`         | string    | The localization token for the equipment's pickup text.
+`on_use`             | number    | The ID of the callback that runs when the equipment is activated.
+`cooldown`           | number    | The cooldown of the equipment (in frames).
+`tier`               | number    | The tier of the equipment.
+`sprite_id`          | sprite    | The sprite ID of the equipment.
+`object_id`          | object    | The object ID of the equipment.
+`item_log_id`        | number    | The item log ID of the equipment.
+`achievement_id`     | number    | The achievement ID of the equipment. <br>If *not* `-1`, the equipment will be locked until the achievement is unlocked.
+`effect_display`     |           | 
+`loot_tags`          | number    | The sum of all loot tags applied to the item.
+`is_new_equipment`   | bool      | `true` for new vanilla equipment added in *Returns*.
 ]]
 
 
