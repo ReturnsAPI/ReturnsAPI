@@ -72,6 +72,37 @@ end
 
 -- ========== Internal ==========
 
+--@section `api`
+
+--[[
+**Properties**
+These can all be get/set to.
+Property | Type | Description
+| - | - | -
+`hit_info`      | Struct    | The `hit_info` struct. <br>May not exist.
+`true_hit`      | Actor(?)  | The actual instance hit. <br>May be different from `hit` (i.e., a worm segment).
+`hit`           | Actor     | The actor that was hit.
+`damage`        | number    | The damage of the attack.
+`critical`      | bool      | `true` if the attack is a critical hit.
+`parent`        | Actor     | The parent actor of the attack.
+`proc`          | bool      | `true` if the attack can proc.
+`attack_flags`  | number    | The attack flags (TODO link this) of the attack.
+`damage_col`    | number    | The damage color.
+`team`          | number    | The team the attack belongs to.
+`climb`         | number    | 
+`percent_hp`    | number    | If non-`0`, the minimum damage of the attack is <br>`percent_hp`% of the actor's current health.
+`xscale`        | number    | 
+`hit_x`         | number    | The x coordinate the attack hit.
+`hit_y`         | number    | The y coordinate the attack hit.
+
+**Methods**
+Method | Arguments | Description
+| - | - | -
+`damage_mult( value, update_damage_number )` | `value` (number) - The damage multiplier. <br>`1` leaves damage unchanged. <br>`update_damage_number` (bool) - Whether or not to update the damage number. <br>`true` by default. | Multiplies damage by `value`. <br>If `update_damage_number` is `false`, the damage number will not be updated; instead, the difference between the new and old damage will be returned, which can be manually drawn.
+`set_critical( bool )` | `bool` (bool) - If `true`, the attack will be a critical hit. <br>If `false`, the attack will not crit. | Sets the critical hit state of the attack.
+]]
+
+
 local params = {}
 
 -- Original arguments from hooked function
