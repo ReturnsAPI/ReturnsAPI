@@ -4,6 +4,34 @@ Draw = new_class()
 
 
 
+-- ========== Enums ==========
+
+--@section Enums
+
+--@enum
+Draw.Mode = ReadOnly.new({
+    NORMAL      = 0,
+    ADDITIVE    = 1,
+    MAX         = 2,
+    SUBTRACT    = 3,
+})
+
+
+--@enum
+Draw.ModeExt = ReadOnly.new({
+    ZERO = 1,
+    ONE = 2,
+    SOURCE_COLOR = 3,
+    SOURCE_COLOR_INV = 4,
+    SOURCE_ALPHA = 5,
+    SOURCE_ALPHA_INV = 6,
+    DEST_COLOR = 9,
+    DEST_COLOR_INV = 10,
+    DEST_ALPHA = 7,
+    DEST_ALPHA_INV = 8,
+    SOURCE_ALPHA_SATURATION = 11,
+})
+
 -- ========== Static Methods ==========
 
 --@section Static Methods
@@ -278,6 +306,49 @@ Draw.alpha = function(alpha)
     gmf.draw_set_alpha(RValue.new(0), nil, nil, 1, holder)
 end
 
+--@static
+--@return       number or nil
+--@optional     mode       | number    | The @link {draw mode | Draw#Mode} to use.
+--[[
+Returns the current draw mode, or sets a new one.
+]]
+Draw.mode = function(mode)
+    -- Get
+    if not mode then
+        local out = RValue.new(0)
+        gmf.gpu_get_blendmode(out, nil, nil, 0, nil)
+        return out.value
+    end
+
+    -- Set
+    local holder = RValue.new_holder(1)
+    holder[0] = RValue.new(mode)
+    gmf.gpu_set_blendmode(RValue.new(0), nil, nil, 1, holder)
+end
+
+
+--@static
+--@return       number, number or nil
+--@optional     src_mode       | number    | The @link {extended draw mode | Draw#ModeExt} to use for the source (what's being drawn).
+--@optional     dst_mode       | number    | The @link {extended draw mode | Draw#ModeExt} to use for the destination (the background pixels).
+--[[
+Returns the current extended draw mode, or sets a new one.
+]]
+Draw.mode_ext = function(src_mode, dst_mode)
+    -- Get
+    if not src_mode and not dst_mode then
+        local out = RValue.new(0)
+        gmf.gpu_get_blendmode_ext(out, nil, nil, 0, nil)
+        local arr = RValue.to_wrapper(out)
+        return arr[1], arr[2]
+    end
+
+    -- Set
+    local holder = RValue.new_holder(2)
+    holder[0] = RValue.new(src_mode or Draw.ModeExt.SOURCE_ALPHA)
+    holder[1] = RValue.new(dst_mode or Draw.ModeExt.SOURCE_ALPHA_INV)
+    gmf.gpu_set_blendmode_ext(RValue.new(0), nil, nil, 2, holder)
+end
 
 --@static
 --@optional     prec        | number    | The new precision. <br>Must be *divisible by 4*, between `4` and `64`. <br>`24` by default.
