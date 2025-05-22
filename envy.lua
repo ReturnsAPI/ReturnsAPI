@@ -22,6 +22,7 @@ function public.setup(env, namespace)
         -- Copy k, v references from original to copy table
         for k, v in pairs(class_ref) do
             if k ~= "internal" then
+                -- Base copy
                 copy[k] = v
 
                 -- Namespace binding
@@ -82,6 +83,15 @@ function public.setup(env, namespace)
                             end
                         end
                     end
+
+                -- Enums
+                elseif type(v) == "table" then
+                    -- Copy over enum values to new table
+                    local t = {}
+                    for k2, v2 in pairs(v) do
+                        t[k2] = v2
+                    end
+                    copy[k] = t
 
                 end
             end
