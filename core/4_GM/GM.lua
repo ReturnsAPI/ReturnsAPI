@@ -47,12 +47,15 @@ end
 
 -- ========== Methods ==========
 
+-- For builtin functions, `gm` (sol) is faster
+-- For script functions, `gmf` (RValue) is faster
+
 local call = function(k)
     if not __GM_function_cache[k] then
         if not gmf[k] then log.error("GM."..k.." does not exist", 2) end
 
-        -- Keeping these global get/set here
-        -- anyway since it avoids the table.pack/unpack calls
+        -- Keeping these global get/set here anyway
+        -- since it avoids the table.pack/unpack calls
         if k == "variable_global_get" then
             __GM_function_cache[k] = function(name)
                 return Wrap.wrap(gm.variable_global_get(name))

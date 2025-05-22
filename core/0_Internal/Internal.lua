@@ -83,8 +83,8 @@ end)
 -- ========== Public Export ==========
 
 run_once(function()
-    __class = {}                -- Every public class
-    __class_mt = {}             -- Metatable for public class (optional, should be the same key as in __class)
+    __class     = {}    -- Every public class
+    __class_mt  = {}    -- Metatable for public class (optional, should be the same key as in __class)
 end)
 
 -- __ref_map created in Map.lua

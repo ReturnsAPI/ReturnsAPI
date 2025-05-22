@@ -10,6 +10,14 @@ Struct = new_class()
 local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for struct.CInstance
 
 
+-- Wrapper types that are Structs
+struct_wrappers = {
+    Struct      = true,
+    AttackInfo  = true,
+    HitInfo     = true
+}
+
+
 
 -- ========== Static Methods ==========
 

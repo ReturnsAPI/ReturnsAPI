@@ -349,7 +349,34 @@ end
 Converts a RAPI wrapper or Lua primitive into the appropriate RValue.
 ]]
 RValue.from_wrapper = function(value)
-    
+    -- Get correct RValue.Type
+    local _type, is_RAPI = Util.type(value, true)
+    local _type_rvalue = rvalue_type_lookup[_type]
+
+    if is_RAPI then
+        value = __proxy[value]
+
+        -- Convert sol userdata to compatible RValue
+
+        -- Array
+        if _type == "Array" then
+            value = memory.get_usertype_pointer(value)
+
+        -- Instance
+        -- elseif instance_wrappers[_type] then
+            -- ID number is already wrapped
+
+        -- Struct
+        elseif struct_wrappers[_type] then
+            value = ffi.cast("struct YYObjectBase*", memory.get_usertype_pointer(value))
+
+        -- Script
+            
+        end
+    end
+
+    -- Make an RValue
+    return RValue.new(value, _type_rvalue)
 end
 
 

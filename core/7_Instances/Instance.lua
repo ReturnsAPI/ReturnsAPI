@@ -19,7 +19,7 @@ local object_index_cache = {}                               -- Cache for inst:ge
 -- `__invalid_instance` created at the bottom
 
 
--- Internal lookup table for Instance.is
+-- Wrapper types that are Instances
 instance_wrappers = {
     Instance    = true,
     Actor       = true,
@@ -179,9 +179,11 @@ It is automatically deleted upon the instance's destruction.
 Instance.get_data = function(instance, subtable, namespace, default_namespace)
     local id = Wrap.unwrap(instance)
     if (type(id) ~= "number") or (id < 100000) then log.error("Instance does not exist", 2) end
+    
     local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
     subtable = subtable or "__main"
     namespace = namespace or _ENV["!guid"]  -- Internal RAPI calling of this is not namespace-bound
+
     if not __instance_data[id] then __instance_data[id] = {} end
     if not __instance_data[id][namespace] then __instance_data[id][namespace] = {} end
     local ns = __instance_data[id][namespace]
@@ -222,12 +224,12 @@ Instance.wrap = function(id)
         --     return inst
         -- end
 
-        -- -- Actor
-        -- if gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1 then
-        --     inst = make_proxy(id, metatable_actor)
-        --     wrapper_cache[id] = inst
-        --     return inst
-        -- end
+        -- Actor
+        if gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1 then
+            inst = make_proxy(id, metatable_actor)
+            wrapper_cache[id] = inst
+            return inst
+        end
 
         -- Instance
         wrapper_cache[id] = inst
@@ -262,19 +264,19 @@ end
 
 methods_instance = {}
 
--- Add GM scripts   TODO
--- for scr, _ in pairs(GM.internal.builtin) do
---     methods_instance[scr] = function(self, ...)
---         if self.value == -4 then log.error("Instance does not exist", 2) end
---         return GM.SO[scr](self, self, ...)
---     end
--- end
--- for scr, _ in pairs(GM.internal.script) do
---     methods_instance[scr] = function(self, ...)
---         if self.value == -4 then log.error("Instance does not exist", 2) end
---         return GM.SO[scr](self, self, ...)
---     end
--- end
+-- Add GM scripts
+for scr, _ in pairs(GM.internal.builtin) do
+    methods_instance[scr] = function(self, ...)
+        if self.value == -4 then log.error("Instance does not exist", 2) end
+        return GM.SO[scr](self, self, ...)
+    end
+end
+for scr, _ in pairs(GM.internal.script) do
+    methods_instance[scr] = function(self, ...)
+        if self.value == -4 then log.error("Instance does not exist", 2) end
+        return GM.SO[scr](self, self, ...)
+    end
+end
 
 Util.table_append(methods_instance, {
 
@@ -286,10 +288,6 @@ Util.table_append(methods_instance, {
     Also exists as a @link {static method | Instance#destroy-static}.
     ]]
     destroy = function(self)
-        -- Return if wrapper is invalid
-        local id = self.value
-        if id == -4 then return end
-
         gm.instance_destroy(id)
 
         -- Clear instance data and
@@ -340,9 +338,6 @@ Util.table_append(methods_instance, {
     Be mindful of this.
     ]]
     is_colliding = function(self, object, x, y)
-        -- Return `false` if wrapper is invalid
-        if self.value == -4 then return false end
-
         local object = Wrap.unwrap(object)
 
         -- Vanilla object
@@ -403,10 +398,7 @@ Util.table_append(methods_instance, {
     instances found, and can be somewhat expensive at high numbers.
     Be mindful of this.
     ]]
-    get_collisions = function(self, object, x, y)
-        -- Return `{}, 0` if wrapper is invalid
-        if self.value == -4 then return {}, 0 end
-        
+    get_collisions = function(self, object, x, y)  
         local object = Wrap.unwrap(object)
 
         -- Figure out correct object to check
@@ -495,7 +487,7 @@ Util.table_append(methods_instance, {
 local metatable_name = "Instance"
 
 make_table_once("metatable_instance", {
-    __index = function(proxy, k)
+    __index = function(proxy, k, id)
         -- Get wrapped value
         if k == "value" or k == "id" then return __proxy[proxy] end
         if k == "RAPI" then return metatable_name end
@@ -510,19 +502,22 @@ make_table_once("metatable_instance", {
             return cinstance
         end
 
+        -- Check if this instance is valid
+        if not id then
+            id = __proxy[proxy]
+            if id == -4 then log.error("Instance does not exist", 2) end
+        end
+
         -- Methods
         if methods_instance[k] then
             return methods_instance[k]
         end
 
         -- Getter
-        local id = __proxy[proxy]
-        if id == -4 then log.error("Instance does not exist", 2) end
         local ret = gm.variable_instance_get(id, k)
 
         -- For attack instances from `actor:fire_` methods, wrap `attack_info`
-        -- TODO
-        -- if k == "attack_info" then return AttackInfo.wrap(ret) end
+        if k == "attack_info" then return AttackInfo.wrap(ret) end
 
         -- If Script, automatically "bind"
         -- script as self/other
@@ -565,70 +560,64 @@ make_table_once("metatable_instance", {
 
 -- ========== __instance_data GC ==========
 
--- -- On room change, remove non-existent instances from `__instance_data`
+-- On room change, remove non-existent instances from `__instance_data`
 
--- memory.dynamic_hook("RAPI.Instance.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto),
---     -- Pre-hook
---     {nil,
+memory.dynamic_hook("RAPI.Instance.room_goto", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.room_goto),
+    -- Pre-hook
+    {nil,
 
---     -- Post-hook
---     function(ret_val, self, other, result, arg_count, args)
---         for id, _ in pairs(__instance_data) do
---             if not Instance.exists(id) then
---                 __instance_data[id] = nil
---             end
---         end
---     end}
--- )
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        for id, _ in pairs(__instance_data) do
+            if not Instance.exists(id) then
+                __instance_data[id] = nil
+            end
+        end
+    end}
+)
 
 
--- -- Remove `__instance_data` on non-player kill
+-- Remove `__instance_data` on non-player kill
 
--- memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead),
---     -- Pre-hook
---     {nil,
+memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_set_dead),
+    -- Pre-hook
+    {nil,
 
---     -- Post-hook
---     function(ret_val, self, other, result, arg_count, args)
---         local args_typed = ffi.cast("struct RValue**", args:get_address())
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local args_typed = ffi.cast("struct RValue**", args:get_address())
     
---         local actor_id = args_typed[0].i32
+        local actor_id = args_typed[0].i32
     
---         -- Get object_index
---         local holder = RValue.new_holder(2)
---         holder[0] = RValue.new(actor_id, RValue.Type.REF)
---         holder[1] = RValue.new("object_index")
---         local out = RValue.new(0)
---         gmf.variable_instance_get(out, nil, nil, 2, holder)
-    
---         -- Do not clear for player deaths
---         if out.value ~= gm.constants.oP then
---             __instance_data[actor_id] = nil
---         end
---     end}
--- )
+        -- Do not clear for player deaths
+        local obj_ind = gm.variable_instance_get(actor_id, "object_index")
+        if obj_ind ~= gm.constants.oP then
+            __instance_data[actor_id] = nil
+        end
+    end}
+)
 
 
--- -- Move `__instance_data` to new instance
+-- Move `__instance_data` to new instance
 
--- memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform),
---     -- Pre-hook
---     {nil,
+memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.actor_transform),
+    -- Pre-hook
+    {nil,
 
---     -- Post-hook
---     function(ret_val, self, other, result, arg_count, args)
---         local args_typed = ffi.cast("struct RValue**", args:get_address())
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local args_typed = ffi.cast("struct RValue**", args:get_address())
     
---         local actor_id = args_typed[0].i32
---         local new_id = args_typed[1].i32
+        local actor_id = args_typed[0].i32
+        local new_id = args_typed[1].i32
     
---         -- Move data
---         if __instance_data[actor_id] then
---             __instance_data[new_id] = __instance_data[actor_id]
---             __instance_data[actor_id] = nil
---         end
---     end}
--- )
+        -- Move data
+        if __instance_data[actor_id] then
+            __instance_data[new_id] = __instance_data[actor_id]
+            __instance_data[actor_id] = nil
+        end
+    end}
+)
 
 
 
