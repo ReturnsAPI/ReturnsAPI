@@ -39,6 +39,8 @@ Wrap.wrap = function(value)
             return Instance.wrap(value.id)
 
         -- Struct
+        elseif sol == "sol.YYObjectBase*" then
+            return Struct.wrap(value)
 
         -- Script
             

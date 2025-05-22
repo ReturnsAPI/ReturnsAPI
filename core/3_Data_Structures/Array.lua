@@ -26,14 +26,12 @@ Array.new = function(arg1, arg2)
     -- Overload 1
     -- Create array from table
     if type(arg1) == "table" then
-        -- local holder = RValue.new_holder(2)
-        -- holder[0] = RValue.new(0)
-        -- holder[1] = RValue.new(0)
-        -- local out = RValue.new(0)
-        -- gmf.array_create(out, nil, nil, 2, holder)
-        -- local arr = Array.wrap(memory.resolve_pointer_to_type(tonumber(out.i64), "RefDynamicArrayOfRValue*"))
-
-        local arr = Array.wrap(gm.array_create(0, 0))
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(0)
+        holder[1] = RValue.new(0)
+        local out = RValue.new(0)
+        gmf.array_create(out, nil, nil, 2, holder)
+        local arr = Array.wrap(memory.resolve_pointer_to_type(tonumber(out.i64), "RefDynamicArrayOfRValue*"))
 
         -- Add elements from table to array
         for _, v in ipairs(arg1) do
@@ -45,14 +43,12 @@ Array.new = function(arg1, arg2)
 
     -- Overload 2
     -- Create array with optional size and default value
-    -- local holder = RValue.new_holder(2)
-    -- holder[0] = RValue.new(arg1 or 0)
-    -- holder[1] = RValue.new(arg2 or 0)
-    -- local out = RValue.new(0)
-    -- gmf.array_create(out, nil, nil, 2, holder)
-    -- return Array.wrap(memory.resolve_pointer_to_type(tonumber(out.i64), "RefDynamicArrayOfRValue*"))
-
-    return Array.wrap(gm.array_create(arg1 or 0, arg2 or 0))
+    local holder = RValue.new_holder(2)
+    holder[0] = RValue.new(arg1 or 0)
+    holder[1] = RValue.new(arg2 or 0)
+    local out = RValue.new(0)
+    gmf.array_create(out, nil, nil, 2, holder)
+    return Array.wrap(memory.resolve_pointer_to_type(tonumber(out.i64), "RefDynamicArrayOfRValue*"))
 end
 
 
