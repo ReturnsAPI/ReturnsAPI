@@ -238,10 +238,10 @@ methods_list = {
 
 -- ========== Metatables ==========
 
-local metatable_name = "List"
+local wrapper_name = "List"
 
 make_table_once("metatable_list_class", {
-    __metatable = "RAPI.Class."..metatable_name
+    __metatable = "RAPI.Class."..wrapper_name
 })
 setmetatable(List, metatable_list_class)
 
@@ -250,7 +250,7 @@ make_table_once("metatable_list", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return metatable_name end
+        if k == "RAPI" then return wrapper_name end
         
         -- Methods
         if methods_list[k] then
@@ -299,7 +299,7 @@ make_table_once("metatable_list", {
     end,
 
     
-    __metatable = "RAPI.Wrapper."..metatable_name
+    __metatable = "RAPI.Wrapper."..wrapper_name
 })
 
 

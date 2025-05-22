@@ -96,13 +96,13 @@ methods_attackinfo = {
 
 -- ========== Metatables ==========
 
-local metatable_name = "AttackInfo"
+local wrapper_name = "AttackInfo"
 
 make_table_once("metatable_attackinfo", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return metatable_name end
+        if k == "RAPI" then return wrapper_name end
 
         -- Methods
         if methods_attackinfo[k] then
@@ -136,7 +136,7 @@ make_table_once("metatable_attackinfo", {
     end,
 
     
-    __metatable = "RAPI.Wrapper."..metatable_name
+    __metatable = "RAPI.Wrapper."..wrapper_name
 })
 
 

@@ -484,13 +484,13 @@ Util.table_append(methods_instance, {
 
 -- ========== Metatables ==========
 
-local metatable_name = "Instance"
+local wrapper_name = "Instance"
 
 make_table_once("metatable_instance", {
     __index = function(proxy, k, id)
         -- Get wrapped value
         if k == "value" or k == "id" then return __proxy[proxy] end
-        if k == "RAPI" then return metatable_name end
+        if k == "RAPI" then return wrapper_name end
         if k == "CInstance" then
             -- Check cache
             local cinstance = cinstance_cache[proxy]
@@ -553,7 +553,7 @@ make_table_once("metatable_instance", {
     end,
 
     
-    __metatable = "RAPI.Wrapper."..metatable_name
+    __metatable = "RAPI.Wrapper."..wrapper_name
 })
 
 

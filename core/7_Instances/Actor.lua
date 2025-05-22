@@ -538,13 +538,13 @@ methods_actor = {
 
 -- ========== Metatables ==========
 
-local metatable_name = "Actor"
+local wrapper_name = "Actor"
 
 make_table_once("metatable_actor", {
     __index = function(proxy, k, id)
         -- Get wrapped value
         if k == "value" or k == "id" then return __proxy[proxy] end
-        if k == "RAPI" then return metatable_name end
+        if k == "RAPI" then return wrapper_name end
 
         -- Check if this actor is valid
         if not id then
@@ -568,7 +568,7 @@ make_table_once("metatable_actor", {
     end,
 
     
-    __metatable = "RAPI.Wrapper."..metatable_name
+    __metatable = "RAPI.Wrapper."..wrapper_name
 })
 
 

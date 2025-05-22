@@ -6,10 +6,10 @@
 -- Additionally, ReadOnly.new should be called to *finalize* the lock
 
 run_once(function()
-    local metatable_name = "ReadOnly"
+    local wrapper_name = "ReadOnly"
     local metatable_readonly = {
         __index = function(proxy, k)
-            if k == "RAPI" then return metatable_name end
+            if k == "RAPI" then return wrapper_name end
             return __proxy[proxy][k]
         end,
         
@@ -33,7 +33,7 @@ run_once(function()
             return next, __proxy[proxy], nil
         end,
 
-        __metatable = "RAPI.Wrapper."..metatable_name
+        __metatable = "RAPI.Wrapper."..wrapper_name
     }
 
     ReadOnly = {

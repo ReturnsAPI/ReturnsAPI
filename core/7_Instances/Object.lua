@@ -297,13 +297,7 @@ methods_object = {
     Also exists as a @link {method of Instance | Instance#create}.
     ]]
     create = function(self, x, y)
-        local holder = RValue.new_holder_scr(3)
-        holder[0] = RValue.new(x or 0)
-        holder[1] = RValue.new(y or 0)
-        holder[2] = RValue.new(self.value)
-        local out = RValue.new(0)
-        gmf.instance_create(nil, nil, out, 3, holder)
-        return RValue.to_wrapper(out)
+        return Wrap.wrap(gm.instance_create(Wrap.unwrap(x) or 0, Wrap.unwrap(y) or 0, self.value))
     end,
 
 
@@ -313,8 +307,9 @@ methods_object = {
     Sets the sprite of the object.
     ]]
     set_sprite = function(self, sprite)
+        sprite = Wrap.unwrap(sprite)
         if self.value >= Object.CUSTOM_START then self.obj_sprite = sprite end
-        GM.object_set_sprite_w(self.value, sprite)
+        gm.object_set_sprite_w(self.value, sprite)
     end,
 
 
@@ -400,14 +395,14 @@ methods_object = {
 
 -- ========== Metatables ==========
 
-local metatable_name = "Object"
+local wrapper_name = "Object"
 
 make_table_once("metatable_object", {
     __index = function(proxy, k)
         -- Get wrapped value
         local value = __proxy[proxy]
         if k == "value" then return value end
-        if k == "RAPI" then return metatable_name end
+        if k == "RAPI" then return wrapper_name end
         if k == "array" then
             if value < Object.CUSTOM_START then log.error("No Object properties for vanilla objects", 2) end
             
@@ -455,7 +450,7 @@ make_table_once("metatable_object", {
     end,
 
     
-    __metatable = "RAPI.Wrapper."..metatable_name
+    __metatable = "RAPI.Wrapper."..wrapper_name
 })
 
 

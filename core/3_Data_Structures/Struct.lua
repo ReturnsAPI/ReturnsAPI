@@ -103,13 +103,13 @@ methods_struct = {
 
 -- ========== Metatables ==========
 
-local metatable_name = "Struct"
+local wrapper_name = "Struct"
 
 make_table_once("metatable_struct", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return metatable_name end
+        if k == "RAPI" then return wrapper_name end
 
         -- Methods
         if methods_struct[k] then
@@ -166,7 +166,7 @@ make_table_once("metatable_struct", {
     end,
 
 
-    __metatable = "RAPI.Wrapper."..metatable_name
+    __metatable = "RAPI.Wrapper."..wrapper_name
 })
 
 

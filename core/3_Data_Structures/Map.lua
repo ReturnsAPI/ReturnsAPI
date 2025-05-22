@@ -177,10 +177,10 @@ methods_map = {
 
 -- ========== Metatables ==========
 
-local metatable_name = "Map"
+local wrapper_name = "Map"
 
 make_table_once("metatable_map_class", {
-    __metatable = "RAPI.Class."..metatable_name
+    __metatable = "RAPI.Class."..wrapper_name
 })
 setmetatable(Map, metatable_map_class)
 
@@ -189,7 +189,7 @@ make_table_once("metatable_map", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return metatable_name end
+        if k == "RAPI" then return wrapper_name end
         
         -- Methods
         if methods_map[k] then
@@ -234,7 +234,7 @@ make_table_once("metatable_map", {
     end,
 
     
-    __metatable = "RAPI.Wrapper."..metatable_name
+    __metatable = "RAPI.Wrapper."..wrapper_name
 })
 
 
