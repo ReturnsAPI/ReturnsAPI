@@ -35,7 +35,7 @@ Array.new = function(arg1, arg2)
 
         -- Add elements from table to array
         for _, v in ipairs(arg1) do
-            arr:push(Wrap.unwrap(v))
+            arr:push(v)
         end
 
         return arr
@@ -99,7 +99,7 @@ methods_array = {
     You can also use Lua syntax (e.g., `array[4] = 56`), which starts at `1`.
     ]]
     set = function(self, index, value)
-        gm.array_set(self.value, Wrap.unwrap(index), Wrap.unwrap(value))
+        gm.array_set(self.value, Wrap.unwrap(index), Wrap.unwrap(value, true))
     end,
 
 
@@ -132,13 +132,8 @@ methods_array = {
     push = function(self, ...)
         local values = {...}
 
-        -- TODO figure out better
         for i, v in ipairs(values) do
-            -- if instance_wrappers[Util.type(v)] then
-            --     values[i] = v.CInstance
-            -- else values[i] = Wrap.unwrap(v)
-            -- end
-            values[i] = Wrap.unwrap(v)
+            values[i] = Wrap.unwrap(v, true)
         end
 
         gm.array_push(self.value, table.unpack(values))
@@ -162,7 +157,7 @@ methods_array = {
     Inserts a value at the specified index, starting at `0`.
     ]]
     insert = function(self, index, value)
-        gm.array_insert(self.value, Wrap.unwrap(index), Wrap.unwrap(value))
+        gm.array_insert(self.value, Wrap.unwrap(index), Wrap.unwrap(value, true))
     end,
 
 
@@ -207,7 +202,7 @@ methods_array = {
     Returns `true` if the array contains the specified value.
     ]]
     contains = function(self, value, offset, length)
-        return gm.array_contains(self.value, Wrap.unwrap(value), Wrap.unwrap(offset) or 0, Wrap.unwrap(length) or self:size())
+        return gm.array_contains(self.value, Wrap.unwrap(value, true), Wrap.unwrap(offset) or 0, Wrap.unwrap(length) or self:size())
     end,
 
 
@@ -218,7 +213,7 @@ methods_array = {
     Returns the index of the first occurence of the specified value.
     ]]
     find = function(self, value)
-        value = Wrap.unwrap(value)
+        value = Wrap.unwrap(value, true)
         for i, v in ipairs(self) do
             if v == value then return i - 1 end
         end

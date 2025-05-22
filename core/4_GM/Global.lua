@@ -44,8 +44,7 @@ metatable_global = {
         -- Prevent setting any global that is in cache
         if __global_cache[k] then log.error("Do not set global variable '"..k.."'", 2) end
         
-        -- TODO set CInstance for instances
-        gm.variable_global_set(k, Wrap.unwrap(v))
+        gm.variable_global_set(k, Wrap.unwrap(v, true))
     end,
 
 

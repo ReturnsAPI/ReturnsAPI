@@ -28,7 +28,7 @@ List.new = function(table)
 
         -- Add elements from table to list
         for _, v in ipairs(table) do
-            list:add(Wrap.unwrap(v))
+            list:add(v)
         end
 
         return list
@@ -107,7 +107,7 @@ methods_list = {
     ]]
     set = function(self, index, value)
         if self.value == -4 then log.error("List does not exist", 2) end
-        gm.ds_list_set(self.value, Wrap.unwrap(index), Wrap.unwrap(value))
+        gm.ds_list_set(self.value, Wrap.unwrap(index), Wrap.unwrap(value, true))
     end,
 
 
@@ -130,13 +130,8 @@ methods_list = {
     add = function(self, ...)
         local values = {...}
 
-        -- TODO figure out better
         for i, v in ipairs(values) do
-            -- if instance_wrappers[Util.type(v)] then
-            --     values[i] = v.CInstance
-            -- else values[i] = Wrap.unwrap(v)
-            -- end
-            values[i] = Wrap.unwrap(v)
+            values[i] = Wrap.unwrap(v, true)
         end
 
         gm.ds_list_add(self.value, table.unpack(values))
@@ -150,7 +145,7 @@ methods_list = {
     Inserts a value at the specified index, starting at `0`.
     ]]
     insert = function(self, index, value)
-        gm.ds_list_insert(self.value, Wrap.unwrap(index), Wrap.unwrap(value))
+        gm.ds_list_insert(self.value, Wrap.unwrap(index), Wrap.unwrap(value, true))
     end,
 
 
@@ -192,7 +187,7 @@ methods_list = {
     Returns `true` if the list contains the specified value.
     ]]
     contains = function(self, value)
-        return (gm.ds_list_find_index(self.value, Wrap.unwrap(value)) >= 0)
+        return (gm.ds_list_find_index(self.value, Wrap.unwrap(value, true)) >= 0)
     end,
 
 
@@ -203,7 +198,7 @@ methods_list = {
     Returns the index of the first occurence of the specified value.
     ]]
     find = function(self, value)
-        local ret = gm.ds_list_find_index(self.value, Wrap.unwrap(value))
+        local ret = gm.ds_list_find_index(self.value, Wrap.unwrap(value, true))
         if ret < 0 then return nil end
         return ret
     end,

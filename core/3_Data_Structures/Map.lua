@@ -110,7 +110,7 @@ methods_map = {
     ]]
     set = function(self, key, value)
         if __proxy[proxy] == -4 then log.error("Map does not exist", 2) end
-        gm.ds_map_set(self.value, Wrap.unwrap(key), Wrap.unwrap(value))
+        gm.ds_map_set(self.value, Wrap.unwrap(key), Wrap.unwrap(value, true))
     end,
 
 

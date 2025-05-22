@@ -544,7 +544,7 @@ make_table_once("metatable_instance", {
         -- Setter
         local id = __proxy[proxy]
         if id == -4 then log.error("Instance does not exist", 2) end
-        gm.variable_instance_set(id, k, Wrap.unwrap(v))
+        gm.variable_instance_set(id, k, Wrap.unwrap(v, true))
     end,
 
 

@@ -139,7 +139,7 @@ make_table_once("metatable_struct", {
         end
 
         -- Setter
-        gm.variable_struct_set(__proxy[proxy], k, Wrap.unwrap(v))
+        gm.variable_struct_set(__proxy[proxy], k, Wrap.unwrap(v, true))
     end,
 
 

@@ -63,7 +63,7 @@ local call = function(k)
 
         elseif k == "variable_global_set" then
             __GM_function_cache[k] = function(name, value)
-                gm.variable_global_set(name, Wrap.unwrap(value))
+                gm.variable_global_set(name, Wrap.unwrap(value, true))
             end
 
         elseif GM.internal.builtin[k] then
