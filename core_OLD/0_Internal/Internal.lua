@@ -40,7 +40,6 @@ function make_table_once(table_name, merge)
 end
 
 
-
 -- Returns the namespace to use, and `true`
 -- if the user actually provided an optional name
 function parse_optional_namespace(namespace, default_namespace)
@@ -55,36 +54,12 @@ end
 
 
 
--- ========== Proxy ==========
-
-run_once(function()
-    __proxy = setmetatable({}, {__mode = "k"})
-
-    local proxy_default_name = "Proxy"
-    local proxy_default_mt  = { __index = function(t, k)
-                                    if k == "RAPI" then return proxy_default_name end
-                                    return __proxy[t][k]
-                                end,
-                                __newindex = function(t, k, v) __proxy[t][k] = v end,
-                                __metatable = "RAPI.Wrapper."..proxy_default_name }
-
-    function make_proxy(t, mt)
-        -- Returns a new proxy table, which is used as
-        -- a "key" to access the real table/data in storage.
-        local proxy = {}
-        __proxy[proxy] = t or {}
-        Util.setmetatable_gc(proxy, mt or proxy_default_mt)
-        return proxy
-    end
-end)
-
-
-
 -- ========== Public Export ==========
 
 run_once(function()
     __class = {}                -- Every public class
     __class_mt = {}             -- Metatable for public class (optional, should be the same key as in __class)
+    -- __class_mt_builder = {}     -- Function to run to build metatable for public class (optional, should be the same key as in __class)
 end)
 
 -- __ref_map created in Map.lua

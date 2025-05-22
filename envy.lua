@@ -105,15 +105,15 @@ function public.auto(properties)
     envy.import_all(env, wrapper)
     __auto_setups[env] = { namespace = properties.namespace }   -- Save for calling again on RAPI hotload
 
-    -- Override default `print`, `type`, and `tostring` with Util's versions
-    if not env.lua_print then
-        env.lua_print = env.print
-        env.lua_type = env.type
-        env.lua_tostring = env.tostring
-    end
-    env.print = Util.print
-    env.type = Util.type
-    env.tostring = Util.tostring
+    -- Override default `print`, `type`, and `tostring` with Util's versions    TODO
+    -- if not env.lua_print then
+    --     env.lua_print = env.print
+    --     env.lua_type = env.type
+    --     env.lua_tostring = env.tostring
+    -- end
+    -- env.print = Util.print
+    -- env.type = Util.type
+    -- env.tostring = Util.tostring
 
     -- Add Math functions to `math`
     for k, v in pairs(Math) do
@@ -144,9 +144,9 @@ run_on_hotload(function()
         local wrapper = public.setup(env, t.namespace)
         envy.import_all(env, wrapper)
 
-        -- Override default `print`, `type`, and `tostring` with Util's versions
-        env.print = Util.print
-        env.type = Util.type
-        env.tostring = Util.tostring
+        -- Override default `print`, `type`, and `tostring` with Util's versions    TODO
+        -- env.print = Util.print
+        -- env.type = Util.type
+        -- env.tostring = Util.tostring
     end
 end)

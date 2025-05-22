@@ -53,13 +53,11 @@ Creates and returns an instance of the specified object.
 Also exists as a @link {method of Object | Object#create}.
 ]]
 Instance.create = function(x, y, object)
-    local holder = RValue.new_holder_scr(3)
-    holder[0] = RValue.new(x or 0)
-    holder[1] = RValue.new(y or 0)
-    holder[2] = RValue.from_wrapper(object)
-    local out = RValue.new(0)
-    gmf.instance_create(nil, nil, out, 3, holder)
-    return RValue.to_wrapper(out)
+    return Instance.wrap(gm.instance_create(
+        Wrap.unwrap(x) or 0, 
+        Wrap.unwrap(y) or 0, 
+        Wrap.unwrap(object)
+    ))
 end
 
 
@@ -70,11 +68,7 @@ end
 Returns `true` if the instance exists, and `false` otherwise.
 ]]
 Instance.exists = function(inst)
-    local holder = RValue.new_holder(1)
-    holder[0] = RValue.new(Wrap.unwrap(inst), RValue.Type.REF)
-    local out = RValue.new(0)
-    gmf.instance_exists(out, nil, nil, 1, holder)
-    return out.value == 1
+    return (gm.instance_exists(Wrap.unwrap(inst)) == 1)
 end
 
 
@@ -89,9 +83,7 @@ Also exists as an @link {instance method | Instance#destroy-instance}.
 Instance.destroy = function(inst)
     inst = Wrap.unwrap(inst)
 
-    local holder = RValue.new_holder(1)
-    holder[0] = RValue.new(inst, RValue.Type.REF)
-    gmf.instance_destroy(RValue.new(0), nil, nil, 1, holder)
+    gm.instance_destroy(inst)
 
     -- Clear instance data
     __instance_data[inst] = nil
@@ -115,13 +107,8 @@ Instance.find = function(object, n)
 
     -- Vanilla object
     if object < Object.CUSTOM_START then
-        local holder = RValue.new_holder(2)
-        holder[0] = RValue.new(object)
-        holder[1] = RValue.new(n - 1)
-        local out = RValue.new(0)
-        gmf.instance_find(out, nil, nil, 2, holder)
-        local inst = RValue.to_wrapper(out)
-        if inst ~= -4 then return inst end
+        local inst = gm.instance_find(object, n - 1)
+        if inst ~= -4 then return Instance.wrap(inst.id) end
     
     -- Custom object
     else
@@ -130,8 +117,8 @@ Instance.find = function(object, n)
         holder[1] = RValue.new(n)   -- _mod_instance_find is indexed from 1
         local out = RValue.new(0)
         gmf._mod_instance_find(nil, nil, out, 2, holder)
-        local inst = RValue.to_wrapper(out)
-        if inst ~= -4 then return inst end
+        local inst = RValue.to_sol(out)
+        if inst ~= -4 then return Instance.wrap(inst.id) end
 
     end
 

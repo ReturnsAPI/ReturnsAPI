@@ -94,11 +94,13 @@ methods_attackinfo = {
 
 -- ========== Metatables ==========
 
+local metatable_name = "AttackInfo"
+
 make_table_once("metatable_attackinfo", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" or k == "yy_object_base" then return Proxy.get(proxy) end
-        if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
+        if k == "value" then return Proxy.get(proxy) end
+        if k == "RAPI" then return metatable_name end
 
         -- Methods
         if methods_attackinfo[k] then
@@ -113,7 +115,6 @@ make_table_once("metatable_attackinfo", {
     __newindex = function(proxy, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
-        or k == "yy_object_base"
         or k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end
@@ -133,7 +134,7 @@ make_table_once("metatable_attackinfo", {
     end,
 
     
-    __metatable = "RAPI.Wrapper.AttackInfo"
+    __metatable = "RAPI.Wrapper."..metatable_name
 })
 
 

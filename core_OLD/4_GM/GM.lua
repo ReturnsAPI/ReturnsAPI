@@ -53,73 +53,56 @@ local call = function(k)
 
         if k == "variable_global_get" then
             __GM_function_cache[k] = function(name)
-                -- Built-in globals
-                local builtin_var = GM.internal.builtin_globals[name]
-                if builtin_var then
-                    local out = RValue.new(0)
-                    builtin_var.getter(nil, nil, out)
-                    return RValue.to_wrapper(out)
-                end
-
-                -- Game-defined globals
-                local holder = RValue.new_holder(1)
-                holder[0] = RValue.new(name)
-                local out = RValue.new(0)
-                gmf.variable_global_get(out, nil, nil, 1, holder)
-                return RValue.to_wrapper(out)
+                return Wrap.wrap(gm.variable_global_get(Wrap.unwrap(name)))
             end
 
         elseif k == "variable_global_set" then
             __GM_function_cache[k] = function(name, value)
-                -- Built-in globals
-                local builtin_var = GM.internal.builtin_globals[name]
-                if builtin_var then
-                    local val = RValue.from_wrapper(value)
-                    builtin_var.setter(nil, nil, val)
-                end
-
-                -- Game-defined globals
-                local holder = RValue.new_holder(2)
-                holder[0] = RValue.new(name)
-                holder[1] = RValue.from_wrapper(value)
-                gmf.variable_global_set(RValue.new(0), nil, nil, 2, holder)
+                gm.variable_global_set(Wrap.unwrap(name), Wrap.unwrap(value))
             end
 
         elseif GM.internal.builtin[k] then
             __GM_function_cache[k] = function(...)
                 local args = table.pack(...)
-                local holder = nil
-                if args.n > 0 then holder = RValue.new_holder(args.n) end
 
-                -- Populate holder
+                -- Unwrap args
                 for i = 1, args.n do
-                    holder[i - 1] = RValue.from_wrapper(args[i])
+                    args[i] = Wrap.unwrap(args[i])
                 end
 
-                local out = RValue.new(0)
-                gmf[k](out, nil, nil, args.n, holder)
-                return RValue.to_wrapper(out)
+                return Wrap.wrap(gm[k](table.unpack(args)))
             end
 
-        elseif GM.internal.object[k] then
-            __GM_function_cache[k] = function()
-                gmf[k](nil, nil)
-            end
+        -- elseif GM.internal.object[k] then
+        --     __GM_function_cache[k] = function()
+        --         gmf[k](nil, nil)
+        --     end
 
         elseif GM.internal.script[k] then
+            -- __GM_function_cache[k] = function(...)
+            --     local args = table.pack(...)
+            --     local holder = nil
+            --     if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
+
+            --     -- Populate holder
+            --     for i = 1, args.n do
+            --         holder[i - 1] = RValue.from_wrapper(args[i])
+            --     end
+
+            --     local out = RValue.new(0)
+            --     gmf[k](nil, nil, out, args.n, holder)
+            --     return RValue.to_sol(out)
+            -- end
+
             __GM_function_cache[k] = function(...)
                 local args = table.pack(...)
-                local holder = nil
-                if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
 
-                -- Populate holder
+                -- Unwrap args
                 for i = 1, args.n do
-                    holder[i - 1] = RValue.from_wrapper(args[i])
+                    args[i] = Wrap.unwrap(args[i])
                 end
 
-                local out = RValue.new(0)
-                gmf[k](nil, nil, out, args.n, holder)
-                return RValue.to_wrapper(out)
+                return Wrap.wrap(gm[k](table.unpack(args)))
             end
 
         end
@@ -134,48 +117,52 @@ local callso = function(k)
 
         if GM.internal.builtin[k] then
             __GM_function_cache_callso[k] = function(self, other, ...)
-                if self then self = self.CInstance end
-                if other then other = other.CInstance end
-                
                 local args = table.pack(...)
-                local holder = nil
-                if args.n > 0 then holder = RValue.new_holder(args.n) end
 
-                -- Populate holder
+                -- Unwrap args
                 for i = 1, args.n do
-                    holder[i - 1] = RValue.from_wrapper(args[i])
+                    args[i] = Wrap.unwrap(args[i])
                 end
 
-                local out = RValue.new(0)
-                gmf[k](out, self, other, args.n, holder)
-                return RValue.to_wrapper(out)
+                return Wrap.wrap(gm.call(k, self.CInstance, other.CInstance, table.unpack(args)))
             end
 
-        elseif GM.internal.object[k] then
-            __GM_function_cache_callso[k] = function(self, other)
-                if self then self = self.CInstance end
-                if other then other = other.CInstance end
+        -- elseif GM.internal.object[k] then
+        --     __GM_function_cache_callso[k] = function(self, other)
+        --         if self then self = self.CInstance end
+        --         if other then other = other.CInstance end
 
-                gmf[k](self, other)
-            end
+        --         gmf[k](self, other)
+        --     end
 
         elseif GM.internal.script[k] then
+            -- __GM_function_cache_callso[k] = function(self, other, ...)
+            --     if self then self = self.CInstance end
+            --     if other then other = other.CInstance end
+
+            --     local args = table.pack(...)
+            --     local holder = nil
+            --     if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
+
+            --     -- Populate holder
+            --     for i = 1, args.n do
+            --         holder[i - 1] = RValue.from_wrapper(args[i])
+            --     end
+
+            --     local out = RValue.new(0)
+            --     gmf[k](self, other, out, args.n, holder)
+            --     return RValue.to_wrapper(out)
+            -- end
+
             __GM_function_cache_callso[k] = function(self, other, ...)
-                if self then self = self.CInstance end
-                if other then other = other.CInstance end
-
                 local args = table.pack(...)
-                local holder = nil
-                if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
 
-                -- Populate holder
+                -- Unwrap args
                 for i = 1, args.n do
-                    holder[i - 1] = RValue.from_wrapper(args[i])
+                    args[i] = Wrap.unwrap(args[i])
                 end
 
-                local out = RValue.new(0)
-                gmf[k](self, other, out, args.n, holder)
-                return RValue.to_wrapper(out)
+                return Wrap.wrap(gm.call(k, self.CInstance, other.CInstance, table.unpack(args)))
             end
 
         end

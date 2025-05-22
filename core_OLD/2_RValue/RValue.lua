@@ -359,6 +359,38 @@ RValue.from_wrapper = function(value)
 end
 
 
+--@static
+--@return       RValue
+--@param        value       |           | The `sol` value to convert.
+--[[
+Converts a `sol` value into the appropriate RValue.
+]]
+RValue.from_sol = function(value)
+    if type(value) == "userdata" then
+        local rvalue
+        local _type = getmetatable(value).__name
+        if      _type == "sol.RefDynamicArrayOfRValue*" then rvalue = RValue.new(memory.get_usertype_pointer(value), RValue.Type.ARRAY)
+        elseif  _type == "sol.YYObjectBase*"            then rvalue = RValue.new(ffi.cast("struct YYObjectBase*", memory.get_usertype_pointer(value)), RValue.Type.OBJECT)
+        elseif  _type == "sol.CInstance*"               then rvalue = RValue.new(value.id, RValue.Type.REF)
+        end
+        return rvalue
+    end
+    return value
+end
+
+
+RValue.sol_to_wrapper = function(value)
+    if type(value) == "userdata" then
+        local _type = getmetatable(value).__name
+        if      _type == "sol.RefDynamicArrayOfRValue*" then return Array.wrap_i64(memory.get_usertype_pointer(value))
+        elseif  _type == "sol.YYObjectBase*"            then return Struct.wrap_yyobjectbase(ffi.cast("struct YYObjectBase*", memory.get_usertype_pointer(value)))
+        elseif  _type == "sol.CInstance*"               then return Instance.wrap(value.id)
+        end
+    end
+    return value
+end
+
+
 
 -- Public export
 __class.RValue = RValue

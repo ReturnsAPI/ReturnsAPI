@@ -48,7 +48,7 @@ Returns a Map wrapper containing the provided map ID.
 Map.wrap = function(map)
     -- Input:   number or Map wrapper
     -- Wraps:   number
-    return make_proxy(Wrap.unwrap(map), metatable_map)
+    return Proxy.new(Wrap.unwrap(map), metatable_map)
 end
 
 
@@ -73,7 +73,7 @@ methods_map = {
     ]]
     exists = function(self)
         local ret = (gm.ds_exists(self.value, 1) == 1)
-        if not ret then __proxy[self] = -4 end
+        if not ret then Proxy.set(self, -4) end
         return ret
     end,
 
@@ -84,7 +84,7 @@ methods_map = {
     ]]
     destroy = function(self)
         gm.ds_map_destroy(self.value)
-        __proxy[self] = -4
+        Proxy.set(self, -4)
     end,
 
 
@@ -96,7 +96,6 @@ methods_map = {
     You can also use Lua syntax (e.g., `map.my_key`).
     ]]
     get = function(self, key)
-        if __proxy[proxy] == -4 then log.error("Map does not exist", 2) end
         return Wrap.wrap(gm.ds_map_find_value(self.value, Wrap.unwrap(key)))
     end,
 
@@ -109,7 +108,6 @@ methods_map = {
     You can also use Lua syntax (e.g., `map.my_key = 123`).
     ]]
     set = function(self, key, value)
-        if __proxy[proxy] == -4 then log.error("Map does not exist", 2) end
         gm.ds_map_set(self.value, Wrap.unwrap(key), Wrap.unwrap(value))
     end,
 
@@ -188,7 +186,7 @@ setmetatable(Map, metatable_map_class)
 make_table_once("metatable_map", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
+        if k == "value" then return Proxy.get(proxy) end
         if k == "RAPI" then return metatable_name end
         
         -- Methods
@@ -197,6 +195,7 @@ make_table_once("metatable_map", {
         end
 
         -- Getter
+        if Proxy.get(proxy) == -4 then log.error("Map does not exist", 2) end
         return proxy:get(k)
     end,
     
@@ -209,6 +208,7 @@ make_table_once("metatable_map", {
         end
 
         -- Setter
+        if Proxy.get(proxy) == -4 then log.error("Map does not exist", 2) end
         proxy:set(k, v)
     end,
     
@@ -220,14 +220,14 @@ make_table_once("metatable_map", {
 
     __pairs = function(proxy)
         -- Find first key
-        local key = gm.ds_map_find_first(__proxy[proxy])
+        local key = gm.ds_map_find_first(Proxy.get(proxy))
 
         return function(proxy)
             if not key then return nil, nil end
             local ret1, ret2 = key, proxy:get(key)
 
             -- Find next key
-            key = gm.ds_map_find_next(__proxy[proxy], key)
+            key = gm.ds_map_find_next(Proxy.get(proxy), Wrap.unwrap(key))
 
             return ret1, ret2
         end, proxy, nil

@@ -68,7 +68,7 @@ Script.bind = function(func)
 
     -- Bind "dummy" function to struct
     -- When called, the struct will be the `self` parameter
-    local method = GM.method(struct, gm.constants.function_dummy)
+    local method = Script.wrap(gm.method(struct, gm.constants.function_dummy))
     method.self, method.other = struct, struct  -- Allows for the user to
                                                 -- call the returned method
 
@@ -78,7 +78,7 @@ Script.bind = function(func)
     __bind_id_count = __bind_id_count + 1
 
     -- Add to `__ref_map` to prevent GC
-    __ref_map:set(method, true)
+    -- __ref_map:set(method, true)  TODO
 
     return method
 end
@@ -86,18 +86,17 @@ end
 
 --@static
 --@return       Script
---@param        script      | RValue or Script wrapper  | The script to wrap.
+--@param        script      | `sol.CScriptRef*` or Script wrapper  | The script to wrap.
 --[[
 Returns a Script wrapper containing the provided script.
 ]]
 Script.wrap = function(script)
-    -- Input:   `object RValue` or Script wrapper
-    -- Wraps:   { `cscriptref`, `yy_object_base` of `.type` 3 }
+    -- Input:   `sol.CScriptRef*` or Script wrapper
+    -- Wraps:   { `sol.CScriptRef*` }
     return Proxy.new({
-        script.cscriptref,
-        script.yy_object_base,
-        nil,    -- Stored `self`
-        nil,    -- Stored `other`
+        Wrap.unwrap(script),
+        nil,
+        nil
     }, metatable_script)
 end
 
@@ -105,26 +104,20 @@ end
 
 -- ========== Metatables ==========
 
+local metatable_name = "Script"
+
 make_table_once("metatable_script", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" or k == "cscriptref" then return Proxy.get(proxy)[1] end
-        if k == "RAPI" then return getmetatable(proxy):sub(14, -1) end
-        if k == "yy_object_base" then return Proxy.get(proxy)[2] end
+        if k == "value" then return Proxy.get(proxy)[1] end
+        if k == "RAPI" then return metatable_name end
         if k == "name" then
-            -- Check cache
-            local name = name_cache[proxy]
-            if not name then
-                name = ffi.string(Proxy.get(proxy)[1].m_call_script.m_script_name):sub(12, -1)
-                name_cache[proxy] = name
-            end
-            
-            return name
+            -- TODO
         end
 
         -- Get stored self/other
-        if k == "self"  then return Proxy.get(proxy)[3] end
-        if k == "other" then return Proxy.get(proxy)[4] end
+        if k == "self"  then return Proxy.get(proxy)[2] end
+        if k == "other" then return Proxy.get(proxy)[3] end
 
         -- Call with manual self/other
         if k == "SO" then
@@ -143,7 +136,7 @@ make_table_once("metatable_script", {
             
                 local out = RValue.new(0)
                 gmf[proxy.name](self, other, out, args.n, holder)
-                return RValue.to_wrapper(out)
+                return RValue.to_sol(out)
             end
         end
     end,
@@ -152,9 +145,7 @@ make_table_once("metatable_script", {
     __newindex = function(proxy, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
-        or k == "cscriptref"
         or k == "RAPI"
-        or k == "yy_object_base"
         or k == "name"
         or k == "SO" then
             log.error("Key '"..k.."' is read-only", 2)
@@ -163,14 +154,16 @@ make_table_once("metatable_script", {
         -- Store self/other
         if k == "self"
         or k == "other" then
-            local index = 3
-            if k == "other" then index = 4 end
+            local index = 2
+            if k == "other" then index = 3 end
 
             -- Convert v into CInstance to store
             local _type = Util.type(v)
-            if _type == "Struct" or instance_wrappers[_type] then
+            if instance_wrappers[_type] then
                 Proxy.get(proxy)[index] = v.CInstance
+                return
             end
+            Proxy.get(proxy)[index] = Wrap.unwrap(v)
             return
         end
 
@@ -181,8 +174,8 @@ make_table_once("metatable_script", {
     __call = function(proxy, ...)
         -- Get stored self/other
         local actual = Proxy.get(proxy)
-        self    = actual[3]
-        other   = actual[4]
+        self    = actual[2]
+        other   = actual[3]
 
         local args = table.pack(...)
         local holder = nil
@@ -199,7 +192,7 @@ make_table_once("metatable_script", {
     end,
 
     
-    __metatable = "RAPI.Wrapper.Script"
+    __metatable = "RAPI.Wrapper."..metatable_name
 })
 
 
@@ -220,7 +213,7 @@ memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "
 
         -- Wrap args
         for i = 0, arg_count - 1 do
-            table.insert(wrapped_args, RValue.to_wrapper(args_typed[i]))
+            table.insert(wrapped_args, Wrap.wrap(RValue.to_sol(args_typed[i])))
         end
 
         -- Call bound Lua function

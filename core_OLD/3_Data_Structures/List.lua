@@ -48,7 +48,7 @@ Returns a List wrapper containing the provided list ID.
 List.wrap = function(list)
     -- Input:   number or List wrapper
     -- Wraps:   number
-    return make_proxy(Wrap.unwrap(list), metatable_list)
+    return Proxy.new(Wrap.unwrap(list), metatable_list)
 end
 
 
@@ -66,7 +66,7 @@ methods_list = {
     ]]
     exists = function(self)
         local ret = (gm.ds_exists(self.value, 2) == 1)
-        if not ret then __proxy[self] = -4 end
+        if not ret then Proxy.set(self, -4) end
         return ret
     end,
 
@@ -77,7 +77,7 @@ methods_list = {
     ]]
     destroy = function(self)
         gm.ds_list_destroy(self.value)
-        __proxy[self] = -4
+        Proxy.set(self, -4)
     end,
 
 
@@ -90,7 +90,6 @@ methods_list = {
     You can also use Lua syntax (e.g., `list[4]`), which starts at `1`.
     ]]
     get = function(self, index, size)
-        if self.value == -4 then log.error("List does not exist", 2) end
         index = Wrap.unwrap(index)
         size = size or self:size()
         if index >= size then return nil end
@@ -106,7 +105,6 @@ methods_list = {
     You can also use Lua syntax (e.g., `list[4] = 56`), which starts at `1`.
     ]]
     set = function(self, index, value)
-        if self.value == -4 then log.error("List does not exist", 2) end
         gm.ds_list_set(self.value, Wrap.unwrap(index), Wrap.unwrap(value))
     end,
 
@@ -132,11 +130,10 @@ methods_list = {
 
         -- TODO figure out better
         for i, v in ipairs(values) do
-            -- if instance_wrappers[Util.type(v)] then
-            --     values[i] = v.CInstance
-            -- else values[i] = Wrap.unwrap(v)
-            -- end
-            values[i] = Wrap.unwrap(v)
+            if instance_wrappers[Util.type(v)] then
+                values[i] = v.CInstance
+            else values[i] = Wrap.unwrap(v)
+            end
         end
 
         gm.ds_list_add(self.value, table.unpack(values))
@@ -249,7 +246,7 @@ setmetatable(List, metatable_list_class)
 make_table_once("metatable_list", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
+        if k == "value" then return Proxy.get(proxy) end
         if k == "RAPI" then return metatable_name end
         
         -- Methods
@@ -258,8 +255,12 @@ make_table_once("metatable_list", {
         end
 
         -- Getter
-        k = Wrap.unwrap(k)
-        return proxy:get(k - 1)
+        if Proxy.get(proxy) == -4 then log.error("List does not exist", 2) end
+        k = tonumber(Wrap.unwrap(k))
+        if k and k >= 1 and k <= #proxy then
+            return proxy:get(k - 1)
+        end
+        return nil
     end,
     
 
@@ -271,7 +272,8 @@ make_table_once("metatable_list", {
         end
 
         -- Setter
-        k = Wrap.unwrap(k)
+        if Proxy.get(proxy) == -4 then log.error("List does not exist", 2) end
+        k = tonumber(Wrap.unwrap(k))
         proxy:set(k - 1, v)
     end,
     

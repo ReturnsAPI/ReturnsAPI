@@ -26,14 +26,12 @@ Array.new = function(arg1, arg2)
     -- Overload 1
     -- Create array from table
     if type(arg1) == "table" then
-        -- local holder = RValue.new_holder(2)
-        -- holder[0] = RValue.new(0)
-        -- holder[1] = RValue.new(0)
-        -- local out = RValue.new(0)
-        -- gmf.array_create(out, nil, nil, 2, holder)
-        -- local arr = Array.wrap(memory.resolve_pointer_to_type(tonumber(out.i64), "RefDynamicArrayOfRValue*"))
-
-        local arr = Array.wrap(gm.array_create(0, 0))
+        local holder = RValue.new_holder(2)
+        holder[0] = RValue.new(0)
+        holder[1] = RValue.new(0)
+        local out = RValue.new(0)
+        gmf.array_create(out, nil, nil, 2, holder)
+        local arr = Array.wrap(memory.resolve_pointer_to_type(tonumber(out.i64), "RefDynamicArrayOfRValue*"))
 
         -- Add elements from table to array
         for _, v in ipairs(arg1) do
@@ -45,14 +43,12 @@ Array.new = function(arg1, arg2)
 
     -- Overload 2
     -- Create array with optional size and default value
-    -- local holder = RValue.new_holder(2)
-    -- holder[0] = RValue.new(arg1 or 0)
-    -- holder[1] = RValue.new(arg2 or 0)
-    -- local out = RValue.new(0)
-    -- gmf.array_create(out, nil, nil, 2, holder)
-    -- return Array.wrap(memory.resolve_pointer_to_type(tonumber(out.i64), "RefDynamicArrayOfRValue*"))
-
-    return Array.wrap(gm.array_create(arg1 or 0, arg2 or 0))
+    local holder = RValue.new_holder(2)
+    holder[0] = RValue.new(arg1 or 0)
+    holder[1] = RValue.new(arg2 or 0)
+    local out = RValue.new(0)
+    gmf.array_create(out, nil, nil, 2, holder)
+    return Array.wrap(memory.resolve_pointer_to_type(tonumber(out.i64), "RefDynamicArrayOfRValue*"))
 end
 
 
@@ -65,10 +61,29 @@ Returns an Array wrapper containing the provided array.
 Array.wrap = function(array)
     -- Input:   `sol.RefDynamicArrayOfRValue*` or Array wrapper
     -- Wraps:   `sol.RefDynamicArrayOfRValue*`
-    array = Wrap.unwrap(array)
-    __ref_map:set(array, true)  -- Prevent garbage collection
-    return make_proxy(array, metatable_array)
+    -- if not Array.is(array) then log.error("Value is not an array", 2) end
+    local proxy = Proxy.new(Wrap.unwrap(array), metatable_array)
+    -- __ref_map:set_rvalue(
+    --     RValue.new(array.i64, RValue.Type.ARRAY),
+    --     RValue.new(true)
+    -- )    TOOD
+    return proxy
 end
+
+
+--@static
+--@return       bool
+--@param        value       | RValue or Array wrapper   | The value to check.
+--[[
+Returns `true` if `value` is an array, and `false` otherwise.
+]]
+-- Array.is = function(value)
+--     -- `value` is either an `array RValue` or an Array wrapper
+--     local _type = Util.type(value)
+--     if (_type == "cdata" and value.type == RValue.Type.ARRAY)
+--     or _type == "Array" then return true end
+--     return false
+-- end      TODO
 
 
 
@@ -81,7 +96,6 @@ methods_array = {
     --@instance
     --@return       any
     --@param        index       | number    | The index to get from.
-    --@optional     size        | number    | The size of the array, if it already known (this skips a `:size` call).
     --[[
     Returns the value at the specified index (starting at `0`),
     or `nil` if out-of-bounds.
@@ -138,11 +152,10 @@ methods_array = {
 
         -- TODO figure out better
         for i, v in ipairs(values) do
-            -- if instance_wrappers[Util.type(v)] then
-            --     values[i] = v.CInstance
-            -- else values[i] = Wrap.unwrap(v)
-            -- end
-            values[i] = Wrap.unwrap(v)
+            if instance_wrappers[Util.type(v)] then
+                values[i] = v.CInstance
+            else values[i] = Wrap.unwrap(v)
+            end
         end
 
         gm.array_push(self.value, table.unpack(values))
@@ -270,7 +283,7 @@ setmetatable(Array, metatable_array_class)
 make_table_once("metatable_array", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
+        if k == "value" then return Proxy.get(proxy) end
         if k == "RAPI" then return metatable_name end
         
         -- Methods
@@ -279,7 +292,7 @@ make_table_once("metatable_array", {
         end
 
         -- Getter
-        k = Wrap.unwrap(k)
+        k = tonumber(Wrap.unwrap(k))
         return proxy:get(k - 1)
     end,
     
@@ -292,7 +305,7 @@ make_table_once("metatable_array", {
         end
         
         -- Setter
-        k = Wrap.unwrap(k)
+        k = tonumber(Wrap.unwrap(k))
         proxy:set(k - 1, v)
     end,
     
@@ -321,7 +334,9 @@ make_table_once("metatable_array", {
 
 
     __gc = function(proxy)
-        __ref_map:delete(__proxy[proxy])
+        -- __ref_map:delete_rvalue(
+        --     RValue.new(Proxy.get(proxy), RValue.Type.ARRAY)
+        -- )    TODO
     end,
 
 

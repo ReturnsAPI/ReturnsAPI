@@ -37,7 +37,7 @@ Struct.new = function(constructor, ...)
         args[i] = Wrap.unwrap(args[i])
     end
 
-    return Struct.wrap(gm["@@NewGMLObject@@"](constructor, table.unpack(args)))
+    return Struct.wrap(gm["@@NewGMLObject@@"](table.unpack(args)))
 end
 
 
@@ -50,10 +50,29 @@ Returns a Struct wrapper containing the provided struct.
 Struct.wrap = function(struct)
     -- Input:   `sol.YYObjectBase*` or Struct wrapper
     -- Wraps:   `sol.YYObjectBase*`
-    struct = Wrap.unwrap(struct)
-    __ref_map:set(struct, true) -- Prevent garbage collection
-    return make_proxy(struct, metatable_struct)
+    -- if not Struct.is(struct) then log.error("Value is not a struct", 2) end
+    local proxy = Proxy.new(Wrap.unwrap(struct), metatable_struct)
+    -- __ref_map:set_rvalue(
+    --     RValue.new(struct.yy_object_base, RValue.Type.OBJECT),
+    --     RValue.new(true)
+    -- )
+    return proxy
 end
+
+
+--@static
+--@return       bool
+--@param        value       | RValue or Array wrapper   | The value to check.
+--[[
+Returns `true` if `value` is a struct, and `false` otherwise.
+]]
+-- Struct.is = function(value)
+--     -- `value` is either an `object RValue` or a Struct wrapper
+--     local _type = Util.type(value)
+--     if (_type == "cdata" and value.type == RValue.Type.OBJECT)
+--     or _type == "Struct" then return true end
+--     return false
+-- end      TODO
 
 
 
@@ -100,7 +119,7 @@ local metatable_name = "Struct"
 make_table_once("metatable_struct", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
+        if k == "value" then return Proxy.get(proxy) end
         if k == "RAPI" then return metatable_name end
 
         -- Methods
@@ -109,7 +128,7 @@ make_table_once("metatable_struct", {
         end
         
         -- Getter
-        local wrapped = Wrap.wrap(gm.variable_struct_get(__proxy[proxy], k))
+        local wrapped = Wrap.wrap(gm.variable_struct_get(Proxy.get(proxy), Wrap.unwrap(k)))
 
         -- If Script, automatically "bind"
         -- script as self/other
@@ -131,7 +150,7 @@ make_table_once("metatable_struct", {
         end
 
         -- Setter
-        gm.variable_struct_set(__proxy[proxy], k, Wrap.unwrap(v))
+        gm.variable_struct_set(Proxy.get(proxy), Wrap.unwrap(k), Wrap.unwrap(v))
     end,
 
 
@@ -154,7 +173,9 @@ make_table_once("metatable_struct", {
 
 
     __gc = function(proxy)
-        __ref_map:delete(__proxy[proxy])
+        -- __ref_map:delete_rvalue(
+        --     RValue.new(Proxy.get(proxy), RValue.Type.OBJECT)
+        -- )    TODO
     end,
 
 

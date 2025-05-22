@@ -15,11 +15,11 @@ Math = new_class()
 
 --@constants
 --[[
-DEG2RAD     math.pi / 180 (approx. 0.01745329251)
-RAD2DEG     180 / math.pi (approx. 57.2957795131)
+DEG2RAD     0.01745329251
+RAD2DEG     57.2957795131
 ]]
-Math.DEG2RAD = math.pi / 180
-Math.RAD2DEG = 180 / math.pi
+Math.DEG2RAD = 0.01745329251
+Math.RAD2DEG = 57.2957795131
 
 
 
