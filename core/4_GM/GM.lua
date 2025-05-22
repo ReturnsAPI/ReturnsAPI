@@ -51,6 +51,8 @@ local call = function(k)
     if not __GM_function_cache[k] then
         if not gmf[k] then log.error("GM."..k.." does not exist", 2) end
 
+        -- Keeping these global get/set here
+        -- anyway since it avoids the table.pack/unpack calls
         if k == "variable_global_get" then
             __GM_function_cache[k] = function(name)
                 return Wrap.wrap(gm.variable_global_get(name))
@@ -86,7 +88,7 @@ local call = function(k)
 
                 local out = RValue.new(0)
                 gmf[k](nil, nil, out, args.n, holder)
-                return RValue.to_sol(out)
+                return RValue.to_wrapper(out)
             end
 
         end
