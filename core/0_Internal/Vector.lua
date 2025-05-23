@@ -38,6 +38,7 @@ make_table_once("metatable_vector", {
         -- Get length/direction
         if k == "length"    then return  math.sqrt(vec.x^2, vec.y^2)                end
         if k == "direction" then return -math.atan2(vec.y, vec.x) * Math.RAD2DEG    end
+        if k == "RAPI"      then return wrapper_name end
     end,
 
 
