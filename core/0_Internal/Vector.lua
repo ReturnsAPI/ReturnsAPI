@@ -1,40 +1,7 @@
 -- Vector
 
---[[
-This is a simple implementation for 2D vectors.
-
-```lua
--- Some operations may not be exact due to floating-point errors.
-
--- New
-local v1 = Vector()         -- <0, 0>
-local v2 = Vector(1, 1)     -- <1, 1>
-
--- Clone
-local v3 = Vector(v2)       -- <1, 1>
-
--- Length and direction
-print(v3.length)            -- 1
-print(v3.direction)         -- -45
-v3.length = 1               -- <0.70710678118655, 0.70710678118655>
-v3.direction = 180          -- <-1, 0>
-
--- Operations
-local v4 = Vector(1, 2)
-local v5 = Vector(3, 4)
-print(v4 == v5)             -- false
-print(v4 + v5)              -- <4, 6>
-print(v4 - v5)              -- <-2, -2>
-print(v4 * v5)              -- 11  (dot product)
-
--- Scalar operations
-print(v4 * 2)               -- <2, 4>
-print(v4 / 2)               -- <0.5, 1>
-
--- Negation
-print(-v4)                  -- <-1, -2>
-```
-]]
+-- This is a simple implementation for 2D vectors.
+-- See usage here:  https://github.com/ReturnsAPI/ReturnsAPI/wiki/Vector
 
 Vector = new_class()
 
