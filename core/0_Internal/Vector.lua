@@ -76,34 +76,34 @@ make_table_once("metatable_vector", {
 
     __add = function(v1, v2)
         -- Add
-        return Vector.new(v1.x + v2.x, v1.y + v2.y)
+        return Vector(v1.x + v2.x, v1.y + v2.y)
     end,
 
 
     __sub = function(v1, v2)
         -- Subtract
-        return Vector.new(v1.x - v2.x, v1.y - v2.y)
+        return Vector(v1.x - v2.x, v1.y - v2.y)
     end,
 
 
     __mul = function(vec, value)
         -- Dot product
-        if type(value) == "table" then return Vector.new(vec.x * value.x, vec.y * value.y) end
+        if type(value) == "table" then return Vector(vec.x * value.x, vec.y * value.y) end
 
         -- Scalar multiply
-        return Vector.new(vec.x * value, vec.y * value)
+        return Vector(vec.x * value, vec.y * value)
     end,
 
 
     __div = function(vec, value)
         -- Scalar divide
-        return Vector.new(vec.x / value, vec.y / value)
+        return Vector(vec.x / value, vec.y / value)
     end,
 
 
     __unm = function(vec)
         -- Negate
-        return Vector.new(-vec.x, -vec.y)
+        return Vector(-vec.x, -vec.y)
     end,
 
 
