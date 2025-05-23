@@ -37,7 +37,7 @@ setmetatable(Vector, metatable_vector_class)
 make_table_once("metatable_vector", {
     __index = function(vec, k)
         -- Get length/direction
-        if k == "length"    then return math.sqrt(vec.x^2, vec.y^2) end
+        if k == "length"    then return math.sqrt(vec.x^2 + vec.y^2) end
         if k == "direction" then return (-math.atan2(vec.y, vec.x) * Math.RAD2DEG) % 360 end
         if k == "RAPI"      then return wrapper_name end
     end,
