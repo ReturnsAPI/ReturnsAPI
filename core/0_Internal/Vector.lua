@@ -94,7 +94,7 @@ make_table_once("metatable_vector", {
         if type(v2) == "number" then return Vector(v1.x * v2, v1.y * v2) end
 
         -- Dot product
-        return (vec.x * value.x) + (vec.y * value.y)
+        return (v1.x * v2.x) + (v1.y * v2.y)
     end,
 
 
