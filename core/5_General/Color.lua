@@ -75,7 +75,7 @@ end
 --@section Enums
 
 --@enum
-Color.Item = ReadOnly.new({
+Color.Item = {
     WHITE   = 0xffffff,
     GREEN   = 0x58b475,
     RED     = 0x3d27c9,
@@ -84,11 +84,11 @@ Color.Item = ReadOnly.new({
     PURPLE  = 0xc76aab,
     GRAY    = 0x555555,
     GREY    = 0x555555
-})
+}
 
 
 --@enum
-Color.Text = ReadOnly.new({
+Color.Text = {
     YELLOW  = 0x7bd2ef,
     BLUE    = 0xd29a31,
     GREEN   = 0x86b67e,
@@ -98,7 +98,7 @@ Color.Text = ReadOnly.new({
     LTGREY  = 0xc0c0c0,
     DKGRAY  = 0x808080,
     DKGREY  = 0x808080
-})
+}
 
 
 
