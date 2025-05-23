@@ -108,7 +108,7 @@ local wrapper_name = "Struct"
 make_table_once("metatable_struct", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
+        if k == "value" or k == "CInstance" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
 
         -- Methods
@@ -117,23 +117,24 @@ make_table_once("metatable_struct", {
         end
         
         -- Getter
-        local wrapped = Wrap.wrap(gm.variable_struct_get(__proxy[proxy], k))
+        local ret = Wrap.wrap(gm.variable_struct_get(__proxy[proxy], k))
 
         -- If Script, automatically "bind"
         -- script as self/other
-        -- if type(wrapped) == "table"
-        -- and wrapped.RAPI == "Script" then
-        --     wrapped.self = proxy
-        --     wrapped.other = proxy
-        -- end      TODO
+        if type(ret) == "table"
+        and ret.RAPI == "Script" then
+            ret.self = proxy
+            ret.other = proxy
+        end
 
-        return wrapped
+        return ret
     end,
 
 
     __newindex = function(proxy, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
+        or k == "CInstance"
         or k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end

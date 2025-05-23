@@ -365,14 +365,18 @@ RValue.from_wrapper = function(value)
             value = memory.get_usertype_pointer(value)
 
         -- Instance
-        -- elseif instance_wrappers[_type] then
-            -- ID number is already wrapped
+        -- Not needed; ID number is already wrapped
 
         -- Struct
         elseif struct_wrappers[_type] then
+            -- Does this work?
             value = ffi.cast("struct YYObjectBase*", memory.get_usertype_pointer(value))
+            -- value = ffi.cast("struct YYObjectBase*", gm.gmf_convert_yyobjectbase(value)) -- If not try this
 
         -- Script
+        elseif sol == "sol.CScriptRef*" then
+            -- Does this work?
+            value = ffi.cast("struct CScriptRef*", memory.get_usertype_pointer(value))
             
         end
     end

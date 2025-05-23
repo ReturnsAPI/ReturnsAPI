@@ -519,16 +519,18 @@ make_table_once("metatable_instance", {
         -- For attack instances from `actor:fire_` methods, wrap `attack_info`
         if k == "attack_info" then return AttackInfo.wrap(ret) end
 
+        ret = Wrap.wrap(ret)
+
         -- If Script, automatically "bind"
         -- script as self/other
-        -- if type(ret) == "table"
-        -- and ret.RAPI == "Script" then
-        --     ret.self = proxy
-        --     ret.other = proxy
-        -- end  TODO
+        if type(ret) == "table"
+        and ret.RAPI == "Script" then
+            ret.self = proxy
+            ret.other = proxy
+        end
 
         -- Standard return
-        return Wrap.wrap(ret)
+        return ret
     end,
 
 

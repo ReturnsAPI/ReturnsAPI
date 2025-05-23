@@ -94,9 +94,9 @@ Returns a Script wrapper containing the provided script.
 Script.wrap = function(script)
     -- Input:   `sol.CScriptRef*` Script wrapper
     -- Wraps:   `sol.CScriptRef*`
-    local wrapper = make_proxy(Wrap.unwrap(script), metatable_script)
-    __self_other_cache[wrapper] = {nil, nil}    -- self, other (sol.CInstance*)
-    return wrapper
+    local proxy = make_proxy(Wrap.unwrap(script), metatable_script)
+    __self_other_cache[proxy] = {nil, nil}    -- self, other (struct CInstance*)
+    return proxy
 end
 
 
@@ -110,7 +110,7 @@ make_table_once("metatable_script", {
         -- Get wrapped value
         if k == "value" then return __proxy[proxy] end
         if k == "RAPI"  then return wrapper_name end
-        if k == "name"  then return __proxy[proxy].script_name end
+        if k == "name"  then return __proxy[proxy].script_name:sub(12, -1) end
 
         -- Get stored self/other
         if k == "self"  then return __self_other_cache[proxy][1] end
@@ -153,10 +153,12 @@ make_table_once("metatable_script", {
         or k == "other" then
             local index = ((k == "self") and 1) or 2
 
-            -- Convert v into CInstance to store
+            -- Convert v into `struct CInstance*` to store
             local _type = Util.type(v)
             if _type == "Struct" or instance_wrappers[_type] then
-                __self_other_cache[proxy][index] = v.CInstance
+                local sol = v.CInstance
+                local struct = ffi.cast("struct CInstance*", memory.get_usertype_pointer(sol))
+                __self_other_cache[proxy][index] = struct
             end
             return
         end
@@ -166,23 +168,36 @@ make_table_once("metatable_script", {
 
 
     __call = function(proxy, ...)
+        print("Flag A")
+
         -- Get stored self/other
         local actual = __proxy[proxy]
         local cached = __self_other_cache[proxy]
-        self    = cached[1]
-        other   = cached[2]
+        local self   = cached[1]
+        local other  = cached[2]
+
+        print("Flag B")
 
         local args = table.pack(...)
         local holder = nil
         if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
+
+        print("Flag C")
 
         -- Populate holder
         for i = 1, args.n do
             holder[i - 1] = RValue.from_wrapper(args[i])
         end
 
+        print("Flag D")
+        print(self, other)
+        print(gmf[proxy.name])
+
         local out = RValue.new(0)
         gmf[proxy.name](self, other, out, args.n, holder)
+        
+        print("Flag E")
+
         return RValue.to_wrapper(out)
     end,
 

@@ -87,7 +87,7 @@ Equipment.new = function(namespace, identifier)
         gm.object_add_w(namespace, identifier, gm.constants.pPickupEquipment),
         0,      -- loot_tags (?)
         nil,    -- ?
-        45,     -- cooldown (in seconds)
+        45      -- cooldown (in seconds)
         -- true,   -- make log
         -- 6,      -- log group
         -- nil,    -- ?

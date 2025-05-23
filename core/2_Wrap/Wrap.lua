@@ -49,6 +49,8 @@ Wrap.wrap = function(value)
             return Struct.wrap(value)
 
         -- Script
+        elseif sol == "sol.CScriptRef*" then
+            return Script.wrap(value)
             
         end
     end
