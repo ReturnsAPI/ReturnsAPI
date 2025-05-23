@@ -21,6 +21,8 @@ make_table_once("metatable_vector_class", {
             }, metatable_vector)
         end
 
+        if (not x) or (not y) then log.error("Vector: Missing arguments", 2) end
+
         -- New
         return setmetatable({
             x = x,
