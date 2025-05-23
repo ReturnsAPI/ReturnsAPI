@@ -88,12 +88,13 @@ make_table_once("metatable_vector", {
     end,
 
 
-    __mul = function(vec, value)
-        -- Dot product
-        if type(value) == "table" then return (vec.x * value.x) + (vec.y * value.y) end
-
+    __mul = function(v1, v2)
         -- Scalar multiply
-        return Vector(vec.x * value, vec.y * value)
+        if type(v1) == "number" then return Vector(v2.x * v1, v2.y * v1) end
+        if type(v2) == "number" then return Vector(v1.x * v2, v1.y * v2) end
+
+        -- Dot product
+        return (vec.x * value.x) + (vec.y * value.y)
     end,
 
 
