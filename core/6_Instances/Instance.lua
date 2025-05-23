@@ -340,13 +340,14 @@ Util.table_append(methods_instance, {
     ]]
     is_colliding = function(self, object, x, y)
         local object = Wrap.unwrap(object)
+        local cinst = self.CInstance
 
         -- Vanilla object
         if object < Object.CUSTOM_START then
             return (gm.call(
                 "place_meeting",
-                self.CInstance,
-                self.CInstance,
+                cinst,
+                cinst,
                 x or self.x,
                 y or self.y,
                 object
@@ -362,8 +363,8 @@ Util.table_append(methods_instance, {
 
             local count = gm.call(
                 "instance_place_list",
-                self.CInstance,
-                self.CInstance,
+                cinst,
+                cinst,
                 x or self.x,
                 y or self.y,
                 object_to_check,
@@ -412,10 +413,11 @@ Util.table_append(methods_instance, {
         local insts = {}
         local list = List.new()
 
+        local cinst = self.CInstance
         local count = gm.call(
             "instance_place_list",
-            self.CInstance,
-            self.CInstance,
+            cinst,
+            cinst,
             x or self.x,
             y or self.y,
             object_to_check,
