@@ -583,7 +583,7 @@ for _, hook in ipairs(hooks) do
     memory.dynamic_hook("RAPI.Actor."..hook, "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants[hook]),
         -- Pre-hook
         {function(ret_val, self, other, result, arg_count, args)
-            local args_typed = ffi.cast("struct RValue**", args:get_address())
+            local args_typed = ffi.cast(__args_typed, args:get_address())
     
             -- Get args
             local actor_id  = args_typed[0].i32
@@ -606,7 +606,7 @@ end
 memory.dynamic_hook("RAPI.Actor.apply_buff_internal", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.apply_buff_internal),
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
-        local args_typed = ffi.cast("struct RValue**", args:get_address())
+        local args_typed = ffi.cast(__args_typed, args:get_address())
     
         -- Get args
         local actor_id  = args_typed[0].i32
@@ -681,7 +681,7 @@ memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", 
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        local args_typed = ffi.cast("struct RValue**", args:get_address())
+        local args_typed = ffi.cast(__args_typed, args:get_address())
     
         local actor_id = args_typed[0].i32
     
@@ -703,7 +703,7 @@ memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*",
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        local args_typed = ffi.cast("struct RValue**", args:get_address())
+        local args_typed = ffi.cast(__args_typed, args:get_address())
     
         local actor_id = args_typed[0].i32
         local new_id = args_typed[1].i32

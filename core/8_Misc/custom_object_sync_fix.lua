@@ -11,7 +11,7 @@ memory.dynamic_hook("RAPI.Fix.server_message_send", "void*", {"void*", "void*", 
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
         local arg_count = arg_count:get()
-        local args_typed = ffi.cast("struct RValue**", args:get_address())
+        local args_typed = ffi.cast(__args_typed, args:get_address())
 
 		if packet_ids[tonumber(args_typed[1].i64)] then
 			args_typed[2].value = Instance.wrap(args_typed[4].i32):get_object_index()

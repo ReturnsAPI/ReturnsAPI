@@ -43,6 +43,10 @@ run_once(function()
     for i = 1, __bulk_size do __rvalue_cache[i] = ffi.new(__rvalue_struct) end
     
     __rvalue_current = 0
+
+
+    -- Used in memory.dynamic_hook
+    __args_typed = ffi.typeof("struct RValue**")
 end)
 
 
