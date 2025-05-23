@@ -181,7 +181,7 @@ api = setmetatable({}, {
             or   k == "hit"
             or   k == "true_hit")
             and (ret == nil or ret == -4) then
-                ret = Instance.wrap(-4)
+                ret = __invalid_instance
             end
 
             return ret

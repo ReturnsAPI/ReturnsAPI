@@ -29,6 +29,7 @@ Script = {}
 run_once(function()
     __bind_id_count = 0
     __bind_id_to_func = {}
+    __self_other_cache = setmetatable({}, {__mode = "k"})   -- Stores binded self/other
 end)
 
 
@@ -92,13 +93,10 @@ Returns a Script wrapper containing the provided script.
 ]]
 Script.wrap = function(script)
     -- Input:   `sol.CScriptRef*` Script wrapper
-    -- Wraps:   { `sol.CScriptRef*`, self, other }
-    if type(script) == "table" then return script end
-    return make_proxy({
-        script,
-        nil,    -- Stored `self`  (sol.CInstance*)
-        nil,    -- Stored `other` (sol.CInstance*)
-    }, metatable_script)
+    -- Wraps:   `sol.CScriptRef*`
+    local wrapper = make_proxy(Wrap.unwrap(script), metatable_script)
+    __self_other_cache[wrapper] = {nil, nil}    -- self, other (sol.CInstance*)
+    return wrapper
 end
 
 
@@ -110,13 +108,13 @@ local wrapper_name = "Script"
 make_table_once("metatable_script", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy][1] end
+        if k == "value" then return __proxy[proxy] end
         if k == "RAPI"  then return wrapper_name end
-        if k == "name"  then return __proxy[proxy][1].script_name end
+        if k == "name"  then return __proxy[proxy].script_name end
 
         -- Get stored self/other
-        if k == "self"  then return __proxy[proxy][2] end
-        if k == "other" then return __proxy[proxy][3] end
+        if k == "self"  then return __self_other_cache[proxy][1] end
+        if k == "other" then return __self_other_cache[proxy][2] end
 
         -- Call with manual self/other
         if k == "SO" then
@@ -153,13 +151,12 @@ make_table_once("metatable_script", {
         -- Store self/other
         if k == "self"
         or k == "other" then
-            local index = 2
-            if k == "other" then index = 3 end
+            local index = ((k == "self") and 1) or 2
 
             -- Convert v into CInstance to store
             local _type = Util.type(v)
             if _type == "Struct" or instance_wrappers[_type] then
-                __proxy[proxy][index] = v.CInstance
+                __self_other_cache[proxy][index] = v.CInstance
             end
             return
         end
@@ -171,8 +168,9 @@ make_table_once("metatable_script", {
     __call = function(proxy, ...)
         -- Get stored self/other
         local actual = __proxy[proxy]
-        self    = actual[2]
-        other   = actual[3]
+        local cached = __self_other_cache[proxy]
+        self    = cached[1]
+        other   = cached[2]
 
         local args = table.pack(...)
         local holder = nil

@@ -329,9 +329,11 @@ RValue.to_wrapper = function(rvalue)
     elseif  rvalue_type == RValue.Type.OBJECT then
         local yyobjectbase = rvalue.yy_object_base
         if      yyobjectbase.type == 1  then return Instance.wrap(rvalue.cinstance.id)
-        elseif  yyobjectbase.type == 3  then return Script.wrap(rvalue)
+        elseif  yyobjectbase.type == 3  then
+            -- This may have to be .i64 idk
+            return Script.wrap(memory.resolve_pointer_to_type(tonumber(rvalue.cscriptref), "CScriptRef*"))
         end
-        return Struct.wrap(memory.resolve_pointer_to_type(rvalue, "YYObjectBase*"))
+        return Struct.wrap(memory.resolve_pointer_to_type(tonumber(rvalue.i64), "YYObjectBase*"))
     elseif  rvalue_type == RValue.Type.INT32        then return tonumber(rvalue.i32)  -- Don't see any immediate consequences of doing this
     elseif  rvalue_type == RValue.Type.INT64        then return tonumber(rvalue.i64)
     elseif  rvalue_type == RValue.Type.BOOL         then return (rvalue.value ~= nil and rvalue.value ~= 0)
