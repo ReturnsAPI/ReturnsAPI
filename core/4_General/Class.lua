@@ -190,7 +190,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
         enum[k:upper()] = v
         enum[v] = k  -- Don't capitalize this
     end
-    class_table.Property = ReadOnly.new(enum)
+    class_table.Property = enum
 
     class_table.find = function(identifier, namespace, default_namespace)
         local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)

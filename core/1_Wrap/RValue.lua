@@ -84,8 +84,6 @@ for k, v in pairs(RValue.Type) do
     RValue.Type[v] = k
 end
 
-RValue.Type = ReadOnly.new(RValue.Type)
-
 
 -- Internal lookup table for RValue.from_wrapper
 local rvalue_type_lookup = {

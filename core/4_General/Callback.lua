@@ -133,11 +133,11 @@ end
 --@section Enums
 
 --@enum
-Callback.Priority = ReadOnly.new({
+Callback.Priority = {
     NORMAL  = 0,
     BEFORE  = 1000,
     AFTER   = -1000
-})
+}
 
 
 
