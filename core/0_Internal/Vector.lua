@@ -17,15 +17,27 @@ make_table_once("metatable_vector_class", {
         if type(x) == "table" then
             return setmetatable({
                 x = x.x,
-                y = x.y,
+                y = x.y
             }, metatable_vector)
         end
 
         -- New
         return setmetatable({
-            x = x or 0,
-            y = y or 0
+            x = x,
+            y = y
         }, metatable_vector)
+    end,
+
+
+    __index = function(t, k)
+        -- Constants
+        if k == "ZERO"  then return Vector( 0,  0)  end
+        if k == "ONE"   then return Vector( 1,  1)  end
+        if k == "LEFT"  then return Vector(-1,  0)  end
+        if k == "RIGHT" then return Vector( 1,  0)  end
+        if k == "UP"    then return Vector( 0, -1)  end
+        if k == "DOWN"  then return Vector( 0,  1)  end
+        if k == "HUGE"  then return Vector(math.huge, math.huge) end
     end,
 
 
