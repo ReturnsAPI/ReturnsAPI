@@ -46,7 +46,12 @@ run_once(function()
 
 
     -- Used in memory.dynamic_hook
-    __args_typed = ffi.typeof("struct RValue**")
+    __args_typed = ffi.typeof("struct RValue*")
+    __args_typed_scr = ffi.typeof("struct RValue**")
+
+    __struct_yyobjectbase = ffi.typeof("struct YYObjectBase*")
+    __struct_cinstance = ffi.typeof("struct CInstance*")
+    __struct_cscriptref = ffi.typeof("struct CScriptRef*")
 end)
 
 
@@ -374,13 +379,13 @@ RValue.from_wrapper = function(value)
         -- Struct
         elseif struct_wrappers[_type] then
             -- Does this work?
-            value = ffi.cast("struct YYObjectBase*", memory.get_usertype_pointer(value))
-            -- value = ffi.cast("struct YYObjectBase*", gm.gmf_convert_yyobjectbase(value)) -- If not try this
+            value = ffi.cast(__struct_yyobjectbase, memory.get_usertype_pointer(value))
+            -- value = ffi.cast(__struct_yyobjectbase, gm.gmf_convert_yyobjectbase(value)) -- If not try this
 
         -- Script
         elseif sol == "sol.CScriptRef*" then
             -- Does this work?
-            value = ffi.cast("struct CScriptRef*", memory.get_usertype_pointer(value))
+            value = ffi.cast(__struct_cscriptref, memory.get_usertype_pointer(value))
             
         end
     end

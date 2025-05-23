@@ -124,12 +124,12 @@ for _, hook in ipairs(hooks) do
 
         -- Post-hook
         function(ret_val, self, other, result, arg_count, args)
-            local args_typed = ffi.cast(__args_typed, args:get_address())
+            local args_typed = ffi.cast(__args_typed_scr, args:get_address())
     
             -- Get args
             local namespace = RValue.to_wrapper(args_typed[0])
             local identifier = RValue.to_wrapper(args_typed[1])
-            local id = RValue.to_wrapper(ffi.cast("struct RValue*", result:get_address()))
+            local id = RValue.to_wrapper(ffi.cast(__args_typed, result:get_address()))
     
             -- Add to find table
             if namespace then

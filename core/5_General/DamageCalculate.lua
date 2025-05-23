@@ -222,7 +222,7 @@ local ptr = gm.get_script_function_address(gm.constants.damager_calculate_damage
 
 memory.dynamic_hook_mid("RAPI.DamageCalculate.damager_calculate_damage", {"r14", "rbp-40h", "rbp+20h"}, {"RValue**", "RValue*", "RValue*"}, 0, ptr:add(0x438D), function(args)
     -- Get argument array (stored in register `r14` with type `RValue**`)
-    hook_args = ffi.cast(__args_typed, args[1]:get_address())
+    hook_args = ffi.cast(__args_typed_scr, args[1]:get_address())
     
     -- Reset `params` table
     reset_params()

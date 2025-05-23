@@ -218,11 +218,11 @@ Instance.wrap = function(id)
     if obj_index then
         
         -- Player
-        -- if obj_index == gm.constants.oP then
-        --     inst = make_proxy(id, metatable_player)
-        --     wrapper_cache[id] = inst
-        --     return inst
-        -- end
+        if obj_index == gm.constants.oP then
+            inst = make_proxy(id, metatable_player)
+            wrapper_cache[id] = inst
+            return inst
+        end
 
         -- Actor
         if gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1 then
@@ -587,7 +587,7 @@ memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", 
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        local args_typed = ffi.cast(__args_typed, args:get_address())
+        local args_typed = ffi.cast(__args_typed_scr, args:get_address())
     
         local actor_id = args_typed[0].i32
     
@@ -608,7 +608,7 @@ memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*",
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        local args_typed = ffi.cast(__args_typed, args:get_address())
+        local args_typed = ffi.cast(__args_typed_scr, args:get_address())
     
         local actor_id = args_typed[0].i32
         local new_id = args_typed[1].i32

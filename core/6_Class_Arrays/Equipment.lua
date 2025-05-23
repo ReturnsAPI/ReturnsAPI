@@ -286,7 +286,7 @@ memory.dynamic_hook("RAPI.Equipment.item_use_equipment", "void*", {"void*", "voi
         -- Prevent passive equipment use
         -- This hook only runs locally
         -- Confirmed to work in multiplayer
-        local self_cdata = ffi.cast("CInstance *", self:get_address())
+        local self_cdata = ffi.cast(__struct_cinstance, self:get_address())
         local equipment = Instance.wrap(self_cdata.id):equipment_get()
         if equipment and __equipment_is_passive[equipment.value] then
             return false

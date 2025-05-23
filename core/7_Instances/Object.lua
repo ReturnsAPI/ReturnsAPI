@@ -457,42 +457,40 @@ make_table_once("metatable_object", {
 
 -- ========== Hooks ==========
 
--- TODO
+memory.dynamic_hook("RAPI.Object.serialize", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__lf_init_multiplayer_globals_customobject_serialize),
+    -- Pre-hook
+    {nil,
 
--- memory.dynamic_hook("RAPI.Object.serialize", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__lf_init_multiplayer_globals_customobject_serialize),
---     -- Pre-hook
---     {nil,
-
---     -- Post-hook
---     function(ret_val, self, other, result, arg_count, args)
---         local inst = Instance.wrap(ffi.cast("struct CInstance *", self:get_address()).id)
---         local subtable = __object_serializers[inst:get_object_index()]
---         if subtable then
---             local buffer = Buffer.wrap(Global.multiplayer_buffer)
---             for _, fn_table in ipairs(subtable) do
---                 fn_table.fn(inst, buffer)
---             end
---         end
---     end}
--- )
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local inst = Instance.wrap(ffi.cast(__struct_cinstance, self:get_address()).id)
+        local subtable = __object_serializers[inst:get_object_index()]
+        if subtable then
+            local buffer = Buffer.wrap(Global.multiplayer_buffer)
+            for _, fn_table in ipairs(subtable) do
+                fn_table.fn(inst, buffer)
+            end
+        end
+    end}
+)
 
 
--- memory.dynamic_hook("RAPI.Object.deserialize", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__lf_init_multiplayer_globals_customobject_deserialize),
---     -- Pre-hook
---     {nil,
+memory.dynamic_hook("RAPI.Object.deserialize", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.__lf_init_multiplayer_globals_customobject_deserialize),
+    -- Pre-hook
+    {nil,
 
---     -- Post-hook
---     function(ret_val, self, other, result, arg_count, args)
---         local inst = Instance.wrap(ffi.cast("struct CInstance *", self:get_address()).id)
---         local subtable = __object_deserializers[inst:get_object_index()]
---         if subtable then
---             local buffer = Buffer.wrap(Global.multiplayer_buffer)
---             for _, fn_table in ipairs(subtable) do
---                 fn_table.fn(inst, buffer)
---             end
---         end
---     end}
--- )
+    -- Post-hook
+    function(ret_val, self, other, result, arg_count, args)
+        local inst = Instance.wrap(ffi.cast(__struct_cinstance, self:get_address()).id)
+        local subtable = __object_deserializers[inst:get_object_index()]
+        if subtable then
+            local buffer = Buffer.wrap(Global.multiplayer_buffer)
+            for _, fn_table in ipairs(subtable) do
+                fn_table.fn(inst, buffer)
+            end
+        end
+    end}
+)
 
 
 

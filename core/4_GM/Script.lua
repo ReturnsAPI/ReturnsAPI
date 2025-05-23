@@ -157,7 +157,7 @@ make_table_once("metatable_script", {
             local _type = Util.type(v)
             if _type == "Struct" or instance_wrappers[_type] then
                 local sol = v.CInstance
-                local struct = ffi.cast("struct CInstance*", memory.get_usertype_pointer(sol))
+                local struct = ffi.cast(__struct_cinstance, memory.get_usertype_pointer(sol))
                 __self_other_cache[proxy][index] = struct
             end
             return
@@ -168,36 +168,25 @@ make_table_once("metatable_script", {
 
 
     __call = function(proxy, ...)
-        print("Flag A")
-
         -- Get stored self/other
         local actual = __proxy[proxy]
         local cached = __self_other_cache[proxy]
         local self   = cached[1]
         local other  = cached[2]
 
-        print("Flag B")
-
+        -- Pack args into table
+        -- and create holder of same size
         local args = table.pack(...)
         local holder = nil
         if args.n > 0 then holder = RValue.new_holder_scr(args.n) end
-
-        print("Flag C")
 
         -- Populate holder
         for i = 1, args.n do
             holder[i - 1] = RValue.from_wrapper(args[i])
         end
 
-        print("Flag D")
-        print(self, other)
-        print(gmf[proxy.name])
-
         local out = RValue.new(0)
         gmf[proxy.name](self, other, out, args.n, holder)
-        
-        print("Flag E")
-
         return RValue.to_wrapper(out)
     end,
 
@@ -217,7 +206,7 @@ memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
         local arg_count = arg_count:get()
-        local args_typed = ffi.cast(__args_typed, args:get_address())
+        local args_typed = ffi.cast(__args_typed_scr, args:get_address())
 
         local wrapped_args = {}
 

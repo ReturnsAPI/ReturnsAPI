@@ -213,7 +213,7 @@ end
 memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.recalculate_stats),
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
-        local inst = ffi.cast("struct CInstance *", self:get_address())
+        local inst = ffi.cast(__struct_cinstance, self:get_address())
         gather_params(Instance.wrap(inst.id))
     end,
 
@@ -323,7 +323,6 @@ memory.dynamic_hook("RAPI.ActorSkill.skill_recalculate_stats", "void*", {"void*"
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        -- local self_cdata = ffi.cast("YYObjectBase*", self:get_address())
         local sol = memory.resolve_pointer_to_type(tonumber(self:get_address()), "YYObjectBase*")
         local self_struct = Struct.wrap(sol)
 
