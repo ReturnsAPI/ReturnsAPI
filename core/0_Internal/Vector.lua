@@ -1,6 +1,40 @@
 -- Vector
 
--- A simple 2D vector library
+--[[
+This is a simple implementation for 2D vectors.
+
+```lua
+-- Some operations may not be exact due to floating-point errors.
+
+-- New
+local v1 = Vector()         -- <0, 0>
+local v2 = Vector(1, 1)     -- <1, 1>
+
+-- Clone
+local v3 = Vector(v2)       -- <1, 1>
+
+-- Length and direction
+print(v3.length)            -- 1
+print(v3.direction)         -- -45
+v3.length = 1               -- <0.70710678118655, 0.70710678118655>
+v3.direction = 180          -- <-1, 0>
+
+-- Operations
+local v4 = Vector(1, 2)
+local v5 = Vector(3, 4)
+print(v4 == v5)             -- false
+print(v4 + v5)              -- <4, 6>
+print(v4 - v5)              -- <-2, -2>
+print(v4 * v5)              -- 11  (dot product)
+
+-- Scalar operations
+print(v4 * 2)               -- <2, 4>
+print(v4 / 2)               -- <0.5, 1>
+
+-- Negation
+print(-v4)                  -- <-1, -2>
+```
+]]
 
 Vector = new_class()
 
@@ -89,7 +123,7 @@ make_table_once("metatable_vector", {
 
     __mul = function(vec, value)
         -- Dot product
-        if type(value) == "table" then return Vector(vec.x * value.x, vec.y * value.y) end
+        if type(value) == "table" then return (vec.x * value.x) + (vec.y * value.y) end
 
         -- Scalar multiply
         return Vector(vec.x * value, vec.y * value)
@@ -105,6 +139,11 @@ make_table_once("metatable_vector", {
     __unm = function(vec)
         -- Negate
         return Vector(-vec.x, -vec.y)
+    end,
+
+
+    __tostring = function(vec)
+        return "<"..vec.x..", "..vec.y..">"
     end,
 
 

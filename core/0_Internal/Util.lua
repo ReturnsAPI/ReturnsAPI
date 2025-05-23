@@ -62,7 +62,7 @@ Automatically replaces `tostring()` with this on `.auto()` import;
 the original is saved as `lua_tostring()`.
 ]]
 Util.tostring = function(value)
-    if type(value) == "table" and value.RAPI then
+    if type(value) == "table" and value.RAPI and (value.RAPI ~= "Vector") then
         return value.RAPI..tostring(value):sub(6, -1)
     end
     return tostring(value)
