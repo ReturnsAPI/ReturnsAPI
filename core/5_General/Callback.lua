@@ -365,7 +365,7 @@ memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*"
     
         -- Wrap args (content callbacks, e.g., `<item>.on_acquired`)
         else
-            for i = 1, arg_count - 1 do  
+            for i = 1, arg_count - 1 do
                 table.insert(wrapped_args, RValue.to_wrapper(args_typed[i]))
             end
         end

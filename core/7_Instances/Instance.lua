@@ -288,11 +288,12 @@ Util.table_append(methods_instance, {
     Also exists as a @link {static method | Instance#destroy-static}.
     ]]
     destroy = function(self)
-        gm.instance_destroy(id)
+        local value = self.value
+        gm.instance_destroy(value)
 
         -- Clear instance data and
         -- make this wrapper invalid
-        __instance_data[id] = nil
+        __instance_data[value] = nil
         __proxy[self] = -4
     end,
 
