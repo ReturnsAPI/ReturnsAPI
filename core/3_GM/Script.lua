@@ -157,7 +157,7 @@ make_table_once("metatable_script", {
             local _type = Util.type(v)
             if _type == "Struct" or instance_wrappers[_type] then
                 local sol = v.CInstance
-                local struct = ffi.cast(__struct_cinstance, memory.get_usertype_pointer(sol))
+                local struct = FFI.cast(__struct_cinstance, memory.get_usertype_pointer(sol))
                 __self_other_cache[proxy][index] = struct
             end
             return
@@ -206,7 +206,7 @@ memory.dynamic_hook("RAPI.function_dummy", "void*", {"YYObjectBase*", "void*", "
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
         local arg_count = arg_count:get()
-        local args_typed = ffi.cast(__args_typed_scr, args:get_address())
+        local args_typed = FFI.cast(__args_typed_scr, args:get_address())
 
         local wrapped_args = {}
 

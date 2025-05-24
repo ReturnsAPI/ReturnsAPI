@@ -38,7 +38,7 @@ GM.internal.builtin_globals = {}
 for i = 0, gm.gmf_builtin_variables_count() - 1 do
     local builtin_var = gmf.__builtin_variables[i]
     if builtin_var.name then
-        local str = ffi.string(builtin_var.name)
+        local str = FFI.string(builtin_var.name)
         GM.internal.builtin_globals[str] = builtin_var
     end
 end

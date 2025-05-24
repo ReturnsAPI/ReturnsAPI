@@ -327,7 +327,7 @@ memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*"
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
         local arg_count = arg_count:get()
-        local args_typed = ffi.cast(__args_typed_scr, args:get_address())
+        local args_typed = FFI.cast(__args_typed_scr, args:get_address())
     
         -- Check if any registered callbacks
         -- exist for the current callback

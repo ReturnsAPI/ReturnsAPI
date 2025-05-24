@@ -55,6 +55,39 @@ end
 
 
 
+-- ========== Public Export ==========
+
+run_once(function()
+    __class     = {}    -- Every public class
+    __class_mt  = {}    -- Metatable for public class (optional, should be the same key as in __class)
+end)
+
+-- __ref_map created in Map.lua
+
+
+
+-- ========== FFI ==========
+
+run_once(function()
+    -- jit.off ffi calls
+    FFI = {
+        cast    = function(...) return ffi.cast(...)    end,
+        new     = function(...) return ffi.new(...)     end,
+        typeof  = function(...) return ffi.typeof(...)  end,
+        load    = function(...) return ffi.load(...)    end,
+        cdef    = function(...) return ffi.cdef(...)    end,
+        string  = function(...) return ffi.string(...)  end
+    }
+    for _, fn in pairs(FFI) do
+        jit.off(fn)
+    end
+
+    -- Public export
+    __class.FFI = FFI
+end)
+
+
+
 -- ========== Proxy ==========
 
 run_once(function()
@@ -77,14 +110,3 @@ run_once(function()
         return proxy
     end
 end)
-
-
-
--- ========== Public Export ==========
-
-run_once(function()
-    __class     = {}    -- Every public class
-    __class_mt  = {}    -- Metatable for public class (optional, should be the same key as in __class)
-end)
-
--- __ref_map created in Map.lua

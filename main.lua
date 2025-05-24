@@ -5,16 +5,6 @@ PATH = _ENV["!plugins_mod_folder_path"].."/"
 gmf = require("ReturnOfModding-GLOBAL/gmf")
 
 
--- Turn JIT compilation off for gmf
--- It is what it is
--- This is automatically done now
--- for k, v in pairs(gmf) do
---     if type(v) == "function" then
---         jit.off(v)
---     end
--- end
-
-
 -- ENVY initial setup
 mods["LuaENVY-ENVY"].auto()
 envy = mods["LuaENVY-ENVY"]
