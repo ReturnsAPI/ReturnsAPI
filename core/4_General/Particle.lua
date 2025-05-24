@@ -195,6 +195,13 @@ methods_particle = {
     --@optional     color       | color     | The color to blend. <br>`Color.WHITE` by default.
     --@optional     count       | number    | The number of particles to spawn. <br>`1` by default.
     --@optional     system      | number    | The @link {particle system | Particle#System} to use. <br>`Particle.System.ABOVE` by default.
+    --@overload
+    --@name         create_colour
+    --@param        x           | number    | The x coordinate to spawn at.
+    --@param        y           | number    | The y coordinate to spawn at.
+    --@optional     color       | color     | The color to blend. <br>`Color.WHITE` by default.
+    --@optional     count       | number    | The number of particles to spawn. <br>`1` by default.
+    --@optional     system      | number    | The @link {particle system | Particle#System} to use. <br>`Particle.System.ABOVE` by default.
     --[[
     Spawns colored particles at the specified location.
     ]]

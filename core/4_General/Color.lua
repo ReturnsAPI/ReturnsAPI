@@ -1,5 +1,9 @@
 -- Color
 
+--[[
+Alias: `Colour`
+]]
+
 Color = new_class()
 
 
