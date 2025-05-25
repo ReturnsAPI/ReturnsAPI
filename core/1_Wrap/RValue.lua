@@ -362,6 +362,7 @@ RValue.from_wrapper = function(value)
     local _type, is_RAPI = Util.type(value, true)
     local _type_rvalue = rvalue_type_lookup[_type]
 
+    -- * sol wrappers here have to be in RAPI wrappers to be converted correctly
     if is_RAPI then
         value = __proxy[value]
 
