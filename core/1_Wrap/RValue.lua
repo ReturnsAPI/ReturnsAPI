@@ -4,18 +4,18 @@ RValue = new_class()
 
 run_once(function()
     -- Typeof:
-    -- Seems to be faster to run FFI.new with predefined types
+    -- Seems to be faster to run ffi.new with predefined types
     -- instead of passing "struct RValue", etc.
     __holder_size_count = 10
 
     __holder_struct = {}
-    for i = 1, __holder_size_count do __holder_struct[i] = FFI.typeof("struct RValue["..i.."]") end
+    for i = 1, __holder_size_count do __holder_struct[i] = ffi.typeof("struct RValue["..i.."]") end
 
     __holder_struct_scr = {}
-    for i = 1, __holder_size_count do __holder_struct_scr[i] = FFI.typeof("struct RValue*["..i.."]") end
+    for i = 1, __holder_size_count do __holder_struct_scr[i] = ffi.typeof("struct RValue*["..i.."]") end
 
-    __rvalue_struct = FFI.typeof("struct RValue")
-    __rvalue_struct_str = FFI.typeof("struct RValue[1]")
+    __rvalue_struct = ffi.typeof("struct RValue")
+    __rvalue_struct_str = ffi.typeof("struct RValue[1]")
 
 
     -- Cache:
@@ -28,7 +28,7 @@ run_once(function()
     for size = 1, __holder_size_count do
         __holder_cache[size] = {}
         __holder_current[size] = 0
-        for i = 1, __bulk_size do __holder_cache[size][i] = FFI.new(__holder_struct[size]) end
+        for i = 1, __bulk_size do __holder_cache[size][i] = ffi.new(__holder_struct[size]) end
     end
 
     __holder_cache_scr = {}
@@ -36,22 +36,22 @@ run_once(function()
     for size = 1, __holder_size_count do
         __holder_cache_scr[size] = {}
         __holder_current_scr[size] = 0
-        for i = 1, __bulk_size do __holder_cache_scr[size][i] = FFI.new(__holder_struct_scr[size]) end
+        for i = 1, __bulk_size do __holder_cache_scr[size][i] = ffi.new(__holder_struct_scr[size]) end
     end
 
     __rvalue_cache = {}
-    for i = 1, __bulk_size do __rvalue_cache[i] = FFI.new(__rvalue_struct) end
+    for i = 1, __bulk_size do __rvalue_cache[i] = ffi.new(__rvalue_struct) end
     
     __rvalue_current = 0
 
 
     -- Used in memory.dynamic_hook
-    __args_typed = FFI.typeof("struct RValue*")
-    __args_typed_scr = FFI.typeof("struct RValue**")
+    __args_typed = ffi.typeof("struct RValue*")
+    __args_typed_scr = ffi.typeof("struct RValue**")
 
-    __struct_yyobjectbase = FFI.typeof("struct YYObjectBase*")
-    __struct_cinstance = FFI.typeof("struct CInstance*")
-    __struct_cscriptref = FFI.typeof("struct CScriptRef*")
+    __struct_yyobjectbase = ffi.typeof("struct YYObjectBase*")
+    __struct_cinstance = ffi.typeof("struct CInstance*")
+    __struct_cscriptref = ffi.typeof("struct CScriptRef*")
 end)
 
 
@@ -125,7 +125,7 @@ RValue.new = function(val, rvalue_type)
         __rvalue_current = 1
 
         -- Rebuild cache
-        for i = 1, __bulk_size do __rvalue_cache[i] = FFI.new(__rvalue_struct) end
+        for i = 1, __bulk_size do __rvalue_cache[i] = ffi.new(__rvalue_struct) end
     end
     local rvalue = __rvalue_cache[__rvalue_current]
 
@@ -144,7 +144,7 @@ RValue.new = function(val, rvalue_type)
             rvalue.value = val
             return rvalue
         elseif type_val == "string" then
-            local rvalue = FFI.new(__rvalue_struct_str)
+            local rvalue = ffi.new(__rvalue_struct_str)
             gmf.yysetstring(rvalue, val)
             return rvalue[0]
         elseif type_val == "boolean" then
@@ -158,7 +158,7 @@ RValue.new = function(val, rvalue_type)
 
     -- RValue.Type.STRING
     if rvalue_type == RValue.Type.STRING then
-        local rvalue = FFI.new(__rvalue_struct_str)
+        local rvalue = ffi.new(__rvalue_struct_str)
         gmf.yysetstring(rvalue, val)
         return rvalue[0]
     end
@@ -235,7 +235,7 @@ RValue.new_holder = function(size)
 
     -- Size out-of-range of cache
     if not cache then
-        return FFI.new("struct RValue["..size.."]")
+        return ffi.new("struct RValue["..size.."]")
     end
 
     -- Retrieve fresh holder from cache
@@ -244,7 +244,7 @@ RValue.new_holder = function(size)
         __holder_current[size] = 1
 
         -- Rebuild cache
-        for i = 1, __bulk_size do cache[i] = FFI.new(__holder_struct[size]) end
+        for i = 1, __bulk_size do cache[i] = ffi.new(__holder_struct[size]) end
     end
 
     return cache[__holder_current[size]]
@@ -262,7 +262,7 @@ RValue.new_holder_scr = function(size)
 
     -- Size out-of-range of cache
     if not cache then
-        return FFI.new("struct RValue*["..size.."]")
+        return ffi.new("struct RValue*["..size.."]")
     end
 
     -- Retrieve fresh holder from cache
@@ -271,7 +271,7 @@ RValue.new_holder_scr = function(size)
         __holder_current_scr[size] = 1
 
         -- Rebuild cache
-        for i = 1, __bulk_size do cache[i] = FFI.new(__holder_struct_scr[size]) end
+        for i = 1, __bulk_size do cache[i] = ffi.new(__holder_struct_scr[size]) end
     end
 
     return cache[__holder_current_scr[size]]
@@ -329,7 +329,7 @@ RValue.to_wrapper = function(rvalue)
     local rvalue_type = rvalue.type
 
     if      rvalue_type == RValue.Type.REAL         then return rvalue.value
-    elseif  rvalue_type == RValue.Type.STRING       then return FFI.string(rvalue.ref_string.m_str)
+    elseif  rvalue_type == RValue.Type.STRING       then return ffi.string(rvalue.ref_string.m_str)
     elseif  rvalue_type == RValue.Type.ARRAY        then return Array.wrap(memory.resolve_pointer_to_type(tonumber(rvalue.i64), "RefDynamicArrayOfRValue*"))
     elseif  rvalue_type == RValue.Type.PTR          then return rvalue.i64
     elseif  rvalue_type == RValue.Type.UNDEFINED    then return nil
@@ -376,14 +376,13 @@ RValue.from_wrapper = function(value)
 
         -- Struct
         elseif struct_wrappers[_type] then
-            -- Does this work?
-            value = FFI.cast(__struct_yyobjectbase, memory.get_usertype_pointer(value))
-            -- value = FFI.cast(__struct_yyobjectbase, gm.gmf_convert_yyobjectbase(value)) -- If not try this
+            value = ffi.cast(__struct_yyobjectbase, memory.get_usertype_pointer(value))
+            -- value = ffi.cast(__struct_yyobjectbase, gm.gmf_convert_yyobjectbase(value)) -- If not working, try this
 
         -- Script
         elseif sol == "sol.CScriptRef*" then
             -- Does this work?
-            value = FFI.cast(__struct_cscriptref, memory.get_usertype_pointer(value))
+            value = ffi.cast(__struct_cscriptref, memory.get_usertype_pointer(value))
             
         end
     end

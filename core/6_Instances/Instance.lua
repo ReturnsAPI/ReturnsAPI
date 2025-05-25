@@ -590,7 +590,7 @@ memory.dynamic_hook("RAPI.Instance.actor_set_dead", "void*", {"void*", "void*", 
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        local args_typed = FFI.cast(__args_typed_scr, args:get_address())
+        local args_typed = ffi.cast(__args_typed_scr, args:get_address())
     
         local actor_id = args_typed[0].i32
     
@@ -611,7 +611,7 @@ memory.dynamic_hook("RAPI.Instance.actor_transform", "void*", {"void*", "void*",
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        local args_typed = FFI.cast(__args_typed_scr, args:get_address())
+        local args_typed = ffi.cast(__args_typed_scr, args:get_address())
     
         local actor_id = args_typed[0].i32
         local new_id = args_typed[1].i32

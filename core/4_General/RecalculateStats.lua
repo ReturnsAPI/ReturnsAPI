@@ -213,7 +213,7 @@ end
 memory.dynamic_hook("RAPI.recalculate_stats", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.recalculate_stats),
     -- Pre-hook
     {function(ret_val, self, other, result, arg_count, args)
-        local inst = FFI.cast(__struct_cinstance, self:get_address())
+        local inst = ffi.cast(__struct_cinstance, self:get_address())
         gather_params(Instance.wrap(inst.id))
     end,
 

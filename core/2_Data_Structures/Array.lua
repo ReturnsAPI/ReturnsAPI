@@ -312,7 +312,7 @@ make_table_once("metatable_array", {
 
 
     __gc = function(proxy)
-        __ref_map:delete(__proxy[proxy])
+        __ref_map:delete(proxy)
     end,
 
 

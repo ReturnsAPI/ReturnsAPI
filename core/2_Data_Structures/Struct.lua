@@ -163,7 +163,11 @@ make_table_once("metatable_struct", {
 
 
     __gc = function(proxy)
-        __ref_map:delete(__proxy[proxy])
+        -- I think not clearing this is fine actually(?)
+        -- Doesn't seem to lag even at 250000 keys
+        -- print("struct __gc 1:", proxy)
+        -- print("struct __gc 2:", __proxy[proxy])
+        -- __ref_map:delete(proxy)
     end,
 
 

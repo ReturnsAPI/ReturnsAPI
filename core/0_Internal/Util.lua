@@ -403,8 +403,8 @@ Use in tandem with ImGui callbacks.
 ]]
 Util.jit_off = function(fn)
     if type(fn) == "table" then
-        for _, f in ipairs(fn) do jit.off(f) end
-    else jit.off(fn)
+        for _, f in ipairs(fn) do jit.off(f, true) end
+    else jit.off(fn, true)
     end
     return fn
 end

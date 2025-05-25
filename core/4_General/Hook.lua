@@ -173,18 +173,18 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                 end
 
                 local arg_count = arg_count:get()
-                local args_typed = FFI.cast(args_cast_type, args:get_address())
+                local args_typed = ffi.cast(args_cast_type, args:get_address())
 
                 -- Cast and wrap `self`
                 local self_wrapped = nil
                 local self_address = self:get_address()
                 if self_address ~= 0 then
                     -- If not `nil`, wrap as either Struct or Instance
-                    local self_cdata = FFI.cast(__struct_yyobjectbase, self_address)
+                    local self_cdata = ffi.cast(__struct_yyobjectbase, self_address)
 
                     -- Instance
                     if self_cdata.type == 1 then
-                        self_cdata = FFI.cast(__struct_cinstance, self_address)
+                        self_cdata = ffi.cast(__struct_cinstance, self_address)
                         self_wrapped = Instance.wrap(self_cdata.id)
 
                     -- Struct
@@ -199,11 +199,11 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                 local other_address = other:get_address()
                 if other_address ~= 0 then
                     -- If not `nil`, wrap as either Struct or Instance
-                    local other_cdata = FFI.cast(__struct_yyobjectbase, other_address)
+                    local other_cdata = ffi.cast(__struct_yyobjectbase, other_address)
 
                     -- Instance
                     if other_cdata.type == 1 then
-                        other_cdata = FFI.cast(__struct_cinstance, other_address)
+                        other_cdata = ffi.cast(__struct_cinstance, other_address)
                         other_wrapped = Instance.wrap(other_cdata.id)
 
                     -- Struct
@@ -219,7 +219,7 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                 local result_rvalue = nil
                 if result_address ~= 0 then
                     -- If not `nil`, cast to RValue -> wrapper
-                    result_rvalue = FFI.cast(__args_typed, result_address)
+                    result_rvalue = ffi.cast(__args_typed, result_address)
                     result_wrapped = RValue.to_wrapper(result_rvalue)
                 end
 
@@ -267,6 +267,8 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                 return prehook_return
             end
 
+            jit.off(hook_func, true)
+
             -- Add hook
             table.insert(__hooks_script, {script, _type, hook_func})
             Hook.internal.hook_script(script, _type, hook_func)
@@ -284,11 +286,11 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                 local self_address = self:get_address()
                 if self_address ~= 0 then
                     -- If not `nil`, wrap as either Struct or Instance
-                    local self_cdata = FFI.cast(__struct_yyobjectbase, self_address)
+                    local self_cdata = ffi.cast(__struct_yyobjectbase, self_address)
 
                     -- Instance
                     if self_cdata.type == 1 then
-                        self_cdata = FFI.cast(__struct_cinstance, self_address)
+                        self_cdata = ffi.cast(__struct_cinstance, self_address)
                         self_wrapped = Instance.wrap(self_cdata.id)
 
                     -- Struct
@@ -303,11 +305,11 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                 local other_address = other:get_address()
                 if other_address ~= 0 then
                     -- If not `nil`, wrap as either Struct or Instance
-                    local other_cdata = FFI.cast(__struct_yyobjectbase, other_address)
+                    local other_cdata = ffi.cast(__struct_yyobjectbase, other_address)
 
                     -- Instance
                     if other_cdata.type == 1 then
-                        other_cdata = FFI.cast(__struct_cinstance, other_address)
+                        other_cdata = ffi.cast(__struct_cinstance, other_address)
                         other_wrapped = Instance.wrap(other_cdata.id)
 
                     -- Struct
@@ -333,6 +335,8 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                 -- If `false`, skips normal script execution
                 return prehook_return
             end
+            
+            jit.off(hook_func, true)
 
             -- Add hook
             table.insert(__hooks_object, {script, _type, hook_func})

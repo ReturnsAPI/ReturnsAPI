@@ -13,13 +13,19 @@ end
 -- Runs the function only once on initial load,
 -- and never again on hotload
 function run_once(fn)
-    if not hotloaded then fn() end
+    if not hotloaded then
+        jit.off(fn)
+        fn()
+    end
 end
 
 
 -- Runs the function only on hotload
 function run_on_hotload(fn)
-    if hotloaded then fn() end
+    if hotloaded then
+        jit.off(fn)
+        fn()
+    end
 end
 
 
@@ -70,20 +76,27 @@ end)
 
 run_once(function()
     -- jit.off ffi calls
-    FFI = {
-        cast    = function(...) return ffi.cast(...)    end,
-        new     = function(...) return ffi.new(...)     end,
-        typeof  = function(...) return ffi.typeof(...)  end,
-        load    = function(...) return ffi.load(...)    end,
-        cdef    = function(...) return ffi.cdef(...)    end,
-        string  = function(...) return ffi.string(...)  end
-    }
-    for _, fn in pairs(FFI) do
-        jit.off(fn)
+    local fns = {}
+    for k, v in pairs(ffi) do
+        if type(v) == "function" then
+            table.insert(fns, k)
+        end
+    end
+    for _, k in ipairs(fns) do
+        local fn = ffi[k]
+        ffi[k.."_og"] = fn
+        ffi[k] = function(...) return fn(...) end
+        jit.off(ffi[k])
     end
 
-    -- Public export
-    __class.FFI = FFI
+    -- jit.off gmf
+    gmf.yysetstring_func_ptr = gmf.yysetstring
+    gmf.yysetstring = function(...) gmf.yysetstring_func_ptr(...) end
+    for _, v in pairs(gmf) do
+        if type(v) == "function" then
+            jit.off(v)
+        end
+    end
 end)
 
 

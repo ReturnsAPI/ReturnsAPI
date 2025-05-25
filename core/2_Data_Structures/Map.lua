@@ -146,7 +146,7 @@ methods_map = {
     Deletes the key-value pair of the specified key.
     ]]
     delete = function(self, key)
-        gm.ds_map_delete(self.value, Wrap.unwrap(key))
+        gm.ds_map_delete(self.value, Wrap.unwrap(key, true))
     end,
 
 
