@@ -8,6 +8,8 @@ Object serialization
 - self:projectile_sync(interval) - same as resync but with automatic periodic resync
 - self:instance_destroy_sync() - sync destruction
 
+- onattackhit/hitproc runs for host only
+
 - item on acquired runs for both host and clients
     - write this down in docs desc too
     - i think all content callbacks do actually

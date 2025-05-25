@@ -148,14 +148,16 @@ end
 --@section Instance Methods
 
 methods_tracer = {
+
     --@instance
-    --@param        func        | function  | The function to set.
+    --@param        func        | function  | The function to set. <br>The parameters for it are `x1, y1, x2, y2, tracer_col`.
     --[[
     Sets the function that gets called whenever the tracer spawns.
     ]]
     set_func = function(self, func)
         __tracer_funcs[self.value] = func
     end
+
 }
 
 
