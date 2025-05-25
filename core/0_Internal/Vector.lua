@@ -112,9 +112,10 @@ make_table_once("metatable_vector", {
     end,
 
 
-    __div = function(vec, value)
+    __div = function(v1, v2)
         -- Scalar divide
-        return Vector(vec.x / value, vec.y / value)
+        if type(v1) == "number" then return Vector(v1 / v2.x, v1 / v2.y) end
+        if type(v2) == "number" then return Vector(v1.x / v2, v1.y / v2) end
     end,
 
 
