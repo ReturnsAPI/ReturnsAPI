@@ -131,21 +131,33 @@ methods_attackinfo = {
     end,
 
 
+    --@instance
+    --@return       bool
+    --@param        flag        | number    | The {flag | AttackInfo#Flag} to check.
+    --[[
+    Returns `true` if the attack flag is active, and `false` otherwise.
+    ]]
     get_flag = function(self, flag)
         return bit.band(self.attack_flags, flag) > 0
     end,
 
 
-    set_flag = function(self, flags, state)
-        if type(flags) ~= "table" then flags = table.pack(flags) end
+    --@instance
+    --@param        flag        | number or table   | A {flag | AttackInfo#Flag} or table of flags to modify.
+    --@param        state       | bool              | `true` - Enable flag(s) <br>`false` - Disable flag(s)
+    --[[
+    Returns `true` if the attack flag is active, and `false` otherwise.
+    ]]
+    set_flag = function(self, flag, state)
+        if type(flag) ~= "table" then flag = table.pack(flag) end
         if state == nil then log.error("set_flags: state argument not provided", 2) end
 
-        for _, flag in ipairs(flags) do
-            if bit.band(self.attack_flags, flag) == 0 and state then
-                self.attack_flags = self.attack_flags + flag
+        for _, fl in ipairs(flag) do
+            if bit.band(self.attack_flags, fl) == 0 and state then
+                self.attack_flags = self.attack_flags + fl
             end
-            if bit.band(self.attack_flags, flag) > 0 and (not state) then
-                self.attack_flags = self.attack_flags - flag
+            if bit.band(self.attack_flags, fl) > 0 and (not state) then
+                self.attack_flags = self.attack_flags - fl
             end
         end
     end
