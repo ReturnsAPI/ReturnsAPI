@@ -29,7 +29,6 @@ local funcs = {
 
 -- Parser
 for name, data in pairs(funcs) do
-
     local str = "__GM_function_cache[\""..name.."\"] = "
 
     -- Signature
@@ -40,44 +39,41 @@ for name, data in pairs(funcs) do
     end
     str = str.."function("..args..")\n    "
         
-
-    -- Builtin
-    if GM.internal.builtin[name] then
-        -- return
-        local wrapped = false
-        if data[1] then
-            str = str.."return "
-            if data[1] ~= "" then
-                wrapped = true
-                str = str..data[1]..".wrap("
-            end
+    -- return
+    local wrapped = false
+    if data[1] then
+        str = str.."return "
+        if data[1] ~= "" then
+            wrapped = true
+            str = str..data[1]..".wrap("
         end
+    end
 
-        -- Function call
-        str = str.."gm."..name.."("
+    -- Function call
+    str = str.."gm."..name.."("
 
-        -- Arguments
-        for i, bool in ipairs(data[2]) do
-            if i > 1 then str = str..", " end
-            if bool == 1 then   str = str.."Wrap.unwrap(arg"..i..", true)"
-            elseif bool then    str = str.."Wrap.unwrap(arg"..i..")"
-            else                str = str.."arg"..i
-            end
+    -- Arguments
+    for i, bool in ipairs(data[2]) do
+        if i > 1 then str = str..", " end
+        if bool == 1 then   str = str.."Wrap.unwrap(arg"..i..", true)"
+        elseif bool then    str = str.."Wrap.unwrap(arg"..i..")"
+        else                str = str.."arg"..i
         end
+    end
 
-        -- Function call )
-        str = str..")"
+    -- Function call )
+    str = str..")"
 
-        -- return )
-        if wrapped then str = str..")" end
+    -- return )
+    if wrapped then str = str..")" end
 
-        -- end
-        str = str.."\nend"
+    -- end
+    str = str.."\nend"
 
-        -- print(str)
-        local fn = loadstring(str)
-        envy.setfenv(fn, envy.getfenv())
-        fn()
+    -- print(str)
+    local fn = loadstring(str)
+    envy.setfenv(fn, envy.getfenv())
+    fn()
 
 
     -- Script
@@ -116,6 +112,4 @@ for name, data in pairs(funcs) do
     --     local fn = loadstring(str)
     --     envy.setfenv(fn, envy.getfenv())
     --     fn()
-
-    end
 end
