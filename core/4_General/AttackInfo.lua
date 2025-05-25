@@ -146,7 +146,7 @@ methods_attackinfo = {
     --@param        flag        | number or table   | A @link {flag | AttackInfo#Flag} or table of flags to modify.
     --@param        state       | bool              | `true` - Enable flag(s) <br>`false` - Disable flag(s)
     --[[
-    Returns `true` if the attack flag is active, and `false` otherwise.
+    Sets the state of the specified attack flag(s).
     ]]
     set_flag = function(self, flag, state)
         if type(flag) ~= "table" then flag = table.pack(flag) end
