@@ -54,19 +54,7 @@ local call = function(k)
     if not __GM_function_cache[k] then
         if not gmf[k] then log.error("GM."..k.." does not exist", 2) end
 
-        -- Keeping these global get/set here anyway
-        -- since it avoids the table.pack/unpack calls
-        if k == "variable_global_get" then
-            __GM_function_cache[k] = function(name)
-                return Wrap.wrap(gm.variable_global_get(name))
-            end
-
-        elseif k == "variable_global_set" then
-            __GM_function_cache[k] = function(name, value)
-                gm.variable_global_set(name, Wrap.unwrap(value, true))
-            end
-
-        elseif GM.internal.builtin[k] then
+        if GM.internal.builtin[k] then
             __GM_function_cache[k] = function(...)
                 local args = table.pack(...)
 
@@ -181,6 +169,51 @@ setmetatable(GM_callso, metatable_callso)
 -- Public export
 __class.GM = GM
 __class_mt.GM = metatable_GM
+
+
+
+-- ========== Populate function cache with common ones ==========
+
+local fns = {
+
+    -- === variable_global ===
+
+    variable_global_get = function(name)
+        return Wrap.wrap(gm.variable_global_get(name))
+    end,
+
+    variable_global_set = function(name, value)
+        gm.variable_global_set(name, Wrap.unwrap(value, true))
+    end,
+
+
+    -- === instance ===
+    
+    instance_find = function(object, index)
+        return Instance.wrap(gm.instance_find(Wrap.unwrap(object), index))
+    end,
+
+    instance_exists = function(inst)
+        return (gm.instance_exists(Wrap.unwrap(inst)) == 1)
+    end,
+
+    instance_create = function(x, y, object)
+        return Instance.wrap(gm.instance_create(Wrap.unwrap(x), Wrap.unwrap(y), Wrap.unwrap(object)))
+    end,
+
+    instance_destroy = function(inst)
+        gm.instance_destroy(Wrap.unwrap(inst))
+    end,
+
+    instance_number = function(object)
+        return gm.instance_number(Wrap.unwrap(object))
+    end,
+
+}
+
+for k, v in pairs(fns) do
+    __GM_function_cache[k] = v
+end
 
 
 
