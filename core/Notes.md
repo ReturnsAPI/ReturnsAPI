@@ -11,3 +11,5 @@ Object serialization
 - item on acquired runs for both host and clients
     - write this down in docs desc too
     - i think all content callbacks do actually
+
+- invalid arguments to gmf call does not throw gamemaker error, but silently fails instead

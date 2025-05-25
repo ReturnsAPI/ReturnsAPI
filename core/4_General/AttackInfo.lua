@@ -4,6 +4,44 @@ AttackInfo = new_class()
 
 
 
+-- ========== Enums ==========
+
+--@enum
+AttackInfo.Flag = {
+    CD_RESET_ON_KILL            = bit.lshift(1, 0),
+    INFLICT_POISON_DOT          = bit.lshift(1, 1),
+    CHEF_IGNITE                 = bit.lshift(1, 2),
+    STUN_PROC_EF                = bit.lshift(1, 3),
+    KNOCKBACK_PROC_EF           = bit.lshift(1, 4), 
+    SPAWN_LIGHTNING             = bit.lshift(1, 5),
+    SNIPER_BONUS_60             = bit.lshift(1, 6),
+    SNIPER_BONUS_30             = bit.lshift(1, 7),
+    HAND_STEAM_1                = bit.lshift(1, 8),
+    HAND_STEAM_5                = bit.lshift(1, 9),
+    DRIFTER_SCRAP_BIT1          = bit.lshift(1, 10),
+    DRIFTER_SCRAP_BIT2          = bit.lshift(1, 11),
+    DRIFTER_EXECUTE             = bit.lshift(1, 12),
+    MINER_HEAT                  = bit.lshift(1, 13),
+    COMMANDO_WOUND              = bit.lshift(1, 14),
+    COMMANDO_WOUND_DAMAGE       = bit.lshift(1, 15),
+    GAIN_SKULL_ON_KILL          = bit.lshift(1, 16),
+    GAIN_SKULL_BOOSTED          = bit.lshift(1, 17),
+    CHEF_FREEZE                 = bit.lshift(1, 18),
+    CHEF_BIGFREEZE              = bit.lshift(1, 19),
+    CHEF_FOOD                   = bit.lshift(1, 20),
+    INFLICT_ARMOR_STRIP         = bit.lshift(1, 21),
+    INFLICT_FLAME_DOT           = bit.lshift(1, 22),
+    MERC_AFTERIMAGE_NODAMAGE    = bit.lshift(1, 23),
+    PILOT_RAID                  = bit.lshift(1, 24),
+    PILOT_RAID_BOOSTED          = bit.lshift(1, 25),
+    PILOT_MINE                  = bit.lshift(1, 26),
+    INFLICT_ARTI_FLAME_DOT      = bit.lshift(1, 27),
+    SAWMERANG                   = bit.lshift(1, 28),
+    FORCE_PROC                  = bit.lshift(1, 29)
+}
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods
@@ -87,6 +125,26 @@ methods_attackinfo = {
             self.critical = false
             self.damage = math.ceil(self.damage / 2)
 
+        end
+    end,
+
+
+    get_flag = function(self, flag)
+        return bit.band(self.attack_flags, flag) > 0
+    end,
+
+
+    set_flag = function(self, flags, state)
+        if type(flags) ~= "table" then flags = table.pack(flags) end
+        if state == nil then log.error("set_flags: state argument not provided", 2) end
+
+        for _, flag in ipairs(flags) do
+            if bit.band(self.attack_flags, flag) == 0 and state then
+                self.attack_flags = self.attack_flags + flag
+            end
+            if bit.band(self.attack_flags, flag) > 0 and (not state) then
+                self.attack_flags = self.attack_flags - flag
+            end
         end
     end
 
