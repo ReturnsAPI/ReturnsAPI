@@ -15,7 +15,7 @@ end)
 --@section Constants
 
 --[[
-The actual values used in-game are 2^n (bitwise).
+The actual values used in-game are $2^n$ (i.e., bitwise).
 ]]
 
 --@constants
