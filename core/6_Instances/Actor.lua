@@ -328,7 +328,8 @@ methods_actor = {
     --[[
     Applies knockback to the actor.
     
-    This can be called multiple times to stack effects from different `kind`s
+    This can only be called from host, but automatically syncs.
+    Can be called multiple times to stack effects from different `kind`s
     (although it seems that they must be called in numerical order).
     ]]
     apply_knockback = function(self, direction, duration, force, kind)
