@@ -309,7 +309,7 @@ methods_object = {
     set_sprite = function(self, sprite)
         sprite = Wrap.unwrap(sprite)
         if self.value >= Object.CUSTOM_START then self.obj_sprite = sprite end
-        gm.object_set_sprite_w(self.value, sprite)
+        GM.object_set_sprite_w(self, sprite)
     end,
 
 
