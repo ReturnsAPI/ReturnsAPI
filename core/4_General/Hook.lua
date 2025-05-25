@@ -271,8 +271,6 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                 return prehook_return
             end
 
-            jit.off(hook_func, true)
-
             -- Add hook
             table.insert(__hooks_script, {script, _type, hook_func})
             Hook.internal.hook_script(script, _type, hook_func)
@@ -331,16 +329,18 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                     -- Call registered functions with wrapped args
                     for _, fn_table in ipairs(hbank_priority) do
                         -- `return false` in `fn` skips normal script execution
-                        local _return = fn_table.fn(self_wrapped, other_wrapped)
-                        if _return == false then prehook_return = false end
+                        local status, _return = pcall(fn_table.fn, self_wrapped, other_wrapped)
+                        if not status then
+                            log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Hook failed to execute fully.\n".._return)
+                        else
+                            if _return == false then prehook_return = false end
+                        end
                     end
                 end
 
                 -- If `false`, skips normal script execution
                 return prehook_return
             end
-            
-            jit.off(hook_func, true)
 
             -- Add hook
             table.insert(__hooks_object, {script, _type, hook_func})

@@ -311,9 +311,9 @@ make_table_once("metatable_array", {
     end,
 
 
-    __gc = function(proxy)
-        __ref_map:delete(proxy)
-    end,
+    -- __gc = function(proxy)
+    --     __ref_map:delete(proxy)
+    -- end,
 
 
     __metatable = "RAPI.Wrapper."..wrapper_name
