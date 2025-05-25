@@ -6,6 +6,8 @@ AttackInfo = new_class()
 
 -- ========== Enums ==========
 
+--@section Enums
+
 --@enum
 AttackInfo.Flag = {
     CD_RESET_ON_KILL            = bit.lshift(1, 0),
