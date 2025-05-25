@@ -5,14 +5,17 @@
 -- Format:
 -- key          function name
 -- table[1]     `*.wrap` method for return value; `""` for no wrapping, and `0` for no return
--- table[2]     A table containing bools; `true` for `Wrap.unwrap`, `false` for raw input; table length is arg count
+-- table[2]     A table containing bools; table length is arg count
+                -- `true`   - `Wrap.unwrap`
+                -- `false`  - raw input
+                -- `1`      - `Wrap.unwrap` (CInstance ver)
 
 
 local funcs = {
 
     -- Globals
     variable_global_get     = {"Wrap",      {false}},               -- name
-    variable_global_set     = {0,           {false, true}},         -- name, value
+    variable_global_set     = {0,           {false, 1}},            -- name, value
 
     -- Instance
     instance_find           = {"Instance",  {true, false}},         -- object, index
@@ -52,8 +55,9 @@ for name, data in pairs(funcs) do
     -- Arguments
     for i, bool in ipairs(data[2]) do
         if i > 1 then str = str..", " end
-        if bool then    str = str.."Wrap.unwrap(arg"..i..")"
-        else            str = str.."arg"..i
+        if bool == 1 then   str = str.."Wrap.unwrap(arg"..i..", true)"
+        elseif bool then    str = str.."Wrap.unwrap(arg"..i..")"
+        else                str = str.."arg"..i
         end
     end
 
