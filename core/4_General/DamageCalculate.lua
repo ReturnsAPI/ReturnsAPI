@@ -30,6 +30,7 @@ DamageCalculate.add = function(namespace, fn, priority)
     priority = priority or 0
 
     local fn_table = {
+        namespace   = namespace,
         fn          = fn,
         priority    = priority
     }
@@ -79,7 +80,7 @@ end
 These can all be get/set to.
 Property | Type | Description
 | - | - | -
-`hit_info`      | Struct    | The `hit_info` struct. <br>May not exist.
+`hit_info`      | Struct    | The `hit_info` struct. <br>May not exist. <br>Does not exist for clients.
 `true_hit`      | Actor(?)  | The actual instance hit. <br>May be different from `hit` (i.e., a worm segment).
 `hit`           | Actor     | The actor that was hit.
 `damage`        | number    | The damage of the attack.
@@ -234,7 +235,10 @@ memory.dynamic_hook_mid("RAPI.DamageCalculate.damager_calculate_damage", {"r14",
         -- Call each registered function in the priority subtable
         local subtable = __damage_calc_priority[priority]
         for _, fn_table in ipairs(subtable) do
-            fn_table.fn(api)
+            local status, err = pcall(fn_table.fn, api)
+            if not status then
+                log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": DamageCalculate failed to execute fully.\n"..err)
+            end
         end
     end
 

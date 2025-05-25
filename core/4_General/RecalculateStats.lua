@@ -201,7 +201,10 @@ local function gather_params(self)
 
         -- Call each registered function in the namespace
         for _, fn in ipairs(funcs) do
-            fn(self, api)
+            local status, err = pcall(fn, self, api)
+            if not status then
+                log.warning("\n"..namespace:gsub("%.", "-")..": RecalculateStats failed to execute fully.\n"..err)
+            end
         end
     end
 end

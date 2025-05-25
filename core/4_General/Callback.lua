@@ -377,7 +377,10 @@ memory.dynamic_hook("RAPI.Callback.callback_execute", "void*", {"void*", "void*"
             -- Loop through priority table
             -- and call registered functions with wrapped args
             for _, fn_table in ipairs(cbank_priority) do
-                fn_table.fn(table.unpack(wrapped_args))
+                local status, err = pcall(fn_table.fn, table.unpack(wrapped_args))
+                if not status then
+                    log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Callback failed to execute fully.\n"..err)
+                end
             end
         end
     end}

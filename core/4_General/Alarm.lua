@@ -117,7 +117,7 @@ memory.dynamic_hook("RAPI.Alarm.__input_system_tick", "void*", {"void*", "void*"
             for _, alarm in ipairs(subtable) do
                 local status, err = pcall(alarm.fn, table.unpack(alarm.args))
                 if not status then
-                    log.warning("\n"..alarm.namespace:gsub(".", "-")..": Alarm failed to execute fully.\n"..err)
+                    log.warning("\n"..alarm.namespace:gsub("%.", "-")..": Alarm failed to execute fully.\n"..err)
                 end
             end
 

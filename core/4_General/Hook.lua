@@ -242,8 +242,12 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                     -- Call registered functions with wrapped args
                     for _, fn_table in ipairs(hbank_priority) do
                         -- `return false` in `fn` skips normal script execution
-                        local _return = fn_table.fn(self_wrapped, other_wrapped, result_table, wrapped_args)
-                        if _return == false then prehook_return = false end
+                        local status, _return = pcall(fn_table.fn, self_wrapped, other_wrapped, result_table, wrapped_args)
+                        if not status then
+                            log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Hook failed to execute fully.\n".._return)
+                        else
+                            if _return == false then prehook_return = false end
+                        end
                     end
                 end
 
