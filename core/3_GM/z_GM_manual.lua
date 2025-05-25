@@ -1,4 +1,4 @@
--- Manually populate __GM_function_cache with specific amounts of wrap/unwrap
+-- Manually populate `__GM_function_cache` with specific wrap/unwrap
 -- to achieve a higher level of performance for common functions than
 -- the automatic wrapping done in GM
 
