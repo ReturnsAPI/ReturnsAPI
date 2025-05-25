@@ -220,7 +220,7 @@ Callback.add(_ENV["!guid"], Callback.ON_ATTACK_HIT, function(hit_info)
             __attack_flag_funcs[tonumber(k:sub(18, -1))](hit_info)
         end
     end
-end)
+end, 1000000000)    -- Make sure this runs first
 
 
 
