@@ -19,6 +19,7 @@ end)
 --@optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --[[
 Registers a function for modifying damage calculation.
+The function runs for both host and client.
 
 **Priority Convention**
 To allow for a decent amount of space between priorities,
