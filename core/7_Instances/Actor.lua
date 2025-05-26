@@ -326,7 +326,7 @@ methods_actor = {
     --@optional     force       | number    | The force of knockback (in some unknown metric). <br>`3` by default.
     --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
     --[[
-    Applies knockback to the actor.
+    Applies knockback (stun) to the actor.
     
     This can only be called from host, but automatically syncs.
     Can be called multiple times to stack effects from different `kind`s
@@ -575,6 +575,22 @@ make_table_once("metatable_actor", {
 
 
 -- ========== Hooks ==========
+
+-- Allow stun application even if `proc` is `false`
+Callback.add(_ENV["!guid"], Callback.ON_ATTACK_HIT, function(hit_info)
+    if not hit_info then return end
+    local attack_info = hit_info.attack_info
+
+    if attack_info.stun > 0 and (not Util.bool(attack_info.proc)) then
+        hit_info.target:apply_knockback(
+            attack_info.knockback_direction,
+            attack_info.stun * 1.5 * 60,
+            attack_info.knockback,
+            attack_info.knockback_kind
+        )
+    end
+end, 1000000000)    -- Make sure this runs first
+
 
 -- Reset cache when an item is given/taken
 

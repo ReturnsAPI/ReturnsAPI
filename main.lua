@@ -56,6 +56,7 @@ hotloaded = true
 
 -- DEBUG
 spawning = true
+invincibility = false
 
 gui.add_imgui(Util.jit_off(function()
     if ImGui.Begin("ReturnsAPI Debug") then
@@ -77,6 +78,10 @@ gui.add_imgui(Util.jit_off(function()
 
         if ImGui.Button("Toggle spawning: "..tostring(spawning)) then
             spawning = not spawning
+        end
+
+        if ImGui.Button("Toggle invincibility: "..tostring(invincibility)) then
+            invincibility = not invincibility
         end
 
         if ImGui.Button("Print memory.game_base_address") then
@@ -122,9 +127,15 @@ gui.add_imgui(Util.jit_off(function()
 end))
 
 Hook.post(_ENV["!guid"], "__input_system_tick", function(self, other, result, args)
-    if spawning then return end
-    local director = Instance.find(gm.constants.oDirectorControl)
-    if Instance.exists(director) then director:alarm_set(1, 60) end
+    if not spawning then
+        local director = Instance.find(gm.constants.oDirectorControl)
+        if Instance.exists(director) then director:alarm_set(1, 60) end
+    end
+
+    if invincibility then
+        local p = Player.get_local()
+        if Instance.exists(p) then p.invincible = 3 end
+    end
 end)
 
 

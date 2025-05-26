@@ -36,7 +36,7 @@ methods_attackinfo = {
     ]]
     use_raw_damage = function(self)
         local parent = self.parent
-        if not Instance.exists(parent) then log.error("use_raw_damage: Parent does not exist", 2) end
+        if not Instance.exists(parent) then log.error("use_raw_damage: parent does not exist", 2) end
         
         self.damage = math.ceil(self.damage / parent.damage)
     end,
@@ -88,6 +88,22 @@ methods_attackinfo = {
             self.damage = math.ceil(self.damage / 2)
 
         end
+    end,
+
+
+    --@instance
+    --@param        direction   | number    | The direction of knockback. <br>`-1` is left, and `1` is right. <br>Other values will stretch/compress the sprite horizontally.
+    --@optional     duration    | number    | The duration of knockback (in frames). <br>`20` by default.
+    --@optional     force       | number    | The force of knockback (in some unknown metric). <br>`3` by default.
+    --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
+    --[[
+    Sets the knockback (stun) that is applied to hit actors.
+    ]]
+    set_knockback = function(self, direction, duration, force, kind)
+        self.knockback_direction    = direction
+        self.stun                   = (duration or 20) / (1.5 * 60)
+        self.knockback              = force or 3
+        self.knockback_kind         = kind  or Actor.KnockbackKind.STANDARD
     end,
 
 
