@@ -106,8 +106,8 @@ local callso = function(k)
 
         elseif GM.internal.script[k] then
             __GM_function_cache_callso[k] = function(self, other, ...)
-                if self then self = self.CInstance end
-                if other then other = other.CInstance end
+                if self  then self  = ffi.cast(__struct_cinstance, memory.get_usertype_pointer(self.CInstance))  end
+                if other then other = ffi.cast(__struct_cinstance, memory.get_usertype_pointer(other.CInstance)) end
 
                 local args = table.pack(...)
                 local holder = nil
