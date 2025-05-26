@@ -316,10 +316,10 @@ Util.table_append(methods_instance, {
     get_object_index = function(self)
         -- Check cache
         local value = self.value
-        local object_index = __object_index_cache[value]
+        local object_index = object_index_cache[value]
         if not object_index then
             object_index = self:get_object_index_self()
-            __object_index_cache[value] = object_index
+            object_index_cache[value] = object_index
         end
         
         return object_index
