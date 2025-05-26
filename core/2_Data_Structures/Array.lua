@@ -253,6 +253,21 @@ methods_array = {
 local wrapper_name = "Array"
 
 make_table_once("metatable_array_class", {
+    __call = function(t, arg1, arg2)
+        arg1 = Wrap.unwrap(arg1)
+        arg2 = Wrap.unwrap(arg2)
+
+        -- Wrap
+        if  type(arg1) == "userdata"
+        and getmetatable(arg1).__name == "sol.RefDynamicArrayOfRValue*" then
+            return Array.wrap(arg1)
+        end
+
+        -- New
+        return Array.new(arg1, arg2)
+    end,
+
+
     __metatable = "RAPI.Class."..wrapper_name
 })
 setmetatable(Array, metatable_array_class)

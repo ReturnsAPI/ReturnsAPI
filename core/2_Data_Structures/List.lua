@@ -236,6 +236,20 @@ methods_list = {
 local wrapper_name = "List"
 
 make_table_once("metatable_list_class", {
+    __call = function(t, value)
+        value = Wrap.unwrap(value)
+
+        -- New (from table)
+        if type(value) == "table" then return List.new(value) end
+
+        -- Wrap
+        if value then return List.wrap(value) end
+
+        -- New
+        return List.new()
+    end,
+
+
     __metatable = "RAPI.Class."..wrapper_name
 })
 setmetatable(List, metatable_list_class)
