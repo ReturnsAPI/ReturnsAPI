@@ -42,3 +42,6 @@ v Make Instance find_all, is_colliding, and get_collisions work with custom obje
     - Survivor
     - SurvivorLog
     - ActorSkin
+
+v Ignore Sniper spotter crit if `attack_info:set_critical(false)` was called earlier
+    - this is not synced correctly yet

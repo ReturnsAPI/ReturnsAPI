@@ -46,6 +46,12 @@ for _, dir in ipairs(dirs) do
 end
 
 
+-- Run some functions after core load
+for _, fn in ipairs(_run_after_core) do
+    fn()
+end
+
+
 -- ENVY public setup
 require("./envy")
 

@@ -29,6 +29,13 @@ function run_on_hotload(fn)
 end
 
 
+-- Runs the function after core has been loaded
+_run_after_core = {}
+function run_after_core(fn)
+    table.insert(_run_after_core, fn)
+end
+
+
 -- Create a new table once
 -- On hotload, merge new changes into it
 function make_table_once(table_name, merge)
