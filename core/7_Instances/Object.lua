@@ -215,7 +215,7 @@ Adds serialization and deserialization functions for the object.
 The arguments for each are `self, buffer`.
 
 Relevant functions:
-- `instance_sync()` - Initial setup (generally in `on_create`)
+- `instance_sync()` - Initial setup (generally in `on_create`); creates new instance for clients
 - `instance_resync()` - Resync data
 - `projectile_sync(interval)` - Same as `instance_resync`, but with automatic periodic resync
 - `instance_destroy_sync` - Sync destruction
