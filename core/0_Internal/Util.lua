@@ -74,7 +74,7 @@ end
 Prints the results of `GM.debug_get_callstack()`.
 The value at the top was the most recent previous call.
 ]]
-Util.gm_trace = function(value)
+Util.gm_trace = function()
     local array = Array.wrap(gm.debug_get_callstack())
     array:print()
 end
