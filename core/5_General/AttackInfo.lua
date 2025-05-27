@@ -77,7 +77,7 @@ methods_attackinfo = {
     set_critical = function(self, bool)
         if bool == nil then log.error("set_critical: Missing bool argument", 2) end
 
-        self.RAPI_disable_crit = not bool
+        -- self.RAPI_disable_crit = not bool
 
         -- Enable crit
         if bool and (not Util.bool(self.critical)) then
@@ -217,15 +217,16 @@ make_table_once("metatable_attackinfo", {
 
 -- If `set_critical(false)` was called earlier for this attack_info,
 -- keep it (i.e., ignore Sniper's spotter drone)
-run_after_core(function()
-    DamageCalculate.add(_ENV["!guid"], function(api)
-        if Net.is_client() then return end
+-- EDIT: This is actually vanilla behavior (bruh)
+-- run_after_core(function()
+--     DamageCalculate.add(_ENV["!guid"], function(api)
+--         if Net.is_client() then return end
 
-        if Util.bool(api.hit_info.attack_info.RAPI_disable_crit) then
-            api.set_critical(false)
-        end
-    end, 1000000000)    -- Make sure this runs first
-end)
+--         if Util.bool(api.hit_info.attack_info.RAPI_disable_crit) then
+--             api.set_critical(false)
+--         end
+--     end, 1000000000)    -- Make sure this runs first
+-- end)
 
 
 
