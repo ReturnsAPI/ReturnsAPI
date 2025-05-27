@@ -218,7 +218,7 @@ Relevant functions:
 - `instance_sync()` - Initial setup (generally in `on_create`); creates new instance for clients
 - `instance_resync()` - Resync data
 - `projectile_sync(interval)` - Same as `instance_resync`, but with automatic periodic resync
-- `instance_destroy_sync` - Sync destruction
+- `instance_destroy_sync` - Sync destruction; place in `on_destroy`
 
 **NOTE:** You must read all data you send in `serializer`,
 as all object serializations share the same packet.
