@@ -115,6 +115,9 @@ Object.new = function(namespace, identifier, parent)
     -- Add to Cognition artifact blacklist
     Global.artifact_cognation_enemy_blacklist:set(obj, true)
 
+    -- Add to deserialization map for onlne syncing
+    Global.__mtd_deserialize:set(obj, gm.constants.__lf_init_multiplayer_globals_customobject_deserialize)
+
     return Object.wrap(obj)
 end
 
@@ -210,6 +213,12 @@ end
 --[[
 Adds serialization and deserialization functions for the object.
 The arguments for each are `self, buffer`.
+
+Relevant functions:
+- `instance_sync()` - Initial setup (generally in `on_create`)
+- `instance_resync()` - Resync data
+- `projectile_sync(interval)` - Same as `instance_resync`, but with automatic periodic resync
+- `instance_destroy_sync` - Sync destruction
 
 **NOTE:** You must read all data you send in `serializer`,
 as all object serializations share the same packet.
@@ -463,12 +472,18 @@ memory.dynamic_hook("RAPI.Object.serialize", "void*", {"void*", "void*", "void*"
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
+        print("run serialize!")   -- DEBUG
         local inst = Instance.wrap(ffi.cast(__struct_cinstance, self:get_address()).id)
-        local subtable = __object_serializers[inst:get_object_index()]
+        local obj_ind = inst:get_object_index()
+        local subtable = __object_serializers[obj_ind]
+        print(obj_ind)   -- DEBUG
         if subtable then
             local buffer = Buffer.wrap(Global.multiplayer_buffer)
             for _, fn_table in ipairs(subtable) do
-                fn_table.fn(inst, buffer)
+                local status, err = pcall(fn_table.fn, inst, buffer)
+                if not status then
+                    log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Object serialization for object '"..obj_ind.."' failed to execute fully.\n"..err)
+                end
             end
         end
     end}
@@ -481,12 +496,18 @@ memory.dynamic_hook("RAPI.Object.deserialize", "void*", {"void*", "void*", "void
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
+        print("run deserialize!")   -- DEBUG
         local inst = Instance.wrap(ffi.cast(__struct_cinstance, self:get_address()).id)
-        local subtable = __object_deserializers[inst:get_object_index()]
+        local obj_ind = inst:get_object_index()
+        local subtable = __object_deserializers[obj_ind]
+        print(obj_ind)   -- DEBUG
         if subtable then
             local buffer = Buffer.wrap(Global.multiplayer_buffer)
             for _, fn_table in ipairs(subtable) do
-                fn_table.fn(inst, buffer)
+                local status, err = pcall(fn_table.fn, inst, buffer)
+                if not status then
+                    log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Object deserialization for object '"..obj_ind.."' failed to execute fully.\n"..err)
+                end
             end
         end
     end}

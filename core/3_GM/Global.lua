@@ -17,6 +17,7 @@ end)
 Global.internal.initialize = function()
     -- Cache for some globals; add to it if needed
     make_table_once("__global_cache", {
+        __mtd_deserialize                   = Map.wrap(GM.variable_global_get("__mtd_deserialize")),
         artifact_cognation_enemy_blacklist  = Map.wrap(GM.variable_global_get("artifact_cognation_enemy_blacklist")),
         custom_object                       = GM.variable_global_get("custom_object"),
         environment_log_display_list        = List.wrap(GM.variable_global_get("environment_log_display_list")),

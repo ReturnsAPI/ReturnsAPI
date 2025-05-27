@@ -74,6 +74,14 @@ gui.add_imgui(Util.jit_off(function()
             collectgarbage()
         end
 
+        if ImGui.Button("Spawn 1 Lemurian on player") then
+            local p = Player.get_local()
+            if Instance.exists(p) then
+                local obj = Object.find("lizard", nil, "RAPI")
+                obj:create(p.x, p.y)
+            end
+        end
+
         if ImGui.Button("Spawn 100 Lemurians on player") then
             local p = Player.get_local()
             if Instance.exists(p) then
@@ -88,6 +96,28 @@ gui.add_imgui(Util.jit_off(function()
 
         if ImGui.Button("Toggle invincibility: "..tostring(invincibility)) then
             invincibility = not invincibility
+        end
+
+        if ImGui.Button("Spawn all crates") then
+            local player = Player.get_local()
+            if Instance.exists(player) then
+                gm.instance_create(player.x - 80, player.y, gm.object_find("ror-generated_CommandCrate_0"))
+                gm.instance_create(player.x - 40, player.y, gm.object_find("ror-generated_CommandCrate_1"))
+                gm.instance_create(player.x, player.y, gm.object_find("ror-generated_CommandCrate_2"))
+                gm.instance_create(player.x + 40, player.y, gm.object_find("ror-generated_CommandCrate_3"))
+                gm.instance_create(player.x + 80, player.y, gm.object_find("ror-generated_CommandCrate_4"))
+            end
+        end
+
+        if ImGui.Button("Spawn 1 target dummy") then
+            local player = Player.get_local()
+            if Instance.exists(player) then
+                local obj = Object.find("dummy", nil, "RAPI")
+                local inst = obj:create(player.x, player.y)
+                inst.depth = 2
+                inst.hp = 1000000000
+                inst.maxhp, inst.maxhp_base = inst.hp, inst.hp
+            end
         end
 
         if ImGui.Button("Print memory.game_base_address") then
