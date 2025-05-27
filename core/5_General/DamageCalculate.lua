@@ -134,12 +134,12 @@ local api_internal = {
 
     damage_mult = function(value, update_damage_number)
         local prev_damage = api.damage
-        api.damage = math.ceil(api.damage * value)
-        params.damage_true = math.ceil(params.damage_true * value)
+        api.damage = api.damage * value
+        params.damage_true = params.damage_true * value
 
         -- Update damage number
         if update_damage_number ~= false then
-            params.damage_fake = math.ceil(params.damage_fake * value)
+            params.damage_fake = params.damage_fake * value
 
         -- Otherwise, return difference between current and previous damage
         -- This value can then be drawn separately
@@ -162,9 +162,9 @@ local api_internal = {
         -- Disable crit
         elseif (not bool) and api.critical then
             api.critical = false
-            api.damage = math.ceil(api.damage / 2)
-            params.damage_true = math.ceil(params.damage_true / 2)
-            params.damage_fake = math.ceil(params.damage_fake / 2)
+            api.damage = api.damage / 2
+            params.damage_true = params.damage_true / 2
+            params.damage_fake = params.damage_fake / 2
 
         end
     end
@@ -243,6 +243,9 @@ memory.dynamic_hook_mid("RAPI.DamageCalculate.damager_calculate_damage", {"r14",
         end
     end
 
+    -- damage
+    api.damage = math.ceil(api.damage)
+
 
     -- ===== Apply params =====
     -- Only need to do this for local variables in the function
@@ -250,10 +253,10 @@ memory.dynamic_hook_mid("RAPI.DamageCalculate.damager_calculate_damage", {"r14",
     -- can be get/set directly via `api.<argument>` etc. `api.damage`
 
     -- damage_true
-    args[2].value = args[2].value * params.damage_true
+    args[2].value = math.ceil(args[2].value * params.damage_true)
 
     -- damage_fake
-    args[3].value = args[3].value * params.damage_fake
+    args[3].value = math.ceil(args[3].value * params.damage_fake)
 end)
 
 
