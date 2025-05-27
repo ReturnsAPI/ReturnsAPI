@@ -144,7 +144,7 @@ local api_internal = {
         -- Otherwise, return difference between current and previous damage
         -- This value can then be drawn separately
         else
-            return api.damage - prev_damage
+            return math.ceil(api.damage - prev_damage)
         end
     end,
 
