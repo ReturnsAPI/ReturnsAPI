@@ -472,11 +472,9 @@ memory.dynamic_hook("RAPI.Object.serialize", "void*", {"void*", "void*", "void*"
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        print("run serialize!")   -- DEBUG
         local inst = Instance.wrap(ffi.cast(__struct_cinstance, self:get_address()).id)
         local obj_ind = inst:get_object_index()
         local subtable = __object_serializers[obj_ind]
-        print(obj_ind)   -- DEBUG
         if subtable then
             local buffer = Buffer.wrap(Global.multiplayer_buffer)
             for _, fn_table in ipairs(subtable) do
@@ -496,11 +494,9 @@ memory.dynamic_hook("RAPI.Object.deserialize", "void*", {"void*", "void*", "void
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
-        print("run deserialize!")   -- DEBUG
         local inst = Instance.wrap(ffi.cast(__struct_cinstance, self:get_address()).id)
         local obj_ind = inst:get_object_index()
         local subtable = __object_deserializers[obj_ind]
-        print(obj_ind)   -- DEBUG
         if subtable then
             local buffer = Buffer.wrap(Global.multiplayer_buffer)
             for _, fn_table in ipairs(subtable) do
