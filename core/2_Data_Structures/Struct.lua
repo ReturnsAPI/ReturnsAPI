@@ -131,7 +131,7 @@ make_table_once("metatable_struct", {
         local ret = Wrap.wrap(gm.variable_struct_get(__proxy[proxy], k))
 
         -- If Script, automatically "bind"
-        -- script as self/other
+        -- to script as self/other
         if type(ret) == "table"
         and ret.RAPI == "Script" then
             ret.self = proxy

@@ -525,7 +525,7 @@ make_table_once("metatable_instance", {
         ret = Wrap.wrap(ret)
 
         -- If Script, automatically "bind"
-        -- script as self/other
+        -- to script as self/other
         if type(ret) == "table"
         and ret.RAPI == "Script" then
             ret.self = proxy

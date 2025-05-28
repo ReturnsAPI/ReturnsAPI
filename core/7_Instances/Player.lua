@@ -22,7 +22,6 @@ Player.get_local = function()
     if Net.is_online() then return Global.my_player end
 
     -- Return first oP to exist
-    -- (which I think is always the local player)
     local inst = gm.instance_find(gm.constants.oP, 0)
     if inst ~= -4 then return Instance.wrap(inst.id) end
     return __invalid_instance
