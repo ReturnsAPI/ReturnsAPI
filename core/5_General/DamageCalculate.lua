@@ -238,6 +238,8 @@ memory.dynamic_hook_mid("RAPI.DamageCalculate.damager_calculate_damage", {"r14",
         for _, fn_table in ipairs(subtable) do
             local status, err = pcall(fn_table.fn, api)
             if not status then
+                if (err == nil)
+                or (err == "C++ exception") then err = "GM call error (see above)" end
                 log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": DamageCalculate failed to execute fully.\n"..err)
             end
         end

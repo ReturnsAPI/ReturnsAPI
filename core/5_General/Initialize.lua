@@ -20,6 +20,9 @@ local function RAPI_initialize()
     if Class    then Class.internal.initialize()    end
     if ItemTier then ItemTier.internal.initialize() end
     if LootPool then LootPool.internal.initialize() end
+
+    -- Class arrays
+    if Stage    then Stage.internal.initialize() end
 end
 
 
@@ -127,6 +130,8 @@ memory.dynamic_hook("RAPI.Initialize.__input_system_tick", "void*", {"void*", "v
                     for __, init_table in ipairs(ibank_priority) do
                         local status, err = pcall(init_table.fn)
                         if not status then
+                            if (err == nil)
+                            or (err == "C++ exception") then err = "GM call error (see above)" end
                             log.warning("\n"..init_table.namespace:gsub("%.", "-")..": Initialize failed to execute fully.\n"..err)
                         end
                     end

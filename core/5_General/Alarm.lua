@@ -117,6 +117,8 @@ memory.dynamic_hook("RAPI.Alarm.__input_system_tick", "void*", {"void*", "void*"
             for _, alarm in ipairs(subtable) do
                 local status, err = pcall(alarm.fn, table.unpack(alarm.args))
                 if not status then
+                    if (err == nil)
+                    or (err == "C++ exception") then err = "GM call error (see above)" end
                     log.warning("\n"..alarm.namespace:gsub("%.", "-")..": Alarm failed to execute fully.\n"..err)
                 end
             end

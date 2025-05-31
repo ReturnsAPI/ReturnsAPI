@@ -4,6 +4,8 @@ local name_rapi = class_name_g2r["class_stage"]
 Stage = __class[name_rapi]
 
 run_once(function()
+    __stage_variant_next_id = {}    -- Stores the next identifier `_ID` to use for each stage; [stage_id] = <next>
+    __stage_new_rooms = {}          -- Stores new rooms added (for removal purposes)
     __stage_populate_biome = {}
 end)
 
@@ -58,12 +60,23 @@ Property | Type | Description
 `allow_mountain_shrine_spawn`   |           | 
 `classic_variant_count`         |           | 
 `is_new_stage`                  | bool      | 
-`room_list`                     |           | 
+`room_list`                     | number    | The ID of a list containing the rooms (variants) of the stage.
 `music_id`                      | number    | The ID of the sound to play as background music.
 `teleporter_index`              |           | 
 `populate_biome_properties`     |           | 
 `log_id`                        | number    | The environment log ID of the stage.
 ]]
+
+
+
+-- ========== Internal ==========
+
+Stage.internal.initialize = function()
+    -- Get current variant count for each stage
+    for i, stage in ipairs(Class.Stage) do
+        __stage_variant_next_id[i - 1] = List.wrap(stage:get(13)):size() + 1
+    end
+end
 
 
 
@@ -150,6 +163,94 @@ end
 
 
 --@static
+--@param        ...         |           | A variable number of paths.
+--[[
+Adds a new room(s) to the stage, and adds it as
+a variant to the environment log (if applicable).
+]]
+Stage.add_room = function(namespace, stage, ...)
+    local self = Stage.wrap(stage)
+    local id = self.value
+
+    local identifier = self.identifier
+    local room_list = List.wrap(self.room_list)
+
+    __stage_new_rooms[namespace] = __stage_new_rooms[namespace] or {}
+
+    -- Get environment log
+    local display_room_ids
+    local log_id = self.log_id
+    if log_id ~= -1 then
+        display_room_ids = EnvironmentLog.wrap(log_id).display_room_ids
+    end
+
+    -- Loop through paths
+    local t = {...}
+    if type(t[1]) == "table" then t = t[1] end
+
+    for _, path in ipairs(t) do
+        -- Load room and add to list
+        local room = gm.stage_load_room(namespace, identifier.."_"..__stage_variant_next_id[id], path)
+        room_list:add(room)
+
+        __stage_variant_next_id[id] = __stage_variant_next_id[id] + 1
+
+        table.insert(__stage_new_rooms[namespace], {
+            stage   = id,
+            index   = #room_list - 1
+        })
+
+        -- Associate environment log (if applicable)
+        if display_room_ids then
+            display_room_ids:push(room)
+            gm.room_associate_environment_log(room, log_id, num)
+        end
+    end
+end
+
+
+--@static
+--[[
+Removes all rooms added from your mod.
+
+Automatically called when you hotload your mod.
+]]
+Stage.remove_all_rooms = function(namespace)
+    if not __stage_new_rooms[namespace] then return end
+
+    for _, t in ipairs(__stage_new_rooms[namespace]) do
+        local stage = Stage.wrap(t.stage)
+        local room_list = List.wrap(stage.room_list)
+
+        -- Remove variant
+        room_list:delete(t.index)
+
+        -- Shift variants afterwards 1 down
+        for i = t.index, #room_list - 1 do
+            -- rename rooms
+            -- TODO
+        end
+
+        -- Get environment log
+        local log_id = stage.log_id
+        if log_id ~= -1 then
+            local display_room_ids = EnvironmentLog.wrap(log_id).display_room_ids
+            
+            -- Remove variant
+            display_room_ids:delete(t.index)
+
+            -- Reassociate environment logs
+            for i = t.index, #display_room_ids - 1 do
+                gm.room_associate_environment_log(room_list:get(i), log_id, i)
+            end
+        end
+    end
+
+    __stage_new_rooms[namespace] = nil
+end
+
+
+--@static
 --@name         wrap
 --@return       Stage
 --@param        stage_id    | number    | The stage ID to wrap.
@@ -221,6 +322,19 @@ Util.table_append(methods_class_array[name_rapi], {
             end
         end
     end,
+
+
+    get_room = function(self, variant)
+        local room_list = List.wrap(self.room_list)
+
+        if variant < 1 or variant > #room_list then
+            log.error("Variant must be between 1 and "..(#room_list).." (inclusive)", 2)
+            return
+        end
+
+        return room_list[variant]
+    end,
+
 
     -- TODO populate rest of methods
 

@@ -244,6 +244,8 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                         -- `return false` in `fn` skips normal script execution
                         local status, _return = pcall(fn_table.fn, self_wrapped, other_wrapped, result_table, wrapped_args)
                         if not status then
+                            if (_return == nil)
+                            or (_return == "C++ exception") then _return = "GM call error (see above)" end
                             log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Hook failed to execute fully.\n".._return)
                         else
                             if _return == false then prehook_return = false end
@@ -331,6 +333,8 @@ Hook.internal.add = function(namespace, script, _type, fn, priority)
                         -- `return false` in `fn` skips normal script execution
                         local status, _return = pcall(fn_table.fn, self_wrapped, other_wrapped)
                         if not status then
+                            if (_return == nil)
+                            or (_return == "C++ exception") then _return = "GM call error (see above)" end
                             log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Hook failed to execute fully.\n".._return)
                         else
                             if _return == false then prehook_return = false end
