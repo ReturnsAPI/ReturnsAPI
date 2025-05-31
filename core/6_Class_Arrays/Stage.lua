@@ -165,7 +165,7 @@ end
 --@static
 --@param        ...         |           | A variable number of paths.
 --[[
-Adds a new room(s) (variant(s)) to the stage, and adds it as
+Adds a new room(s) to the stage, and adds it as
 a variant to the environment log (if applicable).
 ]]
 Stage.add_room = function(namespace, stage, ...)
