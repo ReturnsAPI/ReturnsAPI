@@ -165,7 +165,7 @@ end
 --@static
 --@param        ...         |           | A variable number of paths.
 --[[
-Adds a new room(s) to the stage, and adds it as
+Adds a new room(s) (variant(s)) to the stage, and adds it as
 a variant to the environment log (if applicable).
 ]]
 Stage.add_room = function(namespace, stage, ...)
@@ -211,7 +211,7 @@ end
 
 --@static
 --[[
-Removes all rooms added from your mod.
+Removes all rooms (variants) added from your mod.
 
 Automatically called when you hotload your mod.
 ]]
