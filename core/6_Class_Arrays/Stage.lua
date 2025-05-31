@@ -225,12 +225,6 @@ Stage.remove_all_rooms = function(namespace)
         -- Remove variant
         room_list:delete(t.index)
 
-        -- Shift variants afterwards 1 down
-        for i = t.index, #room_list - 1 do
-            -- rename rooms
-            -- TODO
-        end
-
         -- Get environment log
         local log_id = stage.log_id
         if log_id ~= -1 then
