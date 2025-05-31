@@ -197,7 +197,7 @@ Stage.add_room = function(namespace, stage, ...)
 
         table.insert(__stage_new_rooms[namespace], {
             stage   = id,
-            index   = #room_list - 1
+            room_id = room
         })
 
         -- Associate environment log (if applicable)
@@ -223,7 +223,7 @@ Stage.remove_all_rooms = function(namespace)
         local room_list = List.wrap(stage.room_list)
 
         -- Remove variant
-        room_list:delete(t.index)
+        room_list:delete_value(t.room_id)
 
         -- Get environment log
         local log_id = stage.log_id
@@ -231,10 +231,10 @@ Stage.remove_all_rooms = function(namespace)
             local display_room_ids = EnvironmentLog.wrap(log_id).display_room_ids
             
             -- Remove variant
-            display_room_ids:delete(t.index)
+            display_room_ids:delete_value(t.room_id)
 
             -- Reassociate environment logs
-            for i = t.index, #display_room_ids - 1 do
+            for i = 0, #display_room_ids - 1 do
                 gm.room_associate_environment_log(room_list:get(i), log_id, i)
             end
         end
