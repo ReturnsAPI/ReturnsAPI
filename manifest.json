@@ -4,7 +4,7 @@
 	"website_url": "https://github.com/ReturnsAPI/ReturnsAPI/wiki",
 	"description": "description",
 	"dependencies": [
-		"ReturnOfModding-ReturnOfModding-1.0.58",
+		"ReturnOfModding-ReturnOfModding-1.0.75",
 		"LuaENVY-ENVY-1.2.0"
 	]
 }
