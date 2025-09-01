@@ -50,9 +50,9 @@ Wrap.wrap = function(value)
         -- elseif sol == "sol.CInstance*" then
         --     return Instance.wrap(value.id)
 
-        -- -- Script
-        -- elseif sol == "sol.CScriptRef*" then
-        --     return Script.wrap(value)
+        -- Script
+        elseif sol == "sol.CScriptRef*" then
+            return Script.wrap(value)
             
         end
     end
