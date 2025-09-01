@@ -13,7 +13,7 @@ local find_cache = {}
 --@static
 --@return       Sprite
 --@param        identifier      | string    | The identifier for the sprite.
---@param        path            | string    | The file path to the sprite. <br>`~` expands to your mod folder (without a trailing slash).
+--@param        path            | string    | The file path to the sprite. <br>`~` expands to your mod folder.
 --@optional     image_number    | number    | The number of subimages. <br>`1` by default.
 --@optional     x_origin        | number    | The x coordinate of the origin (offset). <br>`0` by default.
 --@optional     y_origin        | number    | The y coordinate of the origin (offset). <br>`0` by default.
@@ -27,7 +27,8 @@ Sprite.new = function(namespace, identifier, path, image_number, x_origin, y_ori
     if not path then log.error("No image path provided", 2) end
 
     -- Expand `~` to mod folder
-    path = path:gsub("~", __namespace_path[namespace])
+    path = path:gsub("~/", __namespace_path[namespace].."/")
+    path = path:gsub("~", __namespace_path[namespace].."/")
 
     -- Return existing sprite if found
     local sprite = Sprite.find(identifier, namespace, namespace)
