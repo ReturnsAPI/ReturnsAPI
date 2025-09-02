@@ -64,6 +64,17 @@ function parse_optional_namespace(namespace, default_namespace)
 end
 
 
+-- Clear callbacks and other stuff associated with namespace
+function clear_namespace_stuff(namespace)
+    if Callback         then Callback.remove_all(namespace) end
+    if Initialize       then Initialize.internal.remove_all(namespace) end
+    if RecalculateStats then RecalculateStats.remove_all(namespace) end
+    if DamageCalculate  then DamageCalculate.remove_all(namespace) end
+    if Alarm            then Alarm.remove_all(namespace) end
+    if Object           then Object.remove_all_serializers(namespace) end
+end
+
+
 
 -- ========== Public Export ==========
 
