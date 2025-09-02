@@ -17,12 +17,11 @@ Returns the unwrapped value of a RAPI wrapper,
 or `value` if it is not a wrapper.
 ]]
 Wrap.unwrap = function(value, use_cinstance)
-    -- TODO
-    -- if use_cinstance
-    -- and type(value) == "table"
-    -- and instance_wrappers[value.RAPI] then
-    --     return value.cinstance
-    -- end
+    if use_cinstance
+    and type(value) == "table"
+    and instance_wrappers[value.RAPI] then
+        return value.cinstance
+    end
     return __proxy[value] or value
 end
 
@@ -45,10 +44,9 @@ Wrap.wrap = function(value)
         elseif sol:find("sol.YYObjectBase") then
             return Struct.wrap(value)
 
-        -- TODO
-        -- -- Instance
-        -- elseif sol == "sol.CInstance*" then
-        --     return Instance.wrap(value.id)
+        -- Instance
+        elseif sol == "sol.CInstance*" then
+            return Instance.wrap(value.id)
 
         -- Script
         elseif sol == "sol.CScriptRef*" then
