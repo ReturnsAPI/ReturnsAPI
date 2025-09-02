@@ -58,9 +58,9 @@ Object.Parent = {
 
 --@constants
 --[[
-CUSTOM_START    800
+CUSTOM_START    900
 ]]
-Object.CUSTOM_START = 800
+Object.CUSTOM_START = 900
 
 
 
