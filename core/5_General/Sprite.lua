@@ -84,7 +84,7 @@ Sprite.find = function(identifier, namespace, default_namespace)
     -- Search in namespace
     local sprite
     local resource_manager = Map.wrap(Global.ResourceManager_sprite.__namespacedAssetLookup)
-    local namespace_struct = resource_manager[namespace]
+    local namespace_struct = Map.wrap(resource_manager[namespace])
     if namespace_struct then sprite = namespace_struct[identifier] end
 
     if sprite then

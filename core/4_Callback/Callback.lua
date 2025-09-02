@@ -333,17 +333,14 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         local arg_types = callback_arg_types[callback]  -- From `Global.class_callback[callback]`
         for i, arg_type in ipairs(arg_types) do
 
-            local arg = args[i + 1].value
+            local arg = Wrap.wrap(args[i + 1].value)
             
             -- Wrap as certain wrappers depending on arg type
             if arg then
-                if arg_type:match("Instance") then
-                    if arg == -4 then   arg = __invalid_instance    -- Wrap as invalid Instance if -4
-                    else                arg = Instance.wrap(arg)
-                    end
-                elseif  arg_type:match("AttackInfo")    then arg = AttackInfo.wrap(arg) -- Assuming `arg` is a Struct wrapper
-                elseif  arg_type:match("HitInfo")       then arg = HitInfo.wrap(arg)
-                elseif  arg_type:match("Equipment")     then arg = Equipment.wrap(arg)
+                if      arg_type:match("Instance") and arg == -4    then arg = __invalid_instance   -- Wrap as invalid Instance if -4
+                elseif  arg_type:match("AttackInfo")                then arg = AttackInfo.wrap(arg) -- Assuming `arg` is a Struct wrapper
+                elseif  arg_type:match("HitInfo")                   then arg = HitInfo.wrap(arg)
+                elseif  arg_type:match("Equipment")                 then arg = Equipment.wrap(arg)
                 end
             end
 

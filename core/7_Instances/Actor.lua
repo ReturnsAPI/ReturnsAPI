@@ -404,7 +404,13 @@ methods_actor = {
         if type(buff) ~= "number" then log.error("buff_apply: buff is invalid", 2) end
         if not duration then log.error("buff_apply: duration is missing", 2) end
 
-        gm.apply_buff(self.value, buff, duration, count or 1)
+        -- * This needs to be `cinstance` because the argument is
+        -- passed directly to the on_apply callback, meaning that
+        -- if it is an ID (number) it does *not* get wrapped as an Actor
+        --      This does not apply to `buff_remove` or `item_give/take`
+        --      since `id` is passed instead of the argument, so RoM
+        --      recognizes it as a CInstance. Very weird circumstance.
+        gm.apply_buff(self.cinstance, buff, duration, count or 1)
 
         -- Clamp to max stack or under
         -- Funny stuff happens if this is exceeded
