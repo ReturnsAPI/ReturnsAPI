@@ -74,8 +74,8 @@ Sound.find = function(identifier, namespace, default_namespace)
     -- Search in namespace
     local sound
     local resource_manager = Map.wrap(Global.ResourceManager_audio.__namespacedAssetLookup)
-    local namespace_struct = Map.wrap(resource_manager[namespace])
-    if namespace_struct then sound = namespace_struct[identifier] end
+    local namespace_struct = resource_manager[namespace]
+    if namespace_struct then sound = Map.wrap(namespace_struct)[identifier] end
 
     if sound then
         sound = Sound.wrap(sound)
