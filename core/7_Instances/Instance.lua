@@ -192,6 +192,10 @@ Returns an Instance wrapper containing the provided instance.
 Instance.wrap = function(id)
     local _type = type(id)
     if _type == "table" then return id end
+    if _type == "userdata" then
+        id = id.id
+        _type = "number"
+    end
     if (_type ~= "number") or (id < 100000) then
         return __invalid_instance
     end
