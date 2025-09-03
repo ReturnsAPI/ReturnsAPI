@@ -585,6 +585,8 @@ gm.post_script_hook(gm.constants.buff_create, function(self, other, result, args
     -- Add an `on_remove` callback to reset the
     -- cached value for that buff of the actor
     -- * This callback should never be removed, hence the namespace
+    --      This is because buff_create will never run more than once
+    --      for a buff, so if it is removed it cannot be readded
     Callback.add("__permanent", buff.on_remove, function(actor)
         print("RESET CACHE")
 
