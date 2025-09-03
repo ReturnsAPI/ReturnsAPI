@@ -79,7 +79,7 @@ Script.bind = function(func)
     __bind_id_count = __bind_id_count + 1
 
     -- Add to `__ref_map` to prevent GC
-    -- TODO is this still needed??
+    -- * Doesn't seem needed anymore
     -- __ref_map:set(cscriptref, true)
 
     return method
