@@ -588,8 +588,6 @@ gm.post_script_hook(gm.constants.buff_create, function(self, other, result, args
     --      This is because buff_create will never run more than once
     --      for a buff, so if it is removed it cannot be readded
     Callback.add("__permanent", buff.on_remove, function(actor)
-        print("RESET CACHE")
-
         local id = actor.value
         if not __buff_count_cache[id] then __buff_count_cache[id] = {} end
         __buff_count_cache[id][buff.value] = nil
