@@ -425,6 +425,8 @@ methods_actor = {
     Removes stacks of the specified buff from the actor.
     ]]
     buff_remove = function(self, buff, count)
+        local actor_id = self.value
+
         -- Argument check
         buff = Wrap.unwrap(buff)
         if type(buff) ~= "number" then log.error("buff_remove: buff is invalid", 2) end
@@ -433,7 +435,7 @@ methods_actor = {
 
         -- Remove buff entirely if count >= current_count
         if (not count) or count >= current_count then
-            gm.remove_buff(self.value, buff)
+            gm.remove_buff(actor_id, buff)
             return
         end
 
@@ -441,6 +443,10 @@ methods_actor = {
         -- Must manually call `recalculate_stats` when doing this
         self.buff_stack:set(buff, current_count - count)
         self:queue_recalculate_stats()
+
+        -- Reset cached value
+        if not __buff_count_cache[actor_id] then __buff_count_cache[actor_id] = {} end
+        __buff_count_cache[actor_id][buff] = nil
     end,
 
 
@@ -560,7 +566,7 @@ end
 -- Reset cache when a buff is applied
 
 gm.pre_script_hook(gm.constants.apply_buff_internal, function(self, other, result, args)
-    local actor_id  = args[1].value
+    local actor_id  = args[1].value.id
     local buff_id   = args[2].value
 
     -- Reset cached value for that buff of the actor
@@ -578,7 +584,10 @@ gm.post_script_hook(gm.constants.buff_create, function(self, other, result, args
 
     -- Add an `on_remove` callback to reset the
     -- cached value for that buff of the actor
-    Callback.add(_ENV["!guid"], buff.on_remove, function(actor)
+    -- * This callback should never be removed, hence the namespace
+    Callback.add("__permanent", buff.on_remove, function(actor)
+        print("RESET CACHE")
+
         local id = actor.value
         if not __buff_count_cache[id] then __buff_count_cache[id] = {} end
         __buff_count_cache[id][buff.value] = nil
