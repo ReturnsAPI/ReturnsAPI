@@ -2,10 +2,10 @@
 
 --[[
 ```lua
-(bools)
-Net.is_online   --> `true` if the game client is currently connected online.
-Net.is_host     --> `true` if the game client is currently the lobby host.
-Net.is_client   --> `true` if the game client is currently a lobby client.
+-- (bools)
+Net.online   --> `true` if the game client is currently connected online.
+Net.host     --> `true` if the game client is currently the lobby host.
+Net.client   --> `true` if the game client is currently a lobby client.
 ```
 ]]
 
@@ -19,9 +19,9 @@ local wrapper_name = "Net"
 
 make_table_once("metatable_net_class", {
     __index = function(t, k)
-        if k == "is_online" then return gm._mod_net_isOnline() end
-        if k == "is_host"   then return gm._mod_net_isHost() end
-        if k == "is_client" then return gm._mod_net_isClient() end
+        if k == "online" then return gm._mod_net_isOnline() end
+        if k == "host"   then return gm._mod_net_isHost() end
+        if k == "client" then return gm._mod_net_isClient() end
     end,
 
 

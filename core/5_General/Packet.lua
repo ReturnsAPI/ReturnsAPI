@@ -73,7 +73,7 @@ methods_packet = {
     Must be called as host.
     ]]
     send_to_all = function(self, ...)
-        if Net.is_client then log.error("send_to_all: Must be called from host", 2) end
+        if Net.client then log.error("send_to_all: Must be called from host", 2) end
 
         -- Call serialization function linked to packet ID
         local fn = __callbacks_onSerialize[self.value]
@@ -93,7 +93,7 @@ methods_packet = {
     Must be called as host.
     ]]
     send_direct = function(self, target, ...)
-        if Net.is_client then log.error("send_direct: Must be called from host", 2) end
+        if Net.client then log.error("send_direct: Must be called from host", 2) end
 
         -- Call serialization function linked to packet ID
         local fn = __callbacks_onSerialize[self.value]
@@ -113,7 +113,7 @@ methods_packet = {
     Must be called as host.
     ]]
     send_exclude = function(self, target, ...)
-        if Net.is_client then log.error("send_exclude: Must be called from host", 2) end
+        if Net.client then log.error("send_exclude: Must be called from host", 2) end
 
         -- Call serialization function linked to packet ID
         local fn = __callbacks_onSerialize[self.value]
@@ -132,7 +132,7 @@ methods_packet = {
     Must be called as client.
     ]]
     send_to_host = function(self, ...)
-        if Net.is_host then log.error("send_to_host: Must be called from client", 2) end
+        if Net.host then log.error("send_to_host: Must be called from client", 2) end
 
         -- Call serialization function linked to packet ID
         local fn = __callbacks_onSerialize[self.value]

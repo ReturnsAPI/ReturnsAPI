@@ -19,7 +19,7 @@ Returns the Player instance of this game client,
 or an invalid Instance if they do not exist.
 ]]
 Player.get_local = function()
-    if Net.is_online then return Global.my_player end
+    if Net.online then return Global.my_player end
 
     -- Return first oP to exist
     local inst = gm.instance_find(gm.constants.oP, 0)

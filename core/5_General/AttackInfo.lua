@@ -223,7 +223,7 @@ make_table_once("metatable_attackinfo", {
 -- TODO sync mp (somehow)
 -- run_after_core(function()
 --     DamageCalculate.add(_ENV["!guid"], function(api)
---         if Net.is_client() then return end
+--         if Net.client then return end
 
 --         if Util.bool(api.hit_info.attack_info.RAPI_ignore_spotter_crit) then
 --             api.set_critical(false)
