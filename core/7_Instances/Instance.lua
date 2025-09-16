@@ -551,7 +551,7 @@ end)
 -- Remove `__instance_data` on non-player kill
 
 gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
-    local actor_id = args[1].value
+    local actor_id = Instance.wrap(args[1].value).id
 
     -- Do not clear for player deaths
     local obj_ind = gm.variable_instance_get(actor_id, "object_index")
@@ -564,8 +564,8 @@ end)
 -- Move `__instance_data` to new instance
 
 gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
-    local actor_id  = args[1].value
-    local new_id    = args[2].value
+    local actor_id  = Instance.wrap(args[1].value).id
+    local new_id    = Instance.wrap(args[2].value).id
 
     -- Move data
     if __instance_data[actor_id] then

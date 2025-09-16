@@ -552,13 +552,15 @@ local hooks = {"item_give_internal", "item_take_internal"}
 
 for _, hook in ipairs(hooks) do
     gm.pre_script_hook(gm.constants[hook], function(self, other, result, args)
-        local actor_id  = args[1].value
+        local actor_id  = Instance.wrap(args[1].value).id
         local item_id   = args[2].value
 
         -- Reset cached table for that item of the actor
         -- (The table contains cached values for every stack kind)
         if not __item_count_cache[actor_id] then __item_count_cache[actor_id] = {} end
         __item_count_cache[actor_id][item_id] = {}
+
+        print("RESET CACHE FOR "..actor_id)
     end)
 end
 
@@ -566,7 +568,7 @@ end
 -- Reset cache when a buff is applied
 
 gm.pre_script_hook(gm.constants.apply_buff_internal, function(self, other, result, args)
-    local actor_id  = args[1].value.id
+    local actor_id  = Instance.wrap(args[1].value).id
     local buff_id   = args[2].value
 
     -- Reset cached value for that buff of the actor
@@ -620,7 +622,7 @@ end)
 -- Remove `*_count_cache` on non-player kill
 
 gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
-    local actor_id = args[1].value
+    local actor_id = Instance.wrap(args[1].value).id
 
     -- Do not clear for player deaths
     local obj_ind = gm.variable_instance_get(actor_id, "object_index")
@@ -634,8 +636,8 @@ end)
 -- Move `*_count_cache` to new instance
 
 gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
-    local actor_id  = args[1].value
-    local new_id    = args[2].value
+    local actor_id  = Instance.wrap(args[1].value).id
+    local new_id    = Instance.wrap(args[2].value).id
 
     -- Move item cache
     if __item_count_cache[actor_id] then
