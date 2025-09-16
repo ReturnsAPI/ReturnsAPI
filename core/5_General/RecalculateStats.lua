@@ -7,7 +7,7 @@
 RecalculateStats = new_class()
 
 run_once(function()
-    __stats_callback_bank = {}
+    __stats_callback_bank = { priorities = {} }
     __stats_callback_id_counter = 0
     __stats_callback_id_lookup = {}
 end)
@@ -19,7 +19,8 @@ end)
 --@section Static Methods
 
 --@static
---@param        fn          | function  | The function to register. <br>The parameter for it is `actor`.
+--@param        func        | function  | The function to register. <br>The parameter for it is `actor`.
+--@optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --[[
 Registers a function for stat recalculation.
 *Technical:* This function will run in `recalculate_stats` post-hook.
@@ -29,7 +30,7 @@ To allow for a decent amount of space between priorities,
 use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
-RecalculateStats.add = function(namespace, fn)
+RecalculateStats.add = function(namespace, func, priority)
     -- Default priority is 0
     priority = priority or 0
 
@@ -56,14 +57,16 @@ Automatically called when you hotload your mod.
 ]]
 RecalculateStats.remove_all = function(namespace)
     for priority, subtable in pairs(__stats_callback_bank) do
-        for i = #subtable, 1, -1 do
-            if subtable[i].namespace == namespace then
-                table.remove(subtable, i)
+        if type(priority) == "number" then
+            for i = #subtable, 1, -1 do
+                if subtable[i].namespace == namespace then
+                    table.remove(subtable, i)
+                end
             end
-        end
-        if #subtable <= 0 then
-            __stats_callback_bank[priority] = nil
-            Util.table_remove_value(__stats_callback_bank.priorities, priority)
+            if #subtable <= 0 then
+                __stats_callback_bank[priority] = nil
+                Util.table_remove_value(__stats_callback_bank.priorities, priority)
+            end
         end
     end
 end
