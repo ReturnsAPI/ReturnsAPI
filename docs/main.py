@@ -45,17 +45,17 @@ def main():
     core_path = os.path.join(os.path.dirname(__file__), "../core")
     
     # Loop through all directories in `core`
-    # for dir in os.listdir(core_path):
-    #     dir_path = os.path.join(core_path, dir)
-    #     if os.path.isdir(dir_path):
+    for dir in os.listdir(core_path):
+        dir_path = os.path.join(core_path, dir)
+        if os.path.isdir(dir_path):
             
-    #         # Loop through all Lua files in directory
-    #         for filename in os.listdir(dir_path):
-    #             if filename.endswith(".lua"):
-    #                 file_path = os.path.join(dir_path, filename)
-    #                 parse_file(file_path, filename.split(".")[0])
+            # Loop through all Lua files in directory
+            for filename in os.listdir(dir_path):
+                if filename.endswith(".lua"):
+                    file_path = os.path.join(dir_path, filename)
+                    parse_file(file_path, filename.split(".")[0])
 
-    parse_file(core_path + "/6_General/Language.lua", "Language")
+    # parse_file(core_path + "/6_General/Language.lua", "Language")
 
 
 
