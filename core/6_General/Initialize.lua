@@ -3,7 +3,7 @@
 Initialize = new_class()
 
 run_once(function()
-    __callback_cache = CallbackCache.new()
+    __initialize_cache = CallbackCache.new()
 
     __initialized_started = false
     __initialized_done = false
@@ -22,7 +22,7 @@ end
 
 
 Initialize.internal.remove_all = function(namespace)
-    __callback_cache:remove_all(namespace)
+    __initialize_cache:remove_all(namespace)
 end
 table.insert(_clear_namespace_functions, Initialize.internal.remove_all)
 
@@ -45,7 +45,7 @@ use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 Initialize.add = function(namespace, fn, priority)
-    __callback_cache:add(fn, namespace, priority)
+    __initialize_cache:add(fn, namespace, priority)
 end
 
 
@@ -85,7 +85,7 @@ gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, resu
         -- Do not call them again on hotload
         if not __initialized_done then
 
-            __callback_cache:loop_and_call_functions(function(fn_table)
+            __initialize_cache:loop_and_call_functions(function(fn_table)
                 local status, err = pcall(fn_table.fn)
                 if not status then
                     if (err == nil)

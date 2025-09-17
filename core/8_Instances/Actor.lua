@@ -559,8 +559,6 @@ for _, hook in ipairs(hooks) do
         -- (The table contains cached values for every stack kind)
         if not __item_count_cache[actor_id] then __item_count_cache[actor_id] = {} end
         __item_count_cache[actor_id][item_id] = {}
-
-        print("RESET CACHE FOR "..actor_id)
     end)
 end
 
