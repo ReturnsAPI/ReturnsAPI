@@ -1,9 +1,11 @@
 -- ItemTier
 
+if true then return end
+
 ItemTier = new_class()
 
 run_once(function()
-    __item_tier_find_table = FindCache.new()
+    __item_tier_find_table = {}
 end)
 
 
@@ -46,22 +48,22 @@ ItemTier.internal.initialize = function()
         local namespace = "ror"
         local identifier = constant:lower()
 
-        __item_tier_find_table:set(
-            {
-                wrapper = ItemTier.wrap(tier),
-                struct  = Global.item_tiers:get(tier)
-            },
-            identifier, namespace, tier
-        )
+        local element_table = {
+            tier        = tier,
+            namespace   = namespace,
+            identifier  = identifier,
+            struct      = Global.item_tiers:get(tier),
+            wrapper     = ItemTier.wrap(tier)
+        }
+        if not __item_tier_find_table[namespace] then __item_tier_find_table[namespace] = {} end
+        __item_tier_find_table[namespace][identifier] = element_table
+        __item_tier_find_table[tier] = element_table
     end
 
     -- Update cached wrappers
-    __item_tier_find_table:loop_and_update_values(function(value)
-        return {
-            wrapper = ItemTier.wrap(value.wrapper),
-            struct  = value.struct
-        }
-    end)
+    for tier, element_table in pairs(__item_tier_find_table) do
+        element_table.wrapper = ItemTier.wrap(element_table.tier)
+    end
 end
 table.insert(_rapi_initialize, ItemTier.internal.initialize)
 
@@ -108,18 +110,19 @@ ItemTier.new = function(NAMESPACE, identifier)
     -- Push onto array
     tiers_array:push(tier_struct)
 
-    local wrapper = ItemTier.wrap(tier)
-
     -- Add to find table
-    __item_tier_find_table:set(
-        {
-            wrapper = wrapper,
-            struct  = tier_struct
-        },
-        identifier, NAMESPACE, tier
-    )
+    local element_table = {
+        tier        = tier,
+        namespace   = NAMESPACE,
+        identifier  = identifier,
+        struct      = tier_struct,
+        wrapper     = ItemTier.wrap(tier)
+    }
+    if not __item_tier_find_table[NAMESPACE] then __item_tier_find_table[NAMESPACE] = {} end
+    __item_tier_find_table[NAMESPACE][identifier] = element_table
+    __item_tier_find_table[tier] = element_table
 
-    return wrapper
+    return element_table.wrapper
 end
 
 
@@ -132,9 +135,18 @@ Searches for the specified item tier and returns it.
 If no namespace is provided, searches in your mod's namespace first, and vanilla tiers second.
 ]]
 ItemTier.find = function(identifier, namespace, namespace_is_specified)
-    -- Check in find table
-    local cached = __item_tier_find_table:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached.wrapper end
+    -- Search in namespace
+    local namespace_table = __item_tier_find_table[namespace]
+    if namespace_table then
+        local element_table = namespace_table[identifier]
+        if element_table then return element_table.wrapper end
+    end
+
+    -- Also check vanilla tiers if no namespace arg
+    if not namespace_is_specified then
+        local element_table = __item_tier_find_table["ror"][identifier]
+        if element_table then return element_table.wrapper end
+    end
 
     return nil
 end
@@ -165,8 +177,12 @@ methods_item_tier = {
     Prints the item tier's properties.
     ]]
     print_properties = function(self)
-        local struct = __item_tier_find_table:get(self.value).struct
-        struct:print()
+        local struct = __item_tier_find_table[self.value].struct
+        local str = ""
+        for k, v in pairs(struct) do
+            str = str.."\n"..Util.pad_string_right(k, 32)..Util.tostring(v)
+        end
+        print(str)
     end
 
 }
@@ -189,8 +205,8 @@ make_table_once("metatable_item_tier", {
         end
 
         -- Getter
-        local struct = __item_tier_find_table:get(__proxy[proxy]).struct
-        return struct[k]
+        local tier_struct = __item_tier_find_table[__proxy[proxy]].struct
+        return tier_struct[k]
     end,
 
 
@@ -202,8 +218,8 @@ make_table_once("metatable_item_tier", {
         end
 
         -- Setter
-        local struct = __item_tier_find_table:get(__proxy[proxy]).struct
-        struct[k] = Wrap.unwrap(v)
+        local tier_struct = __item_tier_find_table[__proxy[proxy]].struct
+        tier_struct[k] = Wrap.unwrap(v)
     end,
 
     

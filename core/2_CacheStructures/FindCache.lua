@@ -57,6 +57,28 @@ run_once(function()
                 end
 
                 return nil
+            end,
+
+
+            -- Loop all cached values
+            -- and apply a function to update them
+            -- Function should accept `value` as only argument,
+            -- and return the new value to set
+            loop_and_update_values = function(self, fn)
+                for namespace, namespace_table in pairs(self) do
+
+                    -- Numerical ID
+                    if type(namespace) == "number" then
+                        self[namespace] = fn(namespace_table) or self[namespace]
+
+                    -- Loop through namespace table
+                    else
+                        for identifier, value in pairs(namespace_table) do
+                            namespace_table[identifier] = fn(value) or namespace_table[identifier]
+                        end
+
+                    end
+                end
             end
 
         }

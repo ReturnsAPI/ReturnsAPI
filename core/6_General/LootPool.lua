@@ -3,7 +3,7 @@
 LootPool = new_class()
 
 run_once(function()
-    __loot_pool_find_table = {}
+    __loot_pool_find_table = FindCache.new()
 end)
 
 
@@ -44,22 +44,22 @@ LootPool.internal.initialize = function()
         local namespace = "ror"
         local identifier = constant:lower()
 
-        local element_table = {
-            pool        = pool,
-            namespace   = namespace,
-            identifier  = identifier,
-            struct      = Global.treasure_loot_pools:get(pool),
-            wrapper     = LootPool.wrap(pool)
-        }
-        if not __loot_pool_find_table[namespace] then __loot_pool_find_table[namespace] = {} end
-        __loot_pool_find_table[namespace][identifier] = element_table
-        __loot_pool_find_table[pool] = element_table
+        __loot_pool_find_table:set(
+            {
+                wrapper = LootPool.wrap(pool),
+                struct  = Global.treasure_loot_pools:get(pool)
+            },
+            identifier, namespace, tier
+        )
     end
 
     -- Update cached wrappers
-    for tier, element_table in pairs(__loot_pool_find_table) do
-        element_table.wrapper = LootPool.wrap(element_table.pool)
-    end
+    __loot_pool_find_table:loop_and_update_values(function(value)
+        return {
+            wrapper = LootPool.wrap(value.wrapper),
+            struct  = value.struct
+        }
+    end)
 end
 table.insert(_rapi_initialize, LootPool.internal.initialize)
 
@@ -101,19 +101,18 @@ LootPool.new = function(NAMESPACE, identifier)
     -- Push onto array
     loot_pools_array:push(loot_struct)
 
-    -- Add to find table
-    local element_table = {
-        pool        = pool,
-        namespace   = NAMESPACE,
-        identifier  = identifier,
-        struct      = loot_struct,
-        wrapper     = LootPool.wrap(pool)
-    }
-    if not __loot_pool_find_table[NAMESPACE] then __loot_pool_find_table[NAMESPACE] = {} end
-    __loot_pool_find_table[NAMESPACE][identifier] = element_table
-    __loot_pool_find_table[pool] = element_table
+    local wrapper = LootPool.wrap(pool)
 
-    return element_table.wrapper
+    -- Add to find table
+    __loot_pool_find_table:set(
+        {
+            wrapper = wrapper,
+            struct  = tier_struct
+        },
+        identifier, NAMESPACE, tier
+    )
+
+    return wrapper
 end
 
 
@@ -132,14 +131,14 @@ LootPool.new_from_tier = function(NAMESPACE, tier)
     tier = Wrap.unwrap(tier)
     
     -- Create LootPool with same identifier as the item tier
-    local tier_lookup = __item_tier_find_table[tier]
-    local pool = LootPool.new(NAMESPACE, tier_lookup.identifier)
+    local tier_table = __item_tier_find_table:get(tier)
+    local pool = LootPool.new(NAMESPACE, tier_table.wrapper.identifier)
 
     -- Set pool properties
     pool.item_tier = tier
 
     -- Set tier properties
-    local tier_struct = tier_lookup.struct
+    local tier_struct = tier_table.struct
     tier_struct.item_pool_for_reroll        = pool.value
     tier_struct.equipment_pool_for_reroll   = pool.value
 
@@ -156,18 +155,9 @@ Searches for the specified loot pool and returns it.
 If no namespace is provided, searches in your mod's namespace first, and vanilla pools second.
 ]]
 LootPool.find = function(identifier, namespace, namespace_is_specified)
-    -- Search in namespace
-    local namespace_table = __loot_pool_find_table[namespace]
-    if namespace_table then
-        local element_table = namespace_table[identifier]
-        if element_table then return element_table.wrapper end
-    end
-
-    -- Also check vanilla pools if no namespace arg
-    if not namespace_is_specified then
-        local element_table = __loot_pool_find_table["ror"][identifier]
-        if element_table then return element_table.wrapper end
-    end
+    -- Check in find table
+    local cached = __loot_pool_find_table:get(identifier, namespace, namespace_is_specified)
+    if cached then return cached.wrapper end
 
     return nil
 end
@@ -199,11 +189,7 @@ methods_loot_pool = {
     ]]
     print_properties = function(self)
         local struct = __loot_pool_find_table[self.value].struct
-        local str = ""
-        for k, v in pairs(struct) do
-            str = str.."\n"..Util.pad_string_right(k, 32)..Util.tostring(v)
-        end
-        print(str)
+        struct:print()
     end,
 
 
@@ -310,7 +296,7 @@ make_table_once("metatable_loot_pool", {
         end
 
         -- Getter
-        local loot_struct = __loot_pool_find_table[__proxy[proxy]].struct
+        local loot_struct = __loot_pool_find_table:get(__proxy[proxy]).struct
         return loot_struct[k]
     end,
 
@@ -323,7 +309,7 @@ make_table_once("metatable_loot_pool", {
         end
 
         -- Setter
-        local loot_struct = __loot_pool_find_table[__proxy[proxy]].struct
+        local loot_struct = __loot_pool_find_table:get(__proxy[proxy]).struct
         loot_struct[k] = Wrap.unwrap(v)
     end,
 
@@ -342,7 +328,7 @@ gm.post_script_hook(gm.constants.run_create, function(self, other, result, args)
 
     -- Loop through custom loot pools (ID 7+)
     for i = 7, size - 1 do
-        local pool_struct = __loot_pool_find_table[i].struct
+        local pool_struct = __loot_pool_find_table:get(i).struct
         local drop_pool = List.wrap(pool_struct.drop_pool)
 
         -- Clear available_drop_pool
