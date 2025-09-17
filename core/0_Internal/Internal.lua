@@ -76,6 +76,14 @@ function run_clear_namespace_functions(namespace)
 end
 
 
+-- Expand "~" to mod folder
+run_once(function() __namespace_path = {} end)  -- Paths to mod folders that use RAPI
+function expand_path(namespace, path)
+    local expansion = __namespace_path[namespace].."/"
+    return path:gsub("~/", expansion):gsub("~", expansion)
+end
+
+
 -- Functions that should be called
 -- after game initialization is finished
 -- Called in Initialize.lua  (very sad but whatever)

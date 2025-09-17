@@ -1,7 +1,6 @@
 -- ENVY
 
 run_once(function()
-    __namespace_path = {}   -- Paths to mod folders that use RAPI
     __auto_setups = {}      -- Store mod ENVs that call `.auto()`; used when hotloading RAPI
 end)
 
@@ -13,7 +12,7 @@ function public.setup(env, namespace)
 
     local namespace = namespace or env["!guid"]
     
-    -- Store mod folder path
+    -- Store mod folder path (table is in Internal.lua)
     __namespace_path[namespace] = env["!plugins_mod_folder_path"]
 
     -- Create wrapper by copying all class *function* references

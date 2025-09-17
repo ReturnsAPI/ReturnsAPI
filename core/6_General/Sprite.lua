@@ -26,9 +26,7 @@ Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_ori
     if not identifier then log.error("No identifier provided", 2) end
     if not path then log.error("No image path provided", 2) end
 
-    -- Expand `~` to mod folder
-    path = path:gsub("~/", __namespace_path[NAMESPACE].."/")
-    path = path:gsub("~", __namespace_path[NAMESPACE].."/")
+    path = expand_path(NAMESPACE, path)
 
     -- Return existing sprite if found
     local sprite = Sprite.find(identifier, NAMESPACE, NAMESPACE)
