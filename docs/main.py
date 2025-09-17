@@ -282,11 +282,20 @@ def parse_block(block, docs):
 
 def parse_text(block, docs):
     text = []
+    in_codeblock = False
 
     # Loop through lines
     while len(block) > 0:
         line = block.pop(0)
-        parsed = parse_line(line)
+
+        # Toggle in_codeblock
+        if line.strip() == "```":
+            in_codeblock = not in_codeblock
+
+        # Do not parse lines inside codeblocks
+        parsed = line
+        if not in_codeblock:
+            parsed = parse_line(line)
 
         # End text
         if "@mlend" in parsed:
