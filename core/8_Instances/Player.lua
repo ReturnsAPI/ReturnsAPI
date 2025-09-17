@@ -18,6 +18,7 @@ Property | Type | Description
 `value`/`id`    | number    | The instance ID of the Instance.
 `RAPI`          | string    | The wrapper name.
 `cinstance`     | CInstance | The CInstance of the Player.
+]]
 
 
 

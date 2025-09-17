@@ -21,6 +21,7 @@ Property | Type | Description
 `value`         | Struct    | 
 `RAPI`          | string    | The wrapper name.
 `attack_info`   | AttackInfo | The attack_info struct of the HitInfo. <br>Comes automatically wrapped.
+]]
 
 
 

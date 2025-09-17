@@ -17,6 +17,7 @@ Property | Type | Description
 | - | - | -
 `value`         | Struct    | 
 `RAPI`          | string    | The wrapper name.
+]]
 
 
 
