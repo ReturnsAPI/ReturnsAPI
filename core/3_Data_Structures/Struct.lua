@@ -19,6 +19,20 @@ struct_wrappers = {
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`/`cinstance` |           | The `sol.YYObjectBase*` being wrapped.
+`RAPI`              | string    | The wrapper name.
+]]
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods

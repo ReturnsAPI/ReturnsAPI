@@ -8,6 +8,20 @@ Array = new_class()
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         |           | The `sol.RefDynamicArrayOfRValue*` being wrapped
+`RAPI`          | string    | The wrapper name.
+]]
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods

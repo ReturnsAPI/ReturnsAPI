@@ -11,6 +11,20 @@ List = new_class()
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | The ID of the List.
+`RAPI`          | string    | The wrapper name.
+]]
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods

@@ -37,7 +37,8 @@ Property | Type | Description
 | - | - | -
 `value`/`id`    | number    | The instance ID of the Instance.
 `RAPI`          | string    | The wrapper name.
-`cinstance`     | CInstance | The CInstance of the Instance.
+`cinstance`     | CInstance | The `sol.CInstance*` of the Instance.
+`attack_info`   | AttackInfo | The attack_info struct of *attack instances*. <br>Comes automatically wrapped.
 
 <br>
 

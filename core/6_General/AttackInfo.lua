@@ -16,7 +16,7 @@ AttackInfo = new_class()
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         | Struct    | 
+`value`         |           | The `sol.YYObjectBase*` being wrapped.
 `RAPI`          | string    | The wrapper name.
 ]]
 
