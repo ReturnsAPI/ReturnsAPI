@@ -65,6 +65,14 @@ function parse_optional_namespace(namespace, default_namespace)
 end
 
 
+-- Expand "~" to mod folder
+run_once(function() __namespace_path = {} end)  -- Paths to mod folders that use RAPI
+function expand_path(namespace, path)
+    local expansion = __namespace_path[namespace].."/"
+    return path:gsub("~/", expansion):gsub("~", expansion)
+end
+
+
 -- Call all `remove_all`-type functions that should
 -- be called when a mod (or RAPI) hotloads
 -- (Add them to `_clear_namespace_functions`)
@@ -73,14 +81,6 @@ function run_clear_namespace_functions(namespace)
     for _, fn in ipairs(_clear_namespace_functions) do
         fn(namespace)
     end
-end
-
-
--- Expand "~" to mod folder
-run_once(function() __namespace_path = {} end)  -- Paths to mod folders that use RAPI
-function expand_path(namespace, path)
-    local expansion = __namespace_path[namespace].."/"
-    return path:gsub("~/", expansion):gsub("~", expansion)
 end
 
 
