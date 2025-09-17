@@ -8,20 +8,6 @@ end)
 
 
 
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | The ID of the item tier.
-`RAPI`          | string    | The wrapper name.
-]]
-
-
-
 -- ========== Constants ==========
 
 --@section Constants
@@ -82,6 +68,20 @@ ItemTier.internal.initialize = function()
     end)
 end
 table.insert(_rapi_initialize, ItemTier.internal.initialize)
+
+
+
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | The ID of the item tier.
+`RAPI`          | string    | The wrapper name.
+]]
 
 
 

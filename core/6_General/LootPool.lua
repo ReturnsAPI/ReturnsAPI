@@ -8,20 +8,6 @@ end)
 
 
 
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | The ID of the loot pool.
-`RAPI`          | string    | The wrapper name.
-]]
-
-
-
 -- ========== Constants ==========
 
 --@section Constants
@@ -67,7 +53,7 @@ LootPool.internal.initialize = function()
                 wrapper = LootPool.wrap(pool),
                 struct  = Global.treasure_loot_pools:get(pool)
             },
-            identifier, namespace, tier
+            identifier, namespace, pool
         )
     end
 
@@ -80,6 +66,20 @@ LootPool.internal.initialize = function()
     end)
 end
 table.insert(_rapi_initialize, LootPool.internal.initialize)
+
+
+
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | The ID of the loot pool.
+`RAPI`          | string    | The wrapper name.
+]]
 
 
 
@@ -125,9 +125,9 @@ LootPool.new = function(NAMESPACE, identifier)
     __loot_pool_find_table:set(
         {
             wrapper = wrapper,
-            struct  = tier_struct
+            struct  = loot_struct
         },
-        identifier, NAMESPACE, tier
+        identifier, NAMESPACE, pool
     )
 
     return wrapper
