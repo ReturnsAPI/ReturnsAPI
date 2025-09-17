@@ -289,7 +289,7 @@ def parse_text(block, docs):
         line = block.pop(0)
 
         # Toggle in_codeblock
-        if line.strip() == "```":
+        if line.strip().startswith("```"):
             in_codeblock = not in_codeblock
 
         # Do not parse lines inside codeblocks
