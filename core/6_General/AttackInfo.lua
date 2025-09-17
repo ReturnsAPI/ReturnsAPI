@@ -13,6 +13,7 @@ AttackInfo = new_class()
 --@section Properties
 
 --[[
+**Wrapper**
 Property | Type | Description
 | - | - | -
 `value`         | Struct    | 

@@ -32,6 +32,7 @@ instance_wrappers = {
 --@section Properties
 
 --[[
+**Wrapper**
 Property | Type | Description
 | - | - | -
 `value`/`id`    | number    | The instance ID of the Instance.

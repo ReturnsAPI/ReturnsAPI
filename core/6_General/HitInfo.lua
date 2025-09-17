@@ -16,6 +16,7 @@ local attackinfo_cache = setmetatable({}, {__mode = "k"})
 --@section Properties
 
 --[[
+**Wrapper**
 Property | Type | Description
 | - | - | -
 `value`         | Struct    | 

@@ -69,6 +69,7 @@ Object.CUSTOM_START = 900
 --@section Properties
 
 --[[
+**Wrapper**
 Property | Type | Description
 | - | - | -
 `value`         | number    | The `object_index` of the object.
