@@ -79,22 +79,12 @@ run_once(function()
                 -- Get relevant section and priority table
                 local section_table = self.sections[fn_table.section]
                 local priority_table = section_table[fn_table.priority]
-                for i, v in ipairs(priority_table) do
-                    if v == fn_table then
-                        table.remove(priority_table, i)
-                        break
-                    end
-                end
+                Util.table_remove_value(priority_table, fn_table)
 
                 -- Delete priority table if empty
                 if #priority_table <= 0 then
                     section_table[fn_table.priority] = nil
-                    for i, v in ipairs(section_table.priorities) do
-                        if v == fn_table.priority then
-                            table.remove(section_table.priorities, i)
-                            break
-                        end
-                    end
+                    Util.table_remove_value(section_table.priorities, fn_table.priority)
                 end
 
                 -- Return callback function
@@ -125,12 +115,7 @@ run_once(function()
                             -- Delete priority table if empty
                             if #priority_table <= 0 then
                                 section_table[priority] = nil
-                                for i, v in ipairs(section_table.priorities) do
-                                    if v == priority then
-                                        table.remove(section_table.priorities, i)
-                                        break
-                                    end
-                                end
+                                Util.table_remove_value(section_table.priorities, priority)
                             end
                         end
                     end
