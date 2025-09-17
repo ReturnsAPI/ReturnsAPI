@@ -45,15 +45,17 @@ def main():
     core_path = os.path.join(os.path.dirname(__file__), "../core")
     
     # Loop through all directories in `core`
-    for dir in os.listdir(core_path):
-        dir_path = os.path.join(core_path, dir)
-        if os.path.isdir(dir_path):
+    # for dir in os.listdir(core_path):
+    #     dir_path = os.path.join(core_path, dir)
+    #     if os.path.isdir(dir_path):
             
-            # Loop through all Lua files in directory
-            for filename in os.listdir(dir_path):
-                if filename.endswith(".lua"):
-                    file_path = os.path.join(dir_path, filename)
-                    parse_file(file_path, filename.split(".")[0])
+    #         # Loop through all Lua files in directory
+    #         for filename in os.listdir(dir_path):
+    #             if filename.endswith(".lua"):
+    #                 file_path = os.path.join(dir_path, filename)
+    #                 parse_file(file_path, filename.split(".")[0])
+
+    parse_file(core_path + "/6_General/Language.lua", "Language")
 
 
 
@@ -77,6 +79,7 @@ def parse_file(file_path, filename):
 
     # Loop through lines
     for line in lines:
+        original_line = line
         line = line.strip()
         
         if in_code:
@@ -116,7 +119,7 @@ def parse_file(file_path, filename):
                     current_block.append("@mlend")
 
                 else:
-                    current_block.append(line)
+                    current_block.append(original_line)
 
             # Standard comment
             elif line.startswith("--"):
@@ -287,15 +290,16 @@ def parse_text(block, docs):
     # Loop through lines
     while len(block) > 0:
         line = block.pop(0)
+        line_stripped = line.strip()
 
         # Toggle in_codeblock
-        if line.strip().startswith("```"):
+        if line_stripped.startswith("```"):
             in_codeblock = not in_codeblock
 
         # Do not parse lines inside codeblocks
-        parsed = line
+        parsed = line.rstrip()
         if not in_codeblock:
-            parsed = parse_line(line)
+            parsed = parse_line(line_stripped)
 
         # End text
         if "@mlend" in parsed:
