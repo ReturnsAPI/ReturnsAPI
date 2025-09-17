@@ -121,7 +121,7 @@ function public.auto(properties)
     envy.import_all(env, wrapper)
 
     -- Save mod ENV (and preferred namespace) for calling again on RAPI hotload
-    __auto_setups[env] = { namespace = properties.namespace }
+    __auto_setups[env] = properties
 
     -- Override default `print`, `type`, and `tostring` with Util's versions
     if not env.lua_print then
