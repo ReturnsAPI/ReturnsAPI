@@ -1,0 +1,3 @@
+TODO
+- Finish swapping shit to FindCache
+- ItemTier, LootPool, etc. use new FindCache
