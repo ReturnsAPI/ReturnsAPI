@@ -16,7 +16,7 @@ run_once(function()
     __object_deserializers = {}
 end)
 
-local find_cache = FindCache.new()
+local find_cache = { ror = {} }
 
 
 
@@ -142,15 +142,19 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 Object.find = function(identifier, namespace, namespace_is_specified)
     find_cache[namespace] = find_cache[namespace] or {}
 
-    -- Check in cache
-    local cached = find_cache:get(identifier, namespace, namespace_is_specified)
+    -- Check in cache (both mod namespace and "ror")
+    local cached = find_cache[namespace][identifier]
     if cached then return cached end
+    if not namespace_is_specified then
+        local cached = find_cache["ror"][identifier]
+        if cached then return cached end
+    end
 
     -- Search in namespace
     local object = gm._mod_object_find(identifier, namespace)
     if object ~= -1 then
         object = Object.wrap(object)
-        find_cache:set(object, identifier, namespace)
+        find_cache[namespace][identifier] = object
         return object
     end
 
@@ -159,14 +163,14 @@ Object.find = function(identifier, namespace, namespace_is_specified)
         local object = gm._mod_object_find(identifier, "ror")
         if object ~= -1 then
             object = Object.wrap(object)
-            find_cache:set(object, identifier, "ror")
+            find_cache["ror"][identifier] = object
             return object
         end
 
         local object = gm.constants["o"..identifier:sub(1, 1):upper()..identifier:sub(2, -1)]
         if object then
             object = Object.wrap(object)
-            find_cache:set(object, identifier, "ror")
+            find_cache["ror"][identifier] = object
             return object
         end
     end

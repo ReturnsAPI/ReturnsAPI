@@ -10,9 +10,7 @@ run_once(function()
     FindCache = {
         new = function()
             return setmetatable({
-                current_id  = 0,    -- Unique ID for each callback fn
-                id_lookup   = {},   -- Lookup callback function data tables by ID
-                sections    = {}    -- Separate into sections, each having their own priorities
+                ror         = {}    -- Vanilla namespace cache
             }, find_cache_mt)
         end
     }
@@ -21,7 +19,32 @@ run_once(function()
     find_cache_mt = {
         __index = {
 
-            
+            -- Set value in cache
+            set = function(self, value, identifier, namespace)
+                -- Create namespace cache if existn't
+                self[namespace] = self[namespace] or {}
+
+                -- Set value
+                self[namespace][identifier] = value
+            end,
+
+
+            -- Get value from cache in provided namespace,
+            -- or default namespace *and* "ror" if not provided
+            get = function(self, identifier, namespace, namespace_is_specified)
+                -- Create namespace cache if existn't
+                self[namespace] = self[namespace] or {}
+
+                -- Check in namespace cache
+                local cached = self[namespace][identifier]
+                if cached then return cached end
+                
+                -- Check if "ror" cache
+                if not namespace_is_specified then
+                    local cached = self["ror"][identifier]
+                    if cached then return cached end
+                end
+            end
 
         }
     }
