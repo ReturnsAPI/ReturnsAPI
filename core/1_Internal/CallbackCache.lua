@@ -150,7 +150,7 @@ run_once(function()
                     local priority_table = section_table[priority]
 
                     -- Loop through priority table
-                    -- and add data tables to list
+                    -- and call function on data table
                     for _, fn_table in ipairs(priority_table) do
                         fn(fn_table)
                     end
