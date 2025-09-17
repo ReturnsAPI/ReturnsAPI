@@ -1,10 +1,53 @@
--- Callback
+-- Callback_OLD
+
+return true
 
 Callback = new_class()
 
 run_once(function()
-    __callback_cache = CallbackCache.new()
+    __callback_bank = {}
+    __callback_id_counter = 0
+    __callback_id_lookup = {}
 end)
+
+-- Table structures:
+
+-- __callback_bank = {
+--     [Callback.ON_LOAD] = {                   -- Callback type
+--         priorities = { ... }                 -- List of priorities for the callback
+--         [0] = {                              -- Priority 0
+--             {
+--                 id          = 1,             -- `fn_table`
+--                 namespace   = namespace,
+--                 fn          = fn,
+--                 priority    = priority
+--             },
+--             {
+--                 id          = 2,
+--                 namespace   = namespace,
+--                 fn          = fn,
+--                 priority    = priority
+--             },
+--             ...
+--         },
+--         [1000] = ...                         -- Priority 1000
+--     },
+--     [Callback.POST_LOAD] = ...
+-- }
+
+-- __callback_id_lookup = {
+--     [1] = {                                  -- ID 1
+--         Callback.ON_LOAD,                    -- Element 1 - Callback type
+--         {
+--             id          = 1,                 -- Element 2 - `fn_table`
+--             namespace   = namespace,
+--             fn          = fn,
+--             priority    = priority
+--         }
+--     },
+--     [2] = ...                                -- ID 2
+-- }
+
 
 local callback_arg_types = {}
 
@@ -191,31 +234,89 @@ Callback.add = function(namespace, callback, fn, priority)
         log.error("Callback.add: No function provided", 2)
     end
 
-    return __callback_cache:add(fn, namespace, priority, callback)
+    -- All callbacks have the same priority (0) unless specified
+    -- Higher numbers run before lower ones (can be negative)
+    priority = priority or 0
+
+    -- Create __callback_bank subtables if they do not exist
+    if not __callback_bank[callback] then
+        __callback_bank[callback] = { priorities = {} }
+    end
+    local cbank_callback = __callback_bank[callback]
+    if not cbank_callback[priority] then
+        cbank_callback[priority] = {}
+        table.insert(cbank_callback.priorities, priority)
+        table.sort(cbank_callback.priorities, function(a, b) return a > b end)
+    end
+
+    -- Add to subtable
+    local fn_table = {
+        id          = __callback_id_counter,
+        namespace   = namespace,
+        fn          = fn,
+        priority    = priority
+    }
+    local lookup_table = {callback, fn_table}
+    __callback_id_lookup[__callback_id_counter] = lookup_table
+    table.insert(__callback_bank[callback][priority], fn_table)
+    
+    local current_id = __callback_id_counter
+    __callback_id_counter = __callback_id_counter + 1
+
+    -- Return numerical ID for removability
+    return current_id
 end
 
 
 --@static
---@name         remove
 --@param        id          | number    | The unique ID of the registered function to remove.
 --[[
 Removes a registered callback function.
 The ID is the one from @link {`Callback.add` | Callback#add}.
 ]]
 Callback.remove = function(id)
-    return __callback_cache:remove(id)
+    -- Look up ID
+    local lookup_table = __callback_id_lookup[id]
+    if not lookup_table then return end
+    __callback_id_lookup[id] = nil
+
+    -- Remove from table of relevant callback type and priority
+    local fn_table = lookup_table[2]
+    local priority = fn_table.priority
+    local cbank_callback = __callback_bank[lookup_table[1]]
+    local cbank_priority = cbank_callback[priority]
+    Util.table_remove_value(cbank_priority, fn_table)
+    if #cbank_priority <= 0 then
+        cbank_callback[priority] = nil
+        Util.table_remove_value(cbank_callback.priorities, priority)
+    end
 end
 
 
 --@static
---@name         remove_all
 --[[
 Removes all registered callbacks functions from your namespace.
 
 Automatically called when you hotload your mod.
 ]]
 Callback.remove_all = function(namespace)
-    __callback_cache:remove_all(namespace)
+    for _, cbank_callback in pairs(__callback_bank) do
+        for priority, cbank_priority in pairs(cbank_callback) do
+            if type(priority) == "number" then
+                for i = #cbank_priority, 1, -1 do
+                    local fn_table = cbank_priority[i]
+                    if fn_table.namespace == namespace then
+                        __callback_id_lookup[fn_table.id] = nil
+                        table.remove(cbank_priority, i)
+                    end
+                end
+                if #cbank_priority <= 0 then
+                    cbank_callback[priority] = nil
+                    Util.table_remove_value(cbank_callback.priorities, priority)
+                end
+            end
+        end
+    end
 end
 table.insert(_clear_namespace_functions, Callback.remove_all)
 
@@ -224,14 +325,15 @@ table.insert(_clear_namespace_functions, Callback.remove_all)
 -- ========== Hooks ==========
 
 gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
-    local callback_type_id = args[1].value
-    if not __callback_cache.sections[callback_type_id] then return end
+    local callback = args[1].value
+    local cbank_callback = __callback_bank[callback]
+    if not cbank_callback then return end
 
     local wrapped_args = {}
 
     -- Wrap args (standard callbacks, e.g., `Callback.ON_LOAD`)
-    if callback_type_id < #callback_constants then
-        local arg_types = callback_arg_types[callback_type_id]  -- From `Global.class_callback[callback_type_id]`
+    if callback < #callback_constants then
+        local arg_types = callback_arg_types[callback]  -- From `Global.class_callback[callback]`
         for i, arg_type in ipairs(arg_types) do
 
             local arg = Wrap.wrap(args[i + 1].value)
@@ -246,7 +348,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
             end
 
             -- Packet and Message edge cases (41 - net_message_onReceived)
-            if callback_type_id == Callback.NET_MESSAGE_ON_RECEIVED then
+            if callback == Callback.NET_MESSAGE_ON_RECEIVED then
                 if      i == 1 then arg = Packet.wrap(arg)
                 elseif  i == 2 then arg = Buffer.wrap(arg)
                 end
@@ -262,17 +364,21 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         end
     end
 
-    -- Call registered functions with wrapped args
-    __callback_cache:loop_and_call_function(function(fn_table)
-        
-        local status, err = pcall(fn_table.fn, table.unpack(wrapped_args))
-        if not status then
-            if (err == nil)
-            or (err == "C++ exception") then err = "GM call error (see above)" end
-            log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Callback of type '"..callback_type_id.."' failed to execute fully.\n"..err)
-        end
+    -- Loop through each priority table of the callback type
+    for _, priority in ipairs(cbank_callback.priorities) do
+        local cbank_priority = cbank_callback[priority]
 
-    end, callback_type_id)
+        -- Loop through priority table
+        -- and call registered functions with wrapped args
+        for _, fn_table in ipairs(cbank_priority) do
+            local status, err = pcall(fn_table.fn, table.unpack(wrapped_args))
+            if not status then
+                if (err == nil)
+                or (err == "C++ exception") then err = "GM call error (see above)" end
+                log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Callback of type '"..callback.."' failed to execute fully.\n"..err)
+            end
+        end
+    end
 end)
 
 
