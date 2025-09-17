@@ -120,7 +120,7 @@ gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, resu
             if not status then
                 if (err == nil)
                 or (err == "C++ exception") then err = "GM call error (see above)" end
-                log.warning("\n"..alarm.namespace:gsub("%.", "-")..": Alarm '"..alarm.id.."' failed to execute fully.\n"..err)
+                log.warning("\n"..alarm.namespace..": Alarm '"..alarm.id.."' failed to execute fully.\n"..err)
             end
         end
 

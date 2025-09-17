@@ -468,7 +468,7 @@ gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_seri
             if not status then
                 if (err == nil)
                 or (err == "C++ exception") then err = "GM call error (see above)" end
-                log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Object serialization for object '"..obj_ind.."' failed to execute fully.\n"..err)
+                log.warning("\n"..fn_table.namespace..": Object serialization for object '"..obj_ind.."' failed to execute fully.\n"..err)
             end
         end
 	end
@@ -484,7 +484,7 @@ gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_dese
             if not status then
                 if (err == nil)
                 or (err == "C++ exception") then err = "GM call error (see above)" end
-                log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Object deserialization for object '"..obj_ind.."' failed to execute fully.\n"..err)
+                log.warning("\n"..fn_table.namespace..": Object deserialization for object '"..obj_ind.."' failed to execute fully.\n"..err)
             end
         end
 	end

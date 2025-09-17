@@ -70,7 +70,7 @@ gm.post_script_hook(gm.constants.recalculate_stats, function(self, other, result
         if not status then
             if (err == nil)
             or (err == "C++ exception") then err = "GM call error (see above)" end
-            log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": RecalculateStats (ID '"..fn_table.id.."') failed to execute fully.\n"..err)
+            log.warning("\n"..fn_table.namespace..": RecalculateStats (ID '"..fn_table.id.."') failed to execute fully.\n"..err)
         end
     end)
 end)

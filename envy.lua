@@ -2,7 +2,7 @@
 
 run_once(function()
     __namespace_path = {}   -- Paths to mod folders that use RAPI
-    __auto_setups = {}      -- Mod ENVs that call `.auto()`; used when hotloading RAPI
+    __auto_setups = {}      -- Store mod ENVs that call `.auto()`; used when hotloading RAPI
 end)
 
 
@@ -11,9 +11,7 @@ function public.setup(env, namespace)
         env = envy.getfenv(2)
     end
 
-    -- Replace "-"s in namespace with "." to not
-    -- conflict with some vanilla functions
-    local namespace = namespace or env["!guid"]:gsub("-", ".")
+    local namespace = namespace or env["!guid"]
     
     -- Store mod folder path
     __namespace_path[namespace] = env["!plugins_mod_folder_path"]
@@ -62,37 +60,30 @@ function public.setup(env, namespace)
                         if pos then
                             if pos == 1 then
                                 copy[k] = function(ns)
-                                    if ns then ns = ns:gsub("-", ".") end
                                     return v(parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 2 then
                                 copy[k] = function(arg1, ns)
-                                    if ns then ns = ns:gsub("-", ".") end
                                     return v(arg1, parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 3 then
                                 copy[k] = function(arg1, arg2, ns)
-                                    if ns then ns = ns:gsub("-", ".") end
                                     return v(arg1, arg2, parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 4 then
                                 copy[k] = function(arg1, arg2, arg3, ns)
-                                    if ns then ns = ns:gsub("-", ".") end
                                     return v(arg1, arg2, arg3, parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 5 then
                                 copy[k] = function(arg1, arg2, arg3, arg4, ns)
-                                    if ns then ns = ns:gsub("-", ".") end
                                     return v(arg1, arg2, arg3, arg4, parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 6 then
                                 copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns)
-                                    if ns then ns = ns:gsub("-", ".") end
                                     return v(arg1, arg2, arg3, arg4, arg5, parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 7 then
                                 copy[k] = function(arg1, arg2, arg3, arg4, arg5, arg6, ns)
-                                    if ns then ns = ns:gsub("-", ".") end
                                     return v(arg1, arg2, arg3, arg4, arg5, arg6, parse_optional_namespace(ns, namespace))
                                 end
                             end
@@ -123,7 +114,7 @@ end
 
 
 function public.auto(properties)
-    local properties = properties or {}
+    properties = properties or {}
 
     local env = envy.getfenv(2)
     local wrapper = public.setup(env, properties.namespace)
@@ -149,7 +140,7 @@ function public.auto(properties)
         end
     end
     
-    local namespace = properties.namespace or env["!guid"]:gsub("-", ".")
+    local namespace = properties.namespace or env["!guid"]
     run_clear_namespace_functions(namespace)    -- in Internal.lua
 
     -- Autoregister to Language
