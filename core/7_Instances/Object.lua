@@ -263,6 +263,7 @@ Object.remove_all_serializers = function(namespace)
         if #subtable <= 0 then __object_deserializers[object] = nil end
     end
 end
+table.insert(_clear_namespace_functions, Object.remove_all_serializers)
 
 
 --@static

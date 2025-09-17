@@ -47,6 +47,7 @@ Initialize.internal.remove_all = function(namespace)
         end
     end
 end
+table.insert(_clear_namespace_functions, Initialize.internal.remove_all)
 
 
 

@@ -102,6 +102,7 @@ Alarm.remove_all = function(namespace)
 
     __alarm_bank_lookup[namespace] = nil
 end
+table.insert(_clear_namespace_functions, Alarm.remove_all)
 
 
 

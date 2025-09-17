@@ -13,7 +13,7 @@ envy = mods["LuaENVY-ENVY"]
 if run_on_hotload then
     run_on_hotload(function()
         local namespace = _ENV["!guid"]
-        clear_namespace_stuff(namespace)    -- Internal.lua
+        run_clear_namespace_functions(namespace)    -- in Internal.lua
     end)
 end
 

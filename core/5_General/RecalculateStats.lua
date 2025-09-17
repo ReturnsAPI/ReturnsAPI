@@ -70,6 +70,7 @@ RecalculateStats.remove_all = function(namespace)
         end
     end
 end
+table.insert(_clear_namespace_functions, RecalculateStats.remove_all)
 
 
 

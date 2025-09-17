@@ -69,6 +69,7 @@ DamageCalculate.remove_all = function(namespace)
     end
     __damage_calc_namespace[namespace] = nil
 end
+table.insert(_clear_namespace_functions, DamageCalculate.remove_all)
 
 
 

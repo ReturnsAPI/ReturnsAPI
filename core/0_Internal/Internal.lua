@@ -12,6 +12,7 @@ end
 
 -- Runs the function only once on initial load,
 -- and never again on hotload
+-- (Used to preserve many caches on RAPI hotload)
 function run_once(fn)
     if not hotloaded then
         fn()
@@ -64,14 +65,14 @@ function parse_optional_namespace(namespace, default_namespace)
 end
 
 
--- Clear callbacks and other stuff associated with namespace
-function clear_namespace_stuff(namespace)
-    if Callback         then Callback.remove_all(namespace) end
-    if Initialize       then Initialize.internal.remove_all(namespace) end
-    if RecalculateStats then RecalculateStats.remove_all(namespace) end
-    if DamageCalculate  then DamageCalculate.remove_all(namespace) end
-    if Alarm            then Alarm.remove_all(namespace) end
-    if Object           then Object.remove_all_serializers(namespace) end
+-- Call all `remove_all`-type functions that should
+-- be called when a mod (or RAPI) hotloads
+-- (Add them to `_clear_namespace_functions`)
+_clear_namespace_functions = {}
+function run_clear_namespace_functions(namespace)
+    for _, fn in ipairs(_clear_namespace_functions) do
+        fn(namespace)
+    end
 end
 
 
@@ -82,5 +83,3 @@ run_once(function()
     __class     = {}    -- Every public class
     __class_mt  = {}    -- Metatable for public class (optional, should be the same key as in __class)
 end)
-
--- __ref_map created in Map.lua

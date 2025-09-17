@@ -145,7 +145,7 @@ function public.auto(properties)
     end
     
     local namespace = properties.namespace or env["!guid"]:gsub("-", ".")
-    clear_namespace_stuff(namespace)    -- Internal.lua
+    run_clear_namespace_functions(namespace)    -- in Internal.lua
 
     -- Autoregister to Language
     if Language         then Language.register_autoload(env) end

@@ -316,6 +316,7 @@ Callback.remove_all = function(namespace)
         end
     end
 end
+table.insert(_clear_namespace_functions, Callback.remove_all)
 
 
 

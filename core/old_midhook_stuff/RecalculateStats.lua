@@ -34,6 +34,7 @@ Automatically called when you hotload your mod.
 RecalculateStats.remove_all = function(namespace)
     __recalc_stats_callbacks[namespace] = nil
 end
+table.insert(_clear_namespace_functions, RecalculateStats.remove_all)
 
 
 
