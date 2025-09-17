@@ -155,9 +155,7 @@ end
 Searches for the specified loot pool and returns it.
 If no namespace is provided, searches in your mod's namespace first, and vanilla pools second.
 ]]
-LootPool.find = function(identifier, namespace, default_namespace)
-    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
-
+LootPool.find = function(identifier, namespace, namespace_is_specified)
     -- Search in namespace
     local namespace_table = __loot_pool_find_table[namespace]
     if namespace_table then
@@ -166,7 +164,7 @@ LootPool.find = function(identifier, namespace, default_namespace)
     end
 
     -- Also check vanilla pools if no namespace arg
-    if not is_specified then
+    if not namespace_is_specified then
         local element_table = __loot_pool_find_table["ror"][identifier]
         if element_table then return element_table.wrapper end
     end

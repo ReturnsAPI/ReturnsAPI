@@ -121,9 +121,7 @@ Tracer.new = function(namespace, identifier)
 end
 
 
-Tracer.find = function(identifier, namespace, default_namespace)
-    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
-
+Tracer.find = function(identifier, namespace, namespace_is_specified)
     -- Search in namespace
     local namespace_table = __tracer_find_table[namespace]
     if namespace_table then

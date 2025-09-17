@@ -175,11 +175,10 @@ Returns a table unique to each instance (will be initially empty) and unique to 
 This table is useful for storing Lua data (such as tables) in instances, which cannot be done with normal instance variables.
 It is automatically deleted upon the instance's destruction.
 ]]
-Instance.get_data = function(instance, subtable, namespace, default_namespace)
+Instance.get_data = function(instance, subtable, namespace, namespace_is_specified)
     local id = Wrap.unwrap(instance)
     if (type(id) ~= "number") or (id < 100000) then log.error("Instance does not exist", 2) end
     
-    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
     subtable = subtable or "__main"
     namespace = namespace or _ENV["!guid"]  -- Internal RAPI calling of this is not namespace-bound
 

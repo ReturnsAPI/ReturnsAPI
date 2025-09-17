@@ -63,32 +63,32 @@ function public.setup(env, namespace)
                             if pos == 2 then
                                 copy[k] = function(arg1, ns)
                                     if ns then ns = ns:gsub("-", ".") end
-                                    return v(arg1, ns, namespace)
+                                    return v(arg1, parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 3 then
                                 copy[k] = function(arg1, arg2, ns)
                                     if ns then ns = ns:gsub("-", ".") end
-                                    return v(arg1, arg2, ns, namespace)
+                                    return v(arg1, arg2, parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 4 then
                                 copy[k] = function(arg1, arg2, arg3, ns)
                                     if ns then ns = ns:gsub("-", ".") end
-                                    return v(arg1, arg2, arg3, ns, namespace)
+                                    return v(arg1, arg2, arg3, parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 5 then
                                 copy[k] = function(arg1, arg2, arg3, arg4, ns)
                                     if ns then ns = ns:gsub("-", ".") end
-                                    return v(arg1, arg2, arg3, arg4, ns, namespace)
+                                    return v(arg1, arg2, arg3, arg4, parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 6 then
                                 copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns)
                                     if ns then ns = ns:gsub("-", ".") end
-                                    return v(arg1, arg2, arg3, arg4, arg5, ns, namespace)
+                                    return v(arg1, arg2, arg3, arg4, arg5, parse_optional_namespace(ns, namespace))
                                 end
                             elseif pos == 7 then
                                 copy[k] = function(arg1, arg2, arg3, arg4, arg5, arg6, ns)
                                     if ns then ns = ns:gsub("-", ".") end
-                                    return v(arg1, arg2, arg3, arg4, arg5, arg6, ns, namespace)
+                                    return v(arg1, arg2, arg3, arg4, arg5, arg6, parse_optional_namespace(ns, namespace))
                                 end
                             end
                         end

@@ -185,9 +185,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
     class_table.Property = enum
 
     -- find
-    class_table.find = function(identifier, namespace, default_namespace)
-        local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
-
+    class_table.find = function(identifier, namespace, namespace_is_specified)
         -- Search in namespace
         local namespace_table = __class_find_tables[name_global][namespace]
         if namespace_table then
@@ -196,7 +194,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
         end
 
         -- Also search in "ror" namespace by default if unspecified
-        if not is_specified then
+        if not namespace_is_specified then
             element_table = __class_find_tables[name_global]["ror"][identifier]
             if element_table then return element_table.wrapper end
         end

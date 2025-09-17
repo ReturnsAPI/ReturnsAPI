@@ -67,16 +67,14 @@ end
 Searches for the specified sprite and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
-Sprite.find = function(identifier, namespace, default_namespace)
-    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
-
+Sprite.find = function(identifier, namespace, namespace_is_specified)
     local nsid = namespace.."-"..identifier
     local ror_nsid = "ror-"..identifier
 
     -- Check in cache (both in namespace and in "ror" if no `namespace` arg)
     local cached = find_cache[nsid]
     if cached then return cached end
-    if not is_specified then
+    if not namespace_is_specified then
         local cached = find_cache[ror_nsid]
         if cached then return cached end
     end
@@ -94,7 +92,7 @@ Sprite.find = function(identifier, namespace, default_namespace)
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
-    if not is_specified then
+    if not namespace_is_specified then
         local sprite
         local namespace_struct = resource_manager["ror"]
         if namespace_struct then sprite = namespace_struct[identifier] end

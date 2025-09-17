@@ -139,16 +139,14 @@ end
 Searches for the specified object and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
-Object.find = function(identifier, namespace, default_namespace)
-    local namespace, is_specified = parse_optional_namespace(namespace, default_namespace)
-
+Object.find = function(identifier, namespace, namespace_is_specified)
     local nsid = namespace.."-"..identifier
     local ror_nsid = "ror-"..identifier
 
     -- Check in cache (both mod namespace and "ror")
     local cached = find_cache[nsid]
     if cached then return cached end
-    if not is_specified then
+    if not namespace_is_specified then
         local cached = find_cache[ror_nsid]
         if cached then return cached end
     end
@@ -162,7 +160,7 @@ Object.find = function(identifier, namespace, default_namespace)
     end
 
     -- Also search in "ror" and then gm.constants if passed no `namespace` arg
-    if not is_specified then
+    if not namespace_is_specified then
         local object = gm.object_find(ror_nsid)
         if object then
             object = Object.wrap(object)
