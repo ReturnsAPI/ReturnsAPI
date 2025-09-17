@@ -69,11 +69,19 @@ Object.CUSTOM_START = 900
 --@section Properties
 
 --[[
+Property | Type | Description
+| - | - | -
+`value`         | number    | The `object_index` of the object.
+`RAPI`          | string    | The wrapper name.
+`array`         | Array     | The custom object property array. <br>Only exists for custom objects.
+
+<br>
+
 These properties only exist for custom objects.
 
 Property | Type | Description
 | - | - | -
-`base`          | number    | The object_index of the parent object.
+`base`          | number    | The `object_index` of the parent object.
 `obj_depth`     | number    | The object depth.
 `obj_sprite`    | sprite    | The object sprite.
 `identifier`    | string    | The identifier for the object within the namespace.

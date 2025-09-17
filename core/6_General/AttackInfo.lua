@@ -1,6 +1,22 @@
 -- AttackInfo
 
+--[[
+AttackInfo wrappers are "children" of @link {`Struct` | Struct}, and can use its properties and instance methods.
+]]
+
 AttackInfo = new_class()
+
+
+
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+Property | Type | Description
+| - | - | -
+`value`         | Struct    | 
+`RAPI`          | string    | The wrapper name.
 
 
 

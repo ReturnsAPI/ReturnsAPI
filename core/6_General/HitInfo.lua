@@ -1,11 +1,26 @@
 -- HitInfo
 
--- "Child" class of AttackInfo
+--[[
+HitInfo wrappers are "children" of @link {`Struct` | Struct} and @link {`AttackInfo` | AttackInfo}, and can use their properties and instance methods.
+]]
 
 HitInfo = new_class()
 
 -- Cache for hitinfo.attack_info
 local attackinfo_cache = setmetatable({}, {__mode = "k"})
+
+
+
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+Property | Type | Description
+| - | - | -
+`value`         | Struct    | 
+`RAPI`          | string    | The wrapper name.
+`attack_info`   | AttackInfo | The attack_info struct of the HitInfo. <br>Comes automatically wrapped.
 
 
 

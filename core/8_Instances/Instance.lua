@@ -33,7 +33,15 @@ instance_wrappers = {
 --@section Properties
 
 --[[
-Instances possess all the builtin [GameMaker instance variables](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Asset_Management/Instances/Instance_Variables/Instance_Variables.htm).
+Property | Type | Description
+| - | - | -
+`value`/`id`    | number    | The instance ID of the Instance.
+`RAPI`          | string    | The wrapper name.
+`cinstance`     | CInstance | The CInstance of the Instance.
+
+<br>
+
+`Instance`s possess all the builtin [GameMaker instance variables](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Asset_Management/Instances/Instance_Variables/Instance_Variables.htm).
 ]]
 
 

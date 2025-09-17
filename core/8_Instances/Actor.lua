@@ -1,7 +1,7 @@
 -- Actor
 
 --[[
-Actor wrappers are "children" of @link {`Instance` | Instance}, and can use their properties and instance methods.
+Actor wrappers are "children" of @link {`Instance` | Instance}, and can use its properties and instance methods.
 ]]
 
 Actor = new_class()
@@ -33,6 +33,14 @@ Actor.KnockbackKind = {
 --@section Properties
 
 --[[
+Property | Type | Description
+| - | - | -
+`value`/`id`    | number    | The instance ID of the Instance.
+`RAPI`          | string    | The wrapper name.
+`cinstance`     | CInstance | The CInstance of the Actor.
+
+<br>
+
 Notable variables belonging to actors.
 TODO populate with more
 
