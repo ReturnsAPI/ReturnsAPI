@@ -93,17 +93,17 @@ table.insert(_rapi_initialize, Stage.internal.initialize)
 Creates a new stage with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-Stage.new = function(namespace, identifier)
+Stage.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing stage if found
-    local stage = Stage.find(identifier, namespace)
+    local stage = Stage.find(identifier, NAMESPACE)
     if stage then return stage end
 
     -- Create new
     stage = Stage.wrap(gm.stage_create(
-        namespace,
+        NAMESPACE,
         identifier
     ))
 
@@ -170,14 +170,14 @@ end
 Adds a new room(s) to the stage, and adds it as
 a variant to the environment log (if applicable).
 ]]
-Stage.add_room = function(namespace, stage, ...)
+Stage.add_room = function(NAMESPACE, stage, ...)
     local self = Stage.wrap(stage)
     local id = self.value
 
     local identifier = self.identifier
     local room_list = List.wrap(self.room_list)
 
-    __stage_new_rooms[namespace] = __stage_new_rooms[namespace] or {}
+    __stage_new_rooms[NAMESPACE] = __stage_new_rooms[NAMESPACE] or {}
 
     -- Get environment log
     local display_room_ids
@@ -192,12 +192,12 @@ Stage.add_room = function(namespace, stage, ...)
 
     for _, path in ipairs(t) do
         -- Load room and add to list
-        local room = gm.stage_load_room(namespace, identifier.."_"..__stage_variant_next_id[id], path)
+        local room = gm.stage_load_room(NAMESPACE, identifier.."_"..__stage_variant_next_id[id], path)
         room_list:add(room)
 
         __stage_variant_next_id[id] = __stage_variant_next_id[id] + 1
 
-        table.insert(__stage_new_rooms[namespace], {
+        table.insert(__stage_new_rooms[NAMESPACE], {
             stage   = id,
             room_id = room
         })
@@ -217,10 +217,10 @@ Removes all rooms (variants) added from your mod.
 
 Automatically called when you hotload your mod.
 ]]
-Stage.remove_all_rooms = function(namespace)
-    if not __stage_new_rooms[namespace] then return end
+Stage.remove_all_rooms = function(NAMESPACE)
+    if not __stage_new_rooms[NAMESPACE] then return end
 
-    for _, t in ipairs(__stage_new_rooms[namespace]) do
+    for _, t in ipairs(__stage_new_rooms[NAMESPACE]) do
         local stage = Stage.wrap(t.stage)
         local room_list = List.wrap(stage.room_list)
 
@@ -242,7 +242,7 @@ Stage.remove_all_rooms = function(namespace)
         end
     end
 
-    __stage_new_rooms[namespace] = nil
+    __stage_new_rooms[NAMESPACE] = nil
 end
 
 

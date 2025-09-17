@@ -70,21 +70,21 @@ Property | Type | Description
 Creates a new equipment with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-Equipment.new = function(namespace, identifier)
+Equipment.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing equipment if found
-    local equip = Equipment.find(identifier, namespace)
+    local equip = Equipment.find(identifier, NAMESPACE)
     if equip then return equip end
 
     -- Create new
     equip = Equipment.wrap(gm.equipment_create(
-        namespace,
+        NAMESPACE,
         identifier,
         #Class.Equipment,   -- equip ID; *not* auto-set by the game
         ItemTier.EQUIPMENT,
-        gm.object_add_w(namespace, identifier, gm.constants.pPickupEquipment),
+        gm.object_add_w(NAMESPACE, identifier, gm.constants.pPickupEquipment),
         0,      -- loot_tags (?)
         nil,    -- ?
         45      -- cooldown (in seconds)

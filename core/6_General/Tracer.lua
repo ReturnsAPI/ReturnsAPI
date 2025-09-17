@@ -85,15 +85,15 @@ end
 
 -- ========== Static Methods ==========
 
-Tracer.new = function(namespace, identifier)
-    local tracer = Tracer.find(identifier, namespace)
+Tracer.new = function(NAMESPACE, identifier)
+    local tracer = Tracer.find(identifier, NAMESPACE)
     if tracer then return tracer end
 
     local tracer_info_array = Global.tracer_info
     local index = #tracer_info_array
 
     local struct = Struct.new()
-    struct.namespace                       = namespace     -- RAPI custom variable
+    struct.namespace                       = NAMESPACE     -- RAPI custom variable
     struct.identifier                      = identifier    -- RAPI custom variable
     struct.consistent_sparks_flip          = false
     struct.show_sparks_if_miss             = true
@@ -107,14 +107,14 @@ Tracer.new = function(namespace, identifier)
 
     local element_table = {
         index       = index,
-        namespace   = namespace,
+        namespace   = NAMESPACE,
         identifier  = identifier,
         struct      = loot_struct,
         wrapper     = Tracer.wrap(index)
     }
 
-    if not __tracer_find_table[namespace] then __tracer_find_table[namespace] = {} end
-    __tracer_find_table[namespace][identifier] = element_table
+    if not __tracer_find_table[NAMESPACE] then __tracer_find_table[NAMESPACE] = {} end
+    __tracer_find_table[NAMESPACE][identifier] = element_table
     __tracer_find_table[index] = element_table
 
     return element_table.wrapper

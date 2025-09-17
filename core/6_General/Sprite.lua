@@ -2,7 +2,7 @@
 
 Sprite = new_class()
 
-local find_cache = {}
+local find_cache = FindCache.new()
 
 
 
@@ -21,17 +21,17 @@ local find_cache = {}
 Creates a new sprite with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-Sprite.new = function(namespace, identifier, path, image_number, x_origin, y_origin)
+Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_origin)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
     if not path then log.error("No image path provided", 2) end
 
     -- Expand `~` to mod folder
-    path = path:gsub("~/", __namespace_path[namespace].."/")
-    path = path:gsub("~", __namespace_path[namespace].."/")
+    path = path:gsub("~/", __namespace_path[NAMESPACE].."/")
+    path = path:gsub("~", __namespace_path[NAMESPACE].."/")
 
     -- Return existing sprite if found
-    local sprite = Sprite.find(identifier, namespace, namespace)
+    local sprite = Sprite.find(identifier, NAMESPACE, NAMESPACE)
     if sprite then
         -- Allow for modification of sprite origin
         if x_origin and y_origin then sprite:set_origin(x_origin or 0, y_origin or 0) end
@@ -40,7 +40,7 @@ Sprite.new = function(namespace, identifier, path, image_number, x_origin, y_ori
 
     -- Create new sprite
     sprite = gm.sprite_add_w(
-        namespace,
+        NAMESPACE,
         identifier,
         path,
         image_number or 1,
@@ -54,7 +54,7 @@ Sprite.new = function(namespace, identifier, path, image_number, x_origin, y_ori
 
     -- Add to cache and return
     local wrapper = Sprite.wrap(sprite)
-    find_cache[namespace.."-"..identifier] = wrapper
+    find_cache[NAMESPACE.."-"..identifier] = wrapper
     return wrapper
 end
 
@@ -68,38 +68,31 @@ Searches for the specified sprite and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
 Sprite.find = function(identifier, namespace, namespace_is_specified)
-    local nsid = namespace.."-"..identifier
-    local ror_nsid = "ror-"..identifier
-
-    -- Check in cache (both in namespace and in "ror" if no `namespace` arg)
-    local cached = find_cache[nsid]
+    -- Check in cache
+    local cached = find_cache:get(identifier, namespace, namespace_is_specified)
     if cached then return cached end
-    if not namespace_is_specified then
-        local cached = find_cache[ror_nsid]
-        if cached then return cached end
-    end
 
     -- Search in namespace
     local sprite
     local resource_manager = Map.wrap(Global.ResourceManager_sprite.__namespacedAssetLookup)
-    local namespace_struct = resource_manager[namespace]
-    if namespace_struct then sprite = Map.wrap(namespace_struct)[identifier] end
+    local namespace_map = resource_manager[namespace]
+    if namespace_map then sprite = Map.wrap(namespace_map)[identifier] end
 
     if sprite then
         sprite = Sprite.wrap(sprite)
-        find_cache[nsid] = sprite
+        find_cache:set(sprite, identifier, namespace)
         return sprite
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
     if not namespace_is_specified then
         local sprite
-        local namespace_struct = resource_manager["ror"]
-        if namespace_struct then sprite = namespace_struct[identifier] end
+        local namespace_map = resource_manager["ror"]
+        if namespace_map then sprite = Map.wrap(namespace_map)[identifier] end
         
         if sprite then
             sprite = Sprite.wrap(sprite)
-            find_cache[ror_nsid] = sprite
+            find_cache:set(sprite, identifier, "ror")
             return sprite
         end
     end
@@ -115,9 +108,7 @@ end
 Returns a table of all sprites in the specified namespace.
 If no namespace is provided, retrieves from both your mod's namespace and "ror".
 ]]
-Sprite.find_all = function(namespace, _namespace)
-    local namespace, is_specified = parse_optional_namespace(_namespace, namespace)
-    
+Sprite.find_all = function(namespace, namespace_is_specified)
     local sprites = {}
     local resource_manager = Map.wrap(Global.ResourceManager_sprite.__namespacedAssetLookup)
 
@@ -129,7 +120,7 @@ Sprite.find_all = function(namespace, _namespace)
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
-    if not is_specified then
+    if not namespace_is_specified then
         for _, sprite in pairs(resource_manager["ror"]) do
             table.insert(sprites, Sprite.wrap(sprite))
         end

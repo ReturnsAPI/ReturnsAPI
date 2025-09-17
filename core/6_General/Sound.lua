@@ -18,22 +18,22 @@ local find_cache = {}
 Creates a new sound with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-Sound.new = function(namespace, identifier, path)
+Sound.new = function(NAMESPACE, identifier, path)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
     if not path then log.error("No image path provided", 2) end
 
     -- Expand `~` to mod folder
-    path = path:gsub("~/", __namespace_path[namespace].."/")
-    path = path:gsub("~", __namespace_path[namespace].."/")
+    path = path:gsub("~/", __namespace_path[NAMESPACE].."/")
+    path = path:gsub("~", __namespace_path[NAMESPACE].."/")
 
     -- Return existing sound if found
-    local sound = Sound.find(identifier, namespace, namespace)
+    local sound = Sound.find(identifier, NAMESPACE, NAMESPACE)
     if sound then return sound end
 
     -- Create new sound
     sound = gm.sound_add_w(
-        namespace,
+        NAMESPACE,
         identifier,
         path
     )
@@ -44,7 +44,7 @@ Sound.new = function(namespace, identifier, path)
 
     -- Add to cache and return
     local wrapper = Sound.wrap(sound)
-    find_cache[namespace.."-"..identifier] = wrapper
+    find_cache[NAMESPACE.."-"..identifier] = wrapper
     return wrapper
 end
 
@@ -105,8 +105,8 @@ end
 Returns a table of all sounds in the specified namespace.
 If no namespace is provided, retrieves from both your mod's namespace and "ror".
 ]]
-Sound.find_all = function(namespace, _namespace)
-    local namespace, is_specified = parse_optional_namespace(_namespace, namespace)
+Sound.find_all = function(NAMESPACE, _namespace)
+    local namespace, is_specified = parse_optional_namespace(_namespace, NAMESPACE)
     
     local sounds = {}
     local resource_manager = Map.wrap(Global.ResourceManager_audio.__namespacedAssetLookup)

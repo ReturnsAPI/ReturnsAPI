@@ -38,8 +38,8 @@ function public.setup(env, namespace)
                     local edited = false
 
                     -- Immutable namespace
-                    -- (`namespace` argument is first)
-                    if debug.getlocal(v, 1) == "namespace" then
+                    -- (`NAMESPACE` (in caps) argument is first)
+                    if debug.getlocal(v, 1) == "NAMESPACE" then
                         copy[k] = function(...)
                             return v(namespace, ...)
                         end
@@ -51,8 +51,8 @@ function public.setup(env, namespace)
                     if not edited then
                         local pos = nil
                         local nparams = debug.getinfo(v).nparams
-                        for i = 2, nparams do
-                            if debug.getlocal(v, i) == "namespace" then
+                        for i = 1, nparams do
+                            if debug.getlocal(v, i):lower() == "namespace" then
                                 pos = i
                                 break
                             end
@@ -60,7 +60,12 @@ function public.setup(env, namespace)
 
                         -- Someone please tell me there is a better way to do this
                         if pos then
-                            if pos == 2 then
+                            if pos == 1 then
+                                copy[k] = function(ns)
+                                    if ns then ns = ns:gsub("-", ".") end
+                                    return v(parse_optional_namespace(ns, namespace))
+                                end
+                            elseif pos == 2 then
                                 copy[k] = function(arg1, ns)
                                     if ns then ns = ns:gsub("-", ".") end
                                     return v(arg1, parse_optional_namespace(ns, namespace))

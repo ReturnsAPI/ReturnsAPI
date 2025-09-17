@@ -94,21 +94,21 @@ Property | Type | Description
 Creates a new item with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-Item.new = function(namespace, identifier)
+Item.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing item if found
-    local item = Item.find(identifier, namespace)
+    local item = Item.find(identifier, NAMESPACE)
     if item then return item end
 
     -- Create new
     item = Item.wrap(gm.item_create(
-        namespace,
+        NAMESPACE,
         identifier,
         nil,    -- item ID; if nil, it is auto-set
         ItemTier.NOTIER,
-        gm.object_add_w(namespace, identifier, gm.constants.pPickupItem),
+        gm.object_add_w(NAMESPACE, identifier, gm.constants.pPickupItem),
         0       -- loot_tags (?)
     ))
 

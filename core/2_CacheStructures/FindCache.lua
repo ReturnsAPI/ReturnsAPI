@@ -44,6 +44,8 @@ run_once(function()
                     local cached = self["ror"][identifier]
                     if cached then return cached end
                 end
+
+                return nil
             end
 
         }

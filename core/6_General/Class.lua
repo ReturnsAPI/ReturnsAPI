@@ -203,10 +203,10 @@ for name_rapi, name_global in pairs(class_name_r2g) do
     end
 
     -- find_all
-    class_table.find_all = function(namespace, filter, property)
+    class_table.find_all = function(NAMESPACE, filter, property)
         local elements = {}
         local filter_arg = filter
-        local filter = Wrap.unwrap(filter) or namespace
+        local filter = Wrap.unwrap(filter) or NAMESPACE
         local property = property or 0  -- Namespace filter by default
 
         -- Namespace filter

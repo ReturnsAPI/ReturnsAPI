@@ -21,8 +21,8 @@ Initialize.internal.check_if_started = function()
 end
 
 
-Initialize.internal.remove_all = function(namespace)
-    __initialize_cache:remove_all(namespace)
+Initialize.internal.remove_all = function(NAMESPACE)
+    __initialize_cache:remove_all(NAMESPACE)
 end
 table.insert(_clear_namespace_functions, Initialize.internal.remove_all)
 
@@ -44,8 +44,8 @@ To allow for a decent amount of space between priorities,
 use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
-Initialize.add = function(namespace, fn, priority)
-    __initialize_cache:add(fn, namespace, priority)
+Initialize.add = function(NAMESPACE, fn, priority)
+    __initialize_cache:add(fn, NAMESPACE, priority)
 end
 
 

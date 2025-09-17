@@ -180,7 +180,7 @@ Callback                            | Parameters
 `NET_MESSAGE_ON_RECEIVED`           | 
 `CONSOLE_ON_COMMAND`                | 
 ]]
-Callback.add = function(namespace, callback, fn, priority)
+Callback.add = function(NAMESPACE, callback, fn, priority)
     -- Throw error if not numerical ID
     if type(callback) ~= "number" then
         log.error("Callback.add: Invalid Callback type", 2)
@@ -191,7 +191,7 @@ Callback.add = function(namespace, callback, fn, priority)
         log.error("Callback.add: No function provided", 2)
     end
 
-    return __callback_cache:add(fn, namespace, priority, callback)
+    return __callback_cache:add(fn, NAMESPACE, priority, callback)
 end
 
 
@@ -214,8 +214,8 @@ Removes all registered callbacks functions from your namespace.
 
 Automatically called when you hotload your mod.
 ]]
-Callback.remove_all = function(namespace)
-    __callback_cache:remove_all(namespace)
+Callback.remove_all = function(NAMESPACE)
+    __callback_cache:remove_all(NAMESPACE)
 end
 table.insert(_clear_namespace_functions, Callback.remove_all)
 

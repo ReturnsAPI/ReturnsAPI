@@ -53,17 +53,17 @@ Particle.Shape = {
 Creates a new particle type with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-Particle.new = function(namespace, identifier)
+Particle.new = function(NAMESPACE, identifier)
     -- Return existing particle if found
-    local part = Particle.find(identifier, namespace)
+    local part = Particle.find(identifier, NAMESPACE)
     if part then return part end
 
     -- Create new particle
-    local part = gm.part_type_create_w(namespace, identifier)
+    local part = gm.part_type_create_w(NAMESPACE, identifier)
 
     -- Add to cache and return
     local wrapper = Particle.wrap(part)
-    find_cache[namespace.."-"..identifier] = wrapper
+    find_cache[NAMESPACE.."-"..identifier] = wrapper
     return wrapper
 end
 
@@ -124,8 +124,8 @@ end
 Returns a table of all particles in the specified namespace.
 If no namespace is provided, retrieves from both your mod's namespace and "ror".
 ]]
-Particle.find_all = function(namespace, _namespace)
-    local namespace, is_specified = parse_optional_namespace(_namespace, namespace)
+Particle.find_all = function(NAMESPACE, _namespace)
+    local namespace, is_specified = parse_optional_namespace(_namespace, NAMESPACE)
     
     local parts = {}
     local resource_manager = Global.ResourceManager_particleTypes.__namespacedAssetLookup

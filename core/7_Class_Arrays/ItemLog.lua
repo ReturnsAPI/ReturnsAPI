@@ -77,17 +77,17 @@ Property | Type | Description
 Creates a new item log with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-ItemLog.new = function(namespace, identifier)
+ItemLog.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing item log if found
-    local item_log = ItemLog.find(identifier, namespace)
+    local item_log = ItemLog.find(identifier, NAMESPACE)
     if item_log then return item_log end
 
     -- Create new
     item_log = ItemLog.wrap(gm.item_log_create(
-        namespace,
+        NAMESPACE,
         identifier,
         0,  -- group
         0,  -- sprite_id
@@ -109,18 +109,18 @@ Creates a new item log using an item as a base,
 automatically populating the log's properties and
 setting the item's `item_log_id` property.
 ]]
-ItemLog.new_from_item = function(namespace, item)
+ItemLog.new_from_item = function(NAMESPACE, item)
     Initialize.internal.check_if_started()
     
     if not item then log.error("No item provided", 2) end
     item = Item.wrap(item)
 
     -- Use existing item log if found
-    local item_log = ItemLog.find(item.identifier, namespace)
+    local item_log = ItemLog.find(item.identifier, NAMESPACE)
     if not item_log then
         -- Create new
         item_log = ItemLog.wrap(gm.item_log_create(
-            namespace,
+            NAMESPACE,
             item.identifier,
             0,
             item.sprite_id,
@@ -147,18 +147,18 @@ Creates a new item log using an equipment as a base,
 automatically populating the log's properties and
 setting the equipment's `item_log_id` property.
 ]]
-ItemLog.new_from_equipment = function(namespace, equip)
+ItemLog.new_from_equipment = function(NAMESPACE, equip)
     Initialize.internal.check_if_started()
     
     if not equip then log.error("No equipment provided", 2) end
     equip = Equipment.wrap(equip)
 
     -- Use existing equip log if found
-    local item_log = ItemLog.find(equip.identifier, namespace)
+    local item_log = ItemLog.find(equip.identifier, NAMESPACE)
     if not item_log then
         -- Create new
         item_log = ItemLog.wrap(gm.item_log_create(
-            namespace,
+            NAMESPACE,
             equip.identifier,
             0,
             equip.sprite_id,

@@ -72,17 +72,17 @@ Property | Type | Description
 Creates a new buff with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-Buff.new = function(namespace, identifier)
+Buff.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing buff if found
-    local buff = Buff.find(identifier, namespace)
+    local buff = Buff.find(identifier, NAMESPACE)
     if buff then return buff end
 
     -- Create new
     buff = Buff.wrap(gm.buff_create(
-        namespace,
+        NAMESPACE,
         identifier
     ))
 

@@ -78,12 +78,12 @@ table.insert(_rapi_initialize, ItemTier.internal.initialize)
 Creates a new item tier with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-ItemTier.new = function(namespace, identifier)
+ItemTier.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing tier if found
-    local tier = ItemTier.find(identifier, namespace)
+    local tier = ItemTier.find(identifier, NAMESPACE)
     if tier then return tier end
 
     local tiers_array = Global.item_tiers
@@ -91,7 +91,7 @@ ItemTier.new = function(namespace, identifier)
 
     -- Create new struct for tier
     local tier_struct = Struct.new()
-    tier_struct.namespace                   = namespace     -- RAPI custom variable
+    tier_struct.namespace                   = NAMESPACE     -- RAPI custom variable
     tier_struct.identifier                  = identifier    -- RAPI custom variable
     tier_struct.index                       = tier
     tier_struct.text_color                  = "w"
@@ -111,13 +111,13 @@ ItemTier.new = function(namespace, identifier)
     -- Add to find table
     local element_table = {
         tier        = tier,
-        namespace   = namespace,
+        namespace   = NAMESPACE,
         identifier  = identifier,
         struct      = tier_struct,
         wrapper     = ItemTier.wrap(tier)
     }
-    if not __item_tier_find_table[namespace] then __item_tier_find_table[namespace] = {} end
-    __item_tier_find_table[namespace][identifier] = element_table
+    if not __item_tier_find_table[NAMESPACE] then __item_tier_find_table[NAMESPACE] = {} end
+    __item_tier_find_table[NAMESPACE][identifier] = element_table
     __item_tier_find_table[tier] = element_table
 
     return element_table.wrapper

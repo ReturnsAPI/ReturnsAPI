@@ -29,8 +29,8 @@ To allow for a decent amount of space between priorities,
 use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
-RecalculateStats.add = function(namespace, fn, priority)
-    return __recalcstats_cache:add(fn, namespace, priority)
+RecalculateStats.add = function(NAMESPACE, fn, priority)
+    return __recalcstats_cache:add(fn, NAMESPACE, priority)
 end
 
 
@@ -52,8 +52,8 @@ Removes all registered stat recalculation functions from your namespace.
 
 Automatically called when you hotload your mod.
 ]]
-RecalculateStats.remove_all = function(namespace)
-    __recalcstats_cache:remove_all(namespace)
+RecalculateStats.remove_all = function(NAMESPACE)
+    __recalcstats_cache:remove_all(NAMESPACE)
 end
 table.insert(_clear_namespace_functions, RecalculateStats.remove_all)
 

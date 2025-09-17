@@ -32,7 +32,7 @@ Creates a new alarm which calls the provided function
 with passed args after the specified amount of time.
 Returns the unique ID of the alarm.
 ]]
-Alarm.new = function(namespace, time, fn, ...)
+Alarm.new = function(NAMESPACE, time, fn, ...)
     -- Check arguments
     if type(time) ~= "number" then log.error("Alarm.add: time must be a number", 2) end
     if type(fn) ~= "function" then log.error("Alarm.add: fn must be a function", 2) end
@@ -43,7 +43,7 @@ Alarm.new = function(namespace, time, fn, ...)
 
     local alarm = {
         id          = __alarm_id_counter,
-        namespace   = namespace,
+        namespace   = NAMESPACE,
         fn          = fn,
         args        = {...},
         frame       = frame
@@ -52,8 +52,8 @@ Alarm.new = function(namespace, time, fn, ...)
     -- Add alarm to subtable
     table.insert(__alarm_bank[frame], alarm)
     __alarm_bank_lookup[__alarm_id_counter] = alarm
-    if not __alarm_bank_lookup[namespace] then __alarm_bank_lookup[namespace] = {} end
-    table.insert(__alarm_bank_lookup[namespace], alarm)
+    __alarm_bank_lookup[NAMESPACE] = __alarm_bank_lookup[NAMESPACE] or {}
+    table.insert(__alarm_bank_lookup[NAMESPACE], alarm)
 
     local current_id = __alarm_id_counter
     __alarm_id_counter = __alarm_id_counter + 1
@@ -85,8 +85,8 @@ Alarm.remove = function(id)
 end
 
 
-Alarm.remove_all = function(namespace)
-    local subtable = __alarm_bank_lookup[namespace]
+Alarm.remove_all = function(NAMESPACE)
+    local subtable = __alarm_bank_lookup[NAMESPACE]
     if not subtable then return end
 
     -- Look through namespace lookup table
@@ -100,7 +100,7 @@ Alarm.remove_all = function(namespace)
         end
     end
 
-    __alarm_bank_lookup[namespace] = nil
+    __alarm_bank_lookup[NAMESPACE] = nil
 end
 table.insert(_clear_namespace_functions, Alarm.remove_all)
 

@@ -76,12 +76,12 @@ table.insert(_rapi_initialize, LootPool.internal.initialize)
 Creates a new loot pool with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-LootPool.new = function(namespace, identifier)
+LootPool.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing pool if found
-    local pool = LootPool.find(identifier, namespace)
+    local pool = LootPool.find(identifier, NAMESPACE)
     if pool then return pool end
 
     local loot_pools_array = Global.treasure_loot_pools
@@ -89,7 +89,7 @@ LootPool.new = function(namespace, identifier)
 
     -- Create new struct for pool
     local loot_struct = Struct.new()
-    loot_struct.namespace                   = namespace     -- RAPI custom variable
+    loot_struct.namespace                   = NAMESPACE     -- RAPI custom variable
     loot_struct.identifier                  = identifier    -- RAPI custom variable
     loot_struct.index                       = pool
     loot_struct.item_tier                   = 0             -- Common
@@ -104,13 +104,13 @@ LootPool.new = function(namespace, identifier)
     -- Add to find table
     local element_table = {
         pool        = pool,
-        namespace   = namespace,
+        namespace   = NAMESPACE,
         identifier  = identifier,
         struct      = loot_struct,
         wrapper     = LootPool.wrap(pool)
     }
-    if not __loot_pool_find_table[namespace] then __loot_pool_find_table[namespace] = {} end
-    __loot_pool_find_table[namespace][identifier] = element_table
+    if not __loot_pool_find_table[NAMESPACE] then __loot_pool_find_table[NAMESPACE] = {} end
+    __loot_pool_find_table[NAMESPACE][identifier] = element_table
     __loot_pool_find_table[pool] = element_table
 
     return element_table.wrapper
@@ -125,7 +125,7 @@ Creates a new loot pool using an item tier as a base,
 automatically populating the pool's properties and
 setting the item tier's `_pool_for_reroll` properties.
 ]]
-LootPool.new_from_tier = function(namespace, tier)
+LootPool.new_from_tier = function(NAMESPACE, tier)
     Initialize.internal.check_if_started()
     
     if not tier then log.error("No tier provided", 2) end
@@ -133,7 +133,7 @@ LootPool.new_from_tier = function(namespace, tier)
     
     -- Create LootPool with same identifier as the item tier
     local tier_lookup = __item_tier_find_table[tier]
-    local pool = LootPool.new(namespace, tier_lookup.identifier)
+    local pool = LootPool.new(NAMESPACE, tier_lookup.identifier)
 
     -- Set pool properties
     pool.item_tier = tier

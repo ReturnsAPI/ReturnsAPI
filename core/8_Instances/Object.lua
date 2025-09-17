@@ -106,17 +106,17 @@ Property | Type | Description
 Creates a new object with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
-Object.new = function(namespace, identifier, parent)
+Object.new = function(NAMESPACE, identifier, parent)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
     -- Return existing object if found
-    local obj = Object.find(identifier, namespace)
+    local obj = Object.find(identifier, NAMESPACE)
     if obj then return obj end
 
     -- Create new object
     obj = gm.object_add_w(
-        namespace,
+        NAMESPACE,
         identifier,
         Wrap.unwrap(parent)
     )
@@ -140,8 +140,6 @@ Searches for the specified object and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
 Object.find = function(identifier, namespace, namespace_is_specified)
-    find_cache[namespace] = find_cache[namespace] or {}
-
     -- Check in cache
     local cached = find_cache:get(identifier, namespace, namespace_is_specified)
     if cached then return cached end
@@ -217,7 +215,7 @@ Relevant functions:
 **NOTE:** You must read all data you send in `serializer`,
 as all object serializations share the same packet.
 ]]
-Object.add_serializers = function(namespace, object, serializer, deserializer)
+Object.add_serializers = function(NAMESPACE, object, serializer, deserializer)
     if not object                       then log.error("Object.add_serializers: Missing object argument", 2) end
     if type(serializer)   ~= "function" then log.error("Object.add_serializers: serializer should be a function", 2) end
     if type(deserializer) ~= "function" then log.error("Object.add_serializers: deserializer should be a function", 2) end
@@ -226,13 +224,13 @@ Object.add_serializers = function(namespace, object, serializer, deserializer)
 
     if not __object_serializers[object] then __object_serializers[object] = {} end
     table.insert(__object_serializers[object], {
-        namespace   = namespace,
+        namespace   = NAMESPACE,
         fn          = serializer
     })
 
     if not __object_deserializers[object] then __object_deserializers[object] = {} end
     table.insert(__object_deserializers[object], {
-        namespace   = namespace,
+        namespace   = NAMESPACE,
         fn          = deserializer
     })
 end
@@ -244,11 +242,11 @@ Removes all registered serializers from your namespace.
 
 Automatically called when you hotload your mod.
 ]]
-Object.remove_all_serializers = function(namespace)
+Object.remove_all_serializers = function(NAMESPACE)
     for object, subtable in pairs(__object_serializers) do
         for i = #subtable, 1, -1 do
             local fn_table = subtable[i]
-            if fn_table.namespace == namespace then
+            if fn_table.namespace == NAMESPACE then
                 table.remove(subtable, i)
             end
         end
@@ -258,7 +256,7 @@ Object.remove_all_serializers = function(namespace)
     for object, subtable in pairs(__object_deserializers) do
         for i = #subtable, 1, -1 do
             local fn_table = subtable[i]
-            if fn_table.namespace == namespace then
+            if fn_table.namespace == NAMESPACE then
                 table.remove(subtable, i)
             end
         end

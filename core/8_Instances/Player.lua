@@ -87,7 +87,7 @@ make_table_once("metatable_player", {
         if k == "RAPI" then return wrapper_name end
 
         -- Check if this player is valid
-        id = __proxy[proxy]
+        local id = __proxy[proxy]
         if id == -4 then log.error("Actor does not exist", 2) end
 
         -- Methods
