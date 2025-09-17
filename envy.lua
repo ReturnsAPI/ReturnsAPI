@@ -45,7 +45,7 @@ function public.setup(env, namespace)
                     end
 
                     -- Check for optional namespace
-                    -- (`namespace` argument is *not* first)
+                    -- (`namespace` (not caps) argument)
                     if not edited then
                         local pos = nil
                         local nparams = debug.getinfo(v).nparams
@@ -120,7 +120,7 @@ function public.auto(properties)
     local wrapper = public.setup(env, properties.namespace)
     envy.import_all(env, wrapper)
 
-    -- Save mod ENV (and preferred namespace) for calling again on RAPI hotload
+    -- Save mod ENV and properties for calling again on RAPI hotload
     __auto_setups[env] = properties
 
     -- Override default `print`, `type`, and `tostring` with Util's versions
