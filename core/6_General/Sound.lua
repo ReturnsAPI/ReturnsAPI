@@ -2,7 +2,7 @@
 
 Sound = new_class()
 
-local find_cache = {}
+local find_cache = FindCache.new()
 
 
 
@@ -23,9 +23,7 @@ Sound.new = function(NAMESPACE, identifier, path)
     if not identifier then log.error("No identifier provided", 2) end
     if not path then log.error("No image path provided", 2) end
 
-    -- Expand `~` to mod folder
-    path = path:gsub("~/", __namespace_path[NAMESPACE].."/")
-    path = path:gsub("~", __namespace_path[NAMESPACE].."/")
+    path = expand_path(NAMESPACE, path)
 
     -- Return existing sound if found
     local sound = Sound.find(identifier, NAMESPACE, NAMESPACE)
@@ -42,10 +40,7 @@ Sound.new = function(NAMESPACE, identifier, path)
         log.error("Could not load sound at '"..path.."'", 2)
     end
 
-    -- Add to cache and return
-    local wrapper = Sound.wrap(sound)
-    find_cache[NAMESPACE.."-"..identifier] = wrapper
-    return wrapper
+    return Sound.wrap(sound)
 end
 
 
@@ -58,38 +53,31 @@ Searches for the specified sound and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
 Sound.find = function(identifier, namespace, namespace_is_specified)
-    local nsid = namespace.."-"..identifier
-    local ror_nsid = "ror-"..identifier
-
-    -- Check in cache (both in namespace and in "ror" if no `namespace` arg)
-    local cached = find_cache[nsid]
+    -- Check in cache
+    local cached = find_cache:get(identifier, namespace, namespace_is_specified)
     if cached then return cached end
-    if not namespace_is_specified then
-        local cached = find_cache[ror_nsid]
-        if cached then return cached end
-    end
 
     -- Search in namespace
     local sound
     local resource_manager = Map.wrap(Global.ResourceManager_audio.__namespacedAssetLookup)
-    local namespace_struct = resource_manager[namespace]
-    if namespace_struct then sound = Map.wrap(namespace_struct)[identifier] end
+    local namespace_map = resource_manager[namespace]
+    if namespace_map then sound = Map.wrap(namespace_map)[identifier] end
 
     if sound then
         sound = Sound.wrap(sound)
-        find_cache[nsid] = sound
+        find_cache:set(sound, identifier, namespace)
         return sound
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
     if not namespace_is_specified then
         local sound
-        local namespace_struct = resource_manager["ror"]
-        if namespace_struct then sound = namespace_struct[identifier] end
+        local namespace_map = resource_manager["ror"]
+        if namespace_map then sound = Map.wrap(namespace_map)[identifier] end
         
         if sound then
             sound = Sound.wrap(sound)
-            find_cache[ror_nsid] = sound
+            find_cache:set(sound, identifier, "ror")
             return sound
         end
     end
@@ -105,23 +93,21 @@ end
 Returns a table of all sounds in the specified namespace.
 If no namespace is provided, retrieves from both your mod's namespace and "ror".
 ]]
-Sound.find_all = function(NAMESPACE, _namespace)
-    local namespace, is_specified = parse_optional_namespace(_namespace, NAMESPACE)
-    
+Sound.find_all = function(namespace, namespace_is_specified)
     local sounds = {}
     local resource_manager = Map.wrap(Global.ResourceManager_audio.__namespacedAssetLookup)
 
     -- Search in namespace
     if resource_manager[namespace] then
         for _, sound in pairs(resource_manager[namespace]) do
-            table.insert(sounds, sound.wrap(sound))
+            table.insert(sounds, Sound.wrap(sound))
         end
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
-    if not is_specified then
+    if not namespace_is_specified then
         for _, sound in pairs(resource_manager["ror"]) do
-            table.insert(sounds, sound.wrap(sound))
+            table.insert(sounds, Sound.wrap(sound))
         end
     end
     

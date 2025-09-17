@@ -50,10 +50,7 @@ Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_ori
         log.error("Could not load sprite at '"..path.."'", 2)
     end
 
-    -- Add to cache and return
-    local wrapper = Sprite.wrap(sprite)
-    find_cache[NAMESPACE.."-"..identifier] = wrapper
-    return wrapper
+    return Sprite.wrap(sprite)
 end
 
 
