@@ -8,6 +8,20 @@ end)
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | The ID of the item tier.
+`RAPI`          | string    | The wrapper name.
+]]
+
+
+
 -- ========== Constants ==========
 
 --@section Constants
@@ -39,6 +53,10 @@ local tier_constants = {
 for k, v in pairs(tier_constants) do
     ItemTier[k] = v
 end
+
+
+
+-- ========== Internal ==========
 
 ItemTier.internal.initialize = function()
     -- Populate find table with vanilla tiers

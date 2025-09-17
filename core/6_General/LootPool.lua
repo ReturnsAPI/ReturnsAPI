@@ -8,6 +8,20 @@ end)
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | The ID of the loot pool.
+`RAPI`          | string    | The wrapper name.
+]]
+
+
+
 -- ========== Constants ==========
 
 --@section Constants
@@ -37,6 +51,10 @@ local pool_constants = {
 for k, v in pairs(pool_constants) do
     LootPool[k] = v
 end
+
+
+
+-- ========== Internal ==========
 
 LootPool.internal.initialize = function()
     -- Populate find table with vanilla pools

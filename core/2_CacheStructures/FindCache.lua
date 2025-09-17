@@ -4,6 +4,8 @@
 
 -- Used by
 -- * Object
+-- * ItemTier
+-- * LootPool
 
 run_once(function()
 
