@@ -268,7 +268,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         if not status then
             if (err == nil)
             or (err == "C++ exception") then err = "GM call error (see above)" end
-            log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Callback of type '"..callback_type_id.."' failed to execute fully.\n"..err)
+            log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Callback (ID '"..fn_table.id.."') of type '"..callback_type_id.."' failed to execute fully.\n"..err)
         end
     end, callback_type_id)
 end)

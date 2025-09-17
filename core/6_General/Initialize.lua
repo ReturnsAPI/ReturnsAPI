@@ -90,7 +90,7 @@ gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, resu
                 if not status then
                     if (err == nil)
                     or (err == "C++ exception") then err = "GM call error (see above)" end
-                    log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Initialize failed to execute fully.\n"..err)
+                    log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Initialize (ID '"..fn_table.id.."') failed to execute fully.\n"..err)
                 end
             end)
         end
