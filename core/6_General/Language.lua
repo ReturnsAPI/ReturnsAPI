@@ -1,5 +1,42 @@
 -- Language
 
+--[[
+You can create a folder called `language` (case-insensitive) containing
+Lua files that will automatically be loaded in with the base language file.
+
+A file should return a translation token table,
+and should either be named `<language>.lua` or in a folder/subfolder `<language>`.
+
+Example:
+```lua
+-- Example paths:
+-- language/english.lua
+-- language/english/myTranslations.lua
+-- language/english/subfolder/myTranslations.lua
+
+return {
+    item = {
+        myItem = {
+            name        = "My Item",
+            pickup      = "A cool item!",
+            description = "Does something really cool.",
+            destination = "A place",
+            date        = "A time",
+            story       = "I found it on the ground.",
+            priority    = "Standard"
+        }
+    },
+
+    skill = {
+        mySkill = {
+            name        = "My Skill",
+            description = "Pew pew"
+        }
+    }
+}
+```
+]]
+
 Language = new_class()
 
 run_once(function()
@@ -33,7 +70,7 @@ end
 --@return       string
 --@param        env         | table     | The environment table of the mod to register.
 --[[
-Registers a mod to autoload language files in a `language` folder.
+Registers a mod to autoload language files in a `language` (case-insensitive) folder.
 
 Automatically called on `.auto()` import.
 ]]
@@ -57,7 +94,7 @@ local function parse_keys(map, t, key)
         else newkey = newkey.."."..k
         end
         if type(v) == "table" then parse_keys(map, v, newkey)
-        else map:set(newkey, tostring(v)) --; print(newkey, tostring(v))
+        else map:set(newkey, tostring(v))
         end
     end
 end
@@ -70,50 +107,51 @@ local function load_from_folder(folder_path)
     local language = gm._mod_language_getLanguageName()
     local language_map = Map.wrap(Global._language_map)
 
-    local eng_file = nil
-    local eng_folder = nil
+    local eng_tables = {}
     local found = false
 
-    -- Check for `<language>.lua`
-    local files = path.get_files(folder_path)
-    for _, file in ipairs(files) do
-        local filename = path.filename(file):sub(1, -5):lower()
-        if filename == "english" then eng_file = file end
+    local function loop_files(folder_path, folder_lang)
+        -- Check for Lua files
+        local files = path.get_files(folder_path)
+        for _, file in ipairs(files) do
+            local filename = path.filename(file):sub(1, -5):lower()
+            local lang_table = require(file)
 
-        -- Parse returned table if found
-        if filename == language then
-            found = true
-            parse_keys(language_map, require(file))
-            break
-        end
-    end
+            -- Store table if English
+            if (filename == "english")
+            or (folder_lang == "english") then table.insert(eng_tables, lang_table) end
 
-    -- Check for `<language>` subfolder
-    local folders = path.get_directories(folder_path)
-    for _, folder in ipairs(folders) do
-        local folder_name = path.filename(folder):lower()
-        if folder_name == "english" then eng_folder = folder end
-        
-        -- Parse returned tables from all files inside if found
-        if folder_name == language then
-            found = true
-            local files = path.get_files(folder)    -- Parse all files in folder
-            for _, file in ipairs(files) do
-                parse_keys(language_map, require(file))
+            -- Parse returned table if it matches language
+            if (filename == language)
+            or (folder_lang == language) then
+                found = true
+                parse_keys(language_map, lang_table)
+                break
             end
-            break
+        end
+
+        -- Check for subfolders
+        local folders = path.get_directories(folder_path)
+        for _, folder in ipairs(folders) do
+            local passed_folder_lang = folder_lang
+
+            local folder_name = path.filename(folder):lower()
+            if (folder_name == "english")
+            or (folder_name == language) then
+                passed_folder_lang = folder_name
+            end
+
+            loop_files(folder, passed_folder_lang)
         end
     end
 
-    -- Load English by default if current language was *not*
-    -- found as either a standalone file or a folder
+    loop_files(folder_path)
+
+    -- Load English by default if current
+    -- language was not found anywhere
     if not found then
-        if eng_file then parse_keys(language_map, require(eng_file)) end
-        if eng_folder then
-            local files = path.get_files(eng_folder)    -- Parse all files in folder
-            for _, file in ipairs(files) do
-                parse_keys(language_map, require(file))
-            end
+        for _, lang_table in ipairs(eng_tables) do
+            parse_keys(language_map, lang_table)
         end
     end
 end
