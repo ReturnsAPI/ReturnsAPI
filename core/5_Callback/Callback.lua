@@ -263,15 +263,13 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
     end
 
     -- Call registered functions with wrapped args
-    __callback_cache:loop_and_call_function(function(fn_table)
-        
+    __callback_cache:loop_and_call_functions(function(fn_table)
         local status, err = pcall(fn_table.fn, table.unpack(wrapped_args))
         if not status then
             if (err == nil)
             or (err == "C++ exception") then err = "GM call error (see above)" end
             log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Callback of type '"..callback_type_id.."' failed to execute fully.\n"..err)
         end
-
     end, callback_type_id)
 end)
 

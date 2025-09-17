@@ -141,7 +141,7 @@ run_once(function()
             -- Call a function on all function data
             -- tables in a section in priority order
             -- Function should accept `fn_table` as only argument
-            loop_and_call_function = function(self, fn, section)
+            loop_and_call_functions = function(self, fn, section)
                 section = section or "main"
                 local section_table = self.sections[section]
 

@@ -1,15 +1,16 @@
--- Initialize
+-- Initialize_OLD
+
+return true
 
 Initialize = new_class()
 
 run_once(function()
-    __callback_cache = CallbackCache.new()
+    __initialize_bank = { priorities = {} }
 
     __initialized_started = false
     __initialized_done = false
 end)
 
--- Call initialize *once* every hotload
 local initialize_done_this_rapi_load = false
 
 
@@ -22,7 +23,20 @@ end
 
 
 Initialize.internal.remove_all = function(namespace)
-    __callback_cache:remove_all(namespace)
+    for j = #__initialize_bank.priorities, 1, -1 do
+        local priority = __initialize_bank.priorities[j]
+        local ibank_priority = __initialize_bank[priority]
+        for i = #ibank_priority, 1, -1 do
+            local init_table = ibank_priority[i]
+            if init_table.namespace == namespace then
+                table.remove(ibank_priority, i)
+            end
+        end
+        if #ibank_priority <= 0 then
+            __initialize_bank[priority] = nil
+            table.remove(__initialize_bank.priorities, j)
+        end
+    end
 end
 table.insert(_clear_namespace_functions, Initialize.internal.remove_all)
 
@@ -44,8 +58,22 @@ To allow for a decent amount of space between priorities,
 use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
-Initialize.add = function(namespace, fn, priority)
-    __callback_cache:add(fn, namespace, priority)
+Initialize.add = function(namespace, func, priority)
+    -- Default priority is 0
+    priority = priority or 0
+
+    -- Create __initialize_bank priority subtable if it does not exist
+    if not __initialize_bank[priority] then
+        __initialize_bank[priority] = {}
+        table.insert(__initialize_bank.priorities, priority)
+        table.sort(__initialize_bank.priorities, function(a, b) return a > b end)
+    end
+    
+    -- Add to subtable
+    table.insert(__initialize_bank[priority], {
+        namespace   = namespace,
+        fn          = func
+    })
 end
 
 
@@ -84,21 +112,22 @@ gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, resu
         -- Call registered functions
         -- Do not call them again on hotload
         if not __initialized_done then
-
-            __callback_cache:loop_and_call_functions(function(fn_table)
-                local status, err = pcall(fn_table.fn)
-                if not status then
-                    if (err == nil)
-                    or (err == "C++ exception") then err = "GM call error (see above)" end
-                    log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Initialize failed to execute fully.\n"..err)
+            for _, priority in ipairs(__initialize_bank.priorities) do
+                local ibank_priority = __initialize_bank[priority]
+                for __, init_table in ipairs(ibank_priority) do
+                    local status, err = pcall(init_table.fn)
+                    if not status then
+                        if (err == nil)
+                        or (err == "C++ exception") then err = "GM call error (see above)" end
+                        log.warning("\n"..init_table.namespace:gsub("%.", "-")..": Initialize failed to execute fully.\n"..err)
+                    end
                 end
-            end)
+            end
         end
 
         -- Initialize.is_done
         __initialized_done = true
     end
-
     initialize_done_this_rapi_load = true
 end)
 
