@@ -76,6 +76,17 @@ function run_clear_namespace_functions(namespace)
 end
 
 
+-- Functions that should be called
+-- after game initialization is finished
+-- Called in Initialize.lua  (very sad but whatever)
+_rapi_initialize = {}
+function run_RAPI_initialize()
+    for _, fn in ipairs(_rapi_initialize) do
+        fn()
+    end
+end
+
+
 
 -- ========== Public Export ==========
 

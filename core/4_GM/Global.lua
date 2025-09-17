@@ -27,6 +27,7 @@ Global.internal.initialize = function()
         treasure_loot_pools                 = GM.variable_global_get("treasure_loot_pools"),
     })
 end
+table.insert(_rapi_initialize, Global.internal.initialize)
 
 
 

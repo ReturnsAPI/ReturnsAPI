@@ -9,22 +9,11 @@ run_once(function()
     __initialized_done = false
 end)
 
-local initialize_done_this_load = false
+local initialize_done_this_rapi_load = false
 
 
 
 -- ========== Internal ==========
-
-local function RAPI_initialize()
-    if Global   then Global.internal.initialize()   end
-    if Class    then Class.internal.initialize()    end
-    if ItemTier then ItemTier.internal.initialize() end
-    if LootPool then LootPool.internal.initialize() end
-
-    -- Class arrays
-    if Stage    then Stage.internal.initialize() end
-end
-
 
 Initialize.internal.check_if_started = function()
     if not __initialized_started then log.error("Cannot call method before game initialization has started; try placing the call within Initialize.add()", 3) end
@@ -111,12 +100,12 @@ end
 -- ========== Hooks ==========
 
 gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
-    if not initialize_done_this_load then
+    if not initialize_done_this_rapi_load then
         -- Initialize.has_started
         __initialized_started = true
 
         -- Call RAPI initialize first
-        RAPI_initialize()
+        run_RAPI_initialize()
 
         -- Call registered functions
         -- Do not call them again on hotload
@@ -137,7 +126,7 @@ gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, resu
         -- Initialize.is_done
         __initialized_done = true
     end
-    initialize_done_this_load = true
+    initialize_done_this_rapi_load = true
 end)
 
 

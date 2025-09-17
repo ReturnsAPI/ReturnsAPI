@@ -63,6 +63,7 @@ ItemTier.internal.initialize = function()
         element_table.wrapper = ItemTier.wrap(element_table.tier)
     end
 end
+table.insert(_rapi_initialize, ItemTier.internal.initialize)
 
 
 

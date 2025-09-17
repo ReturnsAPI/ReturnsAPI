@@ -61,6 +61,7 @@ LootPool.internal.initialize = function()
         element_table.wrapper = LootPool.wrap(element_table.pool)
     end
 end
+table.insert(_rapi_initialize, LootPool.internal.initialize)
 
 
 

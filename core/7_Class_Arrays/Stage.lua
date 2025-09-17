@@ -5,6 +5,7 @@ Stage = __class[name_rapi]
 
 run_once(function()
     __stage_variant_next_id = {}    -- Stores the next identifier `_ID` to use for each stage; [stage_id] = <next>
+                                    -- This is to not reuse previously used variant IDs if the variant is removed from the stage
     __stage_new_rooms = {}          -- Stores new rooms added (for removal purposes)
     __stage_populate_biome = {}
 end)
@@ -77,6 +78,7 @@ Stage.internal.initialize = function()
         __stage_variant_next_id[i - 1] = List.wrap(stage:get(13)):size() + 1
     end
 end
+table.insert(_rapi_initialize, Stage.internal.initialize)
 
 
 

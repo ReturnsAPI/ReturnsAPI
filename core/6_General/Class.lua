@@ -48,6 +48,7 @@ Class.internal.initialize = function()
         end
     end
 end
+table.insert(_rapi_initialize, Class.internal.initialize)
 
 
 make_table_once("metatable_class", {
