@@ -34,7 +34,9 @@ table.insert(_clear_namespace_functions, Initialize.internal.remove_all)
 
 --@static
 --@param        fn          | function  | The function to register.
---@optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@overload
+--@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@param        fn          | function  | The function to register.
 --[[
 Adds a new function to run during ReturnsAPI's initialization loop.
 This happens after all vanilla content has loaded.
@@ -44,8 +46,11 @@ To allow for a decent amount of space between priorities,
 use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
-Initialize.add = function(NAMESPACE, fn, priority)
-    __initialize_cache:add(fn, NAMESPACE, priority)
+Initialize.add = function(NAMESPACE, arg1, arg2)
+    if type(arg1) == "function" then
+        return __initialize_cache:add(arg1, NAMESPACE)
+    end
+    return __initialize_cache:add(arg2, NAMESPACE, arg1)
 end
 
 

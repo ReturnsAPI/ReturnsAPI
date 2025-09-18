@@ -19,7 +19,9 @@ end)
 --@static
 --@return       number
 --@param        fn          | function  | The function to register. <br>The parameter for it is `actor`.
---@optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@overload
+--@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@param        fn          | function  | The function to register. <br>The parameter for it is `actor`.
 --[[
 Registers a function for stat recalculation.
 *Technical:* This function will run in `recalculate_stats` post-hook.
@@ -29,8 +31,11 @@ To allow for a decent amount of space between priorities,
 use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
-RecalculateStats.add = function(NAMESPACE, fn, priority)
-    return __recalcstats_cache:add(fn, NAMESPACE, priority)
+RecalculateStats.add = function(NAMESPACE, arg1, arg2)
+    if type(arg1) == "function" then
+        return __recalcstats_cache:add(arg1, NAMESPACE)
+    end
+    return __recalcstats_cache:add(arg2, NAMESPACE, arg1)
 end
 
 

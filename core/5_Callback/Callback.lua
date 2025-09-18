@@ -120,7 +120,10 @@ end
 --@return       number
 --@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
 --@param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
---@optional     priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@overload
+--@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
+--@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
 --[[
 Registers a function under a callback type.
 Returns the unique ID of the registered function.
@@ -180,18 +183,22 @@ Callback                            | Parameters
 `NET_MESSAGE_ON_RECEIVED`           | 
 `CONSOLE_ON_COMMAND`                | 
 ]]
-Callback.add = function(NAMESPACE, callback, fn, priority)
+Callback.add = function(NAMESPACE, callback, arg2, arg3)
     -- Throw error if not numerical ID
     if type(callback) ~= "number" then
         log.error("Callback.add: Invalid Callback type", 2)
     end
 
     -- Throw error if not function
-    if type(fn) ~= "function" then
+    if  (type(arg2) ~= "function")
+    and (type(arg3) ~= "function") then
         log.error("Callback.add: No function provided", 2)
     end
 
-    return __callback_cache:add(fn, NAMESPACE, priority, callback)
+    if type(arg2) == "function" then
+        return __callback_cache:add(arg2, NAMESPACE, 0, callback)
+    end
+    return __callback_cache:add(arg3, NAMESPACE, arg2, callback)
 end
 
 
