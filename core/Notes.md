@@ -3,7 +3,7 @@ If you have any questions just ping `@Klehrik`.
 ##### Static Method Closures
 - Static methods that have `NAMESPACE` (all caps) as the first argument will always have the user's namespace passed in.
     - The user cannot change this argument (argument is all caps internally to show this).
-- Static methods that have `namespace` (*not* all caps) as any argument will allow the user to pass in an optional namespace
+- Static methods that have `namespace` (*not* all caps) as any argument will allow the user to pass in an optional namespace.
     - If they do not, their namespace will be passed in.
     - This should always be the second-last argument, followed by `namespace_is_specified`, which is `true` if the user passed in an optional namespace.
 
