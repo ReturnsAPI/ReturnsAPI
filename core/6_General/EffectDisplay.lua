@@ -74,14 +74,14 @@ end
 --@static
 --@return       Struct
 --@param        object		| Object	| The object.
---@optional		host_only	| bool		| desc. <br>`false` by default.
+--@optional		host_only	| bool		| `false` by default.
 --[[
 Returns a EffectDisplayInstance struct.
 ]]
 EffectDisplay.instance = function(object, host_only)
 	return Struct.new(gm.constants.EffectDisplayInstance,
 		object,
-		nil,
+		nil,	-- This is supposed to be a function that is called when the EffectDisplayInstance comes into existence
 		host_only	or false
 	)
 end

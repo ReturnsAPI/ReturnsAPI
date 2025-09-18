@@ -182,8 +182,8 @@ and the number of objects in the table.
 
 Each key-value pair is `object_index, Object wrapper`.
 ]]
-Object.find_by_tag = function(tag)
-    if type(tag) ~= "string" then log.error("Object.find_by_tag: tag must be a string", 2) end
+Object.find_all_by_tag = function(tag)
+    if type(tag) ~= "string" then log.error("Object.find_all_by_tag: tag must be a string", 2) end
 
     -- Check if tag subtable exists
     local subtable = __object_tags[tag]
@@ -212,7 +212,7 @@ Relevant functions:
 - `projectile_sync(interval)` - Same as `instance_resync`, but with automatic periodic resync
 - `instance_destroy_sync` - Sync destruction; place in `on_destroy` (host only)
 
-**NOTE:** You must read all data you send in `serializer`,
+**NOTE:** You *must* read all data you send in `serializer`,
 as all object serializations share the same packet.
 ]]
 Object.add_serializers = function(NAMESPACE, object, serializer, deserializer)
