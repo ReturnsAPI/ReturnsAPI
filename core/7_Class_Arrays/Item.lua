@@ -280,28 +280,35 @@ Util.table_append(methods_class_array[name_rapi], {
 
 -- ========== Hooks ==========
 
--- Add callbacks to add to/remove from `__actors_holding_item`
+-- Create item subtable in `__actors_holding_item`
 
 gm.post_script_hook(gm.constants.item_create, function(self, other, result, args)
-    local item = Item.wrap(result.value)
-    __actors_holding_item[item.value] = {}
+    __actors_holding_item[result.value] = {}
+end)
 
-    Callback.add("__permanent", item.on_acquired, function(actor, stack)
-        local actor_id = actor.id
 
-        __actors_holding_item[item.value][actor_id] = true
-        __actors_holding_item[actor_id] = __actors_holding_item[actor_id] or {}
-        __actors_holding_item[actor_id][item.value] = true
-    end, 1000000000)    -- Make sure this runs first
+-- Add to/remove from `__actors_holding_item`
 
-    Callback.add("__permanent", item.on_removed, function(actor, stack)
-        local actor_id = actor.id
+gm.post_script_hook(gm.constants.item_give_internal, function(self, other, result, args)
+    local actor_id  = Instance.wrap(args[1].value).id
+    local item_id   = args[2].value
 
-        __actors_holding_item[item.value][actor_id] = nil
-        if __actors_holding_item[actor_id] then
-            __actors_holding_item[actor_id][item.value] = nil
-        end
-    end, 1000000000)    -- Make sure this runs first
+    __actors_holding_item[item_id][actor_id] = true
+    __actors_holding_item[actor_id] = __actors_holding_item[actor_id] or {}
+    __actors_holding_item[actor_id][item_id] = true
+end)
+
+gm.post_script_hook(gm.constants.item_take_internal, function(self, other, result, args)
+    local actor     = Instance.wrap(args[1].value)
+    local actor_id  = actor.id
+    local item_id   = args[2].value
+
+    if actor:item_count(item_id) > 0 then return end
+
+    __actors_holding_item[item_id][actor_id] = nil
+    if __actors_holding_item[actor_id] then
+        __actors_holding_item[actor_id][item_id] = nil
+    end
 end)
 
 
