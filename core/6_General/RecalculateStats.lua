@@ -20,6 +20,7 @@ end)
 --@return       number
 --@param        fn          | function  | The function to register. <br>The parameter for it is `actor`.
 --@overload
+--@return       number
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --@param        fn          | function  | The function to register. <br>The parameter for it is `actor`.
 --[[

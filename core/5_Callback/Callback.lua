@@ -121,6 +121,7 @@ end
 --@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
 --@param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
 --@overload
+--@return       number
 --@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --@param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
