@@ -49,7 +49,7 @@ LOG_ID                      17
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         |           | *Read-only.* The stage ID being wrapped.
+`value`         | number    | *Read-only.* The stage ID being wrapped.
 `RAPI`          | string    | *Read-only.* The wrapper name.
 
 <br>

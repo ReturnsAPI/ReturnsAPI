@@ -68,7 +68,7 @@ Item.StackKind = {
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         |           | *Read-only.* The item ID being wrapped.
+`value`         | number    | *Read-only.* The item ID being wrapped.
 `RAPI`          | string    | *Read-only.* The wrapper name.
 
 <br>

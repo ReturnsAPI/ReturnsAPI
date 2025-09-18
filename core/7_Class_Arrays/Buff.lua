@@ -41,7 +41,7 @@ EFFECT_DISPLAY          16
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         |           | *Read-only.* The buff ID being wrapped.
+`value`         | number    | *Read-only.* The buff ID being wrapped.
 `RAPI`          | string    | *Read-only.* The wrapper name.
 
 <br>

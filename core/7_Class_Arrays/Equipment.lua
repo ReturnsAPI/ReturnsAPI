@@ -42,7 +42,7 @@ IS_NEW_EQUIPMENT    13
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         |           | *Read-only.* The equipment ID being wrapped.
+`value`         | number    | *Read-only.* The equipment ID being wrapped.
 `RAPI`          | string    | *Read-only.* The wrapper name.
 
 <br>
