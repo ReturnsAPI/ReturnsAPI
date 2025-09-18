@@ -3,6 +3,10 @@
 local name_rapi = class_name_g2r["class_item"]
 Item = __class[name_rapi]
 
+run_once(function()
+    __actors_holding_item = {}
+end)
+
 
 
 -- ========== Enums ==========
@@ -67,8 +71,8 @@ Property | Type | Description
 `identifier`        | string    | The identifier for the item within the namespace.
 `token_name`        | string    | The localization token for the item's name.
 `token_text`        | string    | The localization token for the item's pickup text.
-`on_acquired`       | number    | The ID of the callback that runs when the item is acquired.
-`on_removed`        | number    | The ID of the callback that runs when the item is removed.
+`on_acquired`       | number    | The ID of the callback that runs when the item is acquired. <br>The callback function should have the arguments `actor, stack`.
+`on_removed`        | number    | The ID of the callback that runs when the item is removed. <br>The callback function should have the arguments `actor, stack`.
 `tier`              | number    | The tier of the item.
 `sprite_id`         | sprite    | The sprite ID of the item.
 `object_id`         | object    | The object ID of the item.
@@ -253,6 +257,99 @@ Util.table_append(methods_class_array[name_rapi], {
         for _, tag in ipairs(args) do tags = tags + tag end
 
         self.loot_tags = tags
+    end,
+
+
+    --@instance
+    --[[
+    Returns a table of all actors that currently hold the item.
+    ]]
+    get_holding_actors = function(self)
+        local t = {}
+
+        for actor_id, _ in pairs(__actors_holding_item[self.value]) do
+            table.insert(t, Instance.wrap(actor_id))
+        end
+
+        return t
     end
 
 })
+
+
+
+-- ========== Hooks ==========
+
+-- Add callbacks to add to/remove from `__actors_holding_item`
+
+gm.post_script_hook(gm.constants.item_create, function(self, other, result, args)
+    local item = Item.wrap(result.value)
+    __actors_holding_item[item.value] = {}
+
+    Callback.add("__permanent", item.on_acquired, function(actor, stack)
+        local actor_id = actor.id
+
+        __actors_holding_item[item.value][actor_id] = true
+        __actors_holding_item[actor_id] = __actors_holding_item[actor_id] or {}
+        __actors_holding_item[actor_id][item.value] = true
+    end, 1000000000)    -- Make sure this runs first
+
+    Callback.add("__permanent", item.on_removed, function(actor, stack)
+        local actor_id = actor.id
+
+        __actors_holding_item[item.value][actor_id] = nil
+        if __actors_holding_item[actor_id] then
+            __actors_holding_item[actor_id][item.value] = nil
+        end
+    end, 1000000000)    -- Make sure this runs first
+end)
+
+
+-- On room change, remove non-existent instances from `__actors_holding_item`
+
+gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+    for actor_id, _ in pairs(__actors_holding_item) do
+        if actor_id >= 100000
+        and (not Instance.exists(actor_id)) then
+            for item_id, _ in pairs(__actors_holding_item[actor_id]) do
+                __actors_holding_item[item_id][actor_id] = nil
+            end
+            __actors_holding_item[actor_id] = nil
+        end
+    end
+end)
+
+
+-- Remove from `__actors_holding_item` on non-player kill
+
+gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
+    local actor_id = Instance.wrap(args[1].value).id
+    if not __actors_holding_item[actor_id] then return end
+
+    -- Do not clear for player deaths
+    local obj_ind = gm.variable_instance_get(actor_id, "object_index")
+    if obj_ind ~= gm.constants.oP then
+        for item_id, _ in pairs(__actors_holding_item[actor_id]) do
+            __actors_holding_item[item_id][actor_id] = nil
+        end
+        __actors_holding_item[actor_id] = nil
+    end
+end)
+
+
+-- Add new instance to `__actors_holding_item` and remove old
+
+gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
+    local actor_id  = Instance.wrap(args[1].value).id
+    local new_id    = Instance.wrap(args[2].value).id
+
+    __actors_holding_item[new_id] = __actors_holding_item[new_id] or {}
+
+    -- For all of prev actor's items, remove prev actor and add new actor
+    for item_id, _ in pairs(__actors_holding_item[actor_id]) do
+        __actors_holding_item[item_id][actor_id] = nil
+        __actors_holding_item[item.value][new_id] = true
+        __actors_holding_item[new_id][item.value] = true
+    end
+    __actors_holding_item[actor_id] = nil
+end)

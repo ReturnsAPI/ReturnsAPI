@@ -266,7 +266,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         if not status then
             if (err == nil)
             or (err == "C++ exception") then err = "GameMaker error (see above)" end
-            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..callback_type_id.."' failed to execute fully.\n"..err)
+            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..(Callback.get_type_name(callback_type_id) or callback_type_id).."' failed to execute fully.\n"..err)
         end
     end, callback_type_id)
 end)
