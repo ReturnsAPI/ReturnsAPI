@@ -150,7 +150,7 @@ end
 --      * find              static method
 --      * find_all          static method
 --      * wrap              static method
---      * print_properties   instance method
+--      * print_properties  instance method
 --      * Metatable for get/set properties
 -- 
 -- Use __class[<RAPI name>] in their respective

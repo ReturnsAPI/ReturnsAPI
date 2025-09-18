@@ -1,5 +1,0 @@
-TODO
-- Finish swapping shit to FindCache
-- ItemTier, LootPool, etc. use new FindCache
-v Language
-    v Recursively loop all subfolders and files in `language`
