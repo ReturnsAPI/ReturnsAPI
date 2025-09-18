@@ -38,6 +38,14 @@ EFFECT_DISPLAY          16
 --@section Properties
 
 --[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         |           | *Read-only.* The buff ID being wrapped.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+
+<br>
+
 Property | Type | Description
 | - | - | -
 `namespace`                 | string    | The namespace the buff is in.

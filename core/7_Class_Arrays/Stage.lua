@@ -46,6 +46,14 @@ LOG_ID                      17
 --@section Properties
 
 --[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         |           | *Read-only.* The stage ID being wrapped.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+
+<br>
+
 Property | Type | Description
 | - | - | -
 `namespace`                     | string    | The namespace the stage is in.

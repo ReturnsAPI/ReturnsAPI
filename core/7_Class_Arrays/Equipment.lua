@@ -39,6 +39,14 @@ IS_NEW_EQUIPMENT    13
 --@section Properties
 
 --[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         |           | *Read-only.* The equipment ID being wrapped.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+
+<br>
+
 Property | Type | Description
 | - | - | -
 `namespace`          | string    | The namespace the equipment is in.
