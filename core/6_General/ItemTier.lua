@@ -79,8 +79,8 @@ table.insert(_rapi_initialize, ItemTier.internal.initialize)
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         | number    | The ID of the item tier.
-`RAPI`          | string    | The wrapper name.
+`value`         | number    | *Read-only.* The ID of the item tier.
+`RAPI`          | string    | *Read-only.* The wrapper name.
 ]]
 
 

@@ -19,9 +19,9 @@ local attackinfo_cache = setmetatable({}, {__mode = "k"})
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         |           | The `sol.YYObjectBase*` being wrapped.
-`RAPI`          | string    | The wrapper name.
-`attack_info`   | AttackInfo | The attack_info struct of the HitInfo. <br>Comes automatically wrapped.
+`value`         |           | *Read-only.* The `sol.YYObjectBase*` being wrapped.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+`attack_info`   | AttackInfo | *Read-only.* The attack_info struct of the HitInfo. <br>Comes automatically wrapped.
 ]]
 
 

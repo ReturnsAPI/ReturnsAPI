@@ -77,8 +77,8 @@ table.insert(_rapi_initialize, LootPool.internal.initialize)
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         | number    | The ID of the loot pool.
-`RAPI`          | string    | The wrapper name.
+`value`         | number    | *Read-only.* The ID of the loot pool.
+`RAPI`          | string    | *Read-only.* The wrapper name.
 ]]
 
 

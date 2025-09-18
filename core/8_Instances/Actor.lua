@@ -36,9 +36,9 @@ Actor.KnockbackKind = {
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`/`id`    | number    | The instance ID of the Actor.
-`RAPI`          | string    | The wrapper name.
-`cinstance`     | CInstance | The `sol.CInstance*` of the Actor.
+`value`/`id`    | number    | *Read-only.* The instance ID of the Actor.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+`cinstance`     | CInstance | *Read-only.* The `sol.CInstance*` of the Actor.
 
 <br>
 

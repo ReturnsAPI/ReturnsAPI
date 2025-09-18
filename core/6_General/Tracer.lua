@@ -91,8 +91,8 @@ end
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         | number    | The ID of the tracer.
-`RAPI`          | string    | The wrapper name.
+`value`         | number    | *Read-only.* The ID of the tracer.
+`RAPI`          | string    | *Read-only.* The wrapper name.
 ]]
 
 

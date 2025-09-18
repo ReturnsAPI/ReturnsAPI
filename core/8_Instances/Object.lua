@@ -72,9 +72,9 @@ Object.CUSTOM_START = 900
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         | number    | The `object_index` of the object.
-`RAPI`          | string    | The wrapper name.
-`array`         | Array     | The custom object property array. <br>Only exists for custom objects.
+`value`         | number    | *Read-only.* The `object_index` of the object.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+`array`         | Array     | *Read-only.* The custom object property array. <br>Only exists for custom objects.
 
 <br>
 

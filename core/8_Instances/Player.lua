@@ -16,9 +16,9 @@ Player = new_class()
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`/`id`    | number    | The instance ID of the Player.
-`RAPI`          | string    | The wrapper name.
-`cinstance`     | CInstance | The `sol.CInstance*` of the Player.
+`value`/`id`    | number    | *Read-only.* The instance ID of the Player.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+`cinstance`     | CInstance | *Read-only.* The `sol.CInstance*` of the Player.
 ]]
 
 

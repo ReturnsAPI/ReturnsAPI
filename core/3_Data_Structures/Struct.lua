@@ -27,8 +27,8 @@ struct_wrappers = {
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`/`cinstance` |           | The `sol.YYObjectBase*` being wrapped.
-`RAPI`              | string    | The wrapper name.
+`value`/`cinstance` |           | *Read-only.* The `sol.YYObjectBase*` being wrapped.
+`RAPI`              | string    | *Read-only.* The wrapper name.
 ]]
 
 

@@ -16,6 +16,18 @@ E.g.,
 -- The first two arguments are `self, other`
 GM.SO.recalculate_stats(actor, actor)
 ```
+
+**Note**
+If you do *not* need automatic wrapping/unwrapping, it may be faster to just use `gm`.
+
+E.g.,
+```lua
+gm.object_get_name(gm.constants.oP)
+
+-- is marginally faster than
+
+GM.object_get_name(gm.constants.oP)
+```
 ]]
 
 GM = new_class()

@@ -35,9 +35,9 @@ instance_wrappers = {
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`/`id`    | number    | The instance ID of the Instance.
-`RAPI`          | string    | The wrapper name.
-`cinstance`     | CInstance | The `sol.CInstance*` of the Instance.
+`value`/`id`    | number    | *Read-only.* The instance ID of the Instance.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+`cinstance`     | CInstance | *Read-only.* The `sol.CInstance*` of the Instance.
 `attack_info`   | AttackInfo | The attack_info struct of *attack instances*. <br>Comes automatically wrapped.
 
 <br>
