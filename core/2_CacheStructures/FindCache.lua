@@ -6,6 +6,10 @@
 -- * ItemTier
 -- * LootPool
 -- * Object
+-- * Particle
+-- * Sound
+-- * Sprite
+-- * Tracer
 
 run_once(function()
 
