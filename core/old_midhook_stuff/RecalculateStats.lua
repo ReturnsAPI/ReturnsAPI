@@ -205,7 +205,7 @@ local function gather_params(self)
             local status, err = pcall(fn, self, api)
             if not status then
                 if (err == nil)
-                or (err == "C++ exception") then err = "GM call error (see above)" end
+                or (err == "C++ exception") then err = "GameMaker error (see above)" end
                 log.warning("\n"..namespace:gsub("%.", "-")..": RecalculateStats failed to execute fully.\n"..err)
             end
         end

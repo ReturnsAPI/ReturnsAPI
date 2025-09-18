@@ -196,7 +196,6 @@ end
 
 
 --@static
---@name         remove
 --@param        id          | number    | The unique ID of the registered function to remove.
 --[[
 Removes a registered callback function.
@@ -208,7 +207,6 @@ end
 
 
 --@static
---@name         remove_all
 --[[
 Removes all registered callbacks functions from your namespace.
 
@@ -267,7 +265,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         local status, err = pcall(fn_table.fn, table.unpack(wrapped_args))
         if not status then
             if (err == nil)
-            or (err == "C++ exception") then err = "GM call error (see above)" end
+            or (err == "C++ exception") then err = "GameMaker error (see above)" end
             log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..callback_type_id.."' failed to execute fully.\n"..err)
         end
     end, callback_type_id)

@@ -2,7 +2,7 @@
 
 Particle = new_class()
 
-local find_cache = {}
+local find_cache = FindCache.new()
 
 
 
@@ -61,10 +61,7 @@ Particle.new = function(NAMESPACE, identifier)
     -- Create new particle
     local part = gm.part_type_create_w(NAMESPACE, identifier)
 
-    -- Add to cache and return
-    local wrapper = Particle.wrap(part)
-    find_cache[NAMESPACE.."-"..identifier] = wrapper
-    return wrapper
+    return Particle.wrap(part)
 end
 
 
@@ -77,38 +74,31 @@ Searches for the specified particle and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
 Particle.find = function(identifier, namespace, namespace_is_specified)
-    local nsid = namespace.."-"..identifier
-    local ror_nsid = "ror-"..identifier
-
-    -- Check in cache (both in namespace and in "ror" if no `namespace` arg)
-    local cached = find_cache[nsid]
+    -- Check in cache
+    local cached = find_cache:get(identifier, namespace, namespace_is_specified)
     if cached then return cached end
-    if not namespace_is_specified then
-        local cached = find_cache[ror_nsid]
-        if cached then return cached end
-    end
 
     -- Search in namespace
     local particle
-    local resource_manager = Global.ResourceManager_particleTypes.__namespacedAssetLookup
-    local namespace_struct = resource_manager[namespace]
-    if namespace_struct then particle = namespace_struct[identifier] end
+    local resource_manager = Map.wrap(Global.ResourceManager_particleTypes.__namespacedAssetLookup)
+    local namespace_map = resource_manager[namespace]
+    if namespace_map then particle = Map.wrap(namespace_map)[identifier] end
 
     if particle then
         particle = Particle.wrap(particle)
-        find_cache[nsid] = particle
+        find_cache:set(particle, identifier, namespace)
         return particle
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
     if not namespace_is_specified then
         local particle
-        local namespace_struct = resource_manager["ror"]
-        if namespace_struct then particle = namespace_struct[identifier] end
+        local namespace_map = resource_manager["ror"]
+        if namespace_map then particle = Map.wrap(namespace_map)[identifier] end
         
         if particle then
             particle = Particle.wrap(particle)
-            find_cache[ror_nsid] = particle
+            find_cache:set(particle, identifier, "ror")
             return particle
         end
     end
@@ -124,11 +114,9 @@ end
 Returns a table of all particles in the specified namespace.
 If no namespace is provided, retrieves from both your mod's namespace and "ror".
 ]]
-Particle.find_all = function(NAMESPACE, _namespace)
-    local namespace, is_specified = parse_optional_namespace(_namespace, NAMESPACE)
-    
+Particle.find_all = function(namespace, namespace_is_specified)
     local parts = {}
-    local resource_manager = Global.ResourceManager_particleTypes.__namespacedAssetLookup
+    local resource_manager = Map.wrap(Global.ResourceManager_particleTypes.__namespacedAssetLookup)
 
     -- Search in namespace
     if resource_manager[namespace] then
@@ -138,7 +126,7 @@ Particle.find_all = function(NAMESPACE, _namespace)
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
-    if not is_specified then
+    if not namespace_is_specified then
         for _, part in pairs(resource_manager["ror"]) do
             table.insert(parts, Particle.wrap(part))
         end

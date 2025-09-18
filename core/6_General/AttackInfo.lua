@@ -88,15 +88,12 @@ methods_attackinfo = {
 
     --@instance
     --@param        bool            | bool      | `true` - Crit <br>`false` - Non-crit
-    --@optional     ignore_spotter  | bool      | If `true`, the attack will *not* crit on a SCANned target (Sniper). <br>`false` by default.
     --[[
     Sets whether or not this attack is a critical hit.
     *Technical:* Multiplies/divides `damage` by 2 alongside setting `critical`.
     ]]
     set_critical = function(self, bool, ignore_spotter)
         if bool == nil then log.error("set_critical: Missing bool argument", 2) end
-
-        if ignore_spotter then self.RAPI_ignore_spotter_crit = true end
 
         -- Enable crit
         if bool and (not Util.bool(self.critical)) then
@@ -229,25 +226,6 @@ make_table_once("metatable_attackinfo", {
     
     __metatable = "RAPI.Wrapper."..wrapper_name
 })
-
-
-
--- ========== Hooks ==========
-
--- TODO
-
--- If `set_critical(..., true)` was called earlier
--- for this `attack_info`, ignore Sniper's spotter drone
--- TODO sync mp (somehow)
--- run_after_core(function()
---     DamageCalculate.add(_ENV["!guid"], function(api)
---         if Net.client then return end
-
---         if Util.bool(api.hit_info.attack_info.RAPI_ignore_spotter_crit) then
---             api.set_critical(false)
---         end
---     end, 1000000000)    -- Make sure this runs first
--- end)
 
 
 

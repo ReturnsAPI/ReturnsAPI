@@ -4,6 +4,7 @@
 -- callback functions, with a numerical priority system.
 
 -- Used by
+-- * Alarm
 -- * Callback
 -- * Initialize
 -- * RecalculateStats
@@ -14,7 +15,7 @@ run_once(function()
         new = function()
             return setmetatable({
                 current_id  = 0,    -- Unique ID for each callback fn
-                id_lookup   = {},   -- Lookup callback function data tables by ID
+                id_lookup   = setmetatable({}, {__mode = "v"}), -- Lookup callback function data tables by ID
                 sections    = {}    -- Separate into sections, each having their own priorities
             }, callback_cache_mt)
         end
@@ -33,9 +34,9 @@ run_once(function()
 
                 -- Create section table if it does not exist
                 -- Used by Callback to separate by callback types
-                if not self.sections[section] then
+                if not self.sections[section] then 
                     self.sections[section] = {
-                        priorities = {}  -- List of priorities in use
+                        priorities = {}     -- List of priorities in use
                     }
                 end
                 local section_table = self.sections[section]
@@ -129,6 +130,7 @@ run_once(function()
             loop_and_call_functions = function(self, fn, section)
                 section = section or "main"
                 local section_table = self.sections[section]
+                if not section_table then return end
 
                 -- Loop through priority values in order
                 for _, priority in ipairs(section_table.priorities) do
@@ -140,6 +142,12 @@ run_once(function()
                         fn(fn_table)
                     end
                 end
+            end,
+
+
+            -- Delete a section
+            delete_section = function(self, section)
+                self.sections[section] = nil
             end
 
         }

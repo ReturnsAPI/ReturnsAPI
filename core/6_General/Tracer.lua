@@ -3,8 +3,8 @@
 Tracer = new_class()
 
 run_once(function()
+    __tracer_find_table = FindCache.new()
     __tracer_funcs = {}
-    __tracer_find_table = {}
 end)
 
 
@@ -83,6 +83,20 @@ end
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | The ID of the tracer.
+`RAPI`          | string    | The wrapper name.
+]]
+
+
+
 -- ========== Static Methods ==========
 
 Tracer.new = function(NAMESPACE, identifier)
@@ -105,29 +119,25 @@ Tracer.new = function(NAMESPACE, identifier)
 
     tracer_info_array:push(struct)
 
-    local element_table = {
-        index       = index,
-        namespace   = NAMESPACE,
-        identifier  = identifier,
-        struct      = loot_struct,
-        wrapper     = Tracer.wrap(index)
-    }
+    local wrapper = Tracer.wrap(index)
 
-    if not __tracer_find_table[NAMESPACE] then __tracer_find_table[NAMESPACE] = {} end
-    __tracer_find_table[NAMESPACE][identifier] = element_table
-    __tracer_find_table[index] = element_table
+    -- Add to find table
+    __tracer_find_table:set(
+        {
+            wrapper = wrapper,
+            struct  = struct
+        },
+        identifier, NAMESPACE, index
+    )
 
-    return element_table.wrapper
+    return wrapper
 end
 
 
 Tracer.find = function(identifier, namespace, namespace_is_specified)
-    -- Search in namespace
-    local namespace_table = __tracer_find_table[namespace]
-    if namespace_table then
-        local element_table = namespace_table[identifier]
-        if element_table then return element_table.wrapper end
-    end
+    -- Check in find table
+    local cached = __tracer_find_table:get(identifier, namespace, namespace_is_specified)
+    if cached then return cached.wrapper end
 
     return nil
 end
@@ -146,6 +156,16 @@ end
 --@section Instance Methods
 
 methods_tracer = {
+
+    --@instance
+    --[[
+    Prints the tracer's properties.
+    ]]
+    print_properties = function(self)
+        local struct = __tracer_find_table:get(self.value).struct
+        struct:print()
+    end,
+
 
     --@instance
     --@param        func        | function  | The function to set. <br>The parameters for it are `x1, y1, x2, y2, tracer_col`.
@@ -169,30 +189,28 @@ make_table_once("metatable_tracer", {
         -- Get wrapped value
         if k == "value" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
-        if k == "struct" then
-            return Global.tracer_info:get(proxy.value)
-        end
 
         -- Methods
         if methods_tracer[k] then
             return methods_tracer[k]
         end
 
-        -- Pass to metatable_struct
-        return metatable_struct.__index(proxy.struct, k)
+        -- Getter
+        local struct = __tracer_find_table:get(__proxy[proxy]).struct
+        return struct[k]
     end,
 
 
     __newindex = function(proxy, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
-        or k == "RAPI"
-        or k == "struct" then
+        or k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
-        -- Pass to metatable_struct
-        return metatable_struct.__newindex(proxy.struct, k, v)
+        -- Setter
+        local struct = __tracer_find_table:get(__proxy[proxy]).struct
+        struct[k] = Wrap.unwrap(v)
     end,
 
     __metatable = "RAPI.Wrapper."..wrapper_name

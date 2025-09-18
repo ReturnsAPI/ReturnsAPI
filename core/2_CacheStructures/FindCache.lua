@@ -3,9 +3,9 @@
 -- Cache base for resource lookups
 
 -- Used by
--- * Object
 -- * ItemTier
 -- * LootPool
+-- * Object
 
 run_once(function()
 

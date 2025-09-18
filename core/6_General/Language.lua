@@ -40,7 +40,7 @@ return {
 Language = new_class()
 
 run_once(function()
-    -- Contains env tables of all registered mods
+    -- Contains ENV tables of all registered mods
     __language_registered = {}
 end)
 

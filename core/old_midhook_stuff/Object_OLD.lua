@@ -473,7 +473,7 @@ gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_seri
             local status, err = pcall(fn_table.fn, inst, buffer)
             if not status then
                 if (err == nil)
-                or (err == "C++ exception") then err = "GM call error (see above)" end
+                or (err == "C++ exception") then err = "GameMaker error (see above)" end
                 log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Object serialization for object '"..obj_ind.."' failed to execute fully.\n"..err)
             end
         end
@@ -489,7 +489,7 @@ gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_dese
             local status, err = pcall(fn_table.fn, inst, buffer)
             if not status then
                 if (err == nil)
-                or (err == "C++ exception") then err = "GM call error (see above)" end
+                or (err == "C++ exception") then err = "GameMaker error (see above)" end
                 log.warning("\n"..fn_table.namespace:gsub("%.", "-")..": Object deserialization for object '"..obj_ind.."' failed to execute fully.\n"..err)
             end
         end

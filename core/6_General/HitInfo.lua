@@ -6,7 +6,7 @@ HitInfo wrappers are "children" of @link {`Struct` | Struct} and @link {`AttackI
 
 HitInfo = new_class()
 
--- Cache for hitinfo.attack_info
+-- Cache for hit_info.attack_info
 local attackinfo_cache = setmetatable({}, {__mode = "k"})
 
 

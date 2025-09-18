@@ -118,7 +118,7 @@ gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, resu
                     local status, err = pcall(init_table.fn)
                     if not status then
                         if (err == nil)
-                        or (err == "C++ exception") then err = "GM call error (see above)" end
+                        or (err == "C++ exception") then err = "GameMaker error (see above)" end
                         log.warning("\n"..init_table.namespace:gsub("%.", "-")..": Initialize failed to execute fully.\n"..err)
                     end
                 end
