@@ -270,7 +270,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
     --[[
-    Returns a table of all actors that currently hold the item.
+    Returns a table of all actors that currently hold at least 1 stack of the item.
     ]]
     get_holding_actors = function(self)
         local t = {}
@@ -363,8 +363,8 @@ gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, 
     -- For all of prev actor's items, remove prev actor and add new actor
     for item_id, _ in pairs(__actors_holding_item[actor_id]) do
         __actors_holding_item[item_id][actor_id] = nil
-        __actors_holding_item[item.value][new_id] = true
-        __actors_holding_item[new_id][item.value] = true
+        __actors_holding_item[item_id][new_id] = true
+        __actors_holding_item[new_id][item_id] = true
     end
     __actors_holding_item[actor_id] = nil
 end)

@@ -429,12 +429,13 @@ methods_actor = {
 
     --@instance
     --@param        buff        | Buff      | The buff to remove.
-    --@optional     count       | number    | The amount of stacks to remove. <br>Removes all stacks by default.
+    --@optional     count       | number    | The amount of stacks to remove. <br>`1` by default.
     --[[
     Removes stacks of the specified buff from the actor.
     ]]
     buff_remove = function(self, buff, count)
         local actor_id = self.value
+        count = count or 1
 
         -- Argument check
         buff = Wrap.unwrap(buff)
@@ -443,7 +444,7 @@ methods_actor = {
         local current_count = self:buff_count(buff)
 
         -- Remove buff entirely if count >= current_count
-        if (not count) or count >= current_count then
+        if count >= current_count then
             gm.remove_buff(actor_id, buff)
             return
         end

@@ -31,8 +31,8 @@ Returns the unique ID of the alarm.
 ]]
 Alarm.new = function(NAMESPACE, time, fn, ...)
     -- Check arguments
-    if type(time) ~= "number" then log.error("Alarm.add: time must be a number", 2) end
-    if type(fn) ~= "function" then log.error("Alarm.add: fn must be a function", 2) end
+    if type(time) ~= "number" then log.error("Alarm.add: time must be a number (you passed in '"..tostring(time).."')", 2) end
+    if type(fn) ~= "function" then log.error("Alarm.add: fn must be a function (you passed in '"..tostring(fn).."')", 2) end
 
     -- Create new subtable at that frame if existn't
     local frame = __alarm_current_frame + time + 1  -- +1 for proper time I think
