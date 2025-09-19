@@ -120,6 +120,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
+    --@return       table
     --[[
     Returns a table of all actors that currently hold at least 1 stack of the buff.
     ]]
