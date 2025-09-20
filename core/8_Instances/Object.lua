@@ -310,7 +310,7 @@ methods_object = {
     ]]
     set_sprite = function(self, sprite)
         if not sprite then log.error("set_sprite: sprite not provided", 2) end
-        gm.object_set_sprite_w(self, Wrap.unwrap(sprite))
+        gm.object_set_sprite_w(self.value, Wrap.unwrap(sprite))
     end,
 
 
