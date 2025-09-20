@@ -309,20 +309,19 @@ methods_object = {
     Sets the sprite of the object.
     ]]
     set_sprite = function(self, sprite)
-        sprite = Wrap.unwrap(sprite)
-        if self.value >= Object.CUSTOM_START then self.obj_sprite = sprite end
-        gm.object_set_sprite_w(self, sprite)
+        gm.object_set_sprite_w(self, Wrap.unwrap(sprite))
     end,
 
 
     --@instance
     --@param        depth       | number    | The depth to set.
     --[[
-    Sets the depth of the object.
+    Sets the initial depth for created instances of the object.
+    Does not apply retroactively to existing instances.
     ]]
     set_depth = function(self, depth)
-        if self.value >= Object.CUSTOM_START then self.obj_depth = depth end
-        Global.object_depths:set(self.value, depth) -- Does not apply retroactively to existing instances
+        if type(depth) ~= "number" then log.error("set_depth: depth not provided", 2) end
+        gm.object_set_depth(self.value, depth)
     end,
 
 
