@@ -309,6 +309,7 @@ methods_object = {
     Sets the sprite of the object.
     ]]
     set_sprite = function(self, sprite)
+        if not sprite then log.error("set_sprite: sprite not provided", 2) end
         gm.object_set_sprite_w(self, Wrap.unwrap(sprite))
     end,
 
@@ -320,7 +321,7 @@ methods_object = {
     Does not apply retroactively to existing instances.
     ]]
     set_depth = function(self, depth)
-        if type(depth) ~= "number" then log.error("set_depth: depth not provided", 2) end
+        if type(depth) ~= "number" then log.error("set_depth: depth must be a number", 2) end
         gm.object_set_depth(self.value, depth)
     end,
 
