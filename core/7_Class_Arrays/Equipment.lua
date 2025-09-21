@@ -238,7 +238,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        ...         | number(s) | A variable number of @link {loot tags | Item#LootTag} to add.
+    --@param        ...         | number(s) | A variable number of @link {loot tags | Item#LootTag} to add. <br>Alternatively, a table may be provided.
     --[[
     Sets the loot tags of the equipment.
     ]]

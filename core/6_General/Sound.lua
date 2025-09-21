@@ -37,7 +37,7 @@ Sound.new = function(NAMESPACE, identifier, path)
     )
 
     if sound == -1 then
-        log.error("Could not load sound at '"..path.."'", 2)
+        log.error("Sound.new: Could not load sound at '"..path.."'", 2)
     end
 
     return Sound.wrap(sound)

@@ -173,7 +173,7 @@ end
 
 
 --@static
---@param        ...         |           | A variable number of paths.
+--@param        ...         | string(s) | A variable number of paths. <br>`~` expands to your mod folder.
 --[[
 Adds a new room(s) to the stage, and adds it as
 a variant to the environment log (if applicable).
@@ -199,8 +199,13 @@ Stage.add_room = function(NAMESPACE, stage, ...)
     if type(t[1]) == "table" then t = t[1] end
 
     for _, path in ipairs(t) do
+        path = expand_path(NAMESPACE, path)
+
         -- Load room and add to list
-        local room = gm.stage_load_room(NAMESPACE, identifier.."_"..__stage_variant_next_id[id], path)
+        local room = gm.stage_load_room(NAMESPACE, identifier.."_"..__stage_variant_next_id[id])
+        if type(room) == "string" then  -- Return value is an error string apparently
+            log.error("Stage.add_room: Could not load room at '"..path.."'", 2)
+        end
         room_list:add(room)
 
         __stage_variant_next_id[id] = __stage_variant_next_id[id] + 1
@@ -210,7 +215,7 @@ Stage.add_room = function(NAMESPACE, stage, ...)
             room_id = room
         })
 
-        -- Associate environment log (if applicable)
+        -- Associate environment log (if it exists)
         if display_room_ids then
             display_room_ids:push(room)
             gm.room_associate_environment_log(room, log_id, num)
@@ -271,6 +276,13 @@ Returns a Stage wrapper containing the provided stage ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
+    --@name         print_properties
+    --[[
+    Prints the item's properties.
+    ]]
+
+
+    --@instance
     --@optional     ...         |           | A variable number of tiers. <br>Alternatively, a table may be provided. <br>If not provided, removes stage from progression.
     --[[
     Adds the stage to the specified tiers after removing it from its previous ones.
@@ -328,9 +340,16 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
+    --@instance
+    --@return       number
+    --@param        variant     | number    | The stage variant to get the room of. <br>Starts from `1`.
+    --[[
+    Returns the room ID of the specified variant.
+    ]]
     get_room = function(self, variant)
         local room_list = List.wrap(self.room_list)
 
+        -- Check if variant is out-of-bounds
         if variant < 1 or variant > #room_list then
             log.error("Variant must be between 1 and "..(#room_list).." (inclusive)", 2)
             return
@@ -340,7 +359,147 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    -- TODO populate rest of methods
+    --@instance
+    --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
+    --[[
+    Adds an @link {interactable card | InteractableCard}(s) to the stage's spawn pool.
+    ]]
+    add_interactable = function(self, ...)
+        local interactables_list = List.wrap(self.spawn_interactables)
+
+        -- Check if varargs or single table
+        local args = {...}
+        if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
+
+        -- Unwrap args
+        local cards = {}
+        for _, card in ipairs(args) do
+            table.insert(cards, Wrap.unwrap(card))
+        end
+
+        interactables_list:add(cards)
+    end,
+
+
+    --@instance
+    --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
+    --[[
+    Adds an @link {interactable card | InteractableCard}(s) to the stage's post-loop spawn pool.
+    ]]
+    add_interactable_loop = function(self, ...)
+        local interactables_list = List.wrap(self.spawn_interactables_loop)
+
+        -- Check if varargs or single table
+        local args = {...}
+        if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
+
+        -- Unwrap args
+        local cards = {}
+        for _, card in ipairs(args) do
+            table.insert(cards, Wrap.unwrap(card))
+        end
+
+        interactables_list:add(cards)
+    end,
+
+
+    --@instance
+    --[[
+    Removes all interactable cards from the stage's spawn pool.
+    ]]
+    clear_interactables = function(self)
+        List.wrap(self.spawn_interactables):clear()
+    end,
+
+
+    --@instance
+    --[[
+    Removes all interactable cards from the stage's post-loop spawn pool.
+    ]]
+    clear_interactables_loop = function(self)
+        List.wrap(self.spawn_interactables_loop):clear()
+    end,
+
+
+    --@instance
+    --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
+    --[[
+    Adds a @link {monster card | InteractableCard}(s) to the stage's spawn pool.
+    ]]
+    add_monster = function(self, ...)
+        local enemy_list = List.wrap(self.spawn_enemies)
+
+        -- Check if varargs or single table
+        local args = {...}
+        if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
+
+        -- Unwrap args
+        local cards = {}
+        for _, card in ipairs(args) do
+            table.insert(cards, Wrap.unwrap(card))
+        end
+
+        enemy_list:add(cards)
+    end,
+
+
+    --@instance
+    --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
+    --[[
+    Adds a @link {monster card | InteractableCard}(s) to the stage's post-loop spawn pool.
+    ]]
+    add_monster_loop = function(self, ...)
+        local enemy_list = List.wrap(self.spawn_enemies_loop)
+
+        -- Check if varargs or single table
+        local args = {...}
+        if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
+
+        -- Unwrap args
+        local cards = {}
+        for _, card in ipairs(args) do
+            table.insert(cards, Wrap.unwrap(card))
+        end
+
+        enemy_list:add(cards)
+    end,
+
+
+    --@instance
+    --[[
+    Removes all monster cards from the stage's spawn pool.
+    ]]
+    clear_monsters = function(self)
+        List.wrap(self.spawn_enemies):clear()
+    end,
+
+
+    --@instance
+    --[[
+    Removes all monster cards from the stage's post-loop spawn pool.
+    ]]
+    clear_monsters_loop = function(self)
+        List.wrap(self.spawn_enemies_loop):clear()
+    end,
+
+
+    --@instance
+    --@param        ground_strip    | sprite    | The sprite to use for the planet's ground (64px x 393px).
+    --@optional     objs_back       | table     | A table of sprites for the random objects on the planet, rendered *behind*.
+    --@optional     objs_front      | table     | A table of sprites for the random objects on the planet, rendered *in front*.
+    --[[
+    Sets the properties of the mini-planet on the title screen.
+
+    If both `objs_back` and `objs_front` are
+    empty, the default set will be used.
+    ]]
+    set_title_screen_properties = function(self, ground_strip, obj_sprites, force_draw_depth)
+        __stage_populate_biome[self.value] = {
+            ground_strip    = ground_strip,
+            objs_back       = objs_back,
+            objs_front      = objs_front
+        }
+    end
 
 })
 
@@ -353,28 +512,45 @@ Util.table_append(methods_class_array[name_rapi], {
 gm.post_script_hook(gm.constants.callable_call, function(self, other, result, args)
     if #args ~= 3 then return end
 
-    for id, t in pairs(__stage_populate_biome) do
-        local stage = Stage.find(id)
+    -- Loop through cached property tables
+    for id, properties in pairs(__stage_populate_biome) do
+        local stage = Stage.wrap(id)
+
+        -- Check if stage's `populate_biome_properties`
+        -- matches the current stage being displayed
         if args[1].value == stage.populate_biome_properties then
-            local struct = args[3].value
+            local struct = Struct.wrap(args[3].value)
 
             struct.ground_strip = t.ground_strip
 
-            if t.obj_sprites then
-                local array = Array.wrap(struct.obj_sprites)
-                array:clear()
-                for _, spr in ipairs(t.obj_sprites) do
-                    array:push(spr)
-                end
+            local obj_sprites = {}
+            local force_draw_depth = {}
+
+            -- Process back sprites
+            for _, sprite in ipairs(properties.objs_back) do
+                table.insert(obj_sprites, Wrap.unwrap(sprite))
             end
 
-            if t.force_draw_depth then
-                for _, v in ipairs(t.force_draw_depth) do
-                    struct.force_draw_depth[tostring(math.floor(v))] = true
-                end
+            -- Process front sprites
+            for _, sprite in ipairs(properties.objs_front) do
+                sprite = Wrap.unwrap(sprite)
+                table.insert(obj_sprites, sprite)
+                table.insert(force_draw_depth, sprite)
             end
 
-            break
+            -- Use default set if no sprites provided
+            if #obj_sprites <= 0 then return end
+
+            -- Modify struct properties
+            local array = Array.wrap(struct.obj_sprites)
+            array:clear()
+            array:push(obj_sprites)
+
+            for _, sprite in ipairs(force_draw_depth) do
+                struct.force_draw_depth[tostring(math.floor(sprite))] = true
+            end
+
+            return
         end
     end
 end)

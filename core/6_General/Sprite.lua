@@ -47,7 +47,7 @@ Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_ori
     )
 
     if sprite == -1 then
-        log.error("Could not load sprite at '"..path.."'", 2)
+        log.error("Sprite.new: Could not load sprite at '"..path.."'", 2)
     end
 
     return Sprite.wrap(sprite)
