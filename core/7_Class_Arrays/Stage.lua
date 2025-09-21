@@ -493,7 +493,7 @@ Util.table_append(methods_class_array[name_rapi], {
     If both `objs_back` and `objs_front` are
     empty, the default set will be used.
     ]]
-    set_title_screen_properties = function(self, ground_strip, obj_sprites, force_draw_depth)
+    set_title_screen_properties = function(self, ground_strip, objs_back, objs_front)
         __stage_populate_biome[self.value] = {
             ground_strip    = ground_strip,
             objs_back       = objs_back,
