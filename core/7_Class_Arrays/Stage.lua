@@ -285,7 +285,8 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@optional     ...         |           | A variable number of tiers. <br>Alternatively, a table may be provided. <br>If not provided, removes stage from progression.
     --[[
-    Adds the stage to the specified tiers after removing it from its previous ones.
+    Adds the stage to the specified tiers *after removing it from its previous ones*
+    (i.e., overwrites the stage's tier list).
     If *no arguments* are provided, removes the stage from progression.
     
     A new tier may be created by providing a tier 1 higher than the current count.
