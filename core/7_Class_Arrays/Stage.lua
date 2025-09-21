@@ -490,8 +490,8 @@ Util.table_append(methods_class_array[name_rapi], {
     --[[
     Sets the properties of the mini-planet on the title screen.
 
-    If both `objs_back` and `objs_front` are
-    empty, the default set will be used.
+    If both `objs_back` and `objs_front` are empty,
+    the default random object sprite set will be used.
     ]]
     set_title_screen_properties = function(self, ground_strip, objs_back, objs_front)
         __stage_populate_biome[self.value] = {
