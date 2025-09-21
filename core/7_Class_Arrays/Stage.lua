@@ -362,7 +362,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
     --[[
-    Adds an @link {interactable card | InteractableCard}(s) to the stage's spawn pool.
+    Adds an @link {interactable card(s) | InteractableCard} to the stage's spawn pool.
     ]]
     add_interactable = function(self, ...)
         local interactables_list = List.wrap(self.spawn_interactables)
@@ -384,7 +384,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
     --[[
-    Adds an @link {interactable card | InteractableCard}(s) to the stage's post-loop spawn pool.
+    Adds an @link {interactable card(s) | InteractableCard} to the stage's post-loop spawn pool.
     ]]
     add_interactable_loop = function(self, ...)
         local interactables_list = List.wrap(self.spawn_interactables_loop)
@@ -424,7 +424,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
     --[[
-    Adds a @link {monster card | InteractableCard}(s) to the stage's spawn pool.
+    Adds a @link {monster card(s) | InteractableCard} to the stage's spawn pool.
     ]]
     add_monster = function(self, ...)
         local enemy_list = List.wrap(self.spawn_enemies)
@@ -446,7 +446,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
     --[[
-    Adds a @link {monster card | InteractableCard}(s) to the stage's post-loop spawn pool.
+    Adds a @link {monster card(s) | InteractableCard} to the stage's post-loop spawn pool.
     ]]
     add_monster_loop = function(self, ...)
         local enemy_list = List.wrap(self.spawn_enemies_loop)
