@@ -96,7 +96,7 @@ end
 Returns the angle (in degrees) to face point 2 from point 1.
 ]]
 Math.direction = function(x1, y1, x2, y2)
-    return (-math.atan2(y2 - y1, x2 - x1) * Math.RAD2DEG) % 360
+    return (-math.atan(y2 - y1, x2 - x1) * Math.RAD2DEG) % 360
 end
 
 
