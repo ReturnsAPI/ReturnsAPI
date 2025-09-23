@@ -385,6 +385,34 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
     --[[
+    Removes an @link {interactable card(s) | InteractableCard} from the stage's spawn pool.
+    ]]
+    remove_interactable = function(self, ...)
+        local interactables_list = List.wrap(self.spawn_interactables)
+
+        -- Check if varargs or single table
+        local args = {...}
+        if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
+
+        -- Remove args from list
+        for _, card in ipairs(args) do
+            interactables_list:delete_value(Wrap.unwrap(card))
+        end
+    end,
+
+
+    --@instance
+    --[[
+    Removes all interactable cards from the stage's spawn pool.
+    ]]
+    remove_all_interactables = function(self)
+        List.wrap(self.spawn_interactables):clear()
+    end,
+
+
+    --@instance
+    --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
+    --[[
     Adds an @link {interactable card(s) | InteractableCard} to the stage's post-loop spawn pool.
     ]]
     add_interactable_loop = function(self, ...)
@@ -405,11 +433,21 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
+    --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
     --[[
-    Removes all interactable cards from the stage's spawn pool.
+    Removes an @link {interactable card(s) | InteractableCard} from the stage's post-loop spawn pool.
     ]]
-    clear_interactables = function(self)
-        List.wrap(self.spawn_interactables):clear()
+    remove_interactable_loop = function(self, ...)
+        local interactables_list = List.wrap(self.spawn_interactables_loop)
+
+        -- Check if varargs or single table
+        local args = {...}
+        if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
+
+        -- Remove args from list
+        for _, card in ipairs(args) do
+            interactables_list:delete_value(Wrap.unwrap(card))
+        end
     end,
 
 
@@ -417,7 +455,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --[[
     Removes all interactable cards from the stage's post-loop spawn pool.
     ]]
-    clear_interactables_loop = function(self)
+    remove_all_interactables_loop = function(self)
         List.wrap(self.spawn_interactables_loop):clear()
     end,
 
@@ -425,7 +463,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
     --[[
-    Adds a @link {monster card(s) | InteractableCard} to the stage's spawn pool.
+    Adds a @link {monster card(s) | MonsterCard} to the stage's spawn pool.
     ]]
     add_monster = function(self, ...)
         local enemy_list = List.wrap(self.spawn_enemies)
@@ -447,7 +485,35 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
     --[[
-    Adds a @link {monster card(s) | InteractableCard} to the stage's post-loop spawn pool.
+    Removes a @link {monster card(s) | MonsterCard} from the stage's spawn pool.
+    ]]
+    remove_monster = function(self, ...)
+        local enemy_list = List.wrap(self.spawn_enemies)
+
+        -- Check if varargs or single table
+        local args = {...}
+        if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
+
+        -- Remove args from list
+        for _, card in ipairs(args) do
+            enemy_list:delete_value(Wrap.unwrap(card))
+        end
+    end,
+
+
+    --@instance
+    --[[
+    Removes all monster cards from the stage's spawn pool.
+    ]]
+    remove_all_monsters = function(self)
+        List.wrap(self.spawn_enemies):clear()
+    end,
+
+
+    --@instance
+    --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
+    --[[
+    Adds a @link {monster card(s) | MonsterCard} to the stage's post-loop spawn pool.
     ]]
     add_monster_loop = function(self, ...)
         local enemy_list = List.wrap(self.spawn_enemies_loop)
@@ -467,11 +533,21 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
+    --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
     --[[
-    Removes all monster cards from the stage's spawn pool.
+    Removes a @link {monster card(s) | MonsterCard} from the stage's post-loop spawn pool.
     ]]
-    clear_monsters = function(self)
-        List.wrap(self.spawn_enemies):clear()
+    remove_monster_loop = function(self, ...)
+        local enemy_list = List.wrap(self.spawn_enemies_loop)
+
+        -- Check if varargs or single table
+        local args = {...}
+        if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
+
+        -- Remove args from list
+        for _, card in ipairs(args) do
+            enemy_list:delete_value(Wrap.unwrap(card))
+        end
     end,
 
 
@@ -479,7 +555,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --[[
     Removes all monster cards from the stage's post-loop spawn pool.
     ]]
-    clear_monsters_loop = function(self)
+    remove_all_monsters_loop = function(self)
         List.wrap(self.spawn_enemies_loop):clear()
     end,
 
