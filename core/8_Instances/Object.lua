@@ -11,6 +11,7 @@ run_once(function()
     __object_array_cache = {}
 
     __object_tags = {}
+    __object_vanilla_properties = {}    -- Object.Property table but for vanilla objects
 
     __object_serializers = {}
     __object_deserializers = {}
@@ -406,7 +407,27 @@ make_table_once("metatable_object", {
         if k == "value" then return value end
         if k == "RAPI" then return wrapper_name end
         if k == "array" then
-            if value < Object.CUSTOM_START then log.error("No Object properties for vanilla objects", 2) end
+            if value < Object.CUSTOM_START then
+                -- Custom object property table for vanilla objects
+                if not __object_vanilla_properties[value] then
+                    local name = gm.object_get_name(value)
+                    name = name:sub(2, 2):lower()..name:sub(3, -1)  -- e.g., oLizard -> lizard
+
+                    __object_vanilla_properties[value] = {
+                        nil,    -- base
+                        nil,    -- obj_depth    This is subject to change and should be fetched on demand
+                        nil,    -- obj_sprite   This is subject to change and should be fetched on demand
+                        name,   -- identifier
+                        "ror",  -- namespace
+                        nil,    -- on_create
+                        nil,    -- on_destroy
+                        nil,    -- on_step
+                        nil     -- on_draw
+                    }
+                end
+
+                return __object_vanilla_properties[value]
+            end
             
             -- Check cache
             local array = __object_array_cache[value]
@@ -424,9 +445,13 @@ make_table_once("metatable_object", {
         end
 
         -- Getter
-        if value < Object.CUSTOM_START then log.error("No Object properties for vanilla objects", 2) end
         local index = Object.Property[k:upper()]
         if index then
+            if value < Object.CUSTOM_START then
+                if (index == Object.Property.OBJ_DEPTH)     then return gm.object_get_depth(value) end
+                if (index == Object.Property.OBJ_SPRITE)    then return Sprite.wrap(gm.object_get_sprite(value)) end
+                return proxy.array[index + 1]
+            end
             return proxy.array:get(index)
         end
         log.error("Non-existent Object property '"..k.."'", 2)
@@ -442,9 +467,15 @@ make_table_once("metatable_object", {
         
         -- Setter
         local value = __proxy[proxy]
-        if value < Object.CUSTOM_START then log.error("No Object properties for vanilla objects", 2) end
         local index = Object.Property[k:upper()]
         if index then
+            if value < Object.CUSTOM_START then
+                if      (index == Object.Property.OBJ_DEPTH)    then gm.object_set_depth(value, Wrap.unwrap(v))
+                elseif  (index == Object.Property.OBJ_SPRITE)   then gm.object_set_sprite(value, Wrap.unwrap(v))
+                else proxy.array[index + 1] = v
+                end
+                return
+            end
             proxy.array:set(index, v)
             return
         end
