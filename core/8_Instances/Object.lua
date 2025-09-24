@@ -81,7 +81,7 @@ Property | Type | Description
 
 Property | Type | Description
 | - | - | -
-`base`          | number    | The `object_index` of the parent object. <br>Only exists for custom objects.
+`base`          | number    | The `object_index` of the "base" object used to create this one. <br>Only exists for custom objects.
 `obj_depth`     | number    | The object depth.
 `obj_sprite`    | sprite    | The object sprite.
 `identifier`    | string    | The identifier for the object within the namespace.
