@@ -39,8 +39,10 @@ Property | Type | Description
 
 --@static
 --@return       Struct
---@optional     constructor | number    | The constructor to use.
---@optional     ...         |           | Arguments to pass to the constructor.
+--@optional     table       | table     | A Lua table to create the struct from.
+--@return       Struct
+--@param        constructor | number    | The constructor to use.
+--@optional     ...         |           | Arguments to pass to the constructor. <br>Alternatively, a table may be provided.
 --[[
 Returns a newly created GameMaker struct.
 Can also create one from a constructor.
@@ -51,12 +53,22 @@ Struct.new = function(constructor, ...)
         return Struct.wrap(gm.struct_create())
     end
 
+    -- Create from Lua table
+    if type(constructor) == "table" then
+        local struct = gm.struct_create()
+        for k, v in pairs(constructor) do
+            struct[k] = Wrap.unwrap(v, true)
+        end
+        return Struct.wrap(struct)
+    end
+
     -- From constructor
     local args = table.pack(...)
+    if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
     -- Unwrap args
     for i = 1, args.n do
-        args[i] = Wrap.unwrap(args[i])
+        args[i] = Wrap.unwrap(args[i], true)
     end
 
     return Struct.wrap(gm["@@NewGMLObject@@"](constructor, table.unpack(args)))
