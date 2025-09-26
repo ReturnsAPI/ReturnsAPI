@@ -63,8 +63,9 @@ Binds a Lua function to a GML script function and returns it.
 ]]
 Script.bind = function(func)
     -- Create a new struct
-    local struct = Struct.new()
-    struct.__id = __bind_id_count
+    local struct = Struct.new{
+        __id = __bind_id_count
+    }
 
     -- Bind "dummy" function to struct
     local cscriptref = gm.method(struct.value, gm.constants.function_dummy)

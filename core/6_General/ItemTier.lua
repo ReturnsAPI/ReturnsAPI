@@ -108,20 +108,21 @@ ItemTier.new = function(NAMESPACE, identifier)
     tier = #tiers_array
 
     -- Create new struct for tier
-    local tier_struct = Struct.new()
-    tier_struct.namespace                   = NAMESPACE     -- RAPI custom variable
-    tier_struct.identifier                  = identifier    -- RAPI custom variable
-    tier_struct.index                       = tier
-    tier_struct.text_color                  = "w"
-    tier_struct.pickup_color                = Color.WHITE
-    tier_struct.pickup_color_bright         = Color.WHITE
-    tier_struct.item_pool_for_reroll        = -1
-    tier_struct.equipment_pool_for_reroll   = -1
-    tier_struct.ignore_fair                 = false
-    tier_struct.fair_item_value             = 1
-    tier_struct.pickup_particle_type        = -1
-    tier_struct.spawn_sound                 = 57    -- wItemDrop_White
-    tier_struct.pickup_head_shape           = -1    -- Uncommon uses `global.pItemTierUncommon`, etc.
+    local tier_struct = Struct.new{
+        namespace                   = NAMESPACE,    -- RAPI custom variable
+        identifier                  = identifier,   -- RAPI custom variable
+        index                       = tier,
+        text_color                  = "w",
+        pickup_color                = Color.WHITE,
+        pickup_color_bright         = Color.WHITE,
+        item_pool_for_reroll        = -1,
+        equipment_pool_for_reroll   = -1,
+        ignore_fair                 = false,
+        fair_item_value             = 1,
+        pickup_particle_type        = -1,
+        spawn_sound                 = 57,           -- wItemDrop_White
+        pickup_head_shape           = -1            -- Uncommon uses `global.pItemTierUncommon`, etc.
+    }
 
     -- Push onto array
     tiers_array:push(tier_struct)

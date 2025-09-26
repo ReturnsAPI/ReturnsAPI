@@ -106,16 +106,17 @@ Tracer.new = function(NAMESPACE, identifier)
     local tracer_info_array = Global.tracer_info
     local index = #tracer_info_array
 
-    local struct = Struct.new()
-    struct.namespace                       = NAMESPACE     -- RAPI custom variable
-    struct.identifier                      = identifier    -- RAPI custom variable
-    struct.consistent_sparks_flip          = false
-    struct.show_sparks_if_miss             = true
-    struct.sparks_offset_y                 = 0
-    struct.show_end_sparks_on_piercing_hit = false
-    struct.override_sparks_miss            = -1
-    struct.override_sparks_solid           = -1
-    struct.draw_tracer                     = true
+    local struct = Struct.new{
+        namespace                       = NAMESPACE,    -- RAPI custom variable
+        identifier                      = identifier,   -- RAPI custom variable
+        consistent_sparks_flip          = false,
+        show_sparks_if_miss             = true,
+        sparks_offset_y                 = 0,
+        show_end_sparks_on_piercing_hit = false,
+        override_sparks_miss            = -1,
+        override_sparks_solid           = -1,
+        draw_tracer                     = true
+    }
 
     tracer_info_array:push(struct)
 

@@ -106,15 +106,16 @@ LootPool.new = function(NAMESPACE, identifier)
     pool = #loot_pools_array
 
     -- Create new struct for pool
-    local loot_struct = Struct.new()
-    loot_struct.namespace                   = NAMESPACE     -- RAPI custom variable
-    loot_struct.identifier                  = identifier    -- RAPI custom variable
-    loot_struct.index                       = pool
-    loot_struct.item_tier                   = 0             -- Common
-    loot_struct.drop_pool                   = List.new()
-    loot_struct.available_drop_pool         = List.new()
-    loot_struct.is_equipment_pool           = false
-    loot_struct.command_crate_object_id     = 800           -- White crate
+    local loot_struct = Struct.new{
+        namespace                   = NAMESPACE,    -- RAPI custom variable
+        identifier                  = identifier,   -- RAPI custom variable
+        index                       = pool,
+        item_tier                   = 0,            -- Common
+        drop_pool                   = List.new(),
+        available_drop_pool         = List.new(),
+        is_equipment_pool           = false,
+        command_crate_object_id     = 800           -- White crate
+    }
 
     -- Push onto array
     loot_pools_array:push(loot_struct)
