@@ -13,6 +13,7 @@ Example:
 -- language/english.lua
 -- language/english/myTranslations.lua
 -- language/english/subfolder/myTranslations.lua
+-- language/folder/subfolder/english/myTranslations.lua
 
 return {
     item = {
