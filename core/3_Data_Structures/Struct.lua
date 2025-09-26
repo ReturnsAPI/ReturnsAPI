@@ -40,6 +40,7 @@ Property | Type | Description
 --@static
 --@return       Struct
 --@optional     table       | table     | A Lua table to create the struct from.
+--@overload
 --@return       Struct
 --@param        constructor | number    | The constructor to use.
 --@optional     ...         |           | Arguments to pass to the constructor. <br>Alternatively, a table may be provided.
