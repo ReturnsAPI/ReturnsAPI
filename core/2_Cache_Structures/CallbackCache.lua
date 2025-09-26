@@ -6,6 +6,7 @@
 -- Used by
 -- * Alarm
 -- * Callback
+-- * DamageCalculate
 -- * Initialize
 -- * RecalculateStats
 
