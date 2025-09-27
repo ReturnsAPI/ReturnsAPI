@@ -310,6 +310,8 @@ for name_rapi, name_global in pairs(class_name_r2g) do
     })
 
     __class[name_rapi] = class_table
+    private[name_rapi] = class_table    -- To allow internal use in RAPI
+                                        -- if the Lua file doesn't exist yet
 end
 
 

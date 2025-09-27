@@ -365,7 +365,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
+    --@param        ...         | InteractableCard or string    | A variable number of interactable cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Adds an @link {interactable card(s) | InteractableCard} to the stage's spawn pool.
     ]]
@@ -376,13 +376,13 @@ Util.table_append(methods_class_array[name_rapi], {
         local args = {...}
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
-        -- Unwrap args
-        local cards = {}
+        -- Add cards
         for _, card in ipairs(args) do
-            table.insert(cards, Wrap.unwrap(card))
+            if type(card) == "string" then
+                card = InteractableCard.find(card)
+            end
+            interactables_list:add(card)
         end
-
-        interactables_list:add(table.unpack(cards))
     end,
 
 
@@ -398,9 +398,12 @@ Util.table_append(methods_class_array[name_rapi], {
         local args = {...}
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
-        -- Remove args from list
+        -- Remove cards
         for _, card in ipairs(args) do
-            interactables_list:delete_value(Wrap.unwrap(card))
+            if type(card) == "string" then
+                card = InteractableCard.find(card)
+            end
+            interactables_list:delete_value(card)
         end
     end,
 
@@ -426,13 +429,13 @@ Util.table_append(methods_class_array[name_rapi], {
         local args = {...}
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
-        -- Unwrap args
-        local cards = {}
+        -- Add cards
         for _, card in ipairs(args) do
-            table.insert(cards, Wrap.unwrap(card))
+            if type(card) == "string" then
+                card = InteractableCard.find(card)
+            end
+            interactables_list:add(card)
         end
-
-        interactables_list:add(table.unpack(cards))
     end,
 
 
@@ -448,9 +451,12 @@ Util.table_append(methods_class_array[name_rapi], {
         local args = {...}
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
-        -- Remove args from list
+        -- Remove cards
         for _, card in ipairs(args) do
-            interactables_list:delete_value(Wrap.unwrap(card))
+            if type(card) == "string" then
+                card = InteractableCard.find(card)
+            end
+            interactables_list:delete_value(card)
         end
     end,
 
@@ -476,13 +482,13 @@ Util.table_append(methods_class_array[name_rapi], {
         local args = {...}
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
-        -- Unwrap args
-        local cards = {}
+        -- Add cards
         for _, card in ipairs(args) do
-            table.insert(cards, Wrap.unwrap(card))
+            if type(card) == "string" then
+                card = MonsterCard.find(card)
+            end
+            enemy_list:add(card)
         end
-
-        enemy_list:add(table.unpack(cards))
     end,
 
 
@@ -498,9 +504,12 @@ Util.table_append(methods_class_array[name_rapi], {
         local args = {...}
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
-        -- Remove args from list
+        -- Remove cards
         for _, card in ipairs(args) do
-            enemy_list:delete_value(Wrap.unwrap(card))
+            if type(card) == "string" then
+                card = MonsterCard.find(card)
+            end
+            enemy_list:delete_value(card)
         end
     end,
 
@@ -526,13 +535,13 @@ Util.table_append(methods_class_array[name_rapi], {
         local args = {...}
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
-        -- Unwrap args
-        local cards = {}
+        -- Add cards
         for _, card in ipairs(args) do
-            table.insert(cards, Wrap.unwrap(card))
+            if type(card) == "string" then
+                card = MonsterCard.find(card)
+            end
+            enemy_list:add(card)
         end
-
-        enemy_list:add(table.unpack(cards))
     end,
 
 
@@ -548,9 +557,12 @@ Util.table_append(methods_class_array[name_rapi], {
         local args = {...}
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
-        -- Remove args from list
+        -- Remove cards
         for _, card in ipairs(args) do
-            enemy_list:delete_value(Wrap.unwrap(card))
+            if type(card) == "string" then
+                card = MonsterCard.find(card)
+            end
+            enemy_list:delete_value(card)
         end
     end,
 
