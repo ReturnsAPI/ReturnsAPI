@@ -1,0 +1,166 @@
+-- EnvironmentLog
+
+local name_rapi = class_name_g2r["class_environment_log"]
+EnvironmentLog = __class[name_rapi]
+
+
+
+-- ========== Enums ==========
+
+--@section Enums
+
+--@enum
+--@name Property
+--[[
+NAMESPACE               0
+IDENTIFIER              1
+TOKEN_NAME              2
+TOKEN_STORY             3
+STAGE_ID                4
+DISPLAY_ROOM_IDS        5
+INITIAL_CAM_X_1080      6
+INITIAL_CAM_Y_1080      7
+INITIAL_CAM_X_720       8
+INITIAL_CAM_Y_720       9
+INITIAL_CAM_ALT_X_1080  10
+INITIAL_CAM_ALT_Y_1080  11
+INITIAL_CAM_ALT_X_720   12
+INITIAL_CAM_ALT_Y_720   13
+IS_SECRET               14
+SPR_ICON                15
+]]
+
+
+
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | *Read-only.* The item log ID being wrapped.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+
+<br>
+
+Property | Type | Description
+| - | - | -
+`namespace`                 | string    | The namespace the log is in.
+`identifier`                | string    | The identifier for the log within the namespace.
+`token_name`                | string    | The localization token for the log's name.
+`token_story`               | string    | The localization token for the log's story.
+`stage_id`                  | number    | The ID of the stage that the log belongs to.
+`display_room_ids`          |           | 
+`initial_cam_x_1080`        | number    | 
+`initial_cam_y_1080`        | number    | 
+`initial_cam_x_720`         | number    | 
+`initial_cam_y_720`         | number    | 
+`initial_cam_alt_x_1080`    | number    | 
+`initial_cam_alt_y_1080`    | number    | 
+`initial_cam_alt_x_720`     | number    | 
+`initial_cam_alt_y_720`     | number    | 
+`is_secret`                 | bool      | If `true`, the log will be hidden in Logbook until acquired.
+`spr_icon`                  | sprite    | The sprite used for the small icon in Logbook (163px x 68px).
+]]
+
+
+
+-- ========== Static Methods ==========
+
+--@section Static Methods
+
+--@static
+--@return   EnvironmentLog
+--@param    identifier  | string    | The identifier for the environment log.
+--[[
+Creates a new environment log with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+EnvironmentLog.new = function(NAMESPACE, identifier)
+    Initialize.internal.check_if_started()
+    if not identifier then log.error("No identifier provided", 2) end
+
+    -- Return existing log if found
+    local log = EnvironmentLog.find(identifier, NAMESPACE)
+    if log then return log end
+
+    -- Create new
+    log = EnvironmentLog.wrap(gm.environment_log_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return log
+end
+
+
+--@static
+--@return   EnvironmentLog
+--@param    stage           | Stage     | The stage to use as a base.
+--[[
+Creates a new environment log using a stage as a base,
+automatically populating the log's properties and
+setting the stage's `log_id` property.
+]]
+EnvironmentLog.new_from_stage = function(NAMESPACE, stage)
+    Initialize.internal.check_if_started()
+    
+    if not stage then log.error("EnvironmentLog.new_from_stage: No stage provided", 2) end
+    stage = Stage.wrap(stage)
+
+    if type(stage.value) ~= "number" then log.error("EnvironmentLog.new_from_stage: Invalid stage", 2) end
+
+    -- Use existing log or create a new one
+    local log = EnvironmentLog.find(stage.identifier, NAMESPACE)
+             or EnvironmentLog.new(NAMESPACE, stage.identifier)
+
+    -- Set the stage ID of the log
+    -- and the log ID of the stage
+    log.stage_id = stage
+    stage.log_id = log
+
+    -- Set the position of the log in Logbook
+    
+
+    -- TODO: Maybe run log/room reassociation? Might not be needed though
+
+    return log
+end
+
+
+
+-- ========== Instance Methods ==========
+
+--@section Instance Methods
+
+Util.table_append(methods_class_array[name_rapi], {
+
+    --@instance
+    --@name         print_properties
+    --[[
+    Prints the environment log's properties.
+    ]]
+
+
+    --@instance
+    --@return       number
+    --@param        x           | number    | The initial x position.
+    --@param        y           | number    | The initial y position.
+    --[[
+    Sets the initial position of the freecam view in the Logbook.
+    ]]
+    set_initial_camera_position = function(self, x, y)
+        self.initial_cam_x_1080     = x
+        self.initial_cam_x_720      = x
+        -- self.initial_cam_alt_x_1080 = x  -- No idea what this is actually
+        -- self.initial_cam_alt_x_720  = x
+
+        self.initial_cam_y_1080     = y
+        self.initial_cam_y_720      = y
+        -- self.initial_cam_alt_y_1080 = y
+        -- self.initial_cam_alt_y_720  = y
+    end,
+
+})

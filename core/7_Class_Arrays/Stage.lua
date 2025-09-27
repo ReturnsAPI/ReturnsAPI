@@ -60,19 +60,19 @@ Property | Type | Description
 `identifier`                    | string    | The identifier for the stage within the namespace.
 `token_name`                    | string    | The localization token for the stage's name.
 `token_subname`                 | string    | The localization token for the stage's subname.
-`spawn_enemies`                 |           | 
-`spawn_enemies_loop`            |           | 
-`spawn_interactables`           |           | 
-`spawn_interactables_loop`      |           | 
+`spawn_enemies`                 | number (List) | 
+`spawn_enemies_loop`            | number (List) | 
+`spawn_interactables`           | number (List) | 
+`spawn_interactables_loop`      | number (List) | 
 `spawn_interactable_rarity`     |           | 
 `interactable_spawn_points`     |           | 
-`allow_mountain_shrine_spawn`   |           | 
+`allow_mountain_shrine_spawn`   | bool      | 
 `classic_variant_count`         |           | 
 `is_new_stage`                  | bool      | 
 `room_list`                     | number    | The ID of a list containing the rooms (variants) of the stage.
 `music_id`                      | number    | The ID of the sound to play as background music.
-`teleporter_index`              |           | 
-`populate_biome_properties`     |           | 
+`teleporter_index`              | number    | 
+`populate_biome_properties`     | Struct    | 
 `log_id`                        | number    | The environment log ID of the stage.
 ]]
 
@@ -221,7 +221,7 @@ Stage.add_room = function(NAMESPACE, stage, ...)
         -- Associate environment log (if it exists)
         if display_room_ids then
             display_room_ids:push(room)
-            gm.room_associate_environment_log(room, log_id, num)
+            gm.room_associate_environment_log(room, log_id, #room_list - 1)
         end
     end
 end

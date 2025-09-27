@@ -67,6 +67,7 @@ Property | Type | Description
 `token_date`        | string    | The localization token for the log's date.
 `token_destination` | string    | The localization token for the log's destination.
 `token_priority`    | string    | The localization token for the log's priority.
+`pickup_object_id`  | number    | The ID of the item's pickup object.
 `sprite_id`         | sprite    | The sprite ID of the log.
 `group`             | number    | The ordering "group" the log is placed in.
 `achievement_id`    | number    | The achievement ID of the log. <br>If *not* `-1`, the log will be locked until the achievement is unlocked.
@@ -89,23 +90,20 @@ ItemLog.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
     if not identifier then log.error("No identifier provided", 2) end
 
-    -- Return existing item log if found
-    local item_log = ItemLog.find(identifier, NAMESPACE)
-    if item_log then return item_log end
+    -- Return existing log if found
+    local log = ItemLog.find(identifier, NAMESPACE)
+    if log then return log end
 
     -- Create new
-    item_log = ItemLog.wrap(gm.item_log_create(
+    log = ItemLog.wrap(gm.item_log_create(
         NAMESPACE,
-        identifier,
-        0,  -- group
-        0,  -- sprite_id
-        0   -- object_id
+        identifier
     ))
 
     -- Set group to `LAST` by default
-    item_log:set_group(ItemLog.Group.LAST)
+    log:set_group(ItemLog.Group.LAST)
 
-    return item_log
+    return log
 end
 
 
@@ -120,30 +118,27 @@ setting the item's `item_log_id` property.
 ItemLog.new_from_item = function(NAMESPACE, item)
     Initialize.internal.check_if_started()
     
-    if not item then log.error("No item provided", 2) end
+    if not item then log.error("ItemLog.new_from_item: No item provided", 2) end
     item = Item.wrap(item)
+    
+    if type(item.value) ~= "number" then log.error("ItemLog.new_from_item: Invalid item", 2) end
 
-    -- Use existing item log if found
-    local item_log = ItemLog.find(item.identifier, NAMESPACE)
-    if not item_log then
-        -- Create new
-        item_log = ItemLog.wrap(gm.item_log_create(
-            NAMESPACE,
-            item.identifier,
-            0,
-            item.sprite_id,
-            item.object_id
-        ))
-    end
+    -- Use existing log or create a new one
+    local log = ItemLog.find(item.identifier, NAMESPACE)
+             or ItemLog.new(NAMESPACE, item.identifier)
+
+    -- Set sprite and object IDs
+    log.sprite_id           = item.sprite_id
+    log.pickup_object_id    = item.object_id
 
     -- Set group
     local group = item.tier * 2     -- TODO: Add +1 if item is achievement-locked
-    item_log:set_group(group)
+    log:set_group(group)
 
     -- Set the log ID of the item
-    item.item_log_id = item_log
+    item.item_log_id = log
 
-    return item_log
+    return log
 end
 
 
@@ -158,30 +153,27 @@ setting the equipment's `item_log_id` property.
 ItemLog.new_from_equipment = function(NAMESPACE, equip)
     Initialize.internal.check_if_started()
     
-    if not equip then log.error("No equipment provided", 2) end
+    if not equip then log.error("ItemLog.new_from_equipment: No equipment provided", 2) end
     equip = Equipment.wrap(equip)
 
-    -- Use existing equip log if found
-    local item_log = ItemLog.find(equip.identifier, NAMESPACE)
-    if not item_log then
-        -- Create new
-        item_log = ItemLog.wrap(gm.item_log_create(
-            NAMESPACE,
-            equip.identifier,
-            0,
-            equip.sprite_id,
-            equip.object_id
-        ))
-    end
+    if type(equip.value) ~= "number" then log.error("ItemLog.new_from_equipment: Invalid equipment", 2) end
+
+    -- Use existing log or create a new one
+    local log = ItemLog.find(equip.identifier, NAMESPACE)
+             or ItemLog.new(NAMESPACE, equip.identifier)
+
+    -- Set sprite and object IDs
+    log.sprite_id           = equip.sprite_id
+    log.pickup_object_id    = equip.object_id
 
     -- Set group
     local group = equip.tier * 2    -- TODO: Add +1 if equip is achievement-locked
-    item_log:set_group(group)
+    log:set_group(group)
 
     -- Set the log ID of the equip
-    equip.item_log_id = item_log
+    equip.item_log_id = log
 
-    return item_log
+    return log
 end
 
 
