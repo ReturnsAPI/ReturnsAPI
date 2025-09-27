@@ -6,20 +6,36 @@ ModOptionsCheckbox = new_class()
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`RAPI`          | string    | *Read-only.* The wrapper name.
+`namespace`     | string    | *Read-only.* The namespace of the ModOptions the element is in.
+`identifier`    | string    | *Read-only.* The identifier of the element.
+]]
+
+
+
 -- ========== Static Methods ==========
 
-ModOptionsCheckbox.new = function(identifier)
+ModOptionsCheckbox.new = function(namespace, identifier)
     local callbacks_get = {}
     local callbacks_set = {}
 
     local element_data_table = {
+        namespace       = namespace,
         identifier      = identifier,
         callbacks_get   = callbacks_get,
         callbacks_set   = callbacks_set,
         constructor     = function()
             return Struct.new(
                 gm.constants.UIOptionsButtonToggle,
-                identifier,
+                namespace.."."..identifier,
 
                 -- Getter(s)
                 Script.bind(function()
@@ -107,6 +123,10 @@ make_table_once("metatable_modoptionscheckbox", {
         -- Get wrapped value
         if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
         if k == "RAPI" then return wrapper_name end
+
+        -- Get certain values
+        if k == "namespace" then return __proxy[proxy].namespace end
+        if k == "identifier" then return __proxy[proxy].identifier end
 
         -- Methods
         if methods_modoptionscheckbox[k] then

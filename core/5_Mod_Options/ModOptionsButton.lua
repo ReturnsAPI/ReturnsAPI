@@ -6,18 +6,34 @@ ModOptionsButton = new_class()
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`RAPI`          | string    | *Read-only.* The wrapper name.
+`namespace`     | string    | *Read-only.* The namespace of the ModOptions the element is in.
+`identifier`    | string    | *Read-only.* The identifier of the element.
+]]
+
+
+
 -- ========== Static Methods ==========
 
-ModOptionsButton.new = function(identifier)
+ModOptionsButton.new = function(namespace, identifier)
     local callbacks = {}
     
     local element_data_table = {
+        namespace       = namespace,
         identifier      = identifier,
         callbacks       = callbacks,
         constructor     = function()
             return Struct.new(
                 gm.constants.UIOptionsButton2,
-                identifier,
+                namespace.."."..identifier,
 
                 -- Bind function to button that calls
                 -- all functions in `callbacks` table
@@ -77,6 +93,10 @@ make_table_once("metatable_modoptionsbutton", {
         -- Get wrapped value
         if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
         if k == "RAPI" then return wrapper_name end
+
+        -- Get certain values
+        if k == "namespace" then return __proxy[proxy].namespace end
+        if k == "identifier" then return __proxy[proxy].identifier end
 
         -- Methods
         if methods_modoptionsbutton[k] then
