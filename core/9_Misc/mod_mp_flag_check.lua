@@ -39,7 +39,10 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
             })
         end
     end
-    if #incomp <= 0 then return end
+    if #incomp <= 0 then
+        self.menu[3].disabled = false
+        return
+    end
     
     -- Disable Online button
     self.menu[3].disabled = true
