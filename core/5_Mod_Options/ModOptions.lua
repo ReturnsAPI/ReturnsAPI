@@ -8,31 +8,6 @@ end)
 
 
 
--- ========== Constants ==========
-
--- --@section Constants
-
--- --[[
--- These constants are used internally
--- and have no general uses.
--- ]]
-
--- --@constants
--- --[[
--- BUTTON  0
--- ]]
-
--- local element_constants = {
---     BUTTON  = 0
--- }
-
--- -- Add to ModOptions directly (e.g., ModOptions.BUTTON)
--- for k, v in pairs(element_constants) do
---     ModOptions[k] = v
--- end
-
-
-
 -- ========== Internal ==========
 
 ModOptions.internal.wrap = function(modoptions)
@@ -54,8 +29,6 @@ Creates a new ModOptions for your mod if it does not already exist,
 or returns the existing one if it does.
 ]]
 ModOptions.new = function(NAMESPACE)
-    print(NAMESPACE..".header")
-
     -- Create new ModOptions if existn't
     if not __mod_options_headers[NAMESPACE] then
         __mod_options_headers[NAMESPACE] = {
@@ -102,102 +75,101 @@ table.insert(_clear_namespace_functions, ModOptions.remove)
 
 methods_modoptions = {
 
-    find_element = function(self, identifier)
-        return self.elements[identifier]
+    --@instance
+    --@return       ModOptionsButton
+    --@param        identifier  | string    | The identifier for the element.
+    --[[
+    Adds a @link {button | ModOptionsButton} to the ModOptions.
+    ]]
+    add_button = function(self, identifier)
+        if not identifier           then log.error("add_button: No identifier provided", 2) end
+        if identifier == "header"
+        or identifier == "ordered"  then log.error("add_button: identifier '"..identifier.."' is reserved", 2) end
+        if self:find(identifier)    then log.error("add_button: identifier '"..identifier.."' already in use", 2) end
+
+        local self_table = __proxy[self]
+
+        local element = ModOptionsButton.new(__proxy[self].namespace.."."..identifier)
+        
+        self_table.elements[identifier] = element
+        table.insert(self_table.elements.ordered, element)
+
+        return element
     end,
+
+
+    --@instance
+    --@return       ModOptionsCheckbox
+    --@param        identifier  | string    | The identifier for the element.
+    --[[
+    Adds a @link {checkbox | ModOptionsCheckbox} to the ModOptions.
+    ]]
+    add_checkbox = function(self, identifier)
+        if not identifier           then log.error("add_checkbox: No identifier provided", 2) end
+        if identifier == "header"
+        or identifier == "ordered"  then log.error("add_checkbox: identifier '"..identifier.."' is reserved", 2) end
+        if self:find(identifier)    then log.error("add_checkbox: identifier '"..identifier.."' already in use", 2) end
+
+        local self_table = __proxy[self]
+
+        local element = ModOptionsCheckbox.new(__proxy[self].namespace.."."..identifier)
+        
+        self_table.elements[identifier] = element
+        table.insert(self_table.elements.ordered, element)
+
+        return element
+    end,
+
+
+    --@instance
+    --@return       ModOptions<Element> or nil
+    --@param        identifier  | string    | 
+    --[[
+    Returns the element with the specified identifier if it exists.
+    ]]
+    find = function(self, identifier)
+        return __proxy[self].elements[identifier]
+    end,
+
     
-
     --@instance
-    --@param        identifier  | string    | The identifier for the element.
-    --@optional     ...         | function  | A variable amount of functions to call when the button is pressed.
+    --@return       table
     --[[
-    Adds a button to the ModOptions.
+    Returns a table of all elements belonging
+    to the ModOptions in display order.
     ]]
-    add_button = function(self, identifier, ...)
-        if not identifier                   then log.error("add_button: No identifier provided", 2) end
-        if self:find_element(identifier)    then log.error("add_button: identifier '"..identifier.."' already in use", 2) end
-
-        local callbacks = {}
-
-        local fns = {...}
-        for _, fn in ipairs(fns) do
-            if type(fn) == "function" then
-                table.insert(callbacks, fn)
-            end
+    find_all = function(self)
+        local t = {}
+        for i, v in ipairs(__proxy[self].elements.ordered) do
+            t[i] = v
         end
-
-        local constructor = function()
-            return Struct.new(
-                gm.constants.UIOptionsButton2,
-                identifier,
-
-                -- Bind function to button that calls
-                -- all functions in `callbacks` table
-                Script.bind(function()
-                    for _, fn in ipairs(callbacks) do
-                        fn()
-                    end
-                end)
-            ).value
-        end
-
-        local element_data_table = {
-            identifier      = identifier,
-            constructor     = constructor,
-            callbacks       = callbacks
-        }
-
-        self.elements[identifier] = element_data_table
-        table.insert(self.elements.ordered, element_data_table)
+        return t
     end,
 
 
     --@instance
-    --@param        identifier  | string    | The identifier for the element.
-    --@optional     get         | function  | Called to load default value when opening the options menu. <br>**Should return a bool value.**
-    --@optional     set         | function  | The function to call when the checkbox is toggled. <br>The parameter for it is `value` (bool).
+    --@return       ModOptions<Element> or nil
+    --@param        identifier  | string    | 
     --[[
-    Adds a checkbox to the ModOptions.
+    Removes and returns the element with the specified
+    identifier from the ModOptions if it exists.
     ]]
-    add_checkbox = function(self, identifier, get, set)
-        if not identifier                   then log.error("add_checkbox: No identifier provided", 2) end
-        if self:find_element(identifier)    then log.error("add_checkbox: identifier '"..identifier.."' already in use", 2) end
+    remove = function(self, identifier)
+        local self_table = __proxy[self]
 
-        local callbacks_get = {get}
-        local callbacks_set = {set}
+        local element = self_table.elements[identifier]
+        self_table.elements[identifier] = nil
+        Util.table_remove_value(self_table.elements.ordered, element)
+        return element
+    end,
 
-        local constructor = function()
-            return Struct.new(
-                gm.constants.UIOptionsButtonToggle,
-                identifier,
 
-                -- Getter(s)
-                Script.bind(function()
-                    local ret
-                    for _, fn in ipairs(callbacks_get) do
-                        ret = fn()
-                    end
-                    return ret
-                end),
-
-                -- Setter(s)
-                Script.bind(function(value)
-                    for _, fn in ipairs(callbacks_set) do
-                        fn(value)
-                    end
-                end)
-            ).value
-        end
-
-        local element_data_table = {
-            identifier      = identifier,
-            constructor     = constructor,
-            callbacks_get   = callbacks_get,
-            callbacks_set   = callbacks_set
-        }
-
-        self.elements[identifier] = element_data_table
-        table.insert(self.elements.ordered, element_data_table)
+    --@instance
+    --[[
+    Removes all elements from the ModOptions.
+    ]]
+    remove_all = function(self, identifier)
+        __proxy[self].elements = { ordered = {} }
     end
 
 }
@@ -211,16 +183,13 @@ local wrapper_name = "ModOptions"
 make_table_once("metatable_modoptions", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return log.error("Cannot access ModOptions internal table", 2) end
+        if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
         if k == "RAPI" then return wrapper_name end
 
         -- Methods
         if methods_modoptions[k] then
             return methods_modoptions[k]
         end
-
-        -- Getter
-        return __proxy[proxy][k]
     end,
 
 
@@ -232,7 +201,7 @@ make_table_once("metatable_modoptions", {
         end
 
         -- Setter
-        log.error("ModOptions has no properties to set", 2)
+        log.error(wrapper_name.." has no properties to set", 2)
     end,
 
 
@@ -252,12 +221,12 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
     -- Loop through stored headers and add elements
     for namespace, data_table in pairs(__mod_options_headers) do
         -- Header
-        local header = Struct.new(gm.constants.UIOptionsGroupHeader, "header").value
+        local header = Struct.new(gm.constants.UIOptionsGroupHeader, data_table.namespace..".header").value
         gm.array_push(tab, header)
 
         -- Elements
         for _, element in ipairs(data_table.elements.ordered) do
-            gm.array_push(tab, element.constructor())
+            gm.array_push(tab, __proxy[element].constructor())
         end
     end
 end)
