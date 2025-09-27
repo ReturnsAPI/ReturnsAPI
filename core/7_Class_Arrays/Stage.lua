@@ -611,22 +611,21 @@ gm.post_script_hook(gm.constants.callable_call, function(self, other, result, ar
 
         -- Check if stage's `populate_biome_properties`
         -- matches the current stage being displayed
-        if args[1].value == stage.populate_biome_properties then
+        if args[1].value == stage.populate_biome_properties.value then
             local struct = Struct.wrap(args[3].value)
 
-            struct.ground_strip = t.ground_strip
+            struct.ground_strip = properties.ground_strip
 
             local obj_sprites = {}
             local force_draw_depth = {}
 
             -- Process back sprites
             for _, sprite in ipairs(properties.objs_back) do
-                table.insert(obj_sprites, Wrap.unwrap(sprite))
+                table.insert(obj_sprites, sprite)
             end
 
             -- Process front sprites
             for _, sprite in ipairs(properties.objs_front) do
-                sprite = Wrap.unwrap(sprite)
                 table.insert(obj_sprites, sprite)
                 table.insert(force_draw_depth, sprite)
             end
@@ -637,10 +636,12 @@ gm.post_script_hook(gm.constants.callable_call, function(self, other, result, ar
             -- Modify struct properties
             local array = Array.wrap(struct.obj_sprites)
             array:clear()
-            array:push(obj_sprites)
+            array:push(table.unpack(obj_sprites))
 
+            -- Mark front sprites in `force_draw_depth`
+            -- TODO: This part might not be working correctly
             for _, sprite in ipairs(force_draw_depth) do
-                struct.force_draw_depth[tostring(math.floor(sprite))] = true
+                struct.force_draw_depth[tostring(math.floor(Wrap.unwrap(sprite)))] = true
             end
 
             return
