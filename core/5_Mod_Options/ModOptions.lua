@@ -72,8 +72,7 @@ end
 --@return       ModOptions or nil
 --@param        namespace   | string    | 
 --[[
-Returns the ModOptions belonging the
-specified namespace if it exists.
+Returns the ModOptions belonging to the specified namespace if it exists.
 ]]
 ModOptions.find = function(namespace, namespace_is_specified)
     if not namespace then log.error("ModOptions.find: namespace not provided", 2) end
@@ -115,8 +114,8 @@ methods_modoptions = {
     Adds a button to the ModOptions.
     ]]
     add_button = function(self, identifier, ...)
-        if not identifier                   then log.error("add_element: No identifier provided", 2) end
-        if self:find_element(identifier)    then log.error("add_element: identifier '"..identifier.."' already in use", 2) end
+        if not identifier                   then log.error("add_button: No identifier provided", 2) end
+        if self:find_element(identifier)    then log.error("add_button: identifier '"..identifier.."' already in use", 2) end
 
         local callbacks = {}
 
@@ -146,6 +145,55 @@ methods_modoptions = {
             identifier      = identifier,
             constructor     = constructor,
             callbacks       = callbacks
+        }
+
+        self.elements[identifier] = element_data_table
+        table.insert(self.elements.ordered, element_data_table)
+    end,
+
+
+    --@instance
+    --@param        identifier  | string    | The identifier for the element.
+    --@optional     get         | function  | Called to load default value when opening the options menu. <br>**Should return a bool value.**
+    --@optional     set         | function  | The function to call when the checkbox is toggled. <br>The parameter for it is `value` (bool).
+    --[[
+    Adds a checkbox to the ModOptions.
+    ]]
+    add_checkbox = function(self, identifier, get, set)
+        if not identifier                   then log.error("add_checkbox: No identifier provided", 2) end
+        if self:find_element(identifier)    then log.error("add_checkbox: identifier '"..identifier.."' already in use", 2) end
+
+        local callbacks_get = {get}
+        local callbacks_set = {set}
+
+        local constructor = function()
+            return Struct.new(
+                gm.constants.UIOptionsButtonToggle,
+                identifier,
+
+                -- Getter(s)
+                Script.bind(function()
+                    local ret
+                    for _, fn in ipairs(callbacks_get) do
+                        ret = fn()
+                    end
+                    return ret
+                end),
+
+                -- Setter(s)
+                Script.bind(function(value)
+                    for _, fn in ipairs(callbacks_set) do
+                        fn(value)
+                    end
+                end)
+            ).value
+        end
+
+        local element_data_table = {
+            identifier      = identifier,
+            constructor     = constructor,
+            callbacks_get   = callbacks_get,
+            callbacks_set   = callbacks_set
         }
 
         self.elements[identifier] = element_data_table
