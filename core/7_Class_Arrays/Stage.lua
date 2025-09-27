@@ -387,7 +387,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
+    --@param        ...         | InteractableCard or string    | A variable number of interactable cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Removes an @link {interactable card(s) | InteractableCard} from the stage's spawn pool.
     ]]
@@ -418,7 +418,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
+    --@param        ...         | InteractableCard or string    | A variable number of interactable cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Adds an @link {interactable card(s) | InteractableCard} to the stage's post-loop spawn pool.
     ]]
@@ -440,7 +440,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        ...         | InteractableCard  | A variable number of interactable cards. <br>Alternatively, a table may be provided.
+    --@param        ...         | InteractableCard or string    | A variable number of interactable cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Removes an @link {interactable card(s) | InteractableCard} from the stage's post-loop spawn pool.
     ]]
@@ -471,7 +471,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
+    --@param        ...         | MonsterCard or string     | A variable number of monster cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Adds a @link {monster card(s) | MonsterCard} to the stage's spawn pool.
     ]]
@@ -493,7 +493,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
+    --@param        ...         | MonsterCard or string     | A variable number of monster cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Removes a @link {monster card(s) | MonsterCard} from the stage's spawn pool.
     ]]
@@ -524,7 +524,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
+    --@param        ...         | MonsterCard or string     | A variable number of monster cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Adds a @link {monster card(s) | MonsterCard} to the stage's post-loop spawn pool.
     ]]
@@ -546,7 +546,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        ...         | MonsterCard   | A variable number of monster cards. <br>Alternatively, a table may be provided.
+    --@param        ...         | MonsterCard or string     | A variable number of monster cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Removes a @link {monster card(s) | MonsterCard} from the stage's post-loop spawn pool.
     ]]
