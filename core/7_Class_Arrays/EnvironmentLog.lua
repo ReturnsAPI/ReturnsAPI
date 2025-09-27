@@ -161,7 +161,18 @@ EnvironmentLog.new_from_stage = function(NAMESPACE, stage)
     -- Move log position to end of tier
     EnvironmentLog.internal.set_correct_log_position(log)
 
-    -- TODO: Maybe run log/room reassociation? Might not be needed though
+    -- Reassociate environment logs
+    -- (Otherwise shit breaks in Logbook if you call
+    -- this *after* already adding rooms to the stage)
+    local room_list = List.wrap(stage.room_list)
+    local display_room_ids = log.display_room_ids
+    for i = 0, #room_list - 1 do
+        local room = room_list:get(i)
+        if not display_room_ids:contains(room) then
+            display_room_ids:push(room)
+        end
+        gm.room_associate_environment_log(room, log.value, i)
+    end
 
     return log
 end
