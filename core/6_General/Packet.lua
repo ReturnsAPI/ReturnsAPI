@@ -183,7 +183,7 @@ make_table_once("metatable_packet", {
 
 
 
--- ========== Internal ==========
+-- ========== Callback ==========
 
 run_once(function()
     local function packet_onReceived(packet, buffer, buffer_tell, player)
