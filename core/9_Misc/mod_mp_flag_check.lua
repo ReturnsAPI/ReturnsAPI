@@ -73,10 +73,12 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
     -- when hovering over with mouse
     local mx, my = gm.variable_global_get("mouse_x"), gm.variable_global_get("mouse_y")
     if Util.bool(gm.point_in_rectangle(mx, my, box_x, box_y, box_x + box_w, box_y + box_h)) then
+        local v_spacing = 16
+
         -- Box
         gm.draw_set_alpha(0.4 * opacity)
         local c = Color.BLACK
-        gm.draw_rectangle_color(text_x - 136, text_y + 24, text_x + 136, text_y + 32 + (#incomp * 16), c, c, c, c, false)
+        gm.draw_rectangle_color(text_x - 136, text_y + 24, text_x + 136, text_y + 32 + (#incomp * v_spacing), c, c, c, c, false)
 
         -- Mod names
         gm.draw_set_alpha(1)
@@ -84,14 +86,14 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
         gm.draw_set_halign(0)
         local c = Color.WHITE
         for i = 1, #incomp do
-            gm.draw_text_color(text_x - 128, text_y + 26 + (i * 16), incomp[i].name:gsub("_", " "), c, c, c, c, opacity)
+            gm.draw_text_color(text_x - 128, text_y + 26 + (i * v_spacing), incomp[i].name:gsub("_", " "), c, c, c, c, opacity)
         end
 
         -- Mod authors
         gm.draw_set_halign(2)
         local c = Color.GRAY
         for i = 1, #incomp do
-            gm.draw_text_color(text_x + 130, text_y + 26 + (i * 16), "by "..incomp[i].author, c, c, c, c, opacity)
+            gm.draw_text_color(text_x + 130, text_y + 26 + (i * v_spacing), "by "..incomp[i].author, c, c, c, c, opacity)
         end
     end
 end)
