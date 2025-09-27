@@ -97,7 +97,7 @@ methods_modoptionscheckbox = {
     --@param        ...         | function(s)   | A variable amount of functions to call. <br>Alternatively, a table may be provided.
     --[[
     Add a function(s) to call when the checkbox is toggled.
-    The function **should return a bool value.**
+    The parameters for it are `value` (bool).
     ]]
     add_setter = function(self, ...)
         local fns = {...}
