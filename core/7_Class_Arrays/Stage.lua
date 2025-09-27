@@ -173,6 +173,7 @@ end
 
 
 --@static
+--@param        stage       | Stage     | The stage to add rooms to.
 --@param        ...         | string(s) | A variable number of paths. <br>`~` expands to your mod folder.
 --[[
 Adds a new room(s) to the stage, and adds it as
