@@ -118,6 +118,8 @@ Stage.new = function(NAMESPACE, identifier)
     -- Remove `is_new_stage` flag
     stage.is_new_stage = false
 
+    __stage_variant_next_id[stage.value] = 0
+
     return stage
 end
 
@@ -203,7 +205,7 @@ Stage.add_room = function(NAMESPACE, stage, ...)
         path = expand_path(NAMESPACE, path)
 
         -- Load room and add to list
-        local room = gm.stage_load_room(NAMESPACE, identifier.."_"..__stage_variant_next_id[id])
+        local room = gm.stage_load_room(NAMESPACE, identifier.."_"..__stage_variant_next_id[id], path)
         if type(room) == "string" then  -- Return value is an error string apparently
             log.error("Stage.add_room: Could not load room at '"..path.."'", 2)
         end
@@ -288,6 +290,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --[[
     Adds the stage to the specified tiers *after removing it from its previous ones*
     (i.e., overwrites the stage's tier list).
+    Tiers are indexed from 1.
     If *no arguments* are provided, removes the stage from progression.
     
     A new tier may be created by providing a tier 1 higher than the current count.
@@ -379,7 +382,7 @@ Util.table_append(methods_class_array[name_rapi], {
             table.insert(cards, Wrap.unwrap(card))
         end
 
-        interactables_list:add(cards)
+        interactables_list:add(table.unpack(cards))
     end,
 
 
@@ -429,7 +432,7 @@ Util.table_append(methods_class_array[name_rapi], {
             table.insert(cards, Wrap.unwrap(card))
         end
 
-        interactables_list:add(cards)
+        interactables_list:add(table.unpack(cards))
     end,
 
 
@@ -479,7 +482,7 @@ Util.table_append(methods_class_array[name_rapi], {
             table.insert(cards, Wrap.unwrap(card))
         end
 
-        enemy_list:add(cards)
+        enemy_list:add(table.unpack(cards))
     end,
 
 
@@ -529,7 +532,7 @@ Util.table_append(methods_class_array[name_rapi], {
             table.insert(cards, Wrap.unwrap(card))
         end
 
-        enemy_list:add(cards)
+        enemy_list:add(table.unpack(cards))
     end,
 
 
