@@ -216,6 +216,7 @@ Util.table_append(methods_class_array[name_rapi], {
             if group < group_ then break end
             pos = pos + 1
         end
+        
         item_log_order:insert(pos, self.value)
     end
 

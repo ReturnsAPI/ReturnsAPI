@@ -346,6 +346,27 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
+    --@return       table, bool
+    --[[
+    Returns a table of tiers the stage is in,
+    and `true` if the table is *not* empty.
+    ]]
+    get_tiers = function(self)
+        local tiers = {}
+
+        local order = Global.stage_progression_order    -- Array of Lists
+        for tier, list in ipairs(order) do
+            list = List.wrap(list)
+            if list:contains(self) then
+                table.insert(tiers, tier)
+            end
+        end
+
+        return tiers, #tiers > 0
+    end,
+
+
+    --@instance
     --@return       number
     --@param        variant     | number    | The stage variant to get the room of. <br>Starts from `1`.
     --[[

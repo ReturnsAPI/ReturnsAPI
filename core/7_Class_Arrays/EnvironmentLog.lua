@@ -67,6 +67,43 @@ Property | Type | Description
 
 
 
+-- ========== Internal ==========
+
+EnvironmentLog.internal.set_correct_log_position = function(log)
+    -- Remove from list
+    local log_order = Global.environment_log_display_list
+    log_order:delete_value(log)
+
+    -- Get lowest tier of log's stage
+    local tier = 1000
+    local tiers, not_empty = Stage.wrap(log.stage_id):get_tiers()
+    if not_empty then tier = tiers[1] end
+
+    local order = Global.stage_progression_order    -- Array of Lists
+
+    -- Set new log position
+    -- Sequentually loop through `environment_log_display_list`
+    -- until a log with a higher stage tier is reached
+    local pos = 0
+    while pos < #log_order do
+        -- Get current iterated log and its stage
+        local _log = log_order:get(pos)
+        local _stage = Stage.wrap(EnvironmentLog.wrap(_log).stage_id)
+
+        -- Figure out what its (lowest) tier is
+        local _tier = 1000
+        local tiers, not_empty = _stage:get_tiers()
+        if not_empty then _tier = tiers[1] end
+
+        if tier < _tier then break end
+        pos = pos + 1
+    end
+    
+    log_order:insert(pos, log)
+end
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods
@@ -121,8 +158,8 @@ EnvironmentLog.new_from_stage = function(NAMESPACE, stage)
     log.stage_id = stage
     stage.log_id = log
 
-    -- Set the position of the log in Logbook
-    
+    -- Move log position to end of tier
+    EnvironmentLog.internal.set_correct_log_position(log)
 
     -- TODO: Maybe run log/room reassociation? Might not be needed though
 
@@ -145,7 +182,6 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@return       number
     --@param        x           | number    | The initial x position.
     --@param        y           | number    | The initial y position.
     --[[
@@ -162,5 +198,34 @@ Util.table_append(methods_class_array[name_rapi], {
         -- self.initial_cam_alt_y_1080 = y
         -- self.initial_cam_alt_y_720  = y
     end,
+
+
+    --@instance
+    --@param        bool        | bool      | `true` - The log is hidden until acquired. <br>`false` - The log is not hidden.
+    --[[
+    Sets whether or not the log is hidden in Logbook until acquired.
+    *Technical:* Toggles `is_secret` and moves the log position.
+    ]]
+    set_hidden = function(self, bool)
+        if bool == nil then log.error("set_hidden: Missing bool argument", 2) end
+
+        -- Set hidden
+        if bool and (not Util.bool(self.is_secret)) then
+            self.is_secret = true
+
+            -- Move log position to end
+            local log_order = Global.environment_log_display_list
+            log_order:delete_value(self)
+            log_order:add(self)
+
+
+        -- Set not hidden
+        elseif (not bool) and Util.bool(self.is_secret) then
+            self.is_secret = false
+
+            -- Move log position to end of tier
+            EnvironmentLog.internal.set_correct_log_position(self)
+        end
+    end
 
 })
