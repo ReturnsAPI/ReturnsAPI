@@ -1,5 +1,7 @@
 -- ItemTier
 
+-- TODO: Add property docs
+
 ItemTier = new_class()
 
 run_once(function()
@@ -50,10 +52,16 @@ ItemTier.internal.initialize = function()
         local namespace = "ror"
         local identifier = constant:lower()
 
+        local struct = Global.item_tiers:get(id)
+
+        -- Custom properties
+        struct.namespace    = namespace
+        struct.identifier   = identifier
+
         __item_tier_find_table:set(
             {
                 wrapper = ItemTier.wrap(id),
-                struct  = Global.item_tiers:get(id)
+                struct  = struct
             },
             identifier, namespace, id
         )

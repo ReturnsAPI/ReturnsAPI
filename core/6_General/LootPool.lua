@@ -1,5 +1,8 @@
 -- LootPool
 
+-- TODO: Add property docs
+--       Add ability to modify command crate on_create variables easier
+
 LootPool = new_class()
 
 run_once(function()
@@ -48,10 +51,16 @@ LootPool.internal.initialize = function()
         local namespace = "ror"
         local identifier = constant:lower()
 
+        local struct = Global.treasure_loot_pools:get(id)
+
+        -- Custom properties
+        struct.namespace    = namespace
+        struct.identifier   = identifier
+
         __loot_pool_find_table:set(
             {
                 wrapper = LootPool.wrap(id),
-                struct  = Global.treasure_loot_pools:get(id)
+                struct  = struct
             },
             identifier, namespace, id
         )
