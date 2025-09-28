@@ -249,7 +249,7 @@ methods_loot_pool = {
     --[[
     Removes an item(s) from the loot pool.
     ]]
-    remove_item = function(self, item)
+    remove_item = function(self, ...)
         local t = {...}
         if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
 
@@ -265,7 +265,7 @@ methods_loot_pool = {
     --[[
     Adds (an) equipment to the loot pool.
     ]]
-    add_equipment = function(self, equip)
+    add_equipment = function(self, ...)
         local t = {...}
         if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
 
@@ -281,7 +281,7 @@ methods_loot_pool = {
     --[[
     Removes (an) equipment from the loot pool.
     ]]
-    remove_equipment = function(self, equip)
+    remove_equipment = function(self, ...)
         local t = {...}
         if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
 
