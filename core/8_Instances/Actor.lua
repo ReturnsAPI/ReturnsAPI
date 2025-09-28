@@ -322,10 +322,11 @@ methods_actor = {
     --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
     --[[
     Applies knockback (stun) to the actor.
-    
     This can only be called from host, but automatically syncs.
-    Can be called multiple times to stack effects from different `kind`s
-    (although it seems that they must be called in numerical order).
+
+    **Additional note**
+    Seems to stack effects when called multiple times with different `kind`s.
+    (Although they must be called in numerical order? Some combinations seem to not work either.)
     ]]
     apply_knockback = function(self, direction, duration, force, kind)
         gm.actor_knockback_inflict(
