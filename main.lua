@@ -21,7 +21,7 @@ end
 -- Load core
 local ignore_these = {
     ["data"]            = true,
-    ["old_midhook_stuff"]  = true,
+    ["unused"]          = true,
     -- ["2_GM"]            = true,
     -- ["3_General"]       = true,
     -- ["4_Class_Arrays"]  = true,

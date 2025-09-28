@@ -131,7 +131,7 @@ ItemLog.new_from_item = function(NAMESPACE, item)
     log.sprite_id           = item.sprite_id
     log.pickup_object_id    = item.object_id
 
-    -- Set group
+    -- Set log group
     local group = item.tier * 2     -- TODO: Add +1 if item is achievement-locked
     log:set_group(group)
 
@@ -166,7 +166,7 @@ ItemLog.new_from_equipment = function(NAMESPACE, equip)
     log.sprite_id           = equip.sprite_id
     log.pickup_object_id    = equip.object_id
 
-    -- Set group
+    -- Set log group
     local group = equip.tier * 2    -- TODO: Add +1 if equip is achievement-locked
     log:set_group(group)
 
