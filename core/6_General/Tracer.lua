@@ -1,5 +1,7 @@
 -- Tracer
 
+-- TODO: Rewrite with actual TracerKindInfo constructor
+
 Tracer = new_class()
 
 run_once(function()
