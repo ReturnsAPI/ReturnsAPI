@@ -2,6 +2,7 @@
 
 -- TODO: Add property docs
 --       Add ability to modify command crate on_create variables easier
+--       Prehook `object_create_w` for the command crate to use mod namespace instead of "ror"
 
 LootPool = new_class()
 
@@ -302,14 +303,14 @@ methods_loot_pool = {
 
 
     --@instance
-    --@return       Item, number
+    --@return       Item, Object
     --@optional     required_loot_tags      | number or table   | A bit sum of flags; the chosen item must have at least one. <br>Alternatively, table containing multiple flags can be provided. <br>`0` by default.
     --@optional     disallowed_loot_tags    | number or table   | A bit sum of flags; the chosen item must not have any of these. <br>Alternatively, table containing multiple flags can be provided. <br>`0` by default.
     --[[
     Rolls for a random item from the loot pool, taking
     into account allowed and disallowed loot tags.
 
-    Returns the chosen Item and the `object_index` of its drop.
+    Returns the chosen Item and its pickup object.
     ]]
     roll = function(self, required_loot_tags, disallowed_loot_tags)
         local required_sum, disallowed_sum = required_loot_tags or 0, disallowed_loot_tags or 0
@@ -335,8 +336,8 @@ methods_loot_pool = {
         else item = nil
         end
 
-        -- Return both the Item wrapper and item object_index
-        return item, obj_id
+        -- Return both the Item wrapper and item pickup object
+        return item, Object.wrap(obj_id)
     end,
 
 
