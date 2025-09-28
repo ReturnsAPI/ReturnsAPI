@@ -134,15 +134,11 @@ methods_attackinfo = {
     get_flag = function(self, flag)
         flag = Wrap.unwrap(flag)
 
-        -- Vanilla
         if flag <= AttackFlag.FORCE_PROC then
-            return bit.band(self.attack_flags, bit.lshift(1, flag)) > 0
+            return (self.attack_flags & (1 << flag)) > 0
         end
 
-        -- Custom
-        if self["RAPI_attack_flag_"..flag] then return true end
-        return false    -- key is either `nil` or `false`
-
+        return false
     end,
 
 
@@ -159,21 +155,15 @@ methods_attackinfo = {
         for _, fl in ipairs(flag) do
             fl = Wrap.unwrap(fl)
 
-            -- Vanilla
             if fl <= AttackFlag.FORCE_PROC then
-                fl = bit.lshift(1, fl)
+                fl = 1 << fl
 
-                if bit.band(self.attack_flags, fl) == 0 and state then
+                if ((self.attack_flags & fl) == 0) and state then
                     self.attack_flags = self.attack_flags + fl
                 end
-                if bit.band(self.attack_flags, fl) > 0 and (not state) then
+                if ((self.attack_flags & fl) > 0) and (not state) then
                     self.attack_flags = self.attack_flags - fl
                 end
-
-            -- Custom
-            else
-                self["RAPI_attack_flag_"..fl] = state
-
             end
         end
     end
