@@ -46,16 +46,16 @@ end
 
 ItemTier.internal.initialize = function()
     -- Populate find table with vanilla tiers
-    for constant, tier in pairs(tier_constants) do
+    for constant, id in pairs(tier_constants) do
         local namespace = "ror"
         local identifier = constant:lower()
 
         __item_tier_find_table:set(
             {
-                wrapper = ItemTier.wrap(tier),
-                struct  = Global.item_tiers:get(tier)
+                wrapper = ItemTier.wrap(id),
+                struct  = Global.item_tiers:get(id)
             },
-            identifier, namespace, tier
+            identifier, namespace, id
         )
     end
 
@@ -104,41 +104,46 @@ ItemTier.new = function(NAMESPACE, identifier)
     local tier = ItemTier.find(identifier, NAMESPACE)
     if tier then return tier end
 
+    -- Get next usable ID for tier
     local tiers_array = Global.item_tiers
-    tier = #tiers_array
+    local id = #tiers_array
 
-    -- Create new struct for tier
-    local tier_struct = Struct.new{
-        namespace                   = NAMESPACE,    -- RAPI custom variable
-        identifier                  = identifier,   -- RAPI custom variable
-        index                       = tier,
-        text_color                  = "w",
-        pickup_color                = Color.WHITE,
-        pickup_color_bright         = Color.WHITE,
-        item_pool_for_reroll        = -1,
-        equipment_pool_for_reroll   = -1,
-        ignore_fair                 = false,
-        fair_item_value             = 1,
-        pickup_particle_type        = -1,
-        spawn_sound                 = 57,           -- wItemDrop_White
-        pickup_head_shape           = -1            -- Uncommon uses `global.pItemTierUncommon`, etc.
-    }
+    local struct = Struct.new(
+        gm.constants.ItemTierDef,
+        id      -- index
+
+        -- The rest have default constructor args
+        -- fair_item_value              0
+        -- text_color                   "w"
+        -- spawn_sound                  wItemDrop_White
+        -- pickup_color                 16777215
+        -- pickup_color_bright          16777215
+        -- pickup_particle_type         -1
+        -- pickup_head_shape            undefined
+        -- ignore_fair                  false
+        -- item_pool_for_reroll         -1
+        -- equipment_pool_for_reroll    -1
+    )
+
+    -- Custom properties
+    struct.namespace    = NAMESPACE
+    struct.identifier   = identifier
 
     -- Push onto array
-    tiers_array:push(tier_struct)
+    tiers_array:push(struct)
 
-    local wrapper = ItemTier.wrap(tier)
+    local tier = ItemTier.wrap(id)
 
     -- Add to find table
     __item_tier_find_table:set(
         {
-            wrapper = wrapper,
-            struct  = tier_struct
+            wrapper = tier,
+            struct  = struct
         },
-        identifier, NAMESPACE, tier
+        identifier, NAMESPACE, id
     )
 
-    return wrapper
+    return tier
 end
 
 

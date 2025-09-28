@@ -44,16 +44,16 @@ end
 
 LootPool.internal.initialize = function()
     -- Populate find table with vanilla pools
-    for constant, pool in pairs(pool_constants) do
+    for constant, id in pairs(pool_constants) do
         local namespace = "ror"
         local identifier = constant:lower()
 
         __loot_pool_find_table:set(
             {
-                wrapper = LootPool.wrap(pool),
-                struct  = Global.treasure_loot_pools:get(pool)
+                wrapper = LootPool.wrap(id),
+                struct  = Global.treasure_loot_pools:get(id)
             },
-            identifier, namespace, pool
+            identifier, namespace, id
         )
     end
 
@@ -96,42 +96,57 @@ or returns the existing one if it does.
 ]]
 LootPool.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    if not identifier then log.error("LootPool.new: No identifier provided", 2) end
 
     -- Return existing pool if found
     local pool = LootPool.find(identifier, NAMESPACE)
     if pool then return pool end
 
+    -- Get next usable ID for pool
     local loot_pools_array = Global.treasure_loot_pools
-    pool = #loot_pools_array
+    local id = #loot_pools_array
 
     -- Create new struct for pool
-    local loot_struct = Struct.new{
-        namespace                   = NAMESPACE,    -- RAPI custom variable
-        identifier                  = identifier,   -- RAPI custom variable
-        index                       = pool,
-        item_tier                   = 0,            -- Common
-        drop_pool                   = List.new(),
-        available_drop_pool         = List.new(),
-        is_equipment_pool           = false,
-        command_crate_object_id     = 800           -- White crate
-    }
+    local struct = Struct.new(
+        gm.constants.TreasureLootPool,
+        id      -- index
+        
+        -- The rest have default constructor args
+        -- item_tier                    -1
+        -- is_equipment_pool            false
+        -- command_crate_sprite         -1
+        -- sprite_death                 -1      (in crate object on_create)
+        -- sprite_ping                  -1      (in crate object on_create)
+        -- outline_index_inactive       0       (in crate object on_create)
+        -- outline_index_active         1       (in crate object on_create)
+        -- col_index                    0       (in crate object on_create)
+
+        -- `command_crate_object_id` is automatically created with the
+        -- identifier `generated_CommandCrate_<index>` in `ror` namespace
+
+        -- Use `gm.method_get_self` to get the bound
+        -- struct for the object on_create callback
+    )
+
+    -- Custom properties
+    struct.namespace    = NAMESPACE
+    struct.identifier   = identifier
 
     -- Push onto array
-    loot_pools_array:push(loot_struct)
+    loot_pools_array:push(struct)
 
-    local wrapper = LootPool.wrap(pool)
+    local pool = LootPool.wrap(id)
 
     -- Add to find table
     __loot_pool_find_table:set(
         {
-            wrapper = wrapper,
-            struct  = loot_struct
+            wrapper = pool,
+            struct  = struct
         },
-        identifier, NAMESPACE, pool
+        identifier, NAMESPACE, id
     )
 
-    return wrapper
+    return pool
 end
 
 
@@ -141,25 +156,26 @@ end
 --[[
 Creates a new loot pool using an item tier as a base,
 automatically populating the pool's properties and
-setting the item tier's `_pool_for_reroll` properties.
+setting the item tier's `*_pool_for_reroll` properties.
 ]]
 LootPool.new_from_tier = function(NAMESPACE, tier)
     Initialize.internal.check_if_started()
     
-    if not tier then log.error("No tier provided", 2) end
-    tier = Wrap.unwrap(tier)
+    if not tier then log.error("LootPool.new_from_tier: No tier provided", 2) end
+    tier = ItemTier.wrap(tier)
+
+    if type(tier.value) ~= "number" then log.error("LootPool.new_from_tier: Invalid tier", 2) end
     
-    -- Create LootPool with same identifier as the item tier
-    local tier_table = __item_tier_find_table:get(tier)
-    local pool = LootPool.new(NAMESPACE, tier_table.wrapper.identifier)
+    -- Use existing pool or create a new one
+    local pool = LootPool.find(tier.identifier, NAMESPACE)
+              or LootPool.new(NAMESPACE, tier.identifier)
 
     -- Set pool properties
     pool.item_tier = tier
 
     -- Set tier properties
-    local tier_struct = tier_table.struct
-    tier_struct.item_pool_for_reroll        = pool.value
-    tier_struct.equipment_pool_for_reroll   = pool.value
+    tier.item_pool_for_reroll       = pool
+    tier.equipment_pool_for_reroll  = pool
 
     return pool
 end
@@ -288,11 +304,6 @@ methods_loot_pool = {
 
         -- Return both the Item wrapper and item object_index
         return item, obj_id
-    end,
-
-
-    new_command_crate = function(self)
-        -- TODO generates a new command crate object for the loot pool and sets `command_crate_object_id`
     end
 
 }
@@ -340,29 +351,15 @@ make_table_once("metatable_loot_pool", {
 
 -- ========== Hooks ==========
 
--- Custom loot pools are not auto-populated by the game
+-- Custom loot pools are not auto-populated by the game on run start
 
-gm.post_script_hook(gm.constants.run_create, function(self, other, result, args)
-    local size = #Global.treasure_loot_pools
+gm.post_script_hook(gm.constants.run_update_available_loot, function(self, other, result, args)
+    local pools = Global.treasure_loot_pools
 
     -- Loop through custom loot pools (ID 7+)
-    for i = 7, size - 1 do
-        local pool_struct = __loot_pool_find_table:get(i).struct
-        local drop_pool = List.wrap(pool_struct.drop_pool)
-
-        -- Clear available_drop_pool
-        local available_drop_pool = List.wrap(pool_struct.available_drop_pool)
-        available_drop_pool:clear()
-
-        -- Insert item objects from drop_pool to available_drop_pool
-        local list_size = #drop_pool
-        for j = 0, list_size - 1 do
-            local item_obj = drop_pool:get(j)
-
-            -- TODO check if item is unlocked first
-
-            available_drop_pool:add(item_obj)
-        end
+    -- and call update method
+    for i = 7, #pools - 1 do
+        pools[i].update_available_drop_pool()
     end
 end)
 
