@@ -229,42 +229,66 @@ methods_loot_pool = {
 
 
     --@instance
-    --@param        item        | Item      | The item to add.
+    --@param        ...         | Item(s)   | A variable number of items. <br>Alternatively, a table may be provided.
     --[[
-    Adds an item to the loot pool.
+    Adds an item(s) to the loot pool.
     ]]
-    add_item = function(self, item)
-        List.wrap(self.drop_pool):add(Item.wrap(item).object_id)
+    add_item = function(self, ...)
+        local t = {...}
+        if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
+
+        local drop_pool = List.wrap(self.drop_pool)
+        for _, item in ipairs(t) do
+            drop_pool:add(Item.wrap(item).object_id)
+        end
     end,
 
 
     --@instance
-    --@param        item        | Item      | The item to remove.
+    --@param        ...         | Item(s)   | A variable number of items. <br>Alternatively, a table may be provided.
     --[[
-    Removes an item from the loot pool.
+    Removes an item(s) from the loot pool.
     ]]
     remove_item = function(self, item)
-        List.wrap(self.drop_pool):delete_value(Item.wrap(item).object_id)
+        local t = {...}
+        if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
+
+        local drop_pool = List.wrap(self.drop_pool)
+        for _, item in ipairs(t) do
+            drop_pool:delete_value(Item.wrap(item).object_id)
+        end
     end,
 
 
     --@instance
-    --@param        equip       | Equipment | The equipment to add.
+    --@param        ...         | Equipment | A variable number of equipment. <br>Alternatively, a table may be provided.
     --[[
-    Adds an equipment to the loot pool.
+    Adds (an) equipment to the loot pool.
     ]]
     add_equipment = function(self, equip)
-        List.wrap(self.drop_pool):add(Equipment.wrap(equip).object_id)
+        local t = {...}
+        if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
+
+        local drop_pool = List.wrap(self.drop_pool)
+        for _, equip in ipairs(t) do
+            drop_pool:add(Equipment.wrap(equip).object_id)
+        end
     end,
 
 
     --@instance
-    --@param        equip       | Equipment | The equipment to remove.
+    --@param        ...         | Equipment | A variable number of equipment. <br>Alternatively, a table may be provided.
     --[[
-    Removes an equipment from the loot pool.
+    Removes (an) equipment from the loot pool.
     ]]
     remove_equipment = function(self, equip)
-        List.wrap(self.drop_pool):delete_value(Equipment.wrap(equip).object_id)
+        local t = {...}
+        if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
+
+        local drop_pool = List.wrap(self.drop_pool)
+        for _, equip in ipairs(t) do
+            drop_pool:delete_value(Equipment.wrap(equip).object_id)
+        end
     end,
 
 
@@ -304,6 +328,16 @@ methods_loot_pool = {
 
         -- Return both the Item wrapper and item object_index
         return item, obj_id
+    end,
+
+
+    --@instance
+    --@return       Object
+    --[[
+    Returns the command crate associated with this loot pool.
+    ]]
+    get_crate = function(self)
+        return Object.wrap(self.command_crate_object_id)
     end
 
 }
