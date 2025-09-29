@@ -78,7 +78,7 @@ Property | Type | Description
 `critical`      | bool      | `true` if the attack is a critical hit.
 `parent`        | Actor     | The parent actor of the attack.
 `proc`          | bool      | `true` if the attack can proc.
-`attack_flags`  | number    | The attack flags (TODO link this) of the attack.
+`attack_flags`  | number    | The @link {attack flags | AttackFlag#constants} of the attack.
 `damage_col`    | number    | The damage color.
 `team`          | number    | The team the attack belongs to.
 `climb`         | number    | 
