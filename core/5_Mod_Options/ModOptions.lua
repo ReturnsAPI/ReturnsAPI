@@ -233,10 +233,17 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
     -- Get "MODS" tab added by RoM
     local tab = gm.array_get(other.menu_pages, 2).options
 
-    -- TODO sort headers alphabetically first
+    -- Sort headers alphabetically
+    local ordered = {}
+    for _, data_table in pairs(__mod_options_headers) do
+        table.insert(ordered, data_table)
+    end
+    table.sort(ordered, function(a, b)
+        Language.translate_token(a.namespace..".header") < Language.translate_token(b.namespace..".header")
+    end)
 
-    -- Loop through stored headers and add elements
-    for namespace, data_table in pairs(__mod_options_headers) do
+    -- Loop through sorted headers and add elements
+    for _, data_table in ipairs(ordered) do
         -- Header
         local header = Struct.new(gm.constants.UIOptionsGroupHeader, data_table.namespace..".header").value
         gm.array_push(tab, header)
