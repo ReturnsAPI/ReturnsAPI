@@ -276,9 +276,11 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             if method then return method end
 
             -- Getter
-            local index = class_table.Property[k:upper()]
-            if index then
-                return __class_find_tables[name_global][value].array:get(index)
+            if type(k) == "string" then
+                local index = class_table.Property[k:upper()]
+                if index then
+                    return __class_find_tables[name_global][value].array:get(index)
+                end
             end
             log.error("Non-existent "..name_rapi.." property '"..k.."'", 2)
         end,
@@ -292,10 +294,12 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             end
             
             -- Setter
-            local index = class_table.Property[k:upper()]
-            if index then
-                __class_find_tables[name_global][__proxy[proxy]].array:set(index, v)
-                return
+            if type(k) == "string" then
+                local index = class_table.Property[k:upper()]
+                if index then
+                    __class_find_tables[name_global][__proxy[proxy]].array:set(index, v)
+                    return
+                end
             end
             log.error("Non-existent "..name_rapi.." property '"..k.."'", 2)
         end,

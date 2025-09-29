@@ -489,7 +489,8 @@ make_table_once("metatable_object", {
 -- ========== Hooks ==========
 
 gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_serialize, function(self, other, result, args)
-    local subtable = __object_serializers[self.__object_index]
+    local index = self.__object_index
+    local subtable = __object_serializers[index]
 	if subtable then
         local buffer = Buffer.wrap(Global.multiplayer_buffer)
         for _, fn_table in ipairs(subtable) do
@@ -497,7 +498,7 @@ gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_seri
             if not status then
                 if (err == nil)
                 or (err == "C++ exception") then err = "GameMaker error (see above)" end
-                log.warning("\n"..fn_table.namespace..": Object serialization for object '"..obj_ind.."' failed to execute fully.\n"..err)
+                log.warning("\n"..fn_table.namespace..": Object serialization for object '"..index.."' failed to execute fully.\n"..err)
             end
         end
 	end
@@ -505,7 +506,8 @@ end)
 
 
 gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_deserialize, function(self, other, result, args)
-    local subtable = __object_deserializers[self.__object_index]
+    local index = self.__object_index
+    local subtable = __object_deserializers[index]
 	if subtable then
         local buffer = Buffer.wrap(Global.multiplayer_buffer)
         for _, fn_table in ipairs(subtable) do
@@ -513,7 +515,7 @@ gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_dese
             if not status then
                 if (err == nil)
                 or (err == "C++ exception") then err = "GameMaker error (see above)" end
-                log.warning("\n"..fn_table.namespace..": Object deserialization for object '"..obj_ind.."' failed to execute fully.\n"..err)
+                log.warning("\n"..fn_table.namespace..": Object deserialization for object '"..index.."' failed to execute fully.\n"..err)
             end
         end
 	end

@@ -245,7 +245,7 @@ methods_loot_pool = {
     ]]
     add_item = function(self, ...)
         local t = {...}
-        if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
+        if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
 
         local drop_pool = List.wrap(self.drop_pool)
         for _, item in ipairs(t) do
@@ -261,7 +261,7 @@ methods_loot_pool = {
     ]]
     remove_item = function(self, ...)
         local t = {...}
-        if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
+        if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
 
         local drop_pool = List.wrap(self.drop_pool)
         for _, item in ipairs(t) do
@@ -277,7 +277,7 @@ methods_loot_pool = {
     ]]
     add_equipment = function(self, ...)
         local t = {...}
-        if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
+        if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
 
         local drop_pool = List.wrap(self.drop_pool)
         for _, equip in ipairs(t) do
@@ -293,7 +293,7 @@ methods_loot_pool = {
     ]]
     remove_equipment = function(self, ...)
         local t = {...}
-        if type(t[1]) == "table" and (not t.RAPI) then t = t[1] end
+        if type(t[1]) == "table" and (not t[1].RAPI) then t = t[1] end
 
         local drop_pool = List.wrap(self.drop_pool)
         for _, equip in ipairs(t) do
