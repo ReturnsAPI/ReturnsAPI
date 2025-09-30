@@ -35,9 +35,10 @@ Property | Type | Description
 
 Property | Type | Description
 | - | - | -
-`namespace`         | string    | The namespace the game mode is in.
-`identifier`        | string    | The identifier for the game mode within the namespace.
-``        |     | 
+`namespace`                     | string    | The namespace the game mode is in.
+`identifier`                    | string    | The identifier for the game mode within the namespace.
+`count_normal_unlocks`          |           | 
+`count_towards_games_played`    |           | 
 ]]
 
 
