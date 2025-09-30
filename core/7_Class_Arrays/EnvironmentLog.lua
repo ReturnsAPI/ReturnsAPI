@@ -178,6 +178,39 @@ EnvironmentLog.new_from_stage = function(NAMESPACE, stage)
 end
 
 
+--@static
+--@name         find
+--@return       EnvironmentLog or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
+--[[
+Searches for the specified environment log and returns it.
+If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+]]
+
+
+--@static
+--@name         find_all
+--@return       table
+--@param        filter      |           | The filter to search by.
+--@optional     property    | number    | The property to check. <br>@link {`EnvironmentLog.Property.NAMESPACE` | EnvironmentLog#Property} by default.
+--[[
+Returns a table of environment logs matching the specified filter and property.
+
+**NOTE:** Filtering by a non-namespace property is *very slow*!
+Try not to do that too much.
+]]
+
+
+--@static
+--@name         wrap
+--@return       EnvironmentLog
+--@param        id          | number    | The environment log ID to wrap.
+--[[
+Returns an EnvironmentLog wrapper containing the provided environment log ID.
+]]
+
+
 
 -- ========== Instance Methods ==========
 

@@ -177,6 +177,39 @@ ItemLog.new_from_equipment = function(NAMESPACE, equip)
 end
 
 
+--@static
+--@name         find
+--@return       ItemLog or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
+--[[
+Searches for the specified item log and returns it.
+If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+]]
+
+
+--@static
+--@name         find_all
+--@return       table
+--@param        filter      |           | The filter to search by.
+--@optional     property    | number    | The property to check. <br>@link {`ItemLog.Property.NAMESPACE` | ItemLog#Property} by default.
+--[[
+Returns a table of item logs matching the specified filter and property.
+
+**NOTE:** Filtering by a non-namespace property is *very slow*!
+Try not to do that too much.
+]]
+
+
+--@static
+--@name         wrap
+--@return       ItemLog
+--@param        id          | number    | The item log ID to wrap.
+--[[
+Returns an ItemLog wrapper containing the provided item log ID.
+]]
+
+
 
 -- ========== Instance Methods ==========
 
