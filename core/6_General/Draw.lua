@@ -138,8 +138,45 @@ Draw.point = function(x, y, color)
 end
 
 
-Draw.sprite = function()
-    -- TODO
+--@static
+--@param        sprite      | sprite    | The sprite to draw
+--@param        subimage    | number    | The subimage of the sprite to draw.
+--@param        x           | number    | The x coordinate.
+--@param        y           | number    | The y coordinate.
+--@optional     properties  | table     | A key-value table of drawing modifiers.
+--[[
+Draws a sprite.
+
+**Properties**
+Property | Type | Description
+| - | - | -
+`xscale`            | number    | The horizontal scaling factor. <br>`1` by default.
+`yscale`            | number    | The vertical scaling factor. <br>`1` by default.
+`rotation`          | number    | The rotation (in degrees). <br>`0` by default.
+`color`/`colour`    | color     | The color to blend with. <br>`Color.WHITE` by default.
+`alpha`             | number    | The opacity to draw at (from 0 to 1) <br>`1` by default.
+`region`            | table     | The region to draw the sprite within. <br>Pixels outside will be clipped. <br>Table order is `{x1, y1, x2, y2}`. <br>Unused by default. <br>**Mutually exclusive with `xscale`, `yscale`, `rotation`, and `color`**.
+]]
+Draw.sprite = function(sprite, subimage, x, y, properties)
+    properties = properties or {}
+
+    -- Standard
+    if not properties.region then
+        gm.draw_sprite_ext(Wrap.unwrap(sprite), subimage, x, y,
+            properties.xscale     or 1,
+            properties.yscale     or 1,
+            properties.rotation   or 0,
+            properties.color or properties.colour or Color.WHITE,
+            properties.alpha      or 1
+        )
+
+    -- Within clipping region
+    else
+        local alpha = Draw.alpha()
+        gm.draw_sprite_in_rect(Wrap.unwrap(sprite), subimage, x, y, table.unpack(properties.region))
+        Draw.alpha(alpha)
+
+    end
 end
 
 

@@ -239,7 +239,7 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
         table.insert(ordered, data_table)
     end
     table.sort(ordered, function(a, b)
-        Language.translate_token(a.namespace..".header") < Language.translate_token(b.namespace..".header")
+        return Language.translate_token(a.namespace..".header") < Language.translate_token(b.namespace..".header")
     end)
 
     -- Loop through sorted headers and add elements
