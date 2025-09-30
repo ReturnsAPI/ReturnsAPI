@@ -1,5 +1,8 @@
 -- Draw
 
+-- I created this as a shortform but perhaps it's not really needed
+-- (and introduces inconsistency if some people decide not to use this)
+
 Draw = new_class()
 
 
@@ -154,7 +157,7 @@ Property | Type | Description
 `yscale`            | number    | The vertical scaling factor. <br>`1` by default.
 `rotation`          | number    | The rotation (in degrees). <br>`0` by default.
 `color`/`colour`    | color     | The color to blend with. <br>`Color.WHITE` by default.
-`alpha`             | number    | The opacity to draw at (from 0 to 1) <br>`1` by default.
+`alpha`             | number    | The opacity to draw at (from 0 to 1). <br>`1` by default.
 `region`            | table     | The region to draw the sprite within. <br>Pixels outside will be clipped. <br>Table order is `{x1, y1, x2, y2}`. <br>Unused by default. <br>**Mutually exclusive with `xscale`, `yscale`, `rotation`, and `color`**.
 ]]
 Draw.sprite = function(sprite, x, y, properties)
@@ -169,18 +172,27 @@ Draw.sprite = function(sprite, x, y, properties)
             properties.color or properties.colour or Color.WHITE,
             properties.alpha      or 1
         )
+        return
+    end
 
     -- Within clipping region
-    else
-        local alpha = Draw.alpha()
-        gm.draw_sprite_in_rect(Wrap.unwrap(sprite), properties.subimage or 0, x, y, table.unpack(properties.region))
-        Draw.alpha(alpha)
-
-    end
+    local alpha = Draw.alpha()
+    gm.draw_sprite_in_rect(Wrap.unwrap(sprite), properties.subimage or 0, x, y, table.unpack(properties.region))
+    Draw.alpha(alpha)
 end
 
 
 Draw.surface = function()
+    -- TODO
+end
+
+
+Draw.set_target = function()
+    -- TODO
+end
+
+
+Draw.get_target = function()
     -- TODO
 end
 
