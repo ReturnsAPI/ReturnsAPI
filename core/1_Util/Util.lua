@@ -70,6 +70,112 @@ end
 
 
 --@static
+--@param        self        |           | The `self` argument of the hook.
+--@param        other       |           | The `other` argument of the hook.
+--@param        result      |           | The `result` argument of the hook.
+--@param        args        |           | The `args` argument of the hook.
+--[[
+Prints the values of a script hook to the console.
+
+E.g.,
+```lua
+gm.post_script_hook(gm.constants.damager_calculate_damage, function(self, other, result, args)
+    Util.log_hook(self, other, result, args)
+end)
+```
+]]
+Util.log_hook = function(self, other, result, args)
+    -- Helper functions
+    local function object_get_name(inst)
+        if inst.object_index then
+            return gm.object_get_name(inst.object_index)
+        end
+        return inst
+    end
+
+    local function log_struct(struct, indent)
+        struct = Struct.wrap(struct)
+        indent = "    "
+
+        local str = ""
+        local keys = struct:get_keys()
+        for _, key in ipairs(keys) do
+            str = str.."\n"..indent..Util.pad_string_right(key, 32).." = "..Util.tostring(struct[key])
+        end
+        return str
+    end
+
+    local function log_array(array, indent)
+        array = Array.wrap(array)
+        indent = "    "
+
+        local str = ""
+        local padding = #tostring(#array) + 2
+        for i, v in ipairs(array) do
+            str = str.."\n"..indent..Util.pad_string_right("["..(i - 1).."]", padding).."  "..Util.tostring(v)
+        end
+        return str
+    end
+
+    -- Output
+    local output = ""
+
+    output = output.."\n================================================================================"
+    
+    local info = debug.getinfo(2, "Sl")
+    output = output.."\nFrom '"..info.short_src.."' (line "..info.currentline..")\n"
+
+    -- self
+    output = output.."\n[self]    "
+    if gm.is_struct(self) then
+        output = output.."struct"..log_struct(self)
+    else
+        local status, ret = pcall(object_get_name, self)
+        output = output..(tostring(status and ret) or tostring(self))
+    end
+
+    -- other
+    output = output.."\n[other]   "
+    if gm.is_struct(other) then
+        output = output.."struct"..log_struct(other)
+    else
+        local status, ret = pcall(object_get_name, other)
+        output = output..(tostring(status and ret) or tostring(other))
+    end
+
+    -- result
+    output = output.."\n[result]  "
+    result = result.value
+    if gm.is_struct(result) then
+        output = output.."struct"..log_struct(result)
+    elseif gm.is_array(result) then
+        output = output.."array"..log_array(result)
+    else
+        local status, ret = pcall(object_get_name, result)
+        output = output..(tostring(status and ret) or tostring(self))
+    end
+
+    -- args
+    output = output.."\n\n[args]"
+    for i, arg in ipairs(args) do
+        arg = arg.value
+        if gm.is_struct(arg) then
+            output = output.."\nstruct"..log_struct(arg)
+        elseif gm.is_array(arg) then
+            output = output.."\narray"..log_array(arg)
+        else
+            local status, ret = pcall(object_get_name, arg)
+            output = output..("\n"..tostring(status and ret) or tostring(self))
+        end
+    end
+
+    output = output.."\n================================================================================"
+
+    print(output)
+end
+
+
+--@static
 --[[
 Prints the results of `GM.debug_get_callstack()`.
 The value at the top was the most recent previous call.
