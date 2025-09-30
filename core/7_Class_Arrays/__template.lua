@@ -1,9 +1,9 @@
--- <class_capital>
+-- CLASS_CAPITAL
 
 if true then return end
 
-local name_rapi = class_name_g2r["class_<class_lower>"]
-<class_capital> = __class[name_rapi]
+local name_rapi = class_name_g2r["class_CLASS_LOWER"]
+CLASS_CAPITAL = __class[name_rapi]
 
 
 
@@ -29,15 +29,15 @@ IDENTIFIER          1
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`         | number    | *Read-only.* The <class_lower> ID being wrapped.
+`value`         | number    | *Read-only.* The CLASS_LOWER ID being wrapped.
 `RAPI`          | string    | *Read-only.* The wrapper name.
 
 <br>
 
 Property | Type | Description
 | - | - | -
-`namespace`         | string    | The namespace the <class_lower> is in.
-`identifier`        | string    | The identifier for the <class_lower> within the namespace.
+`namespace`         | string    | The namespace the CLASS_LOWER is in.
+`identifier`        | string    | The identifier for the CLASS_LOWER within the namespace.
 ``        |     | 
 ]]
 
@@ -49,11 +49,11 @@ Property | Type | Description
 
 --@static
 --@name         find
---@return       <class_capital> or nil
+--@return       CLASS_CAPITAL or nil
 --@param        identifier  | string    | The identifier to search for.
 --@optional     namespace   | string    | The namespace to search in.
 --[[
-Searches for the specified <class_lower> and returns it.
+Searches for the specified CLASS_LOWER and returns it.
 If no namespace is provided, searches in your mod's namespace first, and "ror" second.
 ]]
 
@@ -62,9 +62,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --@name         find_all
 --@return       table
 --@param        filter      |           | The filter to search by.
---@optional     property    | number    | The property to check. <br>@link {`<class_capital>.Property.NAMESPACE` | <class_capital>#Property} by default.
+--@optional     property    | number    | The property to check. <br>@link {`CLASS_CAPITAL.Property.NAMESPACE` | CLASS_CAPITAL#Property} by default.
 --[[
-Returns a table of <class_lower>s matching the specified filter and property.
+Returns a table of CLASS_LOWERs matching the specified filter and property.
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
 Try not to do that too much.
@@ -73,10 +73,10 @@ Try not to do that too much.
 
 --@static
 --@name         wrap
---@return       <class_capital>
---@param        id          | number    | The <class_lower> ID to wrap.
+--@return       CLASS_CAPITAL
+--@param        id          | number    | The CLASS_LOWER ID to wrap.
 --[[
-Returns an <class_capital> wrapper containing the provided <class_lower> ID.
+Returns an CLASS_CAPITAL wrapper containing the provided CLASS_LOWER ID.
 ]]
 
 
@@ -90,7 +90,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@name         print_properties
     --[[
-    Prints the <class_lower>'s properties.
+    Prints the CLASS_LOWER's properties.
     ]]
 
 })
