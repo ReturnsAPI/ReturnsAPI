@@ -265,7 +265,7 @@ end
 --@static
 --@name         wrap
 --@return       Stage
---@param        stage_id    | number    | The stage ID to wrap.
+--@param        id          | number    | The stage ID to wrap.
 --[[
 Returns a Stage wrapper containing the provided stage ID.
 ]]

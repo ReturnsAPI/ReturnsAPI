@@ -52,7 +52,7 @@ Property | Type | Description
 `token_name`                | string    | The localization token for the log's name.
 `token_story`               | string    | The localization token for the log's story.
 `stage_id`                  | number    | The ID of the stage that the log belongs to.
-`display_room_ids`          |           | 
+`display_room_ids`          | Array     | 
 `initial_cam_x_1080`        | number    | 
 `initial_cam_y_1080`        | number    | 
 `initial_cam_x_720`         | number    | 

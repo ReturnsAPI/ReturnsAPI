@@ -60,7 +60,7 @@ Property | Type | Description
 `icon_frame_speed`          | number    | 
 `icon_stack_subimage`       | number    | 
 `draw_stack_number`         | bool      | `true` if the buff stack count should be displayed beside the icon.
-`stack_number_col`          | Array     | 
+`stack_number_col`          | Array     | An array of colors to use for the drawn stack count. <br>`Array.new(1, Color.WHITE)` by default.
 `max_stack`                 | number    | The maximum number of stacks.
 `on_apply`                  | number    | The ID of the callback that runs when the buff is applied.
 `on_remove`                 | number    | The ID of the callback that runs when the buff is removed.
@@ -68,7 +68,7 @@ Property | Type | Description
 `is_timed`                  | bool      | 
 `is_debuff`                 | bool      | `true` if the buff is considered a debuff.
 `client_handles_removal`    | bool      | 
-`effect_display`            |           | 
+`effect_display`            | EffectDisplay | 
 ]]
 
 

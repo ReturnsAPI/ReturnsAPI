@@ -87,7 +87,7 @@ Property | Type | Description
 `item_log_id`       | number    | The item log ID of the item.
 `achievement_id`    | number    | The achievement ID of the item. <br>If *not* `-1`, the item will be locked until the achievement is unlocked.
 `is_hidden`         | bool      | 
-`effect_display`    |           | 
+`effect_display`    | EffectDisplay | 
 `actor_component`   |           | 
 `loot_tags`         | number    | The sum of all loot tags applied to the item.
 `is_new_item`       | bool      | `true` for new vanilla items added in *Returns*.
@@ -158,7 +158,7 @@ Try not to do that too much.
 --@static
 --@name         wrap
 --@return       Item
---@param        item_id     | number    | The item ID to wrap.
+--@param        id          | number    | The item ID to wrap.
 --[[
 Returns an Item wrapper containing the provided item ID.
 ]]

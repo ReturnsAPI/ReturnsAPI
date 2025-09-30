@@ -144,7 +144,7 @@ Try not to do that too much.
 --@static
 --@name         wrap
 --@return       Equipment
---@param        equip_id    | number    | The equipment ID to wrap.
+--@param        id          | number    | The equipment ID to wrap.
 --[[
 Returns an Equipment wrapper containing the provided equipment ID.
 ]]
