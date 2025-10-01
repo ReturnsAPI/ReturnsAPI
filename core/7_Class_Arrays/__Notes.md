@@ -1,0 +1,3 @@
+- Do not add a setter method for a property if the *only* thing it does is setting that property
+    - Users should just assign to the property themselves
+    - E.g., `item/equip:set_loot_tags` are now removed

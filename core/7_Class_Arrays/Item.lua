@@ -89,7 +89,7 @@ Property | Type | Description
 `is_hidden`         | bool      | 
 `effect_display`    | EffectDisplay | 
 `actor_component`   |           | 
-`loot_tags`         | number    | The sum of all loot tags applied to the item.
+`loot_tags`         | number    | The *sum* of all loot tags applied to the item. <br>(E.g., `Item.LootTag.CATEGORY_DAMAGE + Item.LootTag.CATEGORY_HEALING` will add the damage and healing tags.)
 `is_new_item`       | bool      | `true` for new vanilla items added in *Returns*.
 ]]
 
@@ -251,21 +251,21 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    --@instance
-    --@param        ...         | number(s) | A variable number of @link {loot tags | Item#LootTag} to add. <br>Alternatively, a table may be provided.
-    --[[
-    Sets the loot tags of the item.
-    ]]
-    set_loot_tags = function(self, ...)
-        local args = {...}
-        if type(args[1]) == "table" then args = args[1] end
+    -- --@instance
+    -- --@param        ...         | number(s) | A variable number of @link {loot tags | Item#LootTag} to add. <br>Alternatively, a table may be provided.
+    -- --[[
+    -- Sets the loot tags of the item.
+    -- ]]
+    -- set_loot_tags = function(self, ...)
+    --     local args = {...}
+    --     if type(args[1]) == "table" then args = args[1] end
 
-        -- Sum variable number of tags
-        local tags = 0
-        for _, tag in ipairs(args) do tags = tags + tag end
+    --     -- Sum variable number of tags
+    --     local tags = 0
+    --     for _, tag in ipairs(args) do tags = tags + tag end
 
-        self.loot_tags = tags
-    end,
+    --     self.loot_tags = tags
+    -- end,
 
 
     --@instance
