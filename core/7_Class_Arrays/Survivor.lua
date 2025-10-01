@@ -235,8 +235,8 @@ Util.table_append(methods_class_array[name_rapi], {
     Removes the skill at the given index from the specified slot.
     ]]
     remove_skill_at_index = function(self, slot, index)
-        if type(slot) ~= "number"   then log.error("remove_skill: Invalid slot argument", 2) end
-        if type(index) ~= "number"  then log.error("remove_skill: Invalid index argument", 2) end
+        if type(slot) ~= "number"   then log.error("remove_skill_at_index: Invalid slot argument", 2) end
+        if type(index) ~= "number"  then log.error("remove_skill_at_index: Invalid index argument", 2) end
 
         skill = Wrap.unwrap(skill)
 
