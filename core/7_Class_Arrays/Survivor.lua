@@ -112,6 +112,31 @@ Property | Type | Description
 --@section Static Methods
 
 --@static
+--@return   Survivor
+--@param    identifier  | string    | The identifier for the survivor.
+--[[
+Creates a new survivor with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+Survivor.new = function(NAMESPACE, identifier)
+    Initialize.internal.check_if_started()
+    if not identifier then log.error("No identifier provided", 2) end
+
+    -- Return existing survivor if found
+    local survivor = Survivor.find(identifier, NAMESPACE)
+    if survivor then return survivor end
+
+    -- Create new
+    survivor = Survivor.wrap(gm.survivor_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return survivor
+end
+
+
+--@static
 --@namefind
 --@return       Survivor or nil
 --@param        identifier  | string    | The identifier to search for.
@@ -156,5 +181,67 @@ Util.table_append(methods_class_array[name_rapi], {
     --[[
     Prints the survivor's properties.
     ]]
+
+
+    --@instance
+    --@param        slot        | number    | The @link {slot | Skill#slot} to add to.
+    --@param        skill       | Skill     | The skill to add.
+    --[[
+    Adds a skill to the specified slot.
+    ]]
+    add_skill = function(self, slot, skill)
+        if type(slot) ~= "number" then log.error("add_skill: Invalid slot argument", 2) end
+        if not skill then log.error("add_skill: skill not provided", 2) end
+
+        -- SurvivorSkillLoadoutFamily contains `elements` which is an Array of SurvivorSkillLoadoutUnlockable
+        local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
+        array:push(
+            Struct.new(
+                gm.constants.SurvivorSkillLoadoutUnlockable,
+                Wrap.unwrap(skill)
+            )
+        )
+    end,
+
+
+    --@instance
+    --@param        slot        | number    | The @link {slot | Skill#slot} to add to.
+    --@param        skill       | Skill     | The skill to remove.
+    --[[
+    Removes a skill from the specified slot.
+    ]]
+    remove_skill = function(self, slot, skill)
+        if type(slot) ~= "number" then log.error("remove_skill: Invalid slot argument", 2) end
+        if not skill then log.error("remove_skill: skill not provided", 2) end
+
+        skill = Wrap.unwrap(skill)
+
+        local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
+        for i, skill_loadout_unlockable in ipairs(array) do
+            if skill_loadout_unlockable.skill_id == skill then
+                array:delete(i)
+                return
+            end
+        end
+    end,
+
+
+    --@instance
+    --@return       table
+    --@param        slot        | number    | The @link {slot | Skill#slot} to get from.
+    --[[
+    Returns a table containing a list of skills belonging to the specified slot.
+    *Technical:* Returns a table copy of `survivor.skill_family_<slot>.elements`.
+    ]]
+    get_skills = function(self, slot)
+        if type(slot) ~= "number" then log.error("get_skill_family: Invalid slot argument", 2) end
+
+        local t = {}
+        local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
+        for _, skill_loadout_unlockable in ipairs(array) do
+            table.insert(t, Skill.wrap(skill_loadout_unlockable.skill_id))
+        end
+        return t
+    end
 
 })
