@@ -185,7 +185,7 @@ Util.table_append(methods_class_array[name_rapi], {
     Prints the survivor's properties.
     ]]
 
-    
+
     --@instance
     --@param        slot        | number    | The @link {slot | Skill#slot} to add to.
     --@param        skill       | Skill     | The skill to add.
@@ -193,8 +193,8 @@ Util.table_append(methods_class_array[name_rapi], {
     Adds a skill to the specified slot.
     ]]
     add_skill = function(self, slot, skill)
-        if type(slot) ~= "number" then log.error("add_skill: Invalid slot argument", 2) end
-        if not skill then log.error("add_skill: skill not provided", 2) end
+        if type(slot) ~= "number"   then log.error("add_skill: Invalid slot argument", 2) end
+        if not skill                then log.error("add_skill: skill not provided", 2) end
 
         local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
         array:push(
@@ -213,8 +213,8 @@ Util.table_append(methods_class_array[name_rapi], {
     Removes a skill from the specified slot.
     ]]
     remove_skill = function(self, slot, skill)
-        if type(slot) ~= "number" then log.error("remove_skill: Invalid slot argument", 2) end
-        if not skill then log.error("remove_skill: skill not provided", 2) end
+        if type(slot) ~= "number"   then log.error("remove_skill: Invalid slot argument", 2) end
+        if not skill                then log.error("remove_skill: skill not provided", 2) end
 
         skill = Wrap.unwrap(skill)
 
@@ -225,6 +225,23 @@ Util.table_append(methods_class_array[name_rapi], {
                 return
             end
         end
+    end,
+
+
+    --@instance
+    --@param        slot        | number    | The @link {slot | Skill#slot} to remove from.
+    --@param        index       | number    | The index at which to remove, starting at `1`.
+    --[[
+    Removes the skill at the given index from the specified slot.
+    ]]
+    remove_skill_at_index = function(self, slot, index)
+        if type(slot) ~= "number"   then log.error("remove_skill: Invalid slot argument", 2) end
+        if type(index) ~= "number"  then log.error("remove_skill: Invalid index argument", 2) end
+
+        skill = Wrap.unwrap(skill)
+
+        local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
+        array:delete(index)
     end,
 
 
