@@ -269,7 +269,8 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             -- Get wrapped value
             local value = __proxy[proxy]
             if k == "value" then return value end
-            if k == "RAPI" then return name_rapi end
+            if k == "RAPI"  then return name_rapi end
+            if k == "array" then return __class_find_tables[name_global][value].array end
 
             -- Methods
             local method = methods_class_array[name_rapi][k]
@@ -279,7 +280,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             if type(k) == "string" then
                 local index = class_table.Property[k:upper()]
                 if index then
-                    return __class_find_tables[name_global][value].array:get(index)
+                    return proxy.array:get(index)
                 end
             end
             log.error("Non-existent "..name_rapi.." property '"..k.."'", 2)
@@ -289,7 +290,8 @@ for name_rapi, name_global in pairs(class_name_r2g) do
         __newindex = function(proxy, k, v)
             -- Throw read-only error for certain keys
             if k == "value"
-            or k == "RAPI" then
+            or k == "RAPI"
+            or k == "array" then
                 log.error("Key '"..k.."' is read-only", 2)
             end
             
@@ -297,7 +299,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             if type(k) == "string" then
                 local index = class_table.Property[k:upper()]
                 if index then
-                    __class_find_tables[name_global][__proxy[proxy]].array:set(index, v)
+                    proxy.array:set(index, v)
                     return
                 end
             end
