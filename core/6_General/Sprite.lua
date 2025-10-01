@@ -168,33 +168,24 @@ methods_sprite = {
 
 
     --@instance
-    --@param        bbox_left   | number    | The left side, relative to the origin.
-    --@param        bbox_top    | number    | The top side, relative to the origin.
-    --@param        bbox_right  | number    | The right side, relative to the origin.
-    --@param        bbox_bottom | number    | The bottom side, relative to the origin.
+    --@param        bbox_left   | number    | The left x.
+    --@param        bbox_top    | number    | The top y.
+    --@param        bbox_right  | number    | The right x.
+    --@param        bbox_bottom | number    | The bottom y.
     --[[
-    Sets the collision mask of the sprite, relative to the origin.
+    Sets the collision mask of the sprite, relative to the top-left corner (0, 0).
 
-    E.g.,
-    - A negative `bbox_left` value means to the left of the origin.
-    - `bbox_left = -5` and `bbox_right = 5` would give a total width of `10` pixels, centered on the origin.
+    E.g., For a 16x16 `mySprite`, `mySprite:set_collision_mask(1, 1, 15, 15)` would reduce the hitbox by 1px on each side.
     ]]
     set_collision_mask = function(self, bbox_left, bbox_top, bbox_right, bbox_bottom)
-        -- Arguments are relative to the origin (i.e., `bbox_left < 0` means to the left of the origin)
-
-        -- Get x and y origin
-        local x_origin = gm.sprite_get_xoffset(self.value)
-        local y_origin = gm.sprite_get_yoffset(self.value)
-
-        -- Set collision mask properties
         gm.sprite_collision_mask(
             self.value,
             false,
             2,  -- `2` is user-defined
-            bbox_left   + x_origin,
-            bbox_top    + y_origin,
-            bbox_right  + x_origin,
-            bbox_bottom + y_origin,
+            bbox_left,
+            bbox_top,
+            bbox_right,
+            bbox_bottom,
             0,  -- `0` is `bboxkind_rectangular`
             0   -- `0` transparency tolerance
         )
