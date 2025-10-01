@@ -99,8 +99,8 @@ Property | Type | Description
 `milestone_items_1`         |           | 
 `milestone_stages_1`        |           | 
 `on_init`                   | number    | The ID of the callback that runs when an instance of the survivor is created. <br>The callback function should have the argument `actor`.
-`on_step`                   | number    | The ID of the callback that runs when . <br>The callback function should have the arguments ``.
-`on_remove`                 | number    | The ID of the callback that runs when . <br>The callback function should have the arguments ``.
+`on_step`                   | number    | The ID of the callback that runs when . <br>The callback function should have the arguments `(TODO)`.
+`on_remove`                 | number    | The ID of the callback that runs when . <br>The callback function should have the arguments `(TODO)`.
 `is_secret`                 | bool      | 
 `cape_offset`               | Array     | Stores the drawing offset for Prophet's Cape. <br>Array order: `x_offset, y_offset, x_offset_climbing, y_offset_climbing`
 ]]
@@ -117,6 +117,9 @@ Property | Type | Description
 --[[
 Creates a new survivor with the given identifier if it does not already exist,
 or returns the existing one if it does.
+
+The survivor will have a placeholder skill created for each slot.
+You can call @link {`survivor:get_skills( slot )[1]` | Survivor#get_skills} to access them.
 ]]
 Survivor.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
@@ -137,7 +140,7 @@ end
 
 
 --@static
---@namefind
+--@name         find
 --@return       Survivor or nil
 --@param        identifier  | string    | The identifier to search for.
 --@optional     namespace   | string    | The namespace to search in.
@@ -148,9 +151,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 
 
 --@static
---@namefind_all
+--@name         find_all
 --@return       table
---@param        filter      |  | The filter to search by.
+--@param        filter      |           | The filter to search by.
 --@optional     property    | number    | The property to check. <br>@link {`Survivor.Property.NAMESPACE` | Survivor#Property} by default.
 --[[
 Returns a table of survivors matching the specified filter and property.
@@ -161,9 +164,9 @@ Try not to do that too much.
 
 
 --@static
---@namewrap
+--@name         wrap
 --@return       Survivor
---@param        id | number    | The survivor ID to wrap.
+--@param        id          | number    | The survivor ID to wrap.
 --[[
 Returns an Survivor wrapper containing the provided survivor ID.
 ]]
@@ -193,7 +196,6 @@ Util.table_append(methods_class_array[name_rapi], {
         if type(slot) ~= "number" then log.error("add_skill: Invalid slot argument", 2) end
         if not skill then log.error("add_skill: skill not provided", 2) end
 
-        -- SurvivorSkillLoadoutFamily contains `elements` which is an Array of SurvivorSkillLoadoutUnlockable
         local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
         array:push(
             Struct.new(
@@ -205,7 +207,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        slot        | number    | The @link {slot | Skill#slot} to add to.
+    --@param        slot        | number    | The @link {slot | Skill#slot} to remove from.
     --@param        skill       | Skill     | The skill to remove.
     --[[
     Removes a skill from the specified slot.
@@ -230,11 +232,11 @@ Util.table_append(methods_class_array[name_rapi], {
     --@return       table
     --@param        slot        | number    | The @link {slot | Skill#slot} to get from.
     --[[
-    Returns a table containing a list of skills belonging to the specified slot.
+    Returns a table containing a list of Skills belonging to the specified slot.
     *Technical:* Returns a table copy of `survivor.skill_family_<slot>.elements`.
     ]]
     get_skills = function(self, slot)
-        if type(slot) ~= "number" then log.error("get_skill_family: Invalid slot argument", 2) end
+        if type(slot) ~= "number" then log.error("get_skills: Invalid slot argument", 2) end
 
         local t = {}
         local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements

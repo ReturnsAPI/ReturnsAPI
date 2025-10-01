@@ -76,8 +76,8 @@ Property | Type | Description
 `token_description`             | string    | 
 `sprite`                        | sprite    |
 `subimage`                      | number    | 
-`cooldown`                      | number    | 
-`damage`                        | number    | 
+`cooldown`                      | number    | The base cooldown of the skill (in frames).
+`damage`                        | number    | The damage of the skill; `1` is 100% damage. <br>Does nothing if the skill/states themselves do not refer to it. <br>Can also be gotten using `GM.skill_get_damage( skill )`.
 `max_stock`                     | number    | 
 `start_with_stock`              | bool      | 
 `auto_restock`                  |           | 
@@ -96,10 +96,10 @@ Property | Type | Description
 `does_change_activity_state`    |           | 
 `on_can_activate`               | number    | 
 `on_activate`                   | number    | 
-`on_step`                       | number    | 
+`on_step`                       | number    | The ID of the callback that runs every frame. <br>The callback function should have the arguments `(TODO)`.
 `on_equipped`                   | number    | 
 `on_unequipped`                 | number    | 
-`upgrade_skill`                 |           | 
+`upgrade_skill`                 | number    | The ID of the skill to upgrade to when picking up Ancient Scepter.
 ]]
 
 
@@ -107,6 +107,31 @@ Property | Type | Description
 -- ========== Static Methods ==========
 
 --@section Static Methods
+
+--@static
+--@return   Skill
+--@param    identifier  | string    | The identifier for the skill.
+--[[
+Creates a new skill with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+Skill.new = function(NAMESPACE, identifier)
+    Initialize.internal.check_if_started()
+    if not identifier then log.error("No identifier provided", 2) end
+
+    -- Return existing skill if found
+    local skill = Skill.find(identifier, NAMESPACE)
+    if skill then return skill end
+
+    -- Create new
+    skill = Skill.wrap(gm.skill_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return skill
+end
+
 
 --@static
 --@name         find
