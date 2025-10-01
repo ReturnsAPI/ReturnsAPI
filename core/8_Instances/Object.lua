@@ -83,7 +83,7 @@ Property | Type | Description
 | - | - | -
 `base`          | number    | The `object_index` of the "base" object used to create this one. <br>Only exists for custom objects.
 `obj_depth`     | number    | The object depth.
-`obj_sprite`    | sprite    | The object sprite.
+`obj_sprite`    | sprite    | The object sprite ID.
 `identifier`    | string    | The identifier for the object within the namespace.
 `namespace`     | string    | The namespace the object is in.
 `on_create`     | number    | The ID of the callback that runs when an instance of the object is created. <br>Only exists for custom objects.
@@ -447,7 +447,7 @@ make_table_once("metatable_object", {
         if index then
             if value < Object.CUSTOM_START then
                 if (index == Object.Property.OBJ_DEPTH)     then return gm.object_get_depth(value) end
-                if (index == Object.Property.OBJ_SPRITE)    then return Sprite.wrap(gm.object_get_sprite(value)) end
+                if (index == Object.Property.OBJ_SPRITE)    then return gm.object_get_sprite(value) end
                 return proxy.array[index + 1]
             end
             return proxy.array:get(index)
