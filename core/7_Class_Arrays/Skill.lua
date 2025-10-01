@@ -45,6 +45,15 @@ UPGRADE_SKILL                   29
 ]]
 
 
+--@enum
+Skill.Slot = {
+    PRIMARY     = 0,
+    SECONDARY   = 1,
+    UTILITY     = 2,
+    SPECIAL     = 3
+}
+
+
 
 -- ========== Properties ==========
 
