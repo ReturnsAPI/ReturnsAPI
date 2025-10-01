@@ -157,26 +157,4 @@ Util.table_append(methods_class_array[name_rapi], {
     Prints the survivor's properties.
     ]]
 
-
-    --@instance
-    --@param        values      | table     | A key-value pair table of stats.
-    --[[
-    Sets the base stats of the survivor.
-    ]]
-    set_stats_base = function(self, values)
-        __survivor_data[self.value] = __survivor_data[self.value] or {}
-        __survivor_data[self.value].stats_base = values
-    end,
-
-
-    --@instance
-    --@param        values      | table     | A key-value pair table of stats.
-    --[[
-    Sets the stats gained per level up for the survivor.
-    ]]
-    set_stats_level = function(self, values)
-        __survivor_data[self.value] = __survivor_data[self.value] or {}
-        __survivor_data[self.value].stats_level = values
-    end
-
 })
