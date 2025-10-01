@@ -41,12 +41,7 @@ Array.new = function(arg1, arg2)
     -- Create array from table
     if type(arg1) == "table" then
         local arr = Array.wrap(gm.array_create(0, 0))
-
-        -- Add elements from table to array
-        for _, v in ipairs(arg1) do
-            arr:push(v)
-        end
-
+        arr:push(table.unpack(arg1))
         return arr
     end
 
@@ -254,27 +249,6 @@ methods_array = {
 -- ========== Metatables ==========
 
 local wrapper_name = "Array"
-
-make_table_once("metatable_array_class", {
-    __call = function(t, arg1, arg2)
-        arg1 = Wrap.unwrap(arg1)
-        arg2 = Wrap.unwrap(arg2)
-
-        -- Wrap
-        if  type(arg1) == "userdata"
-        and getmetatable(arg1).__name:find("sol.RefDynamicArrayOfRValue") then
-            return Array.wrap(arg1)
-        end
-
-        -- New
-        return Array.new(arg1, arg2)
-    end,
-
-
-    __metatable = "RAPI.Class."..wrapper_name
-})
-setmetatable(Array, metatable_array_class)
-
 
 make_table_once("metatable_array", {
     __index = function(proxy, k)

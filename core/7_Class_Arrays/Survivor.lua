@@ -3,6 +3,10 @@
 local name_rapi = class_name_g2r["class_survivor"]
 Survivor = __class[name_rapi]
 
+run_once(function()
+    __survivor_data = {}    -- Stores some data for survivors (e.g., `on_init` callback for setting base stats)
+end)
+
 
 
 -- ========== Enums ==========
@@ -94,11 +98,11 @@ Property | Type | Description
 `milestone_kills_1`         |           | 
 `milestone_items_1`         |           | 
 `milestone_stages_1`        |           | 
-`on_init`                   | number    | 
-`on_step`                   | number    | 
-`on_remove`                 | number    | 
+`on_init`                   | number    | The ID of the callback that runs when an instance of the survivor is created. <br>The callback function should have the argument `actor`.
+`on_step`                   | number    | The ID of the callback that runs when . <br>The callback function should have the arguments ``.
+`on_remove`                 | number    | The ID of the callback that runs when . <br>The callback function should have the arguments ``.
 `is_secret`                 | bool      | 
-`cape_offset`               |           | 
+`cape_offset`               | Array     | Stores the drawing offset for Prophet's Cape. <br>Array order: `x_offset, y_offset, x_offset_climbing, y_offset_climbing`
 ]]
 
 
@@ -152,5 +156,27 @@ Util.table_append(methods_class_array[name_rapi], {
     --[[
     Prints the survivor's properties.
     ]]
+
+
+    --@instance
+    --@param        values      | table     | A key-value pair table of stats.
+    --[[
+    Sets the base stats of the survivor.
+    ]]
+    set_stats_base = function(self, values)
+        __survivor_data[self.value] = __survivor_data[self.value] or {}
+        __survivor_data[self.value].stats_base = values
+    end,
+
+
+    --@instance
+    --@param        values      | table     | A key-value pair table of stats.
+    --[[
+    Sets the stats gained per level up for the survivor.
+    ]]
+    set_stats_level = function(self, values)
+        __survivor_data[self.value] = __survivor_data[self.value] or {}
+        __survivor_data[self.value].stats_level = values
+    end
 
 })

@@ -186,26 +186,6 @@ methods_map = {
 
 local wrapper_name = "Map"
 
-make_table_once("metatable_map_class", {
-    __call = function(t, value)
-        value = Wrap.unwrap(value)
-
-        -- New (from table)
-        if type(value) == "table" then return Map.new(value) end
-
-        -- Wrap
-        if value then return Map.wrap(value) end
-
-        -- New
-        return Map.new()
-    end,
-
-
-    __metatable = "RAPI.Class."..wrapper_name
-})
-setmetatable(Map, metatable_map_class)
-
-
 make_table_once("metatable_map", {
     __index = function(proxy, k)
         -- Get wrapped value

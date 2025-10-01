@@ -131,17 +131,6 @@ methods_struct = {
 
 local wrapper_name = "Struct"
 
-make_table_once("metatable_struct_class", {
-    __call = function(t, ...)
-        return Struct.new(...)
-    end,
-
-
-    __metatable = "RAPI.Class."..wrapper_name
-})
-setmetatable(Struct, metatable_struct_class)
-
-
 make_table_once("metatable_struct", {
     __index = function(proxy, k)
         -- Get wrapped value

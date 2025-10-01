@@ -39,12 +39,7 @@ List.new = function(table)
     -- Create list from table
     if type(table) == "table" then
         local list = List.wrap(gm.ds_list_create())
-
-        -- Add elements from table to list
-        for _, v in ipairs(table) do
-            list:add(v)
-        end
-
+        list:add(table.unpack(table))
         return list
     end
 
@@ -248,26 +243,6 @@ methods_list = {
 -- ========== Metatables ==========
 
 local wrapper_name = "List"
-
-make_table_once("metatable_list_class", {
-    __call = function(t, value)
-        value = Wrap.unwrap(value)
-
-        -- New (from table)
-        if type(value) == "table" then return List.new(value) end
-
-        -- Wrap
-        if value then return List.wrap(value) end
-
-        -- New
-        return List.new()
-    end,
-
-
-    __metatable = "RAPI.Class."..wrapper_name
-})
-setmetatable(List, metatable_list_class)
-
 
 make_table_once("metatable_list", {
     __index = function(proxy, k)
