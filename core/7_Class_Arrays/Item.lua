@@ -251,23 +251,6 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    -- --@instance
-    -- --@param        ...         | number(s) | A variable number of @link {loot tags | Item#LootTag} to add. <br>Alternatively, a table may be provided.
-    -- --[[
-    -- Sets the loot tags of the item.
-    -- ]]
-    -- set_loot_tags = function(self, ...)
-    --     local args = {...}
-    --     if type(args[1]) == "table" then args = args[1] end
-
-    --     -- Sum variable number of tags
-    --     local tags = 0
-    --     for _, tag in ipairs(args) do tags = tags + tag end
-
-    --     self.loot_tags = tags
-    -- end,
-
-
     --@instance
     --@return       table
     --[[
