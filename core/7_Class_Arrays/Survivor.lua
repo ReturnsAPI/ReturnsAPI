@@ -180,12 +180,12 @@ Returns an Survivor wrapper containing the provided survivor ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@nameprint_properties
+    --@name         print_properties
     --[[
     Prints the survivor's properties.
     ]]
 
-
+    
     --@instance
     --@param        slot        | number    | The @link {slot | Skill#slot} to add to.
     --@param        skill       | Skill     | The skill to add.
