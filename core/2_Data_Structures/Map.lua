@@ -242,4 +242,3 @@ make_table_once("metatable_map", {
 
 -- Public export
 __class.Map = Map
-__class_mt.Map = metatable_map_class

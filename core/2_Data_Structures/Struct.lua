@@ -195,4 +195,3 @@ make_table_once("metatable_struct", {
 
 -- Public export
 __class.Struct = Struct
-__class_mt.Struct = metatable_struct_class

@@ -304,4 +304,3 @@ make_table_once("metatable_list", {
 
 -- Public export
 __class.List = List
-__class_mt.List = metatable_list_class

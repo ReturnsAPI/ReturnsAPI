@@ -310,4 +310,3 @@ make_table_once("metatable_array", {
 
 -- Public export
 __class.Array = Array
-__class_mt.Array = metatable_array_class
