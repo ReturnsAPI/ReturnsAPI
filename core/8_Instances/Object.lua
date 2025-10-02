@@ -86,10 +86,10 @@ Property | Type | Description
 `obj_sprite`    | sprite    | The object sprite ID.
 `identifier`    | string    | The identifier for the object within the namespace.
 `namespace`     | string    | The namespace the object is in.
-`on_create`     | number    | The ID of the callback that runs when an instance of the object is created. <br>Only exists for custom objects.
-`on_destroy`    | number    | The ID of the callback that runs when an instance of the object is destroyed. <br>Only exists for custom objects.
-`on_step`       | number    | The ID of the callback that runs every step for an instance of the object. <br>Only exists for custom objects.
-`on_draw`       | number    | The ID of the callback that runs every step for an instance of the object (for drawing). <br>Only exists for custom objects.
+`on_create`     | number    | The ID of the callback that runs when an instance of the object is created. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+`on_destroy`    | number    | The ID of the callback that runs when an instance of the object is destroyed. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+`on_step`       | number    | The ID of the callback that runs every step for an instance of the object. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+`on_draw`       | number    | The ID of the callback that runs every step for an instance of the object (for drawing). <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
 ]]
 
 

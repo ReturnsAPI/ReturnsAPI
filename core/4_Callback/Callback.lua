@@ -158,7 +158,7 @@ Callback                            | Parameters
 `ON_SECOND`                         | `minute` (number) - Current minute on the timer <br>`second` (number) - Current second on the timer
 `ON_MINUTE`                         | `minute` (number) - Current minute on the timer <br>`second` (number) - Current second on the timer
 `ON_ATTACK_CREATE`                  | 
-`ON_ATTACK_HIT`                     | 
+`ON_ATTACK_HIT`                     | `hit_info` (HitInfo)
 `ON_ATTACK_HANDLE_START`            | 
 `ON_ATTACK_HANDLE_END`              | 
 `ON_DAMAGE_BLOCKED`                 | 

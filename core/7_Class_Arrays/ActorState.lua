@@ -26,6 +26,24 @@ ACTIVITY_FLAGS              10
 ]]
 
 
+--@enum
+ActorState.InterruptPriority = {
+    ANY                     = 0,
+    SKILL_INTERRUPT_PERIOD  = 1,
+    SKILL                   = 2,
+    PRIORITY_SKILL          = 3,
+    LEGACY_ACTIVITY_STATE   = 4,
+    CLIMB                   = 5,
+    PAIN                    = 6,
+    FROZEN                  = 7,
+    CHARGE                  = 8,
+    VEHICLE                 = 9,
+    BURROWED                = 10,
+    SPAWN                   = 11,
+    TELEPORT                = 12
+}
+
+
 
 -- ========== Properties ==========
 
@@ -44,9 +62,9 @@ Property | Type | Description
 | - | - | -
 `namespace`                 | string    | The namespace the state is in.
 `identifier`                | string    | The identifier for the state within the namespace.
-`on_enter`                  | number    | 
-`on_exit`                   | number    | 
-`on_step`                   | number    | 
+`on_enter`                  | number    | The ID of the callback that runs when the state is entered. <br>The callback function should have the arguments `actor, data`. <br>`data` is a persistent Struct created by the game.
+`on_exit`                   | number    | The ID of the callback that runs when the state is exited. <br>The callback function should have the arguments `actor, data`. <br>`data` is a persistent Struct created by the game.
+`on_step`                   | number    | The ID of the callback that runs every frame while in the state. <br>The callback function should have the arguments `actor, data`. <br>`data` is a persistent Struct created by the game.
 `on_get_interrupt_priority` | number    | 
 `callable_serialize`        |           | 
 `callable_deserialize`      |           | 
@@ -60,6 +78,31 @@ Property | Type | Description
 -- ========== Static Methods ==========
 
 --@section Static Methods
+
+--@static
+--@return   ActorState
+--@param    identifier  | string    | The identifier for the state.
+--[[
+Creates a new state with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+ActorState.new = function(NAMESPACE, identifier)
+    Initialize.internal.check_if_started()
+    if not identifier then log.error("No identifier provided", 2) end
+
+    -- Return existing state if found
+    local state = ActorState.find(identifier, NAMESPACE)
+    if state then return state end
+
+    -- Create new
+    state = ActorState.wrap(gm.actor_state_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return state
+end
+
 
 --@static
 --@name         find
