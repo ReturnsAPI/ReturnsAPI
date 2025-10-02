@@ -191,6 +191,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@param        skill       | Skill     | The skill to add.
     --[[
     Adds a skill to the specified slot.
+    Does nothing if the skill is already present in that slot.
     ]]
     add_skill = function(self, slot, skill)
         if type(slot) ~= "number"   then log.error("add_skill: Invalid slot argument", 2) end
