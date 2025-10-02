@@ -36,6 +36,18 @@ return {
     }
 }
 ```
+
+---
+
+`gm.translate(token, ...)` will return the actual text of the localization token in the current language.
+If the token's actual text has instances of `%s`, they will be replaced with the variable arguments in order.
+
+E.g.,
+```lua
+-- "foo.bar.baz" maps to "Hello %s!" in the language file.
+
+gm.translate("foo.bar.baz", "world")    --> "Hello world!"
+```
 ]]
 
 Language = new_class()
@@ -50,22 +62,6 @@ end)
 -- ========== Static Methods ==========
 
 --@section Static Methods
-
---@static
---@return       string
---@param        token       | string    | The localization token (e.g., `item.barbedWire.name`)
---[[
-Returns the actual text of the localization token in the current language,
-or `token` if none is found.
-]]
-Language.translate_token = function(token)
-    local language_map = Global._language_map
-    if type(language_map) == "number" then language_map = Map.wrap(language_map) end    -- If Global cache is not created
-    local text = language_map:get(token)
-    if text then return text end
-    return token
-end
-
 
 --@static
 --@return       string
