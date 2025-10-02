@@ -510,7 +510,17 @@ methods_actor = {
     ]]
     equipment_get = function(self)
         return nil
-    end
+    end,
+
+
+    --@instance
+    --@param        state       | ActorState    | The state to enter.
+    --[[
+    Sets a new state for the actor.
+    ]]
+    enter_state = function(self, state)
+        gm.actor_set_state(self.value, Wrap.unwrap(state))
+    end,
 
 }
 
