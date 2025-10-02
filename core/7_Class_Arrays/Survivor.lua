@@ -196,11 +196,21 @@ Util.table_append(methods_class_array[name_rapi], {
         if type(slot) ~= "number"   then log.error("add_skill: Invalid slot argument", 2) end
         if not skill                then log.error("add_skill: skill not provided", 2) end
 
+        skill = Wrap.unwrap(skill)
+
+        -- Check if skill is already present in this slot family
+        for _, s in ipairs(self:get_skills(slot)) do
+            if s.value == skill then
+                return
+            end
+        end
+
+        -- Add new SurvivorSkillLoadoutUnlockable to slot family
         local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
         array:push(
             Struct.new(
                 gm.constants.SurvivorSkillLoadoutUnlockable,
-                Wrap.unwrap(skill)
+                skill
             )
         )
     end,
@@ -218,6 +228,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
         skill = Wrap.unwrap(skill)
 
+        -- Remove correct SurvivorSkillLoadoutUnlockable from slot family
         local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
         for i, skill_loadout_unlockable in ipairs(array) do
             if skill_loadout_unlockable.skill_id == skill then
@@ -240,6 +251,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
         skill = Wrap.unwrap(skill)
 
+        -- Remove SurvivorSkillLoadoutUnlockable at index from slot family
         local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
         array:delete(index)
     end,
@@ -255,6 +267,7 @@ Util.table_append(methods_class_array[name_rapi], {
     get_skills = function(self, slot)
         if type(slot) ~= "number" then log.error("get_skills: Invalid slot argument", 2) end
 
+        -- Store every SurvivorSkillLoadoutUnlockable from slot family into table
         local t = {}
         local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
         for _, skill_loadout_unlockable in ipairs(array) do
