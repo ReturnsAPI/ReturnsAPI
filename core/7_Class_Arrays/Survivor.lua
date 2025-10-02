@@ -194,10 +194,10 @@ Util.table_append(methods_class_array[name_rapi], {
     Does nothing if the skill is already present in that slot.
     ]]
     add_skill = function(self, slot, skill)
-        if type(slot) ~= "number"   then log.error("add_skill: Invalid slot argument", 2) end
-        if not skill                then log.error("add_skill: skill not provided", 2) end
-
         skill = Wrap.unwrap(skill)
+
+        if type(slot) ~= "number"   then log.error("add_skill: Invalid slot argument", 2) end
+        if type(skill) ~= "number"  then log.error("add_skill: Invalid skill argument", 2) end
 
         -- Check if skill is already present in this slot family
         for _, s in ipairs(self:get_skills(slot)) do
@@ -224,10 +224,10 @@ Util.table_append(methods_class_array[name_rapi], {
     Removes a skill from the specified slot.
     ]]
     remove_skill = function(self, slot, skill)
-        if type(slot) ~= "number"   then log.error("remove_skill: Invalid slot argument", 2) end
-        if not skill                then log.error("remove_skill: skill not provided", 2) end
-
         skill = Wrap.unwrap(skill)
+
+        if type(slot) ~= "number"   then log.error("remove_skill: Invalid slot argument", 2) end
+        if type(skill) ~= "number"  then log.error("remove_skill: Invalid skill argument", 2) end
 
         -- Remove correct SurvivorSkillLoadoutUnlockable from slot family
         local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
@@ -249,8 +249,6 @@ Util.table_append(methods_class_array[name_rapi], {
     remove_skill_at_index = function(self, slot, index)
         if type(slot) ~= "number"   then log.error("remove_skill_at_index: Invalid slot argument", 2) end
         if type(index) ~= "number"  then log.error("remove_skill_at_index: Invalid index argument", 2) end
-
-        skill = Wrap.unwrap(skill)
 
         -- Remove SurvivorSkillLoadoutUnlockable at index from slot family
         local array = self.array:get(Survivor.Property.SKILL_FAMILY_Z + slot).elements
