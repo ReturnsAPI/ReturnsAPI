@@ -54,6 +54,15 @@ Skill.Slot = {
 }
 
 
+--@enum
+Skill.OverridePriority = {
+    UPGRADE     = 0,
+    BOOSTED     = 1,
+    RELOAD      = 2,
+    CANCEL      = 3
+}
+
+
 
 -- ========== Properties ==========
 

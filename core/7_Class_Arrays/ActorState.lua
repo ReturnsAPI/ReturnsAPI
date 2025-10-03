@@ -27,6 +27,14 @@ ACTIVITY_FLAGS              10
 
 
 --@enum
+ActorState.ActivityFlag = {
+    NONE                    = 0,
+    ALLOW_ROPE_CANCEL       = 1,
+    ALLOW_AIM_TURN          = 2
+}
+
+
+--@enum
 ActorState.InterruptPriority = {
     ANY                     = 0,
     SKILL_INTERRUPT_PERIOD  = 1,
