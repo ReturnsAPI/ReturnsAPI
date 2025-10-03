@@ -355,6 +355,11 @@ Util.table_append(methods_class_array[name_rapi], {
             table.insert(t, Skill.wrap(skill_loadout_unlockable.skill_id))
         end
         return t
+    end,
+
+
+    add_skin = function(self, skin)
+        -- TODO: Should accept an ActorSkin
     end
 
 })
