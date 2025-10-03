@@ -53,24 +53,24 @@ Property | Type | Description
 | - | - | -
 `namespace`                     | string    | The namespace the survivor log is in.
 `identifier`                    | string    | The identifier for the survivor log within the namespace.
-`token_name`                    | string    | 
-`token_story`                   | string    | 
-`token_id`                      | string    | 
-`token_departed`                | string    | 
-`token_arrival`                 | string    | 
+`token_name`                    | string    | The localization token for the log's name.
+`token_story`                   | string    | The localization token for the log's story.
+`token_id`                      | string    | The localization token for the log's travel ID.
+`token_departed`                | string    | The localization token for the log's departure location.
+`token_arrival`                 | string    | The localization token for the log's destination.
 `sprite_icon_id`                | sprite    | The grid character icon in the Logbook.
 `sprite_id`                     | sprite    | The walk animation displayed beside the character name in the Logbook.
 `portrait_id`                   | sprite    | The big portrait in the Logbook.
 `portrait_index`                | number    | The subimage of `portrait_id` to use in the Logbook.
-`stat_hp_base`                  | number    | 
-`stat_hp_level`                 | number    | 
-`stat_damage_base`              | number    | 
-`stat_damage_level`             | number    | 
-`stat_regen_base`               | number    | 
-`stat_regen_level`              | number    | 
-`stat_armor_base`               | number    | 
-`stat_armor_level`              | number    | 
-`survivor_id`                   | number    | 
+`stat_hp_base`                  | number    | The base health to display.
+`stat_hp_level`                 | number    | The health gained per level up to display.
+`stat_damage_base`              | number    | The base damage to display.
+`stat_damage_level`             | number    | The damage gained per level up to display.
+`stat_regen_base`               | number    | The base health regeneration to display.
+`stat_regen_level`              | number    | The health regeneration gained per level up to display.
+`stat_armor_base`               | number    | The base armor to display.
+`stat_armor_level`              | number    | The armor gained per level up to display.
+`survivor_id`                   | number    | The ID of the survivor this log is linked to.
 ]]
 
 
