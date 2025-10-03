@@ -58,10 +58,10 @@ Property | Type | Description
 `token_id`                      | string    | 
 `token_departed`                | string    | 
 `token_arrival`                 | string    | 
-`sprite_icon_id`                | sprite    | 
-`sprite_id`                     | sprite    | 
-`portrait_id`                   |           | 
-`portrait_index`                |           | 
+`sprite_icon_id`                | sprite    | The grid character icon in the Logbook.
+`sprite_id`                     | sprite    | The walk animation displayed beside the character name in the Logbook.
+`portrait_id`                   | sprite    | The big portrait in the Logbook.
+`portrait_index`                | number    | The subimage of `portrait_id` to use in the Logbook.
 `stat_hp_base`                  | number    | 
 `stat_hp_level`                 | number    | 
 `stat_damage_base`              | number    | 
