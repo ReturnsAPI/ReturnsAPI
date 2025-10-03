@@ -150,7 +150,7 @@ local api_internal = {
 
 
     set_critical = function(bool)
-        if bool == nil then log.error("api.set_critical: Missing bool argument", 2) end
+        if bool == nil then log.error("set_critical: Missing bool argument", 2) end
 
         -- Enable crit
         if bool and (not api.critical) then

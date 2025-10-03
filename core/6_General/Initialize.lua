@@ -16,8 +16,11 @@ local initialize_done_this_rapi_load = false
 
 -- ========== Internal ==========
 
-Initialize.internal.check_if_started = function()
-    if not __initialized_started then log.error("Cannot call method before game initialization has started; try placing the call within Initialize.add()", 3) end
+Initialize.internal.check_if_started = function(name)
+    if not __initialized_started then
+        name = ("'"..name.."'") or ""
+        log.error("Cannot call method "..name.." before vanilla content initialization has finished; try placing the call within 'Initialize.add()'", 3)
+    end
 end
 
 

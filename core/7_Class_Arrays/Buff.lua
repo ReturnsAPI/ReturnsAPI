@@ -85,8 +85,8 @@ Creates a new buff with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 Buff.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("Buff.new")
+    if not identifier then log.error("Buff.new: No identifier provided", 2) end
 
     -- Return existing buff if found
     local buff = Buff.find(identifier, NAMESPACE)
@@ -201,10 +201,11 @@ gm.post_script_hook(gm.constants.buff_create, function(self, other, result, args
     --      for a buff, so if it is removed it cannot be readded
     Callback.add("__permanent", buff.on_remove, function(actor)
         
-        -- Feels a little messy, but this callback runs before
-        -- the buff is removed, so `buff_count` will never be 0
-        -- Shouldn't be a real problem though
-        Alarm.new(_ENV["!guid"], 1, function()
+        -- Since this callback runs before the buff is removed,
+        -- `buff_count` will never be 0, so the cache reset needs
+        -- to be delayed by 1 frame to work properly
+        -- Feels a little messy but shouldn't be a real problem
+        Alarm.add(_ENV["!guid"], 1, function()
             local actor_id  = actor.id
 
             if actor:buff_count(buff_id) > 0 then return end

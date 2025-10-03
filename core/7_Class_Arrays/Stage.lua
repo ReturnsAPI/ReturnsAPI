@@ -102,8 +102,8 @@ Creates a new stage with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 Stage.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("Stage.new")
+    if not identifier then log.error("Stage.new: No identifier provided", 2) end
 
     -- Return existing stage if found
     local stage = Stage.find(identifier, NAMESPACE)
@@ -377,7 +377,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
         -- Check if variant is out-of-bounds
         if variant < 1 or variant > #room_list then
-            log.error("Variant must be between 1 and "..(#room_list).." (inclusive)", 2)
+            log.error("get_room: Variant must be between 1 and "..(#room_list).." (inclusive)", 2)
             return
         end
 

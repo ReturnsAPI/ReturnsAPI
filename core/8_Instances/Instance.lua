@@ -178,7 +178,7 @@ It is automatically deleted upon the instance's destruction.
 ]]
 Instance.get_data = function(instance, subtable, namespace, namespace_is_specified)
     local id = Wrap.unwrap(instance)
-    if (type(id) ~= "number") or (id < 100000) then log.error("Instance does not exist", 2) end
+    if (type(id) ~= "number") or (id < 100000) then log.error("Instance.get_data: Instance does not exist", 2) end
     
     subtable = subtable or "__main"
     namespace = namespace or _ENV["!guid"]  -- Internal RAPI calling of this is not namespace-bound
@@ -252,7 +252,7 @@ methods_instance = {}
 -- Add GM scripts
 for fn_name, fn in pairs(GM_callso) do
     methods_instance[fn_name] = function(self, ...)
-        if self.value == -4 then log.error("Instance does not exist", 2) end
+        if self.value == -4 then log.error(fn_name..": Instance does not exist", 2) end
         return fn(self, self, ...)
     end
 end

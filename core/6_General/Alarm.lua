@@ -25,11 +25,11 @@ end)
 --@param        fn          | function  | The function to call.
 --@optional     ...         |           | A variable number of arguments to pass to the function.
 --[[
-Creates a new alarm which calls the provided function
+Adds a new alarm which calls the provided function
 with passed args after the specified amount of time.
 Returns the unique ID of the alarm.
 ]]
-Alarm.new = function(NAMESPACE, time, fn, ...)
+Alarm.add = function(NAMESPACE, time, fn, ...)
     -- Check arguments
     if type(time) ~= "number" then log.error("Alarm.add: time must be a number (you passed in '"..tostring(time).."')", 2) end
     if type(fn) ~= "function" then log.error("Alarm.add: fn must be a function (you passed in '"..tostring(fn).."')", 2) end
@@ -48,7 +48,7 @@ end
 --@param        id          | number    | The unique ID of the alarm to remove.
 --[[
 Removes an existing alarm.
-The ID is the one from @link {`Alarm.new` | Alarm#new}.
+The ID is the one from @link {`Alarm.add` | Alarm#add}.
 ]]
 Alarm.remove = function(id)
     return __alarm_bank:remove(id)

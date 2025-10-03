@@ -22,9 +22,9 @@ Creates a new sprite with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_origin)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
-    if not path then log.error("No image path provided", 2) end
+    Initialize.internal.check_if_started("Sprite.new")
+    if not identifier then log.error("Sprite.new: No identifier provided", 2) end
+    if not path then log.error("Sprite.new: No image path provided", 2) end
 
     path = expand_path(NAMESPACE, path)
 

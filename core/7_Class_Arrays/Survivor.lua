@@ -122,8 +122,8 @@ The survivor will have a placeholder skill created for each slot.
 You can call @link {`survivor:get_skills( slot )[1]` | Survivor#get_skills} to access them.
 ]]
 Survivor.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("Survivor.new")
+    if not identifier then log.error("Survivor.new: No identifier provided", 2) end
 
     -- Return existing survivor if found
     local survivor = Survivor.find(identifier, NAMESPACE)

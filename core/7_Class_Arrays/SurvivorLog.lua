@@ -87,8 +87,8 @@ Creates a new survivor log with the given identifier if it does not already exis
 or returns the existing one if it does.
 ]]
 SurvivorLog.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("SurvivorLog.new")
+    if not identifier then log.error("SurvivorLog.new: No identifier provided", 2) end
 
     -- Return existing log if found
     local log = SurvivorLog.find(identifier, NAMESPACE)
@@ -113,7 +113,7 @@ automatically populating the log's properties and
 setting the survivor's `log_id` property.
 ]]
 SurvivorLog.new_from_survivor = function(NAMESPACE, survivor)
-    Initialize.internal.check_if_started()
+    Initialize.internal.check_if_started("SurvivorLog.new_from_survivor")
     
     if not survivor then log.error("SurvivorLog.new_from_survivor: No survivor provided", 2) end
     survivor = Survivor.wrap(survivor)

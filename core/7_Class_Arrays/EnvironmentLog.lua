@@ -116,8 +116,8 @@ Creates a new environment log with the given identifier if it does not already e
 or returns the existing one if it does.
 ]]
 EnvironmentLog.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("EnvironmentLog.new")
+    if not identifier then log.error("EnvironmentLog.new: No identifier provided", 2) end
 
     -- Return existing log if found
     local log = EnvironmentLog.find(identifier, NAMESPACE)
@@ -142,7 +142,7 @@ automatically populating the log's properties and
 setting the stage's `log_id` property.
 ]]
 EnvironmentLog.new_from_stage = function(NAMESPACE, stage)
-    Initialize.internal.check_if_started()
+    Initialize.internal.check_if_started("EnvironmentLog.new_from_stage")
     
     if not stage then log.error("EnvironmentLog.new_from_stage: No stage provided", 2) end
     stage = Stage.wrap(stage)

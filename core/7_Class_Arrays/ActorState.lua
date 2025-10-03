@@ -95,8 +95,8 @@ Creates a new state with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 ActorState.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("ActorState.new")
+    if not identifier then log.error("ActorState.new: No identifier provided", 2) end
 
     -- Return existing state if found
     local state = ActorState.find(identifier, NAMESPACE)

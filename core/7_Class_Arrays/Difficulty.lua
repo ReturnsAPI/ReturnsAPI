@@ -73,8 +73,8 @@ Creates a new difficulty with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 Difficulty.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("Difficulty.new")
+    if not identifier then log.error("Difficulty.new: No identifier provided", 2) end
 
     -- Return existing difficulty if found
     local difficulty = Difficulty.find(identifier, NAMESPACE)

@@ -143,7 +143,7 @@ end
 -- Hue [0-360], Saturation [0-100], Value [0-100] -> r, g, b [0-255]
 Color.hsv_to_rgb = function(h, s, v)
     if h > 360 or h<0 or s<0 or s > 100 or v < 0 or v > 100 then 
-        log.error("Incorrect hsv values", 2)
+        log.error("Color.hsv_to_rgb: Incorrect hsv values", 2)
         return nil
     end
     local h = h/360
@@ -176,7 +176,7 @@ end
 -- rgb [0-255] -> Hue [0-360], Saturation [0-100], Value [0-100]
 Color.rgb_to_hsv = function(r, g, b)
     if r < 0 or r > 255 or g < 0 or g > 255 or b < 0 or b > 255 then
-        log.error("Incorrect rgb values")
+        log.error("Color.rgb_to_hsv: Incorrect rgb values", 2)
         return nil
     end
     r = r/255

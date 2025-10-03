@@ -4,6 +4,10 @@
 -- like before while we wait for a better implementation by sarn
 -- (Re-adding all the mid-hooks is time consuming)
 
+--[[
+**[!]** The functionality of this class is subject to change in the future once a more accurate system is established.
+]]
+
 RecalculateStats = new_class()
 
 run_once(function()

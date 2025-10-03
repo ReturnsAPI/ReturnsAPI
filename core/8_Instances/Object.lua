@@ -106,8 +106,8 @@ Creates a new object with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 Object.new = function(NAMESPACE, identifier, parent)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("Object.new")
+    if not identifier then log.error("Object.new: No identifier provided", 2) end
 
     -- Return existing object if found
     local obj = Object.find(identifier, NAMESPACE)

@@ -105,7 +105,7 @@ Creates a new loot pool with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 LootPool.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
+    Initialize.internal.check_if_started("LootPool.new")
     if not identifier then log.error("LootPool.new: No identifier provided", 2) end
 
     -- Return existing pool if found
@@ -169,7 +169,7 @@ automatically populating the pool's properties and
 setting the item tier's `*_pool_for_reroll` properties.
 ]]
 LootPool.new_from_tier = function(NAMESPACE, tier)
-    Initialize.internal.check_if_started()
+    Initialize.internal.check_if_started("LootPool.new_from_tier")
     
     if not tier then log.error("LootPool.new_from_tier: No tier provided", 2) end
     tier = ItemTier.wrap(tier)

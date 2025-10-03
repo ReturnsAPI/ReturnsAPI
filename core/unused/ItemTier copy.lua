@@ -82,7 +82,7 @@ or returns the existing one if it does.
 ]]
 ItemTier.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    if not identifier then log.error("ItemTier.new: No identifier provided", 2) end
 
     -- Return existing tier if found
     local tier = ItemTier.find(identifier, NAMESPACE)

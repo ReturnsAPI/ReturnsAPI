@@ -184,6 +184,11 @@ for name_rapi, name_global in pairs(class_name_r2g) do
     end
     class_table.Property = enum
 
+    -- new (placeholder)
+    class_table.new = function(NAMESPACE, identifier)
+        log.error(name_rapi..".new: Method has not been created for this class yet", 2)
+    end
+
     -- find
     class_table.find = function(identifier, namespace, namespace_is_specified)
         -- Search in namespace

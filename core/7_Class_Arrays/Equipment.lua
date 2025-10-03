@@ -79,8 +79,8 @@ Creates a new equipment with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 Equipment.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("Equipment.new")
+    if not identifier then log.error("Equipment.new: No identifier provided", 2) end
 
     -- Return existing equipment if found
     local equip = Equipment.find(identifier, NAMESPACE)

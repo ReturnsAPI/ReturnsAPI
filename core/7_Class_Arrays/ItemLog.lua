@@ -87,8 +87,8 @@ Creates a new item log with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 ItemLog.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("ItemLog.new")
+    if not identifier then log.error("ItemLog.new: No identifier provided", 2) end
 
     -- Return existing log if found
     local log = ItemLog.find(identifier, NAMESPACE)
@@ -116,7 +116,7 @@ automatically populating the log's properties and
 setting the item's `item_log_id` property.
 ]]
 ItemLog.new_from_item = function(NAMESPACE, item)
-    Initialize.internal.check_if_started()
+    Initialize.internal.check_if_started("ItemLog.new_from_item")
     
     if not item then log.error("ItemLog.new_from_item: No item provided", 2) end
     item = Item.wrap(item)
@@ -151,7 +151,7 @@ automatically populating the log's properties and
 setting the equipment's `item_log_id` property.
 ]]
 ItemLog.new_from_equipment = function(NAMESPACE, equip)
-    Initialize.internal.check_if_started()
+    Initialize.internal.check_if_started("ItemLog.new_from_equipment")
     
     if not equip then log.error("ItemLog.new_from_equipment: No equipment provided", 2) end
     equip = Equipment.wrap(equip)

@@ -105,7 +105,7 @@ Creates a new item tier with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 ItemTier.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
+    Initialize.internal.check_if_started("ItemTier.new")
     if not identifier then log.error("ItemTier.new: No identifier provided", 2) end
 
     -- Return existing tier if found

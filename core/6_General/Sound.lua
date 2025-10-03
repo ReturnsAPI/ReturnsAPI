@@ -19,9 +19,9 @@ Creates a new sound with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 Sound.new = function(NAMESPACE, identifier, path)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
-    if not path then log.error("No image path provided", 2) end
+    Initialize.internal.check_if_started("Sound.new")
+    if not identifier then log.error("Sound.new: No identifier provided", 2) end
+    if not path then log.error("Sound.new: No image path provided", 2) end
 
     path = expand_path(NAMESPACE, path)
 

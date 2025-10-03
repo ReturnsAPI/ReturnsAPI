@@ -107,8 +107,8 @@ Creates a new item with the given identifier if it does not already exist,
 or returns the existing one if it does.
 ]]
 Item.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started()
-    if not identifier then log.error("No identifier provided", 2) end
+    Initialize.internal.check_if_started("Item.new")
+    if not identifier then log.error("Item.new: No identifier provided", 2) end
 
     -- Return existing item if found
     local item = Item.find(identifier, NAMESPACE)
