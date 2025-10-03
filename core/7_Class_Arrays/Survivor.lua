@@ -245,6 +245,30 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
+    --@return       table or nil
+    --[[
+    Returns the base stats for the survivor; valid stats are listed in @link {`set_stats_base` | Survivor#set_stats_base}.
+    Returns `nil` if `set_stats_base` was never called for the survivor.
+    ]]
+    get_stats_base = function(self)
+        if not __survivor_data[self.value].stats_base then return nil end
+        return Util.table_shallow_copy(__survivor_data[self.value].stats_base)
+    end,
+
+
+    --@instance
+    --@return       table or nil
+    --[[
+    Returns the stats gained per level up for the survivor; valid stats are listed in @link {`set_stats_level` | Survivor#set_stats_level}.
+    Returns `nil` if `set_stats_level` was never called for the survivor.
+    ]]
+    get_stats_level = function(self)
+        if not __survivor_data[self.value].stats_level then return nil end
+        return Util.table_shallow_copy(__survivor_data[self.value].stats_level)
+    end,
+
+
+    --@instance
     --@param        slot        | number    | The @link {slot | Skill#slot} to add to.
     --@param        skill       | Skill     | The skill to add.
     --[[

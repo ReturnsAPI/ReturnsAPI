@@ -132,9 +132,8 @@ SurvivorLog.new_from_survivor = function(NAMESPACE, survivor)
     log.survivor_id     = survivor
 
     -- Set stats
-    local data          = __survivor_data[survivor.value]
-    local stats_base    = data.stats_base
-    local stats_level   = data.stats_level
+    local stats_base    = survivor:get_stats_base()
+    local stats_level   = survivor:get_stats_level()
     if stats_base   then log:set_stats_base(stats_base.health, stats_base.damage, stats_base.regen, stats_base.armor) end
     if stats_level  then log:set_stats_level(stats_level.health, stats_level.damage, stats_level.regen, stats_level.armor) end
 

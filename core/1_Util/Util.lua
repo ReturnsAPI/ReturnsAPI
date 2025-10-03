@@ -337,6 +337,20 @@ end
 
 
 --@static
+--@param        src         | table     | The table to copy.
+--[[
+Returns a shallow copy of the table.
+]]
+Util.table_shallow_copy = function(src)
+    local t = {}
+    for k, v in pairs(src) do
+        t[k] = v
+    end
+    return t
+end
+
+
+--@static
 --@return       string
 --@param        table       | table     | The table to encode.
 --[[
