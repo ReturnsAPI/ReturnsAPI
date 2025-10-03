@@ -80,6 +80,78 @@ Property | Type | Description
 --@section Static Methods
 
 --@static
+--@return   SurvivorLog
+--@param    identifier  | string    | The identifier for the survivor log.
+--[[
+Creates a new survivor log with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+SurvivorLog.new = function(NAMESPACE, identifier)
+    Initialize.internal.check_if_started()
+    if not identifier then log.error("No identifier provided", 2) end
+
+    -- Return existing log if found
+    local log = SurvivorLog.find(identifier, NAMESPACE)
+    if log then return log end
+
+    -- Create new
+    log = SurvivorLog.wrap(gm.survivor_log_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return log
+end
+
+
+--@static
+--@return   SurvivorLog
+--@param    survivor        | Survivor  | The survivor to use as a base.
+--[[
+Creates a new survivor log using an survivor as a base,
+automatically populating the log's properties and
+setting the survivor's `log_id` property.
+]]
+SurvivorLog.new_from_survivor = function(NAMESPACE, survivor)
+    Initialize.internal.check_if_started()
+    
+    if not survivor then log.error("SurvivorLog.new_from_survivor: No survivor provided", 2) end
+    survivor = Survivor.wrap(survivor)
+    
+    if type(survivor.value) ~= "number" then log.error("SurvivorLog.new_from_survivor: Invalid survivor", 2) end
+
+    -- Use existing log or create a new one
+    local log = SurvivorLog.find(survivor.identifier, NAMESPACE)
+             or SurvivorLog.new(NAMESPACE, survivor.identifier)
+
+    -- Set sprite and icon IDs
+    log.sprite_id       = survivor.sprite_title
+    log.sprite_icon_id  = survivor.sprite_portrait
+
+    -- Set the log ID of the survivor
+    survivor.log_id = log
+
+    -- Set stats
+    local data          = __survivor_data[survivor.value]
+    local stats_base    = data.stats_base   or {}
+    local stats_level   = data.stats_level  or {}
+    gm.survivor_log_set_stats(
+        log.value,
+        stats_base.health   or 0,
+        stats_level.health  or 0,
+        stats_base.damage   or 0,
+        stats_level.damage  or 0,
+        stats_base.regen    or 0,
+        stats_level.regen   or 0,
+        stats_base.armor    or 0,
+        stats_level.armor   or 0
+    )
+
+    return log
+end
+
+
+--@static
 --@name         find
 --@return       SurvivorLog or nil
 --@param        identifier  | string    | The identifier to search for.
