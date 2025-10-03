@@ -1,7 +1,5 @@
 -- Tracer
 
--- TODO: Add property docs
-
 Tracer = new_class()
 
 run_once(function()
