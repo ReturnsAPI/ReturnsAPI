@@ -185,15 +185,13 @@ make_table_once("metatable_packet", {
 
 -- ========== Callback ==========
 
-run_once(function()
-    local function packet_onReceived(packet, buffer, buffer_tell, player)
-        -- Call deserialization function linked to packet ID
-        local fn = __callbacks_onDeserialize[packet.value]
-        if fn then fn(buffer, player) end
-    end
+local function packet_onReceived(packet, buffer, buffer_tell, player)
+    -- Call deserialization function linked to packet ID
+    local fn = __callbacks_onDeserialize[packet.value]
+    if fn then fn(buffer, player) end
+end
 
-    Callback.add(_ENV["!guid"], Callback.NET_MESSAGE_ON_RECEIVED, packet_onReceived)
-end)
+Callback.add(_ENV["!guid"], Callback.NET_MESSAGE_ON_RECEIVED, packet_onReceived)
 
 
 

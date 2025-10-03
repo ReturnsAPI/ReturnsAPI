@@ -111,7 +111,6 @@ Callback.Priority = {
 Returns the string name of the callback type with the given ID.
 ]]
 Callback.get_type_name = function(num_id)
-    if num_id < 0 or num_id >= #callback_constants then return nil end
     return callback_constants[num_id + 1]
 end
 
