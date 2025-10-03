@@ -9,7 +9,7 @@ local initial_fadein
 
 gm.post_script_hook(gm.constants._ui_draw_box_text, function(self, other, result, args)
     -- Find Online button
-    if args[5].value == Language.translate_token("ui.title.startOnline") then
+    if args[5].value == gm.translate("ui.title.startOnline") then
 
         -- Calculate correct position to draw text
         -- args 1 and 2 are text start
