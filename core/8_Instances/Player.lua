@@ -50,27 +50,7 @@ end
 
 methods_player = {
 
-    --@instance
-    --@return       Equipment or nil
-    --[[
-    Returns the player's current equipment.
-    Always `nil` for non-player actors.
-    ]]
-    equipment_get = function(self)
-        local equip = gm.equipment_get(self.value)
-        if equip >= 0 then return Equipment.wrap(equip) end
-        return nil
-    end,
-
-
-    --@instance
-    --@param        equip       | Equipment | The equipment to set. <br>If `-1`, removes equipment.
-    --[[
-    Sets the player's equipment.
-    ]]
-    equipment_set = function(self, equip)
-        gm.equipment_set(self.value, Wrap.unwrap(equip))
-    end
+    
 
 }
 

@@ -493,23 +493,34 @@ methods_actor = {
 
 
     --@instance
+    --@return       Equipment or nil
+    --[[
+    Returns the actor's current equipment.
+    ]]
+    equipment_get = function(self)
+        local equip = gm.equipment_get(self.value)
+        if equip >= 0 then return Equipment.wrap(equip) end
+        return nil
+    end,
+
+
+    --@instance
+    --@param        equip       | Equipment | The equipment to set. <br>If `-1`, removes equipment.
+    --[[
+    Sets the actor's equipment.
+    ]]
+    equipment_set = function(self, equip)
+        gm.equipment_set(self.value, Wrap.unwrap(equip))
+    end,
+
+
+    --@instance
     --[[
     Queues the actor's stats to be recalculated next frame.
     Prevents running `recalculate_stats` more than once per frame, so it's preferable over calling `recalculate_stats` directly.
     ]]
     queue_recalculate_stats = function(self)
         gm.actor_queue_dirty(self.value)
-    end,
-
-
-    --@instance
-    --@return       Equipment or nil
-    --[[
-    Returns the player's current equipment.
-    Always `nil` for non-player actors.
-    ]]
-    equipment_get = function(self)
-        return nil
     end,
 
 
