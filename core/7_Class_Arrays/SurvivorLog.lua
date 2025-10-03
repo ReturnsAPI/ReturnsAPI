@@ -132,10 +132,20 @@ SurvivorLog.new_from_survivor = function(NAMESPACE, survivor)
     log.survivor_id     = survivor
 
     -- Set stats
-    local stats_base    = survivor:get_stats_base()
-    local stats_level   = survivor:get_stats_level()
-    if stats_base   then log:set_stats_base(stats_base.health, stats_base.damage, stats_base.regen, stats_base.armor) end
-    if stats_level  then log:set_stats_level(stats_level.health, stats_level.damage, stats_level.regen, stats_level.armor) end
+    local stats_base = survivor:get_stats_base()
+    if stats_base then
+        log.stat_hp_base        = stats_base.hp
+        log.stat_damage_base    = stats_base.damage
+        log.stat_regen_base     = stats_base.regen
+        log.stat_armor_base     = stats_base.armor
+    end
+    local stats_level = survivor:get_stats_level()
+    if stats_level then
+        log.stat_hp_level       = stats_level.hp
+        log.stat_damage_level   = stats_level.damage
+        log.stat_regen_level    = stats_level.regen
+        log.stat_armor_level    = stats_level.armor
+    end
 
     -- Set the log ID of the survivor
     survivor.log_id = log
@@ -189,37 +199,5 @@ Util.table_append(methods_class_array[name_rapi], {
     --[[
     Prints the survivor log's properties.
     ]]
-
-
-    --@instance
-    --@param        health      | number    | 
-    --@param        damage      | number    | 
-    --@param        regen       | number    | 
-    --@param        armor       | number    | 
-    --[[
-    Sets the base stats.
-    ]]
-    set_stats_base = function(self, health, damage, regen, armor)
-        self.stat_hp_base       = health    or 0
-        self.stat_damage_base   = damage    or 0
-        self.stat_regen_base    = regen     or 0
-        self.stat_armor_base    = armor     or 0
-    end,
-
-
-    --@instance
-    --@param        health      | number    | 
-    --@param        damage      | number    | 
-    --@param        regen       | number    | 
-    --@param        armor       | number    | 
-    --[[
-    Sets the stats gained per level up.
-    ]]
-    set_stats_level = function(self, health, damage, regen, armor)
-        self.stat_hp_level      = health    or 0
-        self.stat_damage_level  = damage    or 0
-        self.stat_regen_level   = regen     or 0
-        self.stat_armor_level   = armor     or 0
-    end
 
 })
