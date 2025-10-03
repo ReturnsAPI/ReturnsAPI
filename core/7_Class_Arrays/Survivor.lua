@@ -135,6 +135,32 @@ Survivor.new = function(NAMESPACE, identifier)
         identifier
     ))
 
+    -- Add stat initialization callback
+    Callback.add(survivor.on_init, function(actor)
+        local data = __survivor_data[actor.class]
+        if not data then return end
+
+        local base = data.stats_base
+        if base then
+            actor.maxhp_base            = base.health
+            actor.damage_base           = base.damage
+            actor.hp_regen_base         = base.regen
+            actor.armor_base            = base.armor
+            actor.attack_speed_base     = base.attack_speed
+            actor.critical_chance_base  = base.critical_chance
+        end
+
+        local level = data.stats_level
+        if level then
+            actor.maxhp_level           = level.health
+            actor.damage_level          = level.damage
+            actor.hp_regen_level        = level.regen
+            actor.armor_level           = level.armor
+            actor.attack_speed_level    = level.attack_speed
+            actor.critical_chance_level = level.critical_chance
+        end
+    end)
+
     return survivor
 end
 
@@ -184,6 +210,68 @@ Util.table_append(methods_class_array[name_rapi], {
     --[[
     Prints the survivor's properties.
     ]]
+
+
+    --@instance
+    --@param        table       | table     | A key-value pair table containing stats to set.
+    --[[
+    Sets the base stats for the survivor.
+
+    **Valid stats**
+    Property | Type | Description
+    | - | - | -
+    `health`            | number    | `110` by default.
+    `damage`            | number    | `12` by default.
+    `regen`             | number    | `0.01` by default.
+    `armor`             | number    | `0` by default.
+    `attack_speed`      | number    | `1` by default.
+    `critical_chance`   | number    | `1` by default.
+    ]]
+    set_stats_base = function(self, t)
+        __survivor_data[self.value] = __survivor_data[self.value] or {}
+
+        __survivor_data[self.value].stats_base = __survivor_data[self.value].stats_base or {
+            health          = 110,
+            damage          = 12,
+            regen           = 0.01,
+            armor           = 0,
+            attack_speed    = 1,
+            critical_chance = 1
+        }
+
+        Util.table_append(__survivor_data[self.value].stats_base, t)
+    end,
+
+
+    --@instance
+    --@param        table       | table     | A key-value pair table containing stats to set.
+    --[[
+    Sets the stats gained per level up for the survivor.
+
+    **Valid stats**
+    Property | Type | Description
+    | - | - | -
+    `health`            | number    | `32` by default.
+    `damage`            | number    | `3` by default.
+    `regen`             | number    | `0.002` by default.
+    `armor`             | number    | `2` by default.
+    `attack_speed`      | number    | `0` by default.
+    `critical_chance`   | number    | `0` by default.
+    ]]
+    set_stats_level = function(self, t)
+        __survivor_data[self.value] = __survivor_data[self.value] or {}
+
+        __survivor_data[self.value].stats_level = __survivor_data[self.value].stats_level or {
+            health          = 32,
+            damage          = 3,
+            regen           = 0.002,
+            armor           = 2,
+            attack_speed    = 0,
+            critical_chance = 0
+        }
+
+        Util.table_append(__survivor_data[self.value].stats_level, t)
+    end,
 
 
     --@instance
