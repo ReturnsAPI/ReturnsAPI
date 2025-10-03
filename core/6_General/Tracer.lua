@@ -249,7 +249,7 @@ methods_tracer = {
 
 
     --@instance
-    --@param        func        | function  | The function to set. <br>The parameters for it are `x1, y1, x2, y2, tracer_col`.
+    --@param        func        | function  | The function to set. <br>The parameters for it are `x1, y1, x2, y2, color`.
     --[[
     Sets the function that gets called whenever the tracer spawns.
     ]]
