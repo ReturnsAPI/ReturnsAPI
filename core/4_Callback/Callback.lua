@@ -203,9 +203,10 @@ end
 
 
 --@static
+--@return       function
 --@param        id          | number    | The unique ID of the registered function to remove.
 --[[
-Removes a registered callback function.
+Removes and returns a registered callback function.
 The ID is the one from @link {`Callback.add` | Callback#add}.
 ]]
 Callback.remove = function(id)

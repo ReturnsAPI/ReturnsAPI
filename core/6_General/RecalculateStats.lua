@@ -46,10 +46,10 @@ end
 
 
 --@static
---@name         remove
+--@return       function
 --@param        id          | number    | The unique ID of the registered function to remove.
 --[[
-Removes a registered stat recalculation function.
+Removes and returns a registered stat recalculation function.
 The ID is the one from @link {`RecalculateStats.add` | RecalculateStats#add}.
 ]]
 RecalculateStats.remove = function(id)

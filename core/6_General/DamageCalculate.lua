@@ -38,10 +38,10 @@ end
 
 
 --@static
---@name         remove
+--@return       function
 --@param        id          | number    | The unique ID of the registered function to remove.
 --[[
-Removes a registered damage calculation function.
+Removes and returns a registered damage calculation function.
 The ID is the one from @link {`DamageCalculate.add` | DamageCalculate#add}.
 ]]
 DamageCalculate.remove = function(id)

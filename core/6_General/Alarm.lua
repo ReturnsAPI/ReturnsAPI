@@ -45,9 +45,10 @@ end
 
 
 --@static
+--@return       function
 --@param        id          | number    | The unique ID of the alarm to remove.
 --[[
-Removes an existing alarm.
+Removes and returns an existing alarm.
 The ID is the one from @link {`Alarm.add` | Alarm#add}.
 ]]
 Alarm.remove = function(id)

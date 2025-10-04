@@ -83,6 +83,8 @@ gm.post_script_hook(gm.constants.damager_calculate_damage, function(self, other,
     Util.log_hook(self, other, result, args)
 end)
 ```
+
+TODO: Update this to work with Hook class (or make another method for that idk)
 ]]
 Util.log_hook = function(self, other, result, args)
     -- Helper functions

@@ -70,10 +70,10 @@ end
 
 
 --@static
---@name         remove
+--@return       function
 --@param        id          | number    | The unique ID of the registered function to remove.
 --[[
-Removes a registered DamageDodge function.
+Removes and returns a registered DamageDodge function.
 The ID is the one from @link {`DamageDodge.add` | DamageDodge#add}.
 ]]
 DamageDodge.remove = function(id)

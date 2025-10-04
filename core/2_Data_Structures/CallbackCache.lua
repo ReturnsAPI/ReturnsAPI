@@ -29,7 +29,7 @@ run_once(function()
             -- Register a callback function
             -- Stored as a function data table
             -- Returns a unique ID
-            add = function(self, fn, namespace, priority, section)
+            add = function(self, fn, namespace, priority, section, id_override)
                 priority = priority or 0    -- Higher values run before lower ones
                 section = section or "main"
 
@@ -50,8 +50,11 @@ run_once(function()
                 end
 
                 -- Get unique ID and increment
-                local id = self.current_id
-                self.current_id = self.current_id + 1
+                local id = id_override
+                if not id then
+                    id = self.current_id
+                    self.current_id = self.current_id + 1
+                end
 
                 -- Create callback function data table
                 local fn_table = {
