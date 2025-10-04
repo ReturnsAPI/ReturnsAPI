@@ -4,11 +4,12 @@
 Allows for calling a function before/after a game function.
 
 **Callback arguments**
+Argument | Type | Description
 | - | - | -
-`self`          | Instance, Struct, or nil  | The calling instance.
-`other`         | Instance, Struct, or nil  | The "other" instance.
-`result`        |                           | The post-hook return value (`nil` for pre-hooks). <br>Get/set using `result.value`. <br>Can only be set in post-hooks.
-`args`          | table                     | The called game function's arguments. <br>Get/set using `args[i]`. <br>Can only be set in pre-hooks.
+`self`      | Instance, Struct, or nil  | The calling instance.
+`other`     | Instance, Struct, or nil  | The "other" instance.
+`result`    |                           | The post-hook return value (`nil` for pre-hooks). <br>Get/set using `result.value`. <br>Can only be set in post-hooks.
+`args`      | table                     | The called game function's arguments. <br>Get/set using `args[i]`. <br>Can only be set in pre-hooks.
 
 In a pre-hook, returning `false` will prevent normal execution of the game function (post-hooks will still run).
 ]]
