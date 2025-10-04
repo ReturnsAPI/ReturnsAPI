@@ -35,7 +35,7 @@ Math.RAD2DEG = 180 / math.pi
 Returns a random float between `a` (inclusive) and `b` (exclusive).
 ]]
 Math.randomf = function(a, b)
-    return a + (math.random() * (b - a))
+    return a + ((b - a) * math.random())
 end
 
 
@@ -134,6 +134,19 @@ Returns an ease-out value for a given value `x` between `0` and `1`.
 ]]
 Math.easeout = function(x, n)
     return 1 - (1 - x)^(n or 2)
+end
+
+
+--@static
+--@return       number
+--@param        a           | number    | The first value.
+--@param        b           | number    | The second value.
+--@param        n           | number    | The amount to interpolate, between `0` and `1`. <br>Values outside this range will extrapolate.
+--[[
+Returns the value between `a` and `b` at percentage `x`.
+]]
+Math.lerp = function(a, b, x)
+    return a + ((b - a) * x)
 end
 
 
