@@ -132,6 +132,11 @@ table.insert(_rapi_initialize, Hook.internal.readd_hooks)
 Registers a function under a game function pre-hook
 Returns the unique ID of the registered function.
 
+**Priority Convention**
+To allow for a decent amount of space between priorities,
+use the enum values in @link {`Callback.Priority` | Callback#Priority}.
+If you need to be more specific than that, try to keep a distance of at least `100`.
+
 *Technical:* Uses `gm.pre_script_hook` internally, passing auto-wrapped values.
 ]]
 Hook.add_pre = function(NAMESPACE, script, arg2, arg3)
@@ -171,6 +176,11 @@ end
 --[[
 Registers a function under a game function post-hook
 Returns the unique ID of the registered function.
+
+**Priority Convention**
+To allow for a decent amount of space between priorities,
+use the enum values in @link {`Callback.Priority` | Callback#Priority}.
+If you need to be more specific than that, try to keep a distance of at least `100`.
 
 *Technical:* Uses `gm.post_script_hook` internally, passing auto-wrapped values.
 ]]
