@@ -66,7 +66,7 @@ for _, type_name in ipairs(primitive_types) do
         local gm_name = "write"..type_name.."_direct"
 
         methods_buffer[method_name] = function(self, value)
-            gm[gm_name](self.value, Wrap.unwrap(value))
+            gm[gm_name](self.value, Wrap.unwrap(value, true))
         end
     end
 
