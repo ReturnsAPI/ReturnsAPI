@@ -34,7 +34,7 @@ end
 methods_buffer = {
 
     write_instance = function(self, instance)
-        gm.write_instance_direct(self.value, Wrap.unwrap(instance, true))
+        gm.write_instance_direct(self.value, Wrap.unwrap(instance))
     end,
 
 
@@ -66,7 +66,7 @@ for _, type_name in ipairs(primitive_types) do
         local gm_name = "write"..type_name.."_direct"
 
         methods_buffer[method_name] = function(self, value)
-            gm[gm_name](self.value, Wrap.unwrap(value, true))
+            gm[gm_name](self.value, Wrap.unwrap(value))
         end
     end
 
