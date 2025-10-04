@@ -251,7 +251,7 @@ methods_tracer = {
     --@instance
     --@param        func        | function  | The function to set. <br>The parameters for it are `x1, y1, x2, y2, color`.
     --[[
-    Sets the function that gets called whenever the tracer spawns.
+    Sets the function that gets called while the tracer is drawn.
     ]]
     set_callback = function(self, func)
         __tracer_callbacks[self.value] = func
