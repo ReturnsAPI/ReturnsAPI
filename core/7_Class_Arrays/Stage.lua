@@ -389,6 +389,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@param        ...         | InteractableCard or string    | A variable number of interactable cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Adds an @link {interactable card(s) | InteractableCard} to the stage's spawn pool.
+    Does nothing if the card is already present.
     ]]
     add_interactable = function(self, ...)
         local interactables_list = List.wrap(self.spawn_interactables)
@@ -402,7 +403,9 @@ Util.table_append(methods_class_array[name_rapi], {
             if type(card) == "string" then
                 card = InteractableCard.find(card)
             end
-            interactables_list:add(card)
+            if not interactables_list:contains(card) then
+                interactables_list:add(card)
+            end
         end
     end,
 
@@ -442,6 +445,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@param        ...         | InteractableCard or string    | A variable number of interactable cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Adds an @link {interactable card(s) | InteractableCard} to the stage's post-loop spawn pool.
+    Does nothing if the card is already present.
     ]]
     add_interactable_loop = function(self, ...)
         local interactables_list = List.wrap(self.spawn_interactables_loop)
@@ -455,7 +459,9 @@ Util.table_append(methods_class_array[name_rapi], {
             if type(card) == "string" then
                 card = InteractableCard.find(card)
             end
-            interactables_list:add(card)
+            if not interactables_list:contains(card) then
+                interactables_list:add(card)
+            end
         end
     end,
 
@@ -495,6 +501,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@param        ...         | MonsterCard or string     | A variable number of monster cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Adds a @link {monster card(s) | MonsterCard} to the stage's spawn pool.
+    Does nothing if the card is already present.
     ]]
     add_monster = function(self, ...)
         local enemy_list = List.wrap(self.spawn_enemies)
@@ -508,7 +515,9 @@ Util.table_append(methods_class_array[name_rapi], {
             if type(card) == "string" then
                 card = MonsterCard.find(card)
             end
-            enemy_list:add(card)
+            if not enemy_list:contains(card) then
+                enemy_list:add(card)
+            end
         end
     end,
 
@@ -548,6 +557,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@param        ...         | MonsterCard or string     | A variable number of monster cards. <br>Alternatively, a table may be provided. <br>Identifier strings may be provided if they are vanilla.
     --[[
     Adds a @link {monster card(s) | MonsterCard} to the stage's post-loop spawn pool.
+    Does nothing if the card is already present.
     ]]
     add_monster_loop = function(self, ...)
         local enemy_list = List.wrap(self.spawn_enemies_loop)
@@ -561,7 +571,9 @@ Util.table_append(methods_class_array[name_rapi], {
             if type(card) == "string" then
                 card = MonsterCard.find(card)
             end
-            enemy_list:add(card)
+            if not enemy_list:contains(card) then
+                enemy_list:add(card)
+            end
         end
     end,
 
