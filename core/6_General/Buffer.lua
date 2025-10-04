@@ -34,7 +34,7 @@ end
 methods_buffer = {
 
     write_instance = function(self, instance)
-        gm.write_instance_direct(self.value, Wrap.unwrap(instance))
+        gm.write_instance_direct(self.value, Wrap.unwrap(instance, true))
     end,
 
 
