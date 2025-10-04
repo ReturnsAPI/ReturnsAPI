@@ -58,6 +58,31 @@ Property | Type | Description
 --@section Static Methods
 
 --@static
+--@return   MonsterCard
+--@param    identifier  | string    | The identifier for the card.
+--[[
+Creates a new card with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+MonsterCard.new = function(NAMESPACE, identifier)
+    Initialize.internal.check_if_started("MonsterCard.new")
+    if not identifier then log.error("MonsterCard.new: No identifier provided", 2) end
+
+    -- Return existing card if found
+    local card = MonsterCard.find(identifier, NAMESPACE)
+    if card then return card end
+
+    -- Create new
+    card = MonsterCard.wrap(gm.monster_card_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return card
+end
+
+
+--@static
 --@name         find
 --@return       MonsterCard or nil
 --@param        identifier  | string    | The identifier to search for.
@@ -74,7 +99,7 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --@param        filter      |           | The filter to search by.
 --@optional     property    | number    | The property to check. <br>@link {`MonsterCard.Property.NAMESPACE` | MonsterCard#Property} by default.
 --[[
-Returns a table of interactable cards matching the specified filter and property.
+Returns a table of monster cards matching the specified filter and property.
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
 Try not to do that too much.
