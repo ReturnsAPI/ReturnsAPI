@@ -60,6 +60,31 @@ Property | Type | Description
 --@section Static Methods
 
 --@static
+--@return   InteractableCard
+--@param    identifier  | string    | The identifier for the card.
+--[[
+Creates a new card with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+InteractableCard.new = function(NAMESPACE, identifier)
+    Initialize.internal.check_if_started("InteractableCard.new")
+    if not identifier then log.error("InteractableCard.new: No identifier provided", 2) end
+
+    -- Return existing card if found
+    local card = InteractableCard.find(identifier, NAMESPACE)
+    if card then return card end
+
+    -- Create new
+    card = InteractableCard.wrap(gm.interactable_card_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return card
+end
+
+
+--@static
 --@name         find
 --@return       InteractableCard or nil
 --@param        identifier  | string    | The identifier to search for.
