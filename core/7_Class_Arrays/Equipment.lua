@@ -77,6 +77,8 @@ Property | Type | Description
 --[[
 Creates a new equipment with the given identifier if it does not already exist,
 or returns the existing one if it does.
+
+The equipment is automatically added to the loot pool `LootPool.EQUIPMENT`.
 ]]
 Equipment.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started("Equipment.new")
@@ -110,8 +112,7 @@ Equipment.new = function(NAMESPACE, identifier)
     equip.is_new_equipment = false
 
     -- Add to Equipment loot pool by default
-    local pool = ItemTier.wrap(ItemTier.EQUIPMENT).equipment_pool_for_reroll
-    if pool ~= -1 then LootPool.wrap(pool):add_equipment(equip) end
+    LootPool.wrap(LootPool.EQUIPMENT):add_equipment(equip)
 
     return equip
 end
