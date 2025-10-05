@@ -534,7 +534,7 @@ make_table_once("metatable_instance", {
 
 
     __eq = function(proxy, other)
-        return proxy.value == other.value
+        return proxy.value == Instance.wrap(other).value
     end,
 
     

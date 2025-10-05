@@ -570,6 +570,11 @@ make_table_once("metatable_actor", {
         metatable_instance.__newindex(proxy, k, v)
     end,
 
+
+    __eq = function(proxy, other)
+        return metatable_instance.__eq(proxy, other)
+    end,
+
     
     __metatable = "RAPI.Wrapper."..wrapper_name
 })
