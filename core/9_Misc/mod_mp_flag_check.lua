@@ -62,7 +62,7 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
     gm.draw_set_font(1)
     gm.draw_set_halign(1)
     gm.draw_set_valign(1)
-    local str = ((#incomp == 1) and gm.translate("mpcheck.single", #incomp)) or gm.translate("mpcheck.plural", #incomp)
+    local str = gm.translate("ui.numIncompatibleMods", #incomp)
     local col = {Color.ORANGE, Color.BLACK, Color.BLACK}
     for i = 3, 1, -1 do
         local c = col[i]
