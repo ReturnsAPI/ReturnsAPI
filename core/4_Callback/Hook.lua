@@ -40,8 +40,8 @@ Hook.internal.add_pre_hook = function(script)
         local _args_og  = {}
         for i, arg in ipairs(args) do
             local wrap = Wrap.wrap(arg.value)
-            _args[i]    = wrap
-            _args_og[i] = wrap
+            _args[i]    = { value = wrap }
+            _args_og[i] = value
         end
 
         local pre_hook_return = true
@@ -61,8 +61,8 @@ Hook.internal.add_pre_hook = function(script)
 
         -- Args modification
         for i, arg in ipairs(_args) do
-            if arg ~= _args_og[i] then
-                args[i].value = Wrap.unwrap(arg)
+            if (type(arg) == "table") and (arg.value ~= _args_og[i].value) then
+                args[i].value = Wrap.unwrap(arg.value)
             end
         end
 
@@ -82,7 +82,7 @@ Hook.internal.add_post_hook = function(script)
         local _result_og = _result.value
         local _args     = {}
         for i, arg in ipairs(args) do
-            _args[i] = Wrap.wrap(arg.value)
+            _args[i] = { value = Wrap.wrap(arg.value) }
         end
 
         -- Call registered functions with wrapped args
