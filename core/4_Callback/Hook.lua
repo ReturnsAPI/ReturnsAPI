@@ -111,7 +111,10 @@ Hook.internal.readd_hooks = function()
         Hook.internal.add_post_hook(script)
     end
 end
-table.insert(_rapi_initialize, Hook.internal.readd_hooks)
+
+run_on_hotload(function()
+    table.insert(_rapi_initialize, Hook.internal.readd_hooks)
+end)
 
 
 
