@@ -137,7 +137,7 @@ Util.log_hook = function(self, other, result, args)
     else
         if type(self) == "table" and instance_wrappers[self.RAPI] then self = self.cinstance end
         local status, ret = pcall(object_get_name, self)
-        output = output..(tostring(status and ret) or tostring(self))
+        output = output..((status and tostring(ret)) or tostring(self))
     end
 
     -- other
@@ -148,7 +148,7 @@ Util.log_hook = function(self, other, result, args)
     else
         if type(other) == "table" and instance_wrappers[other.RAPI] then other = other.cinstance end
         local status, ret = pcall(object_get_name, other)
-        output = output..(tostring(status and ret) or tostring(other))
+        output = output..((status and tostring(ret)) or tostring(other))
     end
 
     -- result
@@ -162,7 +162,7 @@ Util.log_hook = function(self, other, result, args)
     else
         if type(result) == "table" and instance_wrappers[result.RAPI] then result = result.cinstance end
         local status, ret = pcall(object_get_name, result)
-        output = output..(tostring(status and ret) or tostring(result))
+        output = output..((status and tostring(ret)) or tostring(result))
     end
 
     -- args
@@ -177,7 +177,7 @@ Util.log_hook = function(self, other, result, args)
         else
             if type(arg) == "table" and instance_wrappers[arg.RAPI] then arg = arg.cinstance end
             local status, ret = pcall(object_get_name, arg)
-            output = output..("\n"..tostring(status and ret) or tostring(arg))
+            output = output.."\n"..((status and tostring(ret)) or tostring(arg))
         end
     end
 
