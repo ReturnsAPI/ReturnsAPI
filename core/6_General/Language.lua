@@ -180,6 +180,7 @@ memory.dynamic_hook("RAPI.Language.translate_load_active_language", "void*", {"v
 
     -- Post-hook
     function(ret_val, self, other, result, arg_count, args)
+        load_from_folder(PATH.."language")  -- RAPI's language folder
         load_from_mods()
     end}
 )

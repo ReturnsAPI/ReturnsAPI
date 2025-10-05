@@ -143,7 +143,7 @@ function public.auto(properties)
     run_clear_namespace_functions(namespace)    -- in Internal.lua
 
     -- Autoregister to Language
-    if Language         then Language.register_autoload(env) end
+    if Language then Language.register_autoload(env) end
 end
 
 
