@@ -53,6 +53,7 @@ Particle.Shape = {
 Property | Type | Description
 | - | - | -
 `value`         | number    | *Read-only.* The particle ID being wrapped.
+`RAPI`          | string    | *Read-only.* The wrapper name.
 `namespace`     | string    | *Read-only.* The namespace the particle is in.
 `identifier`    | string    | *Read-only.* The identifier for the particle within the namespace.
 ]]

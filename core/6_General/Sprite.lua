@@ -17,6 +17,7 @@ end)
 Property | Type | Description
 | - | - | -
 `value`         | number    | *Read-only.* The sprite ID being wrapped.
+`RAPI`          | string    | *Read-only.* The wrapper name.
 `namespace`     | string    | *Read-only.* The namespace the sprite is in.
 `identifier`    | string    | *Read-only.* The identifier for the sprite within the namespace.
 ]]
