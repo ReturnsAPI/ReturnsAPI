@@ -8,6 +8,21 @@ end)
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | *Read-only.* The sound ID being wrapped.
+`namespace`     | string    | *Read-only.* The namespace the sound is in.
+`identifier`    | string    | *Read-only.* The identifier for the sound within the namespace.
+]]
+
+
+
 -- ========== Internal ==========
 
 Sound.internal.add_to_find_table = function(wrapper, namespace, identifier, id)

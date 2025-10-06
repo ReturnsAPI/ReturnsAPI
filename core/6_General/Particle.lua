@@ -44,6 +44,21 @@ Particle.Shape = {
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | *Read-only.* The particle ID being wrapped.
+`namespace`     | string    | *Read-only.* The namespace the particle is in.
+`identifier`    | string    | *Read-only.* The identifier for the particle within the namespace.
+]]
+
+
+
 -- ========== Internal ==========
 
 Particle.internal.add_to_find_table = function(wrapper, namespace, identifier, id)

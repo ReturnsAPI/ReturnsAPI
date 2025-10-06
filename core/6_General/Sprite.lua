@@ -8,6 +8,21 @@ end)
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | *Read-only.* The sprite ID being wrapped.
+`namespace`     | string    | *Read-only.* The namespace the sprite is in.
+`identifier`    | string    | *Read-only.* The identifier for the sprite within the namespace.
+]]
+
+
+
 -- ========== Internal ==========
 
 Sprite.internal.add_to_find_table = function(wrapper, namespace, identifier, id)
