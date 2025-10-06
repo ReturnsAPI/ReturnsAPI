@@ -106,7 +106,7 @@ Stage.new = function(NAMESPACE, identifier)
     if not identifier then log.error("Stage.new: No identifier provided", 2) end
 
     -- Return existing stage if found
-    local stage = Stage.find(identifier, NAMESPACE)
+    local stage = Stage.find(identifier, NAMESPACE, true)
     if stage then return stage end
 
     -- Create new

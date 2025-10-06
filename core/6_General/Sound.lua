@@ -26,7 +26,7 @@ Sound.new = function(NAMESPACE, identifier, path)
     path = expand_path(NAMESPACE, path)
 
     -- Return existing sound if found
-    local sound = Sound.find(identifier, NAMESPACE, NAMESPACE)
+    local sound = Sound.find(identifier, NAMESPACE, true)
     if sound then return sound end
 
     -- Create new sound

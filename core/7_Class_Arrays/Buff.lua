@@ -89,7 +89,7 @@ Buff.new = function(NAMESPACE, identifier)
     if not identifier then log.error("Buff.new: No identifier provided", 2) end
 
     -- Return existing buff if found
-    local buff = Buff.find(identifier, NAMESPACE)
+    local buff = Buff.find(identifier, NAMESPACE, true)
     if buff then return buff end
 
     -- Create new

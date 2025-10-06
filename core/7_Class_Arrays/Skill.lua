@@ -129,7 +129,7 @@ Skill.new = function(NAMESPACE, identifier)
     if not identifier then log.error("Skill.new: No identifier provided", 2) end
 
     -- Return existing skill if found
-    local skill = Skill.find(identifier, NAMESPACE)
+    local skill = Skill.find(identifier, NAMESPACE, true)
     if skill then return skill end
 
     -- Create new

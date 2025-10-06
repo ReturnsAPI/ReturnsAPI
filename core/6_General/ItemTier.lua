@@ -109,7 +109,7 @@ ItemTier.new = function(NAMESPACE, identifier)
     if not identifier then log.error("ItemTier.new: No identifier provided", 2) end
 
     -- Return existing tier if found
-    local tier = ItemTier.find(identifier, NAMESPACE)
+    local tier = ItemTier.find(identifier, NAMESPACE, true)
     if tier then return tier end
 
     -- Get next usable ID for tier

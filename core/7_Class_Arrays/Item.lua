@@ -111,7 +111,7 @@ Item.new = function(NAMESPACE, identifier)
     if not identifier then log.error("Item.new: No identifier provided", 2) end
 
     -- Return existing item if found
-    local item = Item.find(identifier, NAMESPACE)
+    local item = Item.find(identifier, NAMESPACE, true)
     if item then return item end
 
     -- Create new

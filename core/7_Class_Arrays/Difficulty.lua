@@ -77,7 +77,7 @@ Difficulty.new = function(NAMESPACE, identifier)
     if not identifier then log.error("Difficulty.new: No identifier provided", 2) end
 
     -- Return existing difficulty if found
-    local difficulty = Difficulty.find(identifier, NAMESPACE)
+    local difficulty = Difficulty.find(identifier, NAMESPACE, true)
     if difficulty then return difficulty end
 
     -- Create new

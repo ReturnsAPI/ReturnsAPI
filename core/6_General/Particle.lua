@@ -55,7 +55,7 @@ or returns the existing one if it does.
 ]]
 Particle.new = function(NAMESPACE, identifier)
     -- Return existing particle if found
-    local part = Particle.find(identifier, NAMESPACE)
+    local part = Particle.find(identifier, NAMESPACE, true)
     if part then return part end
 
     -- Create new particle

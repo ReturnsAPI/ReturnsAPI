@@ -71,7 +71,7 @@ InteractableCard.new = function(NAMESPACE, identifier)
     if not identifier then log.error("InteractableCard.new: No identifier provided", 2) end
 
     -- Return existing card if found
-    local card = InteractableCard.find(identifier, NAMESPACE)
+    local card = InteractableCard.find(identifier, NAMESPACE, true)
     if card then return card end
 
     -- Create new

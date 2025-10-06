@@ -120,7 +120,7 @@ EnvironmentLog.new = function(NAMESPACE, identifier)
     if not identifier then log.error("EnvironmentLog.new: No identifier provided", 2) end
 
     -- Return existing log if found
-    local log = EnvironmentLog.find(identifier, NAMESPACE)
+    local log = EnvironmentLog.find(identifier, NAMESPACE, true)
     if log then return log end
 
     -- Create new

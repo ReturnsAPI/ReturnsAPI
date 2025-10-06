@@ -99,7 +99,7 @@ ActorState.new = function(NAMESPACE, identifier)
     if not identifier then log.error("ActorState.new: No identifier provided", 2) end
 
     -- Return existing state if found
-    local state = ActorState.find(identifier, NAMESPACE)
+    local state = ActorState.find(identifier, NAMESPACE, true)
     if state then return state end
 
     -- Create new

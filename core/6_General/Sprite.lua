@@ -29,7 +29,7 @@ Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_ori
     path = expand_path(NAMESPACE, path)
 
     -- Return existing sprite if found
-    local sprite = Sprite.find(identifier, NAMESPACE, NAMESPACE)
+    local sprite = Sprite.find(identifier, NAMESPACE, true)
     if sprite then
         -- Allow for modification of sprite origin
         if x_origin and y_origin then sprite:set_origin(x_origin, y_origin) end

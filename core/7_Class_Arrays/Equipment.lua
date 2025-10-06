@@ -85,7 +85,7 @@ Equipment.new = function(NAMESPACE, identifier)
     if not identifier then log.error("Equipment.new: No identifier provided", 2) end
 
     -- Return existing equipment if found
-    local equip = Equipment.find(identifier, NAMESPACE)
+    local equip = Equipment.find(identifier, NAMESPACE, true)
     if equip then return equip end
 
     -- Create new

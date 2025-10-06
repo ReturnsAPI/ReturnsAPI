@@ -109,7 +109,7 @@ LootPool.new = function(NAMESPACE, identifier)
     if not identifier then log.error("LootPool.new: No identifier provided", 2) end
 
     -- Return existing pool if found
-    local pool = LootPool.find(identifier, NAMESPACE)
+    local pool = LootPool.find(identifier, NAMESPACE, true)
     if pool then return pool end
 
     -- Get next usable ID for pool

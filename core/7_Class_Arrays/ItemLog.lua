@@ -91,7 +91,7 @@ ItemLog.new = function(NAMESPACE, identifier)
     if not identifier then log.error("ItemLog.new: No identifier provided", 2) end
 
     -- Return existing log if found
-    local log = ItemLog.find(identifier, NAMESPACE)
+    local log = ItemLog.find(identifier, NAMESPACE, true)
     if log then return log end
 
     -- Create new

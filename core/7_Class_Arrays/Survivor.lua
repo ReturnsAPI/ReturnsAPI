@@ -126,7 +126,7 @@ Survivor.new = function(NAMESPACE, identifier)
     if not identifier then log.error("Survivor.new: No identifier provided", 2) end
 
     -- Return existing survivor if found
-    local survivor = Survivor.find(identifier, NAMESPACE)
+    local survivor = Survivor.find(identifier, NAMESPACE, true)
     if survivor then return survivor end
 
     -- Create new
