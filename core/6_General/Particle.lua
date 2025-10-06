@@ -271,16 +271,6 @@ methods_particle = {
         return lookup_struct[self.value]
     end
 
-
-    --@instance
-    --@param        x           | number    | The x coordinate to spawn at.
-    --@param        y           | number    | The y coordinate to spawn at.
-    --@optional     count       | number    | The number of particles to spawn. <br>`1` by default.
-    --@optional     system      | number    | The @link {particle system | Particle#System} to use. <br>`Particle.System.ABOVE` by default.
-    --[[
-    Spawns particles at the specified location.
-    ]]
-
 }
 
 
