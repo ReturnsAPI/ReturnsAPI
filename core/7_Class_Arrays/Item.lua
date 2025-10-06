@@ -8,6 +8,8 @@ run_once(function()
     __toggle_loot_off       = {}    -- Items that are toggled off from dropping
 end)
 
+queue_run_update_available_loot = false
+
 
 
 -- ========== Enums ==========
@@ -310,7 +312,7 @@ Util.table_append(methods_class_array[name_rapi], {
         if not bool then __toggle_loot_off[self.value] = self.object_id end
 
         -- Force-update `available_drop_pool`s while in a run
-        if Global.__run_exists then gm.run_update_available_loot() end
+        if Global.__run_exists then queue_run_update_available_loot = true end
     end,
 
 
@@ -462,5 +464,13 @@ gm.post_script_hook(gm.constants.run_update_available_loot, function(self, other
             local pool = LootPool.wrap(i)
             List.wrap(pool.available_drop_pool):delete_value(object_id)
         end
+    end
+end)
+
+
+Callback.add(Callback.ON_STEP, function()
+    if queue_run_update_available_loot then
+        queue_run_update_available_loot = false
+        gm.run_update_available_loot()
     end
 end)

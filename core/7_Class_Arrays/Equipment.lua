@@ -302,7 +302,8 @@ Util.table_append(methods_class_array[name_rapi], {
         if not bool then __toggle_loot_off[self.value] = self.object_id end
         
         -- Force-update `available_drop_pool`s while in a run
-        if Global.__run_exists then gm.run_update_available_loot() end
+        -- This variable is in Item.lua
+        if Global.__run_exists then queue_run_update_available_loot = true end
     end,
 
 
