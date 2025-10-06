@@ -174,15 +174,9 @@ end
 
 -- ========== Hooks ==========
 
-memory.dynamic_hook("RAPI.Language.translate_load_active_language", "void*", {"void*", "void*", "void*", "int", "void*"}, gm.get_script_function_address(gm.constants.translate_load_active_language),
-    -- Pre-hook
-    {nil,
-
-    -- Post-hook
-    function(ret_val, self, other, result, arg_count, args)
-        load_from_mods()
-    end}
-)
+gm.post_script_hook(gm.constants.translate_load_active_language, function(self, other, result, args)
+    load_from_mods()
+end)
 
 
 

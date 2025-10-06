@@ -99,15 +99,19 @@ Sound.find_all = function(namespace, namespace_is_specified)
 
     -- Search in namespace
     if resource_manager[namespace] then
-        for _, sound in pairs(resource_manager[namespace]) do
-            table.insert(sounds, Sound.wrap(sound))
+        for identifier, sound in pairs(Map.wrap(resource_manager[namespace])) do
+            sound = Sound.wrap(sound)
+            table.insert(sounds, sound)
+            find_cache:set(sound, identifier, namespace)
         end
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
     if not namespace_is_specified then
-        for _, sound in pairs(resource_manager["ror"]) do
-            table.insert(sounds, Sound.wrap(sound))
+        for identifier, sound in pairs(Map.wrap(resource_manager["ror"])) do
+            sound = Sound.wrap(sound)
+            table.insert(sounds, sound)
+            find_cache:set(sound, identifier, "ror")
         end
     end
     

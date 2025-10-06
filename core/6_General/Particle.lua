@@ -120,15 +120,19 @@ Particle.find_all = function(namespace, namespace_is_specified)
 
     -- Search in namespace
     if resource_manager[namespace] then
-        for _, part in pairs(resource_manager[namespace]) do
-            table.insert(parts, Particle.wrap(part))
+        for identifier, part in pairs(Map.wrap(resource_manager[namespace])) do
+            part = Particle.wrap(part)
+            table.insert(parts, part)
+            find_cache:set(part, identifier, namespace)
         end
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
     if not namespace_is_specified then
-        for _, part in pairs(resource_manager["ror"]) do
-            table.insert(parts, Particle.wrap(part))
+        for identifier, part in pairs(Map.wrap(resource_manager["ror"])) do
+            part = Particle.wrap(part)
+            table.insert(parts, part)
+            find_cache:set(part, identifier, "ror")
         end
     end
     
@@ -221,6 +225,8 @@ methods_particle = {
 
 
 -- ========== Metatables ==========
+
+-- TODO write docs for the part_type_ set
 
 local wrapper_name = "Particle"
 

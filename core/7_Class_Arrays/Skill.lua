@@ -104,10 +104,10 @@ Property | Type | Description
 `disable_aim_stall`             | bool      | 
 `does_change_activity_state`    |           | 
 `on_can_activate`               | number    | The ID of the callback that runs when . <br>The callback function should have the arguments `(TODO)`.
-`on_activate`                   | number    | The ID of the callback that runs when the skill is used. <br>The callback function should have the arguments `actor, skill, (index or slot?)`.
-`on_step`                       | number    | The ID of the callback that runs every frame while slotted. <br>The callback function should have the arguments `actor, skill, (index or slot?)`.
-`on_equipped`                   | number    | The ID of the callback that runs when the skill is slotted. <br>The callback function should have the arguments `actor, skill, (index or slot?)`.
-`on_unequipped`                 | number    | The ID of the callback that runs when the skill is unslotted. <br>The callback function should have the arguments `actor, skill, (index or slot?)`.
+`on_activate`                   | number    | The ID of the callback that runs when the skill is used. <br>The callback function should have the arguments `actor, skill, slot`.
+`on_step`                       | number    | The ID of the callback that runs every frame while slotted. <br>The callback function should have the arguments `actor, skill, slot`.
+`on_equipped`                   | number    | The ID of the callback that runs when the skill is slotted. <br>The callback function should have the arguments `actor, skill, slot`.
+`on_unequipped`                 | number    | The ID of the callback that runs when the skill is unslotted. <br>The callback function should have the arguments `actor, skill, slot`.
 `upgrade_skill`                 | number    | The ID of the skill to upgrade to when picking up Ancient Scepter.
 ]]
 

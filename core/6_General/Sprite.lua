@@ -109,15 +109,19 @@ Sprite.find_all = function(namespace, namespace_is_specified)
 
     -- Search in namespace
     if resource_manager[namespace] then
-        for _, sprite in pairs(resource_manager[namespace]) do
-            table.insert(sprites, Sprite.wrap(sprite))
+        for identifier, sprite in pairs(Map.wrap(resource_manager[namespace])) do
+            sprite = Sprite.wrap(sprite)
+            table.insert(sprites, sprite)
+            find_cache:set(sprite, identifier, namespace)
         end
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
     if not namespace_is_specified then
-        for _, sprite in pairs(resource_manager["ror"]) do
-            table.insert(sprites, Sprite.wrap(sprite))
+        for identifier, sprite in pairs(Map.wrap(resource_manager["ror"])) do
+            sprite = Sprite.wrap(sprite)
+            table.insert(sprites, sprite)
+            find_cache:set(sprite, identifier, "ror")
         end
     end
     
