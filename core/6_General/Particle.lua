@@ -271,13 +271,58 @@ methods_particle = {
         return lookup_struct[self.value]
     end
 
+
+    --@instance
+    --@param        x           | number    | The x coordinate to spawn at.
+    --@param        y           | number    | The y coordinate to spawn at.
+    --@optional     count       | number    | The number of particles to spawn. <br>`1` by default.
+    --@optional     system      | number    | The @link {particle system | Particle#System} to use. <br>`Particle.System.ABOVE` by default.
+    --[[
+    Spawns particles at the specified location.
+    ]]
+
 }
 
 
 
 -- ========== Metatables ==========
 
--- TODO write docs for the part_type_ set
+--@section Particle Property Setters
+
+--[[
+See the relevant [GameMaker documentation page](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Drawing/Particles/Particle_Types/Particle_Types.htm) for more info.
+
+```lua
+particle:set_shape
+particle:set_sprite
+particle:set_subimage
+
+particle:set_size
+particle:set_size_x
+particle:set_size_y
+particle:set_scale
+
+particle:set_speed
+particle:set_direction
+particle:set_gravity
+particle:set_orientation
+
+particle:set_color_mix
+particle:set_color_rgb
+particle:set_color_hsv
+particle:set_color1
+particle:set_color2
+particle:set_color3
+particle:set_alpha1
+particle:set_alpha2
+particle:set_alpha3
+particle:set_blend
+
+particle:set_life
+particle:set_step
+particle:set_death
+```
+]]
 
 local wrapper_name = "Particle"
 

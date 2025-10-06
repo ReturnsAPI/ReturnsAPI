@@ -31,6 +31,41 @@ end
 
 -- ========== Instance Methods ==========
 
+--@section Instance Methods
+
+--[[
+```lua
+-- Each take a single argument corresponding
+-- to the type of value they write
+buffer:write_instance
+buffer:write_byte
+buffer:write_int
+buffer:write_uint
+buffer:write_uint_packed
+buffer:write_short
+buffer:write_ushort
+buffer:write_half
+buffer:write_float
+buffer:write_double
+buffer:write_string
+buffer:write_color
+
+-- These take no arguments
+buffer:read_instance
+buffer:read_byte
+buffer:read_int
+buffer:read_uint
+buffer:read_uint_packed
+buffer:read_short
+buffer:read_ushort
+buffer:read_half
+buffer:read_float
+buffer:read_double
+buffer:read_string
+buffer:read_color
+```
+]]
+
 methods_buffer = {
 
     write_instance = function(self, instance)
@@ -65,6 +100,8 @@ for _, type_name in ipairs(primitive_types) do
         local method_name = "write_"..type_name
         local gm_name = "write"..type_name.."_direct"
 
+        if type_name == "_color" then method_name = "write_color" end
+
         methods_buffer[method_name] = function(self, value)
             gm[gm_name](self.value, Wrap.unwrap(value))
         end
@@ -73,6 +110,8 @@ for _, type_name in ipairs(primitive_types) do
     do -- reads
         local method_name = "read_"..type_name
         local gm_name = "read"..type_name.."_direct"
+
+        if type_name == "_color" then method_name = "read_color" end
 
         methods_buffer[method_name] = function(self)
             return Wrap.wrap(gm[gm_name](self.value))
