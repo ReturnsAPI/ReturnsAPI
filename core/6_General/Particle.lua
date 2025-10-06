@@ -2,7 +2,9 @@
 
 Particle = new_class()
 
-local find_cache = FindCache.new()
+run_once(function()
+    __particle_find_table = FindCache.new()
+end)
 
 
 
@@ -42,6 +44,34 @@ Particle.Shape = {
 
 
 
+-- ========== Internal ==========
+
+Particle.internal.add_to_find_table = function(wrapper, namespace, identifier, id)
+    __particle_find_table:set(
+        {
+            wrapper     = wrapper,
+            namespace   = namespace,
+            identifier  = identifier
+        },
+        identifier, namespace, id
+    )
+end
+
+
+Particle.internal.initialize = function()
+    -- Update cached wrappers
+    __particle_find_table:loop_and_update_values(function(value)
+        return {
+            wrapper     = Particle.wrap(value.wrapper),
+            namespace   = value.namespace,
+            identifier  = value.identifier
+        }
+    end)
+end
+table.insert(_rapi_initialize, Particle.internal.initialize)
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods
@@ -61,7 +91,12 @@ Particle.new = function(NAMESPACE, identifier)
     -- Create new particle
     local part = gm.part_type_create_w(NAMESPACE, identifier)
 
-    return Particle.wrap(part)
+    local wrapper = Particle.wrap(part)
+
+    -- Add to find table
+    Particle.internal.add_to_find_table(wrapper, NAMESPACE, identifier, part)
+
+    return wrapper
 end
 
 
@@ -75,8 +110,8 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 ]]
 Particle.find = function(identifier, namespace, namespace_is_specified)
     -- Check in cache
-    local cached = find_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached end
+    local cached = __particle_find_table:get(identifier, namespace, namespace_is_specified)
+    if cached then return cached.wrapper end
 
     -- Search in namespace
     local particle
@@ -85,9 +120,9 @@ Particle.find = function(identifier, namespace, namespace_is_specified)
     if namespace_map then particle = Map.wrap(namespace_map)[identifier] end
 
     if particle then
-        particle = Particle.wrap(particle)
-        find_cache:set(particle, identifier, namespace)
-        return particle
+        local wrapper = Particle.wrap(particle)
+        Particle.internal.add_to_find_table(wrapper, namespace, identifier, particle)
+        return wrapper
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
@@ -97,9 +132,9 @@ Particle.find = function(identifier, namespace, namespace_is_specified)
         if namespace_map then particle = Map.wrap(namespace_map)[identifier] end
         
         if particle then
-            particle = Particle.wrap(particle)
-            find_cache:set(particle, identifier, "ror")
-            return particle
+            local wrapper = Particle.wrap(particle)
+            Particle.internal.add_to_find_table(wrapper, "ror", identifier, particle)
+            return wrapper
         end
     end
 
@@ -121,18 +156,18 @@ Particle.find_all = function(namespace, namespace_is_specified)
     -- Search in namespace
     if resource_manager[namespace] then
         for identifier, part in pairs(Map.wrap(resource_manager[namespace])) do
-            part = Particle.wrap(part)
-            table.insert(parts, part)
-            find_cache:set(part, identifier, namespace)
+            local wrapper = Particle.wrap(part)
+            table.insert(parts, wrapper)
+            Particle.internal.add_to_find_table(wrapper, namespace, identifier, part)
         end
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
     if not namespace_is_specified then
         for identifier, part in pairs(Map.wrap(resource_manager["ror"])) do
-            part = Particle.wrap(part)
-            table.insert(parts, part)
-            find_cache:set(part, identifier, "ror")
+            local wrapper = Particle.wrap(part)
+            table.insert(parts, wrapper)
+            Particle.internal.add_to_find_table(wrapper, "ror", identifier, part)
         end
     end
     
@@ -247,7 +282,8 @@ make_table_once("metatable_particle", {
             return GM["part_type_"..fn]
         end
 
-        return nil
+        -- Getter
+        return __particle_find_table:get(__proxy[proxy])[k]
     end,
 
 

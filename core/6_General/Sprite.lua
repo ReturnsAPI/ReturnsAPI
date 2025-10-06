@@ -2,7 +2,37 @@
 
 Sprite = new_class()
 
-local find_cache = FindCache.new()
+run_once(function()
+    __sprite_find_table = FindCache.new()
+end)
+
+
+
+-- ========== Internal ==========
+
+Sprite.internal.add_to_find_table = function(wrapper, namespace, identifier, id)
+    __sprite_find_table:set(
+        {
+            wrapper     = wrapper,
+            namespace   = namespace,
+            identifier  = identifier
+        },
+        identifier, namespace, id
+    )
+end
+
+
+Sprite.internal.initialize = function()
+    -- Update cached wrappers
+    __sprite_find_table:loop_and_update_values(function(value)
+        return {
+            wrapper     = Sprite.wrap(value.wrapper),
+            namespace   = value.namespace,
+            identifier  = value.identifier
+        }
+    end)
+end
+table.insert(_rapi_initialize, Sprite.internal.initialize)
 
 
 
@@ -50,7 +80,12 @@ Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_ori
         log.error("Sprite.new: Could not load sprite at '"..path.."'", 2)
     end
 
-    return Sprite.wrap(sprite)
+    local wrapper = Sprite.wrap(sprite)
+
+    -- Add to find table
+    Sprite.internal.add_to_find_table(wrapper, NAMESPACE, identifier, sprite)
+
+    return wrapper
 end
 
 
@@ -64,8 +99,8 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 ]]
 Sprite.find = function(identifier, namespace, namespace_is_specified)
     -- Check in cache
-    local cached = find_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached end
+    local cached = __sprite_find_table:get(identifier, namespace, namespace_is_specified)
+    if cached then return cached.wrapper end
 
     -- Search in namespace
     local sprite
@@ -74,9 +109,9 @@ Sprite.find = function(identifier, namespace, namespace_is_specified)
     if namespace_map then sprite = Map.wrap(namespace_map)[identifier] end
 
     if sprite then
-        sprite = Sprite.wrap(sprite)
-        find_cache:set(sprite, identifier, namespace)
-        return sprite
+        local wrapper = Sprite.wrap(sprite)
+        Sprite.internal.add_to_find_table(wrapper, namespace, identifier, sprite)
+        return wrapper
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
@@ -86,9 +121,9 @@ Sprite.find = function(identifier, namespace, namespace_is_specified)
         if namespace_map then sprite = Map.wrap(namespace_map)[identifier] end
         
         if sprite then
-            sprite = Sprite.wrap(sprite)
-            find_cache:set(sprite, identifier, "ror")
-            return sprite
+            local wrapper = Sprite.wrap(sprite)
+            Sprite.internal.add_to_find_table(wrapper, "ror", identifier, sprite)
+            return wrapper
         end
     end
 
@@ -110,18 +145,18 @@ Sprite.find_all = function(namespace, namespace_is_specified)
     -- Search in namespace
     if resource_manager[namespace] then
         for identifier, sprite in pairs(Map.wrap(resource_manager[namespace])) do
-            sprite = Sprite.wrap(sprite)
-            table.insert(sprites, sprite)
-            find_cache:set(sprite, identifier, namespace)
+            local wrapper = Sprite.wrap(sprite)
+            table.insert(sprites, wrapper)
+            Sprite.internal.add_to_find_table(wrapper, namespace, identifier, sprite)
         end
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
     if not namespace_is_specified then
         for identifier, sprite in pairs(Map.wrap(resource_manager["ror"])) do
-            sprite = Sprite.wrap(sprite)
-            table.insert(sprites, sprite)
-            find_cache:set(sprite, identifier, "ror")
+            local wrapper = Sprite.wrap(sprite)
+            table.insert(sprites, wrapper)
+            Sprite.internal.add_to_find_table(wrapper, "ror", identifier, sprite)
         end
     end
     
@@ -214,7 +249,8 @@ make_table_once("metatable_sprite", {
             return methods_sprite[k]
         end
 
-        return nil
+        -- Getter
+        return __sprite_find_table:get(__proxy[proxy])[k]
     end,
     
 

@@ -2,7 +2,37 @@
 
 Sound = new_class()
 
-local find_cache = FindCache.new()
+run_once(function()
+    __sound_find_table = FindCache.new()
+end)
+
+
+
+-- ========== Internal ==========
+
+Sound.internal.add_to_find_table = function(wrapper, namespace, identifier, id)
+    __sound_find_table:set(
+        {
+            wrapper     = wrapper,
+            namespace   = namespace,
+            identifier  = identifier
+        },
+        identifier, namespace, id
+    )
+end
+
+
+Sound.internal.initialize = function()
+    -- Update cached wrappers
+    __sound_find_table:loop_and_update_values(function(value)
+        return {
+            wrapper     = Sound.wrap(value.wrapper),
+            namespace   = value.namespace,
+            identifier  = value.identifier
+        }
+    end)
+end
+table.insert(_rapi_initialize, Sound.internal.initialize)
 
 
 
@@ -40,7 +70,12 @@ Sound.new = function(NAMESPACE, identifier, path)
         log.error("Sound.new: Could not load sound at '"..path.."'", 2)
     end
 
-    return Sound.wrap(sound)
+    local wrapper = Sound.wrap(sound)
+
+    -- Add to find table
+    Sound.internal.add_to_find_table(wrapper, NAMESPACE, identifier, sound)
+
+    return wrapper
 end
 
 
@@ -54,8 +89,8 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 ]]
 Sound.find = function(identifier, namespace, namespace_is_specified)
     -- Check in cache
-    local cached = find_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached end
+    local cached = __sound_find_table:get(identifier, namespace, namespace_is_specified)
+    if cached then return cached.wrapper end
 
     -- Search in namespace
     local sound
@@ -64,9 +99,9 @@ Sound.find = function(identifier, namespace, namespace_is_specified)
     if namespace_map then sound = Map.wrap(namespace_map)[identifier] end
 
     if sound then
-        sound = Sound.wrap(sound)
-        find_cache:set(sound, identifier, namespace)
-        return sound
+        local wrapper = Sound.wrap(sound)
+        Sound.internal.add_to_find_table(wrapper, namespace, identifier, sound)
+        return wrapper
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
@@ -76,9 +111,9 @@ Sound.find = function(identifier, namespace, namespace_is_specified)
         if namespace_map then sound = Map.wrap(namespace_map)[identifier] end
         
         if sound then
-            sound = Sound.wrap(sound)
-            find_cache:set(sound, identifier, "ror")
-            return sound
+            local wrapper = Sound.wrap(sound)
+            Sound.internal.add_to_find_table(wrapper, "ror", identifier, sound)
+            return wrapper
         end
     end
 
@@ -100,18 +135,18 @@ Sound.find_all = function(namespace, namespace_is_specified)
     -- Search in namespace
     if resource_manager[namespace] then
         for identifier, sound in pairs(Map.wrap(resource_manager[namespace])) do
-            sound = Sound.wrap(sound)
-            table.insert(sounds, sound)
-            find_cache:set(sound, identifier, namespace)
+            local wrapper = Sound.wrap(sound)
+            table.insert(sounds, wrapper)
+            Sound.internal.add_to_find_table(wrapper, namespace, identifier, sound)
         end
     end
 
     -- Also search in "ror" namespace if passed no `namespace` arg
     if not namespace_is_specified then
         for identifier, sound in pairs(Map.wrap(resource_manager["ror"])) do
-            sound = Sound.wrap(sound)
-            table.insert(sounds, sound)
-            find_cache:set(sound, identifier, "ror")
+            local wrapper = Sound.wrap(sound)
+            table.insert(sounds, wrapper)
+            Sound.internal.add_to_find_table(wrapper, "ror", identifier, sound)
         end
     end
     
@@ -176,7 +211,8 @@ make_table_once("metatable_sound", {
             return methods_sound[k]
         end
 
-        return nil
+        -- Getter
+        return __sound_find_table:get(__proxy[proxy])[k]
     end,
     
 
