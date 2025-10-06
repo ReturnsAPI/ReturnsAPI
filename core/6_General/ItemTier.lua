@@ -89,6 +89,23 @@ Property | Type | Description
 | - | - | -
 `value`         | number    | *Read-only.* The ID of the item tier.
 `RAPI`          | string    | *Read-only.* The wrapper name.
+
+<br>
+
+Property | Type | Description
+| - | - | -
+`namespace`                 | string    | The namespace the item tier is in.
+`identifier`                | string    | The identifier for the item tier within the namespace.
+`fair_item_value`           | number    | <br>`0` by default.
+`text_color`                | string    | The text formatting color code. <br>`"w"` by default.
+`spawn_sound`               | sound     | <br>`wItemDrop_White` by default.
+`pickup_color`              | color     | <br>`Color.WHITE` by default.
+`pickup_color_bright`       | color     | <br>`Color.WHITE` by default.
+`pickup_particle_type`      | number    | <br>`-1` by default.
+`pickup_head_shape`         |           | 
+`ignore_fair`               | bool      | <br>`false` by default.
+`item_pool_for_reroll`      | number    | The ID of the associated item loot pool. <br>`-1` (none) by default.
+`equipment_pool_for_reroll` | number    | The ID of the associated equipment loot pool. <br>`-1` (none) by default.
 ]]
 
 

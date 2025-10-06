@@ -468,7 +468,7 @@ gm.post_script_hook(gm.constants.run_update_available_loot, function(self, other
 end)
 
 
-Callback.add(Callback.ON_STEP, function()
+Callback.add(_ENV["!guid"], Callback.ON_STEP, function()
     if queue_run_update_available_loot then
         queue_run_update_available_loot = false
         gm.run_update_available_loot()
