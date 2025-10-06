@@ -136,6 +136,29 @@ methods_modoptions = {
 
 
     --@instance
+    --@return       ModOptionsDropdown
+    --@param        identifier  | string    | The identifier for the element.
+    --[[
+    Adds a @link {dropdown | ModOptionsDropdown} to the ModOptions.
+    ]]
+    add_dropdown = function(self, identifier)
+        if not identifier           then log.error("add_dropdown: No identifier provided", 2) end
+        if identifier == "header"
+        or identifier == "ordered"  then log.error("add_dropdown: identifier '"..identifier.."' is reserved", 2) end
+        if self:find(identifier)    then log.error("add_dropdown: identifier '"..identifier.."' already in use", 2) end
+
+        local self_table = __proxy[self]
+
+        local element = ModOptionsDropdown.new(__proxy[self].namespace, identifier)
+        
+        self_table.elements[identifier] = element
+        table.insert(self_table.elements.ordered, element)
+
+        return element
+    end,
+
+
+    --@instance
     --@return       ModOptions<Element> or nil
     --@param        identifier  | string    | 
     --[[
