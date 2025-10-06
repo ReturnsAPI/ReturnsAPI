@@ -50,6 +50,7 @@ methods_attackinfo = {
     --[[
     If called, treats the attack's damage as a raw value,
     instead of having been multiplied as a damage coefficient.
+
     *Technical:* Divides `damage` by `parent.damage`.
     ]]
     use_raw_damage = function(self)
@@ -90,6 +91,7 @@ methods_attackinfo = {
     --@param        bool            | bool      | `true` - Crit <br>`false` - Non-crit
     --[[
     Sets whether or not this attack is a critical hit.
+    
     *Technical:* Multiplies/divides `damage` by 2 alongside setting `critical`.
     ]]
     set_critical = function(self, bool, ignore_spotter)

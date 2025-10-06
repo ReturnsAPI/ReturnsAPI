@@ -248,6 +248,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@param        bool        | bool      | `true` - The log is hidden until acquired. <br>`false` - The log is not hidden.
     --[[
     Sets whether or not the log is hidden in Logbook until acquired.
+    
     *Technical:* Toggles `is_secret` and moves the log position.
     ]]
     set_hidden = function(self, bool)

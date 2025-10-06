@@ -30,6 +30,7 @@ end)
 --[[
 Registers a function for stat recalculation.
 Returns the unique ID of the registered function.
+
 *Technical:* This function will run in `recalculate_stats` post-hook.
 
 **Priority Convention**

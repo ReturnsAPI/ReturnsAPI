@@ -4,7 +4,8 @@ local name_rapi = class_name_g2r["class_equipment"]
 Equipment = __class[name_rapi]
 
 run_once(function()
-    __equipment_is_passive = {}
+    __equipment_is_passive  = {}
+    __toggle_loot_off       = {}    -- Equipment that is toggled off from dropping
 end)
 
 
@@ -258,6 +259,102 @@ Util.table_append(methods_class_array[name_rapi], {
         __equipment_is_passive[self.value] = bool
     end,
 
+
+    --@instance
+    --@return       bool
+    --[[
+    Returns `true` if the equipment is available as a drop in at least one loot pool.
+    ]]
+    is_loot = function(self)
+        if __toggle_loot_off[self.value] then return false end
+
+        -- Loop through all pools
+        local count = #Global.treasure_loot_pools
+        for i = 0, count - 1 do
+            local pool = LootPool.wrap(i)
+
+            -- Check if this equipment's object is in `drop_pool` outside of a run
+            -- Check if this equipment's object is in `available_drop_pool` instead
+            -- while in a run just in case that got modified
+            local which = "drop_pool"
+            if Global.__run_exists then which = "available_drop_pool" end
+            if List.wrap(pool[which]):contains(self.object_id) then
+                return true
+            end
+        end
+
+        return false
+    end,
+
+
+    --@instance
+    --@param        bool        | bool      | `true` - The equipment can drop as loot. <br>`false` - The equipment cannot drop as loot.
+    --[[
+    Toggles whether or not the equipment is available to drop from the loot pools it's in.
+
+    *Technical:* When `gm.run_update_available_loot` is called, the equipment is removed
+    from all `available_drop_pool`s if toggled off; `drop_pool` is *not* modified.
+    ]]
+    toggle_loot = function(self, bool)
+        if type(bool) ~= "boolean" then log.error("toggle_loot: bool is invalid", 2) end
+
+        __toggle_loot_off[self.value] = nil
+        if not bool then __toggle_loot_off[self.value] = self.object_id end
+        
+        -- Force-update `available_drop_pool`s while in a run
+        if Global.__run_exists then gm.run_update_available_loot() end
+    end,
+
+
+    --@instance
+    --@return       table
+    --[[
+    Returns a table of all @link {LootPools | LootPools} the equipment is in, ignoring @link {`toggle_loot` | Equipment#toggle_loot}.
+    ]]
+    get_loot_pools = function(self)
+        local pools = {}
+
+        -- Loop through all pools
+        for i = 0, #Global.treasure_loot_pools - 1 do
+            local pool = LootPool.wrap(i)
+
+            -- Check if this equipment's object is in the pool
+            if List.wrap(pool.drop_pool):contains(self.object_id) then
+                table.insert(pools, pool)
+            end
+        end
+
+        return pools
+    end,
+
+
+    --@instance
+    --@return       table
+    --[[
+    Returns a table of all @link {LootPools | LootPools} the equipment is available to drop from.
+    ]]
+    get_available_loot_pools = function(self)
+        if __toggle_loot_off[self.value] then return {} end
+
+        local pools = {}
+
+        -- Loop through all pools
+        for i = 0, #Global.treasure_loot_pools - 1 do
+            local pool = LootPool.wrap(i)
+
+            -- Check if this equipment's object is in `drop_pool` outside of a run
+            -- Check if this equipment's object is in `available_drop_pool` instead
+            -- while in a run just in case that got modified
+            local which = "drop_pool"
+            if Global.__run_exists then which = "available_drop_pool" end
+            if List.wrap(pool[which]):contains(self.object_id) then
+                table.insert(pools, pool)
+            end
+        end
+
+        return pools
+    end
+
 })
 
 
@@ -272,5 +369,20 @@ gm.pre_script_hook(gm.constants.item_use_equipment, function(self, other, result
     local equipment = Instance.wrap(self.id):equipment_get()
     if equipment and __equipment_is_passive[equipment.value] then
         return false
+    end
+end)
+
+
+-- Remove equipment in `__toggle_loot_off` from all `available_drop_pool`s
+
+gm.post_script_hook(gm.constants.run_update_available_loot, function(self, other, result, args)
+    -- Loop through all toggled off
+    for equip, object_id in pairs(__toggle_loot_off) do
+
+        -- Loop through all pools and delete `object_id`
+        for i = 0, #Global.treasure_loot_pools - 1 do
+            local pool = LootPool.wrap(i)
+            List.wrap(pool.available_drop_pool):delete_value(object_id)
+        end
     end
 end)

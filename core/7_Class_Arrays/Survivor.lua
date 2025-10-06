@@ -343,6 +343,7 @@ Util.table_append(methods_class_array[name_rapi], {
     --@param        slot        | number    | The @link {slot | Skill#slot} to get from.
     --[[
     Returns a table containing a list of Skills belonging to the specified slot.
+    
     *Technical:* Returns a table copy of `survivor.skill_family_<slot>.elements`.
     ]]
     get_skills = function(self, slot)
