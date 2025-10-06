@@ -10,6 +10,11 @@ run_once(function()
     __loot_pool_find_table = FindCache.new()
 end)
 
+local enable_capture = false
+local passed_namespace
+local binded_struct     -- Capture the struct from `callback_bind` on loot pool creation; this is the crate info struct
+local crate_obj         -- Capture the created object from `object_add_w`
+
 
 
 -- ========== Constants ==========
@@ -60,8 +65,10 @@ LootPool.internal.initialize = function()
 
         __loot_pool_find_table:set(
             {
-                wrapper = LootPool.wrap(id),
-                struct  = struct
+                wrapper         = LootPool.wrap(id),
+                struct          = struct,
+                crate_obj       = nil,
+                crate_struct    = nil
             },
             identifier, namespace, id
         )
@@ -70,8 +77,10 @@ LootPool.internal.initialize = function()
     -- Update cached wrappers
     __loot_pool_find_table:loop_and_update_values(function(value)
         return {
-            wrapper = LootPool.wrap(value.wrapper),
-            struct  = value.struct
+            wrapper         = LootPool.wrap(value.wrapper),
+            struct          = value.struct,
+            crate_obj       = value.crate_obj,
+            crate_struct    = value.crate_struct
         }
     end)
 end
@@ -89,6 +98,31 @@ Property | Type | Description
 | - | - | -
 `value`         | number    | *Read-only.* The ID of the loot pool.
 `RAPI`          | string    | *Read-only.* The wrapper name.
+
+<br>
+
+Property | Type | Description
+| - | - | -
+`namespace`                 | string    | The namespace the loot pool is in.
+`identifier`                | string    | The identifier for the loot pool within the namespace.
+`drop_pool`                 | number    | List containing item/equipment `object_id`s that may appear as drops.
+`available_drop_pool`       | number    | List containing item/equipment `object_id`s that may appear as drops. <br>Populated on run creation from `drop_pool` and is what's actually used.
+`item_tier`                 | number    | The associated item tier.
+`is_equipment_pool`         | bool      | Whether or not this pool is marked as dropping equipment. <br>`false` by default.
+
+<br>
+
+The following modify the generated command crate.
+(Not available for vanilla LootPools.)
+
+Property | Type | Description
+| - | - | -
+`crate_sprite`                  | sprite    | The sprite ID of the crate.
+`crate_sprite_death`            | sprite    | The sprite ID of the crate after use.
+`crate_outline_index_inactive`  | number    | 
+`crate_outline_index_active`    | number    | 
+`crate_sprite_ping`             | sprite    | 
+`crate_col_index`               | number    | 
 ]]
 
 
@@ -115,6 +149,11 @@ LootPool.new = function(NAMESPACE, identifier)
     -- Get next usable ID for pool
     local loot_pools_array = Global.treasure_loot_pools
     local id = #loot_pools_array
+
+    -- Enable capturing with the hooks below
+    -- Also pass the namespace to `object_add_w` hook
+    enable_capture = true
+    passed_namespace = NAMESPACE
 
     -- Create new struct for pool
     local struct = Struct.new(
@@ -147,11 +186,17 @@ LootPool.new = function(NAMESPACE, identifier)
 
     local pool = LootPool.wrap(id)
 
+    -- This is called in TreasureLootPool constructor
+    -- if a sprite was provided for the crate
+    gm.object_set_depth(crate_obj.value, -289)
+
     -- Add to find table
     __loot_pool_find_table:set(
         {
-            wrapper = pool,
-            struct  = struct
+            wrapper         = pool,
+            struct          = struct,
+            crate_obj       = crate_obj,
+            crate_struct    = binded_struct
         },
         identifier, NAMESPACE, id
     )
@@ -344,10 +389,10 @@ methods_loot_pool = {
     --@instance
     --@return       Object
     --[[
-    Returns the command crate associated with this loot pool.
+    Returns the command crate that was generated alongside this loot pool.
     ]]
     get_crate = function(self)
-        return Object.wrap(self.command_crate_object_id)
+        return __loot_pool_find_table:get(__proxy[self]).crate_obj
     end
 
 }
@@ -371,7 +416,13 @@ make_table_once("metatable_loot_pool", {
 
         -- Getter
         local loot_struct = __loot_pool_find_table:get(__proxy[proxy]).struct
-        return loot_struct[k]
+        local ret = loot_struct[k]
+        if ret then return ret end
+
+        -- Getter (Crate)
+        if k == "crate_sprite" then return proxy:get_crate().obj_sprite end
+        local crate_struct = __loot_pool_find_table:get(__proxy[proxy]).crate_struct
+        return crate_struct[k:sub(7, -1)]
     end,
 
 
@@ -384,7 +435,18 @@ make_table_once("metatable_loot_pool", {
 
         -- Setter
         local loot_struct = __loot_pool_find_table:get(__proxy[proxy]).struct
-        loot_struct[k] = Wrap.unwrap(v)
+        if gm.variable_struct_exists(loot_struct, k) then
+            loot_struct[k] = Wrap.unwrap(v)
+            return
+        end
+
+        -- Setter (Crate)
+        if k == "crate_sprite" then
+            gm.object_get_sprite_w(proxy:get_crate().value, Wrap.unwrap(v))
+            return
+        end
+        local crate_struct = __loot_pool_find_table:get(__proxy[proxy]).crate_struct
+        crate_struct[k:sub(7, -1)] = Wrap.unwrap(v)
     end,
 
     
@@ -405,6 +467,24 @@ gm.post_script_hook(gm.constants.run_update_available_loot, function(self, other
     for i = 7, #pools - 1 do
         pools[i].update_available_drop_pool()
     end
+end)
+
+
+gm.pre_script_hook(gm.constants.object_add_w, function(self, other, result, args)
+    -- This runs before `callback_bind` in TreasureLootPool constructor
+    if not enable_capture then return end
+    args[1].value = passed_namespace
+end)
+
+gm.post_script_hook(gm.constants.object_add_w, function(self, other, result, args)
+    if not enable_capture then return end
+    crate_obj = Object.wrap(result.value)
+end)
+
+gm.post_script_hook(gm.constants.callback_bind, function(self, other, result, args)
+    if not enable_capture then return end
+    binded_struct = GM.method_get_self(args[2].value)
+    enable_capture = false
 end)
 
 
