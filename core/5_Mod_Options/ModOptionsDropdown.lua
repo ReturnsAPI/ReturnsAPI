@@ -37,7 +37,7 @@ ModOptionsDropdown.new = function(namespace, identifier)
         constructor     = function()
             local choices_array = Array.new()
             for i, token in ipairs(choices) do
-                choices_array:push(Array.new{token, i - 1})
+                choices_array:push(Array.new{gm.translate(token), i - 1})
             end
 
             return Struct.new(
