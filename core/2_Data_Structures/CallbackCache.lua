@@ -83,6 +83,7 @@ run_once(function()
 
                 -- Get relevant section and priority table
                 local section_table = self.sections[fn_table.section]
+                if not section_table then return end
                 local priority_table = section_table[fn_table.priority]
                 Util.table_remove_value(priority_table, fn_table)
 
