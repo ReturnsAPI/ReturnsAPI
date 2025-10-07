@@ -1,11 +1,11 @@
--- File
+-- TOML
 
 --[[
 Slightly easier syntax wrapper for `toml`.
 Files are stored in `paths.plugins_data()`.
 ]]
 
-File = new_class()
+TOML = new_class()
 
 run_once(function()
     __file_wrapper_bank = {}
@@ -33,13 +33,13 @@ Property | Type | Description
 --@section Static Methods
 
 --@static
---@return       File
+--@return       TOML
 --@optional     name        | string    | The filename to use. <br>Automatically prepended with your namespace. <br>Adding an extension is *not* required; `".toml"` is automatically appended.
 --[[
-Creates a new File and returns it.
+Creates a new TOML wrapper and returns it.
 ]]
-File.new = function(NAMESPACE, name)    
-    return make_proxy(NAMESPACE..((name and "-"..tostring(name)) or ""), metatable_file)
+TOML.new = function(NAMESPACE, name)    
+    return make_proxy(NAMESPACE..((name and "-"..tostring(name)) or ""), metatable_toml)
 end
 
 
@@ -48,7 +48,7 @@ end
 
 --@section Instance Methods
 
-methods_file = {
+methods_toml = {
 
     --@instance
     --@return       table or nil
@@ -86,9 +86,9 @@ methods_file = {
 
 -- ========== Metatables ==========
 
-local wrapper_name = "File"
+local wrapper_name = "TOML"
 
-make_table_once("metatable_file", {
+make_table_once("metatable_toml", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return __proxy[proxy] end
@@ -98,8 +98,8 @@ make_table_once("metatable_file", {
         end
 
         -- Methods
-        if methods_file[k] then
-            return methods_file[k]
+        if methods_toml[k] then
+            return methods_toml[k]
         end
 
         return nil
@@ -115,7 +115,7 @@ make_table_once("metatable_file", {
         end
 
         -- Setter
-        log.error("File has no properties to set", 2)
+        log.error("TOML has no properties to set", 2)
     end,
 
 
@@ -124,4 +124,4 @@ make_table_once("metatable_file", {
 
 
 
-__class.File = File
+__class.TOML = TOML
