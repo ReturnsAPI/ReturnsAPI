@@ -51,13 +51,21 @@ end
 methods_file = {
 
     --@instance
-    --@return       table
+    --@return       table or nil
     --[[
     Loads the stored data from the file.
+    Returns `nil` if the file does not exist.
     ]]
     read = function(self)
         local success, file = pcall(toml.decodeFromFile, self.path)
-        if not success then log.error("toml read error: "..file.reason, 2) end
+        if not success then
+            -- Ignore non-existent file error
+            if file.reason == "File could not be opened for reading" then
+                return
+            end
+
+            log.error("toml read error: "..file.reason, 2)
+        end
         return file
     end,
 
