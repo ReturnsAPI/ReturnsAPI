@@ -175,6 +175,7 @@ end
 -- ========== Hooks ==========
 
 gm.post_script_hook(gm.constants.translate_load_active_language, function(self, other, result, args)
+    load_from_folder(PATH.."language")  -- RAPI internal language files
     load_from_mods()
 end)
 

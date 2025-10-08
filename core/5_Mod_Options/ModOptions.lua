@@ -8,16 +8,6 @@ end)
 
 
 
--- ========== Internal ==========
-
-ModOptions.internal.wrap = function(modoptions)
-    -- Input:   ModOptions Lua table
-    -- Wraps:   ModOptions Lua table
-    return make_proxy(modoptions, metatable_modoptions)
-end
-
-
-
 -- ========== Properties ==========
 
 --@section Properties
@@ -29,6 +19,16 @@ Property | Type | Description
 `RAPI`          | string    | *Read-only.* The wrapper name.
 `namespace`     | string    | *Read-only.* The namespace of the ModOptions.
 ]]
+
+
+
+-- ========== Internal ==========
+
+ModOptions.internal.wrap = function(modoptions)
+    -- Input:   ModOptions Lua table
+    -- Wraps:   ModOptions Lua table
+    return make_proxy(modoptions, metatable_modoptions)
+end
 
 
 
@@ -258,12 +258,17 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
 
     -- Sort headers alphabetically
     local ordered = {}
-    for _, data_table in pairs(__mod_options_headers) do
-        table.insert(ordered, data_table)
+    for namespace, data_table in pairs(__mod_options_headers) do
+        if namespace ~= _ENV["!guid"] then
+            table.insert(ordered, data_table)
+        end
     end
     table.sort(ordered, function(a, b)
         return gm.translate(a.namespace..".header") < gm.translate(b.namespace..".header")
     end)
+
+    -- Insert ReturnsAPI header at the front
+    table.insert(ordered, 1, __mod_options_headers[_ENV["!guid"]])
 
     -- Loop through sorted headers and add elements
     for _, data_table in ipairs(ordered) do

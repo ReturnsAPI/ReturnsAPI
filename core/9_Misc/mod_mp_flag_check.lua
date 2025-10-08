@@ -3,6 +3,27 @@
 -- Prevent online play if there are any mods
 -- that are not marked as online-safe
 
+local settings
+
+table.insert(_rapi_initialize, function()
+    local file = TOML.new(_ENV["!guid"])
+    settings = file:read() or {}
+
+    if not settings.disableMPBlock then settings.disableMPBlock = false end
+
+    -- Add toggle to disable online button blocking
+    local options = ModOptions.new(_ENV["!guid"])
+    local checkbox = options:add_checkbox("disableMPBlock")
+    checkbox:add_getter(function()
+        return settings.disableMPBlock
+    end)
+    checkbox:add_setter(function(value)
+        settings.disableMPBlock = value
+        file:write(settings)
+    end)
+end)
+
+
 local text_x, text_y
 local box_x, box_y, box_w, box_h
 local initial_fadein
@@ -45,7 +66,10 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
     end
     
     -- Disable Online button
-    self.menu[3].disabled = true
+    if not settings.disableMPBlock then
+        self.menu[3].disabled = true
+    else self.menu[3].disabled = false
+    end
 
     -- Get draw opacity of buttons
     -- Taken from oStartMenu_Draw_73 line 75
