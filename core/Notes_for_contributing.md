@@ -8,7 +8,7 @@ If you have any questions just ping `@Klehrik`.
     - This should always be the second-last argument, followed by `namespace_is_specified`, which is `true` if the user passed in an optional namespace.
 
 ##### Class Arrays
-- `6_General/Class.lua` already provides base implementations for each "class array", which includes:
+- `General/Class.lua` already provides base implementations for each "class array", which includes:
     - `Property` (enum)
     - `find` (static method)
     - `find_all` (static method)
