@@ -71,7 +71,8 @@ methods_packet = {
     --@optional     ...         |           | A variable number of arguments to pass to the serialization function.
     --[[
     Sends a packet message to all clients.
-    Must be called as host.
+    
+    **Must be called as host.**
     ]]
     send_to_all = function(self, ...)
         if Net.client then log.error("send_to_all: Must be called from host", 2) end
@@ -91,7 +92,8 @@ methods_packet = {
     --@optional     ...         |           | A variable number of arguments to pass to the serialization function.
     --[[
     Sends a packet message to a specific client.
-    Must be called as host.
+
+    **Must be called as host.**
     ]]
     send_direct = function(self, target, ...)
         if Net.client then log.error("send_direct: Must be called from host", 2) end
@@ -111,7 +113,9 @@ methods_packet = {
     --@optional     ...         |           | A variable number of arguments to pass to the serialization function.
     --[[
     Sends a packet message all clients *except* a specific one.
-    Must be called as host.
+    Usually called by the host in the deserializer by passing `player` as `target`.
+
+    **Must be called as host.**
     ]]
     send_exclude = function(self, target, ...)
         if Net.client then log.error("send_exclude: Must be called from host", 2) end
@@ -130,7 +134,8 @@ methods_packet = {
     --@optional     ...         |           | A variable number of arguments to pass to the serialization function.
     --[[
     Sends a packet message to the host.
-    Must be called as client.
+
+    **Must be called as client.**
     ]]
     send_to_host = function(self, ...)
         if Net.host then log.error("send_to_host: Must be called from client", 2) end
