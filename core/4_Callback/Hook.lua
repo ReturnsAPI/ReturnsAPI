@@ -30,6 +30,11 @@ run_once(function()
     __hook_current_id   = -1    -- Shared by both __pre and __post
 end)
 
+local banned_scripts = {
+    gm.constants.step_actor,    -- Bad for performance
+    gm.constants.draw_actor,    -- Bad for performance
+}
+
 
 
 -- ========== Internal ==========
@@ -200,6 +205,9 @@ If you need to be more specific than that, try to keep a distance of at least `1
 *Technical:* Uses `gm.pre_script_hook` (script) or `gm.pre_code_execute` (object) internally, passing auto-wrapped values.
 ]]
 Hook.add_pre = function(NAMESPACE, script, arg2, arg3)
+    -- Throw error if script is banned
+    if Util.table_has(banned_scripts, script) then log.error("Hook.add_pre: The function '"..(gm.constants_type_sorted["script"][script] or gm.constants_type_sorted["gml_script"][script] or script).."' is not permitted to be hooked", 2) end
+
     -- Throw error if script argument is invalid
     if  (type(script) ~= "number")
     and (type(script) ~= "string") then log.error("Hook.add_pre: script is invalid", 2) end
@@ -244,6 +252,9 @@ If you need to be more specific than that, try to keep a distance of at least `1
 *Technical:* Uses `gm.post_script_hook` (script) or `gm.post_code_execute` (object) internally, passing auto-wrapped values.
 ]]
 Hook.add_post = function(NAMESPACE, script, arg2, arg3)
+    -- Throw error if script is banned
+    if Util.table_has(banned_scripts, script) then log.error("Hook.add_post: The function '"..(gm.constants_type_sorted["script"][script] or gm.constants_type_sorted["gml_script"][script] or script).."' is not permitted to be hooked", 2) end
+
     -- Throw error if script argument is invalid
     if  (type(script) ~= "number")
     and (type(script) ~= "string") then log.error("Hook.add_post: script is invalid", 2) end
