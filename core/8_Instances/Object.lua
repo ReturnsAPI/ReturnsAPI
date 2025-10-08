@@ -205,13 +205,13 @@ end
 Adds serialization and deserialization functions
 that run for instances of the object when syncing.
 
-The arguments for each function should be `self, buffer`.
+The arguments for each function should be `inst, buffer`.
 
 Relevant functions:
-- `self:instance_sync()` - Initial setup (generally in `on_create`); creates new instance for clients
-- `self:instance_resync()` - Resync data
-- `self:projectile_sync(interval)` - Same as `instance_resync`, but with automatic periodic resync
-- `self:instance_destroy_sync()` - Sync destruction; place in `on_destroy` (host only)
+- `inst:instance_sync()` - Initial setup (generally in `on_create`); creates new instance for clients
+- `inst:instance_resync()` - Resync data
+- `inst:projectile_sync(interval)` - Same as `instance_resync`, but with automatic periodic resync
+- `inst:instance_destroy_sync()` - Sync destruction; place in `on_destroy` (host only)
 
 **NOTE:** You *must* read all data you send in `serializer`,
 as all object serializations share the same packet.
