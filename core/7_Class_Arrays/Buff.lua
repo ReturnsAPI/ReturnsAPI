@@ -205,7 +205,7 @@ gm.post_script_hook(gm.constants.buff_create, function(self, other, result, args
         -- `buff_count` will never be 0, so the cache reset needs
         -- to be delayed by 1 frame to work properly
         -- Feels a little messy but shouldn't be a real problem
-        Alarm.add(_ENV["!guid"], 1, function()
+        Alarm.add(RAPI_NAMESPACE, 1, function()
             local actor_id  = actor.id
 
             if actor:buff_count(buff_id) > 0 then return end

@@ -1,6 +1,7 @@
 -- ReturnsAPI
 
-PATH = _ENV["!plugins_mod_folder_path"].."/"
+PATH            = _ENV["!plugins_mod_folder_path"].."/"
+RAPI_NAMESPACE  = "rapi"  -- Namespace for ReturnsAPI that is used internally
 
 
 -- ENVY initial setup
@@ -12,8 +13,7 @@ envy = mods["LuaENVY-ENVY"]
 -- This needs to be called before loading core
 if run_on_hotload then
     run_on_hotload(function()
-        local namespace = _ENV["!guid"]
-        run_clear_namespace_functions(namespace)    -- in Internal.lua
+        run_clear_namespace_functions(RAPI_NAMESPACE)   -- in Internal.lua
     end)
 end
 

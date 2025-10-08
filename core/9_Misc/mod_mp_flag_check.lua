@@ -6,13 +6,13 @@
 local settings
 
 table.insert(_rapi_initialize, function()
-    local file = TOML.new(_ENV["!guid"])
+    local file = TOML.new(RAPI_NAMESPACE)
     settings = file:read() or {}
 
     if not settings.disableMPBlock then settings.disableMPBlock = false end
 
     -- Add toggle to disable online button blocking
-    local options = ModOptions.new(_ENV["!guid"])
+    local options = ModOptions.new(RAPI_NAMESPACE)
     local checkbox = options:add_checkbox("disableMPBlock")
     checkbox:add_getter(function()
         return settings.disableMPBlock

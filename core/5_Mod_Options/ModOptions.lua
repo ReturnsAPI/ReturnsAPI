@@ -259,7 +259,7 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
     -- Sort headers alphabetically
     local ordered = {}
     for namespace, data_table in pairs(__mod_options_headers) do
-        if namespace ~= _ENV["!guid"] then
+        if namespace ~= RAPI_NAMESPACE then
             table.insert(ordered, data_table)
         end
     end
@@ -268,7 +268,7 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
     end)
 
     -- Insert ReturnsAPI header at the front
-    table.insert(ordered, 1, __mod_options_headers[_ENV["!guid"]])
+    table.insert(ordered, 1, __mod_options_headers[RAPI_NAMESPACE])
 
     -- Loop through sorted headers and add elements
     for _, data_table in ipairs(ordered) do

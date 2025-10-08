@@ -181,7 +181,7 @@ Instance.get_data = function(instance, subtable, namespace, namespace_is_specifi
     if (type(id) ~= "number") or (id < 100000) then log.error("Instance.get_data: Instance does not exist", 2) end
     
     subtable = subtable or "__main"
-    namespace = namespace or _ENV["!guid"]  -- Internal RAPI calling of this is not namespace-bound
+    namespace = namespace or RAPI_NAMESPACE -- Internal RAPI calling of this is not namespace-bound
 
     if not __instance_data[id] then __instance_data[id] = {} end
     if not __instance_data[id][namespace] then __instance_data[id][namespace] = {} end

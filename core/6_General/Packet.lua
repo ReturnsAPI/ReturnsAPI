@@ -192,7 +192,7 @@ local function packet_onReceived(packet, buffer, buffer_tell, player)
     if fn then fn(buffer, player) end
 end
 
-Callback.add(_ENV["!guid"], Callback.NET_MESSAGE_ON_RECEIVED, packet_onReceived)
+Callback.add(RAPI_NAMESPACE, Callback.NET_MESSAGE_ON_RECEIVED, packet_onReceived)
 
 
 
