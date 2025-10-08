@@ -332,7 +332,7 @@ methods_object = {
     --[[
     Adds a tag to this object.
     The purpose of this is to allow for easier lookup
-    for groups of objects (see @link {`Object.find_by_tag` | Object#find_by_tag}).
+    for groups of objects (see @link {`Object.find_all_by_tag` | Object#find_all_by_tag}).
     ]]
     add_tag = function(self, tag)
         if type(tag) ~= "string" then log.error("add_tag: tag must be a string", 2) end
