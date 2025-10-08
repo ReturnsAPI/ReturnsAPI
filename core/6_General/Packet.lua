@@ -34,10 +34,11 @@ end
 --[[
 Creates a new Packet and returns it.
 ]]
-Packet.new = function()
+Packet.new = function(NAMESPACE)
     Initialize.internal.check_if_started("Packet.new")
 
     local id = gm._mod_net_message_getUniqueID()
+    print("'"..NAMESPACE.."' added packet ID '"..math.floor(id).."'")
     return Packet.wrap(id)
 end
 
