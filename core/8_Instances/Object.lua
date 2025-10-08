@@ -207,11 +207,11 @@ that run for instances of the object when syncing.
 
 The arguments for each function should be `inst, buffer`.
 
-Relevant functions:
+Relevant functions (callable by host only):
 - `inst:instance_sync()` - Initial setup (generally in `on_create`); creates new instance for clients
 - `inst:instance_resync()` - Resync data
 - `inst:projectile_sync(interval)` - Same as `instance_resync`, but with automatic periodic resync
-- `inst:instance_destroy_sync()` - Sync destruction; place in `on_destroy` (host only)
+- `inst:instance_destroy_sync()` - Sync destruction; place in `on_destroy`
 
 **NOTE:** You *must* read all data you send in `serializer`,
 as all object serializations share the same packet.
