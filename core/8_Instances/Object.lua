@@ -202,14 +202,16 @@ end
 --@param        serializer      | function  | The serialization function.
 --@param        deserializer    | function  | The deserialization function.
 --[[
-Adds serialization and deserialization functions for the object.
-The arguments for each are `self, buffer`.
+Adds serialization and deserialization functions
+that run for instances of the object when syncing.
+
+The arguments for each function should be `self, buffer`.
 
 Relevant functions:
-- `instance_sync()` - Initial setup (generally in `on_create`); creates new instance for clients
-- `instance_resync()` - Resync data
-- `projectile_sync(interval)` - Same as `instance_resync`, but with automatic periodic resync
-- `instance_destroy_sync` - Sync destruction; place in `on_destroy` (host only)
+- `self:instance_sync()` - Initial setup (generally in `on_create`); creates new instance for clients
+- `self:instance_resync()` - Resync data
+- `self:projectile_sync(interval)` - Same as `instance_resync`, but with automatic periodic resync
+- `self:instance_destroy_sync()` - Sync destruction; place in `on_destroy` (host only)
 
 **NOTE:** You *must* read all data you send in `serializer`,
 as all object serializations share the same packet.
@@ -492,6 +494,7 @@ gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_seri
     local index = self.__object_index
     local subtable = __object_serializers[index]
 	if subtable then
+        local inst = Instance.wrap(self)
         local buffer = Buffer.wrap(Global.multiplayer_buffer)
         for _, fn_table in ipairs(subtable) do
             local status, err = pcall(fn_table.fn, inst, buffer)
@@ -509,6 +512,7 @@ gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_dese
     local index = self.__object_index
     local subtable = __object_deserializers[index]
 	if subtable then
+        local inst = Instance.wrap(self)
         local buffer = Buffer.wrap(Global.multiplayer_buffer)
         for _, fn_table in ipairs(subtable) do
             local status, err = pcall(fn_table.fn, inst, buffer)
