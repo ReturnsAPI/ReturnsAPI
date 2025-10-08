@@ -35,11 +35,11 @@ Property | Type | Description
 --[[
 Returns a newly created GameMaker list.
 ]]
-List.new = function(table)
+List.new = function(t)
     -- Create list from table
-    if type(table) == "table" then
+    if type(t) == "table" then
         local list = List.wrap(gm.ds_list_create())
-        list:add(table.unpack(table))
+        list:add(table.unpack(t))
         return list
     end
 

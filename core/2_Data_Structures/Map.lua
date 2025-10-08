@@ -35,13 +35,13 @@ Property | Type | Description
 --[[
 Returns a newly created GameMaker map.
 ]]
-Map.new = function(table)
+Map.new = function(t)
     -- Create map from table
-    if type(table) == "table" then
+    if type(t) == "table" then
         local map = Map.wrap(gm.ds_map_create())
 
         -- Add key-value pairs from table to map
-        for k, v in pairs(table) do
+        for k, v in pairs(t) do
             map:set(k, v)
         end
 

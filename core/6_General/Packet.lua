@@ -35,6 +35,8 @@ end
 Creates a new Packet and returns it.
 ]]
 Packet.new = function()
+    Initialize.internal.check_if_started("Packet.new")
+
     local id = gm._mod_net_message_getUniqueID()
     return Packet.wrap(id)
 end
@@ -218,16 +220,8 @@ Callback.add(RAPI_NAMESPACE, Callback.NET_MESSAGE_ON_RECEIVED, function(packet, 
     local fn = __callbacks_onDeserialize[packet.value]
     if not fn then return end
 
-    -- gm.buffer_seek(buffer.value, 0, 2)
-    -- print("buffer tell", buffer_tell)
-
     -- Get send type
     local send_type = buffer:read_ushort()
-
-    -- print("buffer seek", gm.buffer_tell(buffer.value))
-
-    -- print("send type", send_type)
-    -- print("string", buffer:read_string())
 
     -- Client calling `send_to_all`
     if  (Net.host)
