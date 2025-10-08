@@ -31,75 +31,126 @@ end)
 Hook.internal.add_pre_hook = function(script)
     __pre_hooks[script] = true
 
-    gm.pre_script_hook(script, function(self, other, result, args)
-        -- Wrap args
-        local _self     = Wrap.wrap(self)
-        local _other    = Wrap.wrap(other)
-        local _result   = { value = nil }
-        local _args     = {}
-        local _args_og  = {}
-        for i, arg in ipairs(args) do
-            local wrap = Wrap.wrap(arg.value)
-            _args[i]    = { value = wrap }
-            _args_og[i] = wrap
-        end
-
-        local pre_hook_return = true
-
-        -- Call registered functions with wrapped args
-        __pre_hook_cache:loop_and_call_functions(function(fn_table)
-            local status, err = pcall(fn_table.fn, _self, _other, _result, _args)
-            if not status then
-                if (err == nil)
-                or (err == "C++ exception") then err = "GameMaker error (see above)" end
-                log.warning("\n"..fn_table.namespace..": Pre-hook (ID '"..fn_table.id.."') of function '"..(gm.constants_type_sorted["script"][script] or gm.constants_type_sorted["gml_script"][script] or script).."' failed to execute fully.\n"..err)
-            else
-                -- Allow `return false` to prevent normal function execution
-                if err == false then pre_hook_return = false end
+    -- Script
+    if type(script) == "number" then
+        gm.pre_script_hook(script, function(self, other, result, args)
+            -- Wrap args
+            local _self     = Wrap.wrap(self)
+            local _other    = Wrap.wrap(other)
+            local _result   = { value = nil }
+            local _args     = {}
+            local _args_og  = {}
+            for i, arg in ipairs(args) do
+                local wrap = Wrap.wrap(arg.value)
+                _args[i]    = { value = wrap }
+                _args_og[i] = wrap
             end
-        end, script)
 
-        -- Args modification
-        for i, arg in ipairs(_args) do
-            if (type(arg) == "table") and (arg.value ~= _args_og[i]) then
-                args[i].value = Wrap.unwrap(arg.value)
+            local pre_hook_return = true
+
+            -- Call registered functions with wrapped args
+            __pre_hook_cache:loop_and_call_functions(function(fn_table)
+                local status, err = pcall(fn_table.fn, _self, _other, _result, _args)
+                if not status then
+                    if (err == nil)
+                    or (err == "C++ exception") then err = "GameMaker error (see above)" end
+                    log.warning("\n"..fn_table.namespace..": Pre-hook (ID '"..fn_table.id.."') of function '"..(gm.constants_type_sorted["script"][script] or gm.constants_type_sorted["gml_script"][script] or script).."' failed to execute fully.\n"..err)
+                else
+                    -- Allow `return false` to prevent normal function execution
+                    if err == false then pre_hook_return = false end
+                end
+            end, script)
+
+            -- Args modification
+            for i, arg in ipairs(_args) do
+                if (type(arg) == "table") and (arg.value ~= _args_og[i]) then
+                    args[i].value = Wrap.unwrap(arg.value)
+                end
             end
-        end
 
-        return pre_hook_return
-    end)
+            return pre_hook_return
+        end)
+
+    -- Object
+    else
+        gm.pre_code_execute(script, function(self, other)
+            -- Wrap args
+            local _self     = Wrap.wrap(self)
+            local _other    = Wrap.wrap(other)
+
+            local pre_hook_return = true
+
+            -- Call registered functions with wrapped args
+            __pre_hook_cache:loop_and_call_functions(function(fn_table)
+                local status, err = pcall(fn_table.fn, _self, _other)
+                if not status then
+                    if (err == nil)
+                    or (err == "C++ exception") then err = "GameMaker error (see above)" end
+                    log.warning("\n"..fn_table.namespace..": Pre-hook (ID '"..fn_table.id.."') of function '"..script.."' failed to execute fully.\n"..err)
+                else
+                    -- Allow `return false` to prevent normal function execution
+                    if err == false then pre_hook_return = false end
+                end
+            end, script)
+
+            return pre_hook_return
+        end)
+
+    end
 end
 
 
 Hook.internal.add_post_hook = function(script)
     __post_hooks[script] = true
 
-    gm.post_script_hook(script, function(self, other, result, args)
-        -- Wrap args
-        local _self     = Wrap.wrap(self)
-        local _other    = Wrap.wrap(other)
-        local _result   = { value = Wrap.wrap(result.value) }   -- Allow detecting modification
-        local _result_og = _result.value
-        local _args     = {}
-        for i, arg in ipairs(args) do
-            _args[i] = { value = Wrap.wrap(arg.value) }
-        end
-
-        -- Call registered functions with wrapped args
-        __post_hook_cache:loop_and_call_functions(function(fn_table)
-            local status, err = pcall(fn_table.fn, _self, _other, _result, _args)
-            if not status then
-                if (err == nil)
-                or (err == "C++ exception") then err = "GameMaker error (see above)" end
-                log.warning("\n"..fn_table.namespace..": post-hook (ID '"..fn_table.id.."') of function '"..(gm.constants_type_sorted["script"][script] or gm.constants_type_sorted["gml_script"][script] or script).."' failed to execute fully.\n"..err)
+    -- Script
+    if type(script) == "number" then
+        gm.post_script_hook(script, function(self, other, result, args)
+            -- Wrap args
+            local _self     = Wrap.wrap(self)
+            local _other    = Wrap.wrap(other)
+            local _result   = { value = Wrap.wrap(result.value) }   -- Allow detecting modification
+            local _result_og = _result.value
+            local _args     = {}
+            for i, arg in ipairs(args) do
+                _args[i] = { value = Wrap.wrap(arg.value) }
             end
-        end, script)
 
-        -- Result modification
-        if _result.value ~= _result_og then
-            result.value = Wrap.unwrap(_result.value)
-        end
-    end)
+            -- Call registered functions with wrapped args
+            __post_hook_cache:loop_and_call_functions(function(fn_table)
+                local status, err = pcall(fn_table.fn, _self, _other, _result, _args)
+                if not status then
+                    if (err == nil)
+                    or (err == "C++ exception") then err = "GameMaker error (see above)" end
+                    log.warning("\n"..fn_table.namespace..": Post-hook (ID '"..fn_table.id.."') of function '"..(gm.constants_type_sorted["script"][script] or gm.constants_type_sorted["gml_script"][script] or script).."' failed to execute fully.\n"..err)
+                end
+            end, script)
+
+            -- Result modification
+            if _result.value ~= _result_og then
+                result.value = Wrap.unwrap(_result.value)
+            end
+        end)
+
+    -- Object
+    else
+        gm.post_code_execute(script, function(self, other)
+            -- Wrap args
+            local _self     = Wrap.wrap(self)
+            local _other    = Wrap.wrap(other)
+
+            -- Call registered functions with wrapped args
+            __post_hook_cache:loop_and_call_functions(function(fn_table)
+                local status, err = pcall(fn_table.fn, _self, _other)
+                if not status then
+                    if (err == nil)
+                    or (err == "C++ exception") then err = "GameMaker error (see above)" end
+                    log.warning("\n"..fn_table.namespace..": Post-hook (ID '"..fn_table.id.."') of function '"..script.."' failed to execute fully.\n"..err)
+                end
+            end, script)
+        end)
+
+    end
 end
 
 
@@ -124,11 +175,11 @@ end)
 
 --@static
 --@return       number
---@param        script      | number    | The game function to hook. <br>(E.g., `gm.constants.instance_number`)
---@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
+--@param        script      | number or string  | The game function to hook. <br>(E.g., `gm.constants.instance_number`, `"gml_Object_oOptionsMenu_Create_0"`, etc.)
+--@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args` for script hooks, <br>and `self, other` for object hooks.
 --@overload
 --@return       number
---@param        script      | number    | The game function to hook. <br>(E.g., `gm.constants.instance_number`)
+--@param        script      | number or string  | The game function to hook. <br>(E.g., `gm.constants.instance_number`, `"gml_Object_oOptionsMenu_Create_0"`, etc.)
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
 --[[
@@ -140,18 +191,17 @@ To allow for a decent amount of space between priorities,
 use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 
-*Technical:* Uses `gm.pre_script_hook` internally, passing auto-wrapped values.
+*Technical:* Uses `gm.pre_script_hook` (script) or `gm.pre_code_execute` (object) internally, passing auto-wrapped values.
 ]]
 Hook.add_pre = function(NAMESPACE, script, arg2, arg3)
-    -- Throw error if not numerical ID
-    if type(script) ~= "number" then
-        log.error("Hook.pre: Invalid function", 2)
-    end
+    -- Throw error if script argument is invalid
+    if  (type(script) ~= "number")
+    and (type(script) ~= "string") then log.error("Hook.add_pre: script is invalid", 2) end
 
     -- Throw error if not function
     if  (type(arg2) ~= "function")
     and (type(arg3) ~= "function") then
-        log.error("Hook.pre: No function provided", 2)
+        log.error("Hook.add_pre: No function provided", 2)
     end
 
     -- Create actual hook
@@ -169,11 +219,11 @@ end
 
 --@static
 --@return       number
---@param        script      | number    | The game function to hook. <br>(E.g., `gm.constants.instance_number`)
---@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
+--@param        script      | number or string  | The game function to hook. <br>(E.g., `gm.constants.instance_number`, `"gml_Object_oOptionsMenu_Create_0"`, etc.)
+--@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args` for script hooks, <br>and `self, other` for object hooks.
 --@overload
 --@return       number
---@param        script      | number    | The game function to hook. <br>(E.g., `gm.constants.instance_number`)
+--@param        script      | number or string  | The game function to hook. <br>(E.g., `gm.constants.instance_number`, `"gml_Object_oOptionsMenu_Create_0"`, etc.)
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
 --[[
@@ -185,18 +235,17 @@ To allow for a decent amount of space between priorities,
 use the enum values in @link {`Callback.Priority` | Callback#Priority}.
 If you need to be more specific than that, try to keep a distance of at least `100`.
 
-*Technical:* Uses `gm.post_script_hook` internally, passing auto-wrapped values.
+*Technical:* Uses `gm.post_script_hook` (script) or `gm.post_code_execute` (object) internally, passing auto-wrapped values.
 ]]
 Hook.add_post = function(NAMESPACE, script, arg2, arg3)
-    -- Throw error if not numerical ID
-    if type(script) ~= "number" then
-        log.error("Hook.post: Invalid function", 2)
-    end
+    -- Throw error if script argument is invalid
+    if  (type(script) ~= "number")
+    and (type(script) ~= "string") then log.error("Hook.add_post: script is invalid", 2) end
 
     -- Throw error if not function
     if  (type(arg2) ~= "function")
     and (type(arg3) ~= "function") then
-        log.error("Hook.post: No function provided", 2)
+        log.error("Hook.add_post: No function provided", 2)
     end
 
     -- Create actual hook
