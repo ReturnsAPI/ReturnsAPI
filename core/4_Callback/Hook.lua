@@ -3,13 +3,19 @@
 --[[
 Allows for calling a function before/after a game function.
 
-**Callback arguments**
+**Script hook callback arguments**
 Argument | Type | Description
 | - | - | -
 `self`      | Instance, Struct, or nil  | The calling instance.
 `other`     | Instance, Struct, or nil  | The "other" instance.
 `result`    |                           | The post-hook return value (`nil` for pre-hooks). <br>Get/set using `result.value`. <br>Can only be set in post-hooks.
 `args`      | table                     | The called game function's arguments. <br>Get/set using `args[i].value`. <br>Can only be set in pre-hooks.
+
+**Object hook callback arguments**
+Argument | Type | Description
+| - | - | -
+`self`      | Instance, Struct, or nil  | The calling instance.
+`other`     | Instance, Struct, or nil  | The "other" instance.
 
 In a pre-hook, returning `false` will prevent normal execution of the game function (post-hooks will still run).
 ]]
@@ -181,7 +187,7 @@ end)
 --@return       number
 --@param        script      | number or string  | The game function to hook. <br>(E.g., `gm.constants.instance_number`, `"gml_Object_oOptionsMenu_Create_0"`, etc.)
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
---@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
+--@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args` for script hooks, <br>and `self, other` for object hooks.
 --[[
 Registers a function under a game function pre-hook
 Returns the unique ID of the registered function.
@@ -225,7 +231,7 @@ end
 --@return       number
 --@param        script      | number or string  | The game function to hook. <br>(E.g., `gm.constants.instance_number`, `"gml_Object_oOptionsMenu_Create_0"`, etc.)
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
---@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args`.
+--@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args` for script hooks, <br>and `self, other` for object hooks.
 --[[
 Registers a function under a game function post-hook
 Returns the unique ID of the registered function.
