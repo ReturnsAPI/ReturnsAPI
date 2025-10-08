@@ -11,6 +11,13 @@ function public.setup(env, namespace)
     end
 
     local namespace = namespace or env["!guid"]
+
+    -- Prevent taking a namespace already used internally
+    if namespace == RAPI_NAMESPACE
+    or namespace == "__permanent" then
+        namespace = env["!guid"]
+        log.warning("Cannot use namespace '"..namespace.."'; using '"..env["!guid"].."' instead")
+    end
     
     -- Store mod folder path (table is in Internal.lua)
     __namespace_path[namespace] = env["!plugins_mod_folder_path"]
