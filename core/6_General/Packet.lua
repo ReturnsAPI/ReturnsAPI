@@ -8,6 +8,13 @@ run_once(function()
     __callbacks_onDeserialize = {}
 end)
 
+local SendType = {
+    ALL     = 0,
+    DIRECT  = 1,
+    EXCLUDE = 2,
+    HOST    = 3
+}
+
 
 
 -- ========== Internal ==========
@@ -72,17 +79,29 @@ methods_packet = {
     --[[
     Sends a packet message to all clients.
     
-    **Must be called as host.**
+    **Can be called as host or client.**
     ]]
     send_to_all = function(self, ...)
-        if Net.client then log.error("send_to_all: Must be called from host", 2) end
+        if Net.host then
+            -- Call serialization function linked to packet ID
+            local fn = __callbacks_onSerialize[self.value]
+            if fn then
+                local buffer = Buffer.net_message_begin()
+                buffer:write_ushort(SendType.ALL)
+                fn(buffer, ...)
+                Packet.internal.net_message_send(self.value, SendType.ALL)
+            end
 
-        -- Call serialization function linked to packet ID
-        local fn = __callbacks_onSerialize[self.value]
-        if fn then
-            local buffer = Buffer.net_message_begin()
-            fn(buffer, ...)
-            Packet.internal.net_message_send(self.value, 0)
+        elseif Net.client then
+            -- Call serialization function linked to packet ID
+            local fn = __callbacks_onSerialize[self.value]
+            if fn then
+                local buffer = Buffer.net_message_begin()
+                buffer:write_ushort(SendType.ALL)
+                fn(buffer, ...)
+                Packet.internal.net_message_send(self.value, SendType.HOST)
+            end
+
         end
     end,
 
@@ -102,8 +121,9 @@ methods_packet = {
         local fn = __callbacks_onSerialize[self.value]
         if fn then
             local buffer = Buffer.net_message_begin()
+            buffer:write_ushort(SendType.DIRECT)
             fn(buffer, ...)
-            Packet.internal.net_message_send(self.value, 1, target)
+            Packet.internal.net_message_send(self.value, SendType.DIRECT, target)
         end
     end,
 
@@ -124,8 +144,9 @@ methods_packet = {
         local fn = __callbacks_onSerialize[self.value]
         if fn then
             local buffer = Buffer.net_message_begin()
+            buffer:write_ushort(SendType.EXCLUDE)
             fn(buffer, ...)
-            Packet.internal.net_message_send(self.value, 2, target)
+            Packet.internal.net_message_send(self.value, SendType.EXCLUDE, target)
         end
     end,
 
@@ -144,8 +165,9 @@ methods_packet = {
         local fn = __callbacks_onSerialize[self.value]
         if fn then
             local buffer = Buffer.net_message_begin()
+            buffer:write_ushort(SendType.HOST)
             fn(buffer, ...)
-            Packet.internal.net_message_send(self.value, 3)
+            Packet.internal.net_message_send(self.value, SendType.HOST)
         end
     end
 
@@ -191,13 +213,46 @@ make_table_once("metatable_packet", {
 
 -- ========== Callback ==========
 
-local function packet_onReceived(packet, buffer, buffer_tell, player)
-    -- Call deserialization function linked to packet ID
+Callback.add(RAPI_NAMESPACE, Callback.NET_MESSAGE_ON_RECEIVED, function(packet, buffer, buffer_tell, player)
+    -- Check if packet has a deserialization function
     local fn = __callbacks_onDeserialize[packet.value]
-    if fn then fn(buffer, player) end
-end
+    if not fn then return end
 
-Callback.add(RAPI_NAMESPACE, Callback.NET_MESSAGE_ON_RECEIVED, packet_onReceived)
+    -- gm.buffer_seek(buffer.value, 0, 2)
+    -- print("buffer tell", buffer_tell)
+
+    -- Get send type
+    local send_type = buffer:read_ushort()
+
+    -- print("buffer seek", gm.buffer_tell(buffer.value))
+
+    -- print("send type", send_type)
+    -- print("string", buffer:read_string())
+
+    -- Client calling `send_to_all`
+    if  (Net.host)
+    and (send_type == SendType.ALL) then
+        -- Copy buffer and send to other clients
+        local relay_buffer = Buffer.net_message_begin()
+
+        -- When the game sends a buffer, the receiver gets a version of it with X bytes
+        -- prepended (which is why `buffer_tell` is X), so subtract X to get the actual size
+        -- `buffer_tell` seems to usually be 2
+        local buffer_actual_size = gm.buffer_get_size(buffer.value) - buffer_tell
+
+        -- When copying, skip the first X bytes
+        gm.buffer_copy(buffer.value, buffer_tell, buffer_actual_size, relay_buffer.value, 0)
+
+        -- When sending, the game uses `gm.buffer_tell()` to determine the size of the write buffer,
+        -- so must move seek position to `buffer`'s actual size
+        gm.buffer_seek(relay_buffer.value, 0, buffer_actual_size)
+
+        Packet.internal.net_message_send(packet.value, SendType.EXCLUDE, player)
+    end
+
+    -- Call deserialization function
+    fn(buffer, player)
+end)
 
 
 
