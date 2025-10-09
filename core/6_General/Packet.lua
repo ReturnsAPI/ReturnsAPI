@@ -169,19 +169,16 @@ end
 
 
 --@static
---@return       Packet
+--@return       Packet or nil
 --@param        packet_id   | number    | The packet ID to wrap.
 --[[
-Returns a Packet wrapper containing the provided packet ID.
+Returns a Packet wrapper containing the provided packet ID,
+or `nil` if the packet ID is not in use.
 ]]
 Packet.wrap = function(packet_id)
     -- Input:   number
-    -- Wraps:   N/A; returns existing wrapper
+    -- Wraps:   N/A; returns existing wrapper if it exists
     local packet = __packet_find_table:get(packet_id)
-    if not packet then
-        log.error("Packet.wrap: Packet ID '"..packet_id.."' is not used", 2)
-        return
-    end
     return packet
 end
 
@@ -351,6 +348,8 @@ make_table_once("metatable_packet", {
 -- ========== Hooks ==========
 
 Callback.add(RAPI_NAMESPACE, Callback.NET_MESSAGE_ON_RECEIVED, function(packet, buffer, buffer_tell, player)
+    if type(packet) == "number" then return end
+
     -- Check if packet has a deserialization function
     local fn = __callbacks_onDeserialize[packet.nsid]
     if not fn then return end
