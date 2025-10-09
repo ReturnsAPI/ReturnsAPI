@@ -38,6 +38,7 @@ end
 -- Each take a single argument corresponding
 -- to the type of value they write
 buffer:write_instance
+buffer:write_bool
 buffer:write_byte
 buffer:write_int
 buffer:write_uint
@@ -52,6 +53,7 @@ buffer:write_color
 
 -- These take no arguments
 buffer:read_instance
+buffer:read_bool
 buffer:read_byte
 buffer:read_int
 buffer:read_uint
@@ -72,10 +74,18 @@ methods_buffer = {
         gm.write_instance_direct(self.value, Wrap.unwrap(instance))
     end,
 
-
     read_instance = function(self)
         return Instance.wrap(gm.read_instance_direct(self.value))
-    end
+    end,
+
+
+    write_bool = function(self, bool)
+        self:write_byte((bool and 1) or 0)
+    end,
+
+    read_bool = function(self)
+        return Util.bool(self:read_byte())
+    end,
 
 }
 
