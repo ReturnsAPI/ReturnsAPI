@@ -354,6 +354,17 @@ Util.table_append(methods_class_array[name_rapi], {
         end
 
         return pools
+    end,
+
+
+    --@instance
+    --@return       Achievement
+    --[[
+    Returns the associated @link {Achievement | Achievement} if it exists,
+    or an invalid Achievement if it does not.
+    ]]
+    get_achievement = function(self)
+        return Achievement.wrap(self.achievement_id)
     end
 
 })

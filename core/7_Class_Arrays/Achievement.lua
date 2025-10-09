@@ -168,6 +168,7 @@ Util.table_append(methods_class_array[name_rapi], {
     Associates the achievement with an artifact.
     ]]
     set_unlock_artifact = function(self, content)
+        if self.value < 0 then log.error("set_unlock_artifact: Achievement does not exist", 2) end
         gm.achievement_set_unlock_artifact(self.value, Wrap.unwrap(content))
     end,
 
@@ -178,6 +179,7 @@ Util.table_append(methods_class_array[name_rapi], {
     Associates the achievement with an equipment.
     ]]
     set_unlock_equipment = function(self, content)
+        if self.value < 0 then log.error("set_unlock_equipment: Achievement does not exist", 2) end
         gm.achievement_set_unlock_equipment(self.value, Wrap.unwrap(content))
     end,
 
@@ -188,6 +190,7 @@ Util.table_append(methods_class_array[name_rapi], {
     Associates the achievement with an item.
     ]]
     set_unlock_item = function(self, content)
+        if self.value < 0 then log.error("set_unlock_item: Achievement does not exist", 2) end
         gm.achievement_set_unlock_item(self.value, Wrap.unwrap(content))
     end,
 
@@ -201,6 +204,7 @@ Util.table_append(methods_class_array[name_rapi], {
     that are of the skill, so the skill must be added to the survivor(s) first.
     ]]
     set_unlock_skill = function(self, content)
+        if self.value < 0 then log.error("set_unlock_skill: Achievement does not exist", 2) end
         -- TODO
     end,
 
@@ -211,7 +215,28 @@ Util.table_append(methods_class_array[name_rapi], {
     Associates the achievement with a survivor.
     ]]
     set_unlock_survivor = function(self, content)
+        if self.value < 0 then log.error("set_unlock_survivor: Achievement does not exist", 2) end
         gm.achievement_set_unlock_survivor(self.value, Wrap.unwrap(content))
+    end,
+
+
+    --@instance
+    --@return       bool
+    --[[
+    Returns `true` if the achievement is unlocked for this player.
+    ]]
+    is_unlocked = function(self)
+        return gm.achievement_is_unlocked_or_null(self.value)
+    end,
+
+
+    --@instance
+    --@return       bool
+    --[[
+    Returns `true` if the achievement is unlocked for any player in multiplayer.
+    ]]
+    is_unlocked_any = function(self)
+        return gm.achievement_is_unlocked_or_null_any_player(self.value)
     end,
 
 
@@ -222,11 +247,8 @@ Util.table_append(methods_class_array[name_rapi], {
     The achievement will be unlocked once progress reaches `progress_needed`.
     ]]
     add_progress = function(self, amount)
+        if self.value < 0 then log.error("add_progress: Achievement does not exist", 2) end
         gm.achievement_add_progress(self.value, amount or 1)
-    end,
-
-
-    -- TODO: add is_unlocked (for local player and for any in mp)
-    -- also test everything
+    end
 
 })

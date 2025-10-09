@@ -361,6 +361,17 @@ Util.table_append(methods_class_array[name_rapi], {
 
     add_skin = function(self, skin)
         -- TODO: Should accept an ActorSkin
+    end,
+
+
+    --@instance
+    --@return       Achievement
+    --[[
+    Returns the associated @link {Achievement | Achievement} if it exists,
+    or an invalid Achievement if it does not.
+    ]]
+    get_achievement = function(self)
+        return Achievement.wrap(self.achievement_id)
     end
 
 })

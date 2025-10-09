@@ -188,4 +188,17 @@ Util.table_append(methods_class_array[name_rapi], {
     Prints the skill's properties.
     ]]
 
+
+    --@instance
+    --@return       Achievement
+    --[[
+    (TODO)
+
+    Returns the associated @link {Achievement | Achievement} if it exists,
+    or an invalid Achievement if it does not.
+    ]]
+    get_achievement = function(self)
+        -- TODO
+    end
+
 })
