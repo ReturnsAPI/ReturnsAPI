@@ -89,7 +89,7 @@ end
 --@param        id          | number    | The unique ID of the alarm to remove.
 --[[
 Removes and returns an existing alarm.
-The ID is the one from @link {`Alarm.add` | Alarm#add}.
+The ID is the one from @link {`Alarm.add` | Alarm#add}/@link {`Alarm.add_nopause` | Alarm#add_nopause}.
 ]]
 Alarm.remove = function(id)
     return __alarm_bank:remove(id) or __alarm_bank_nopause:remove(id)
