@@ -6,6 +6,7 @@
 -- * ItemTier
 -- * LootPool
 -- * Object
+-- * Packet
 -- * Particle
 -- * Sound
 -- * Sprite
