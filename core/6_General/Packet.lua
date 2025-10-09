@@ -128,6 +128,7 @@ table.insert(_rapi_initialize, Packet.internal.initialize)
 
 --@static
 --@return       Packet
+--@param        identifier  | string    | The identifier for the packet.
 --[[
 Creates a new Packet and returns it.
 ]]
