@@ -86,28 +86,32 @@ Packet.internal.initialize = function()
                 local namespace     = buffer:read_string()
                 local identifier    = buffer:read_string()
 
-                -- Increment `Global.mod_message_counter` if it is lower than `new_id`
-                -- This is to make `_mod_net_message_getUniqueID` not return an ID already in use
-                Global.mod_message_counter = math.max(Global.mod_message_counter, new_id)
-
-                -- Get wrapper at current cache location and remove it from there
+                -- Get wrapper
                 local wrapper = __packet_find_table:get(identifier, namespace, true)
-                __packet_find_table:set(nil, identifier, namespace, wrapper.id)
 
-                -- Modify wrapper to use new ID
-                __proxy[wrapper].id = new_id
+                if wrapper then
+                    -- Remove wrapper from current cache location
+                    __packet_find_table:set(nil, identifier, namespace, wrapper.id)
 
-                -- Check if there is already an existing wrapper at the new ID
-                -- If so, move that to a new position
-                local existing = __packet_find_table:get(new_id)
-                if existing then
-                    local existing_new_id = gm._mod_net_message_getUniqueID()
-                    __proxy[existing].id = existing_new_id
-                    __packet_find_table:set(existing, existing.identifier, existing.namespace, existing_new_id)
+                    -- Modify wrapper to use new ID
+                    __proxy[wrapper].id = new_id
+
+                    -- Increment `Global.mod_message_counter` if it is lower than `new_id`
+                    -- This is to make `_mod_net_message_getUniqueID` not return an ID already in use
+                    Global.mod_message_counter = math.max(Global.mod_message_counter, new_id)
+
+                    -- Check if there is already an existing wrapper at the new ID
+                    -- If so, move that to a new position
+                    local existing = __packet_find_table:get(new_id)
+                    if existing then
+                        local existing_new_id = gm._mod_net_message_getUniqueID()
+                        __proxy[existing].id = existing_new_id
+                        __packet_find_table:set(existing, existing.identifier, existing.namespace, existing_new_id)
+                    end
+
+                    -- Add wrapper to new cache location
+                    __packet_find_table:set(wrapper, identifier, namespace, new_id)
                 end
-
-                -- Add wrapper to new cache location
-                __packet_find_table:set(wrapper, identifier, namespace, new_id)
             end
         end
     )
