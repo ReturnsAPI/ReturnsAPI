@@ -3,9 +3,10 @@
 Packet = new_class()
 
 run_once(function()
-    -- Stores callback functions to run on serialization/deserialization
-    __callbacks_onSerialize = {}
-    __callbacks_onDeserialize = {}
+    __packet_find_table = FindCache.new()
+
+    __callbacks_onSerialize     = {}    -- Stores callback functions to run on serialization/deserialization
+    __callbacks_onDeserialize   = {}
 end)
 
 local SendType = {
@@ -15,13 +16,92 @@ local SendType = {
     HOST    = 3
 }
 
+local packet_syncPackets
+
+
+
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`/`nsid`  | string    | *Read-only.* The namespace-identifier of the packet.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+`id`            | number    | *Read-only.* The numerical ID of the packet.
+]]
+
 
 
 -- ========== Internal ==========
 
+Packet.internal.wrap = function(namespace, identifier, nsid, id)
+    return make_proxy({
+        namespace   = namespace,
+        identifier  = identifier,
+        nsid        = nsid,
+        id          = id
+    }, metatable_packet)
+end
+
+
 Packet.internal.net_message_send = function(packet_id, send_type, target)
     gm._mod_net_message_send(packet_id, send_type, Wrap.unwrap(target))
 end
+
+
+Packet.internal.initialize = function()
+    packet_syncPackets = Packet.new(RAPI_NAMESPACE, "syncPackets")
+    packet_syncPackets:set_serializers(
+        function(buffer)
+            local count = 0
+            local _pairs = {}
+
+            -- Loop through `__packet_find_table` and add nsid <-> packet ID pairs
+            __packet_find_table:loop_and_update_values(function(value)
+                if not _pairs[value.id] then
+                    _pairs[value.id] = {namespace = value.namespace, identifier = value.identifier}
+                    count = count + 1
+                end
+            end)
+
+            buffer:write_uint_packed(count)
+
+            -- Loop through `pairs` and write
+            for id, t in ipairs(_pairs) do
+                buffer:write_uint_packed(id)
+                buffer:write_string(t.namespace)
+                buffer:write_string(t.identifier)
+            end
+        end,
+
+        function(buffer, player)
+            local count = buffer:read_uint_packed()
+
+            for i = 1, count do
+                local new_id        = buffer:read_uint_packed()
+                local namespace     = buffer:read_string()
+                local identifier    = buffer:read_string()
+
+                local wrapper = __packet_find_table:get(identifier, namespace, true)
+                
+                print(namespace, identifier, new_id, wrapper.id)
+
+                -- Remove from previous cache location
+                __packet_find_table:set(nil, identifier, namespace, wrapper.id)
+
+                -- Modify wrapper to use new ID
+                __proxy[wrapper].id = new_id
+
+                -- Add to cache
+                __packet_find_table:set(wrapper, identifier, namespace, new_id)
+            end
+        end
+    )
+end
+table.insert(_rapi_initialize, Packet.internal.initialize)
 
 
 
@@ -34,12 +114,39 @@ end
 --[[
 Creates a new Packet and returns it.
 ]]
-Packet.new = function(NAMESPACE)
+Packet.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started("Packet.new")
+    if not identifier then log.error("Packet.new: No identifier provided", 2) end
 
+    -- Return existing packet if found
+    local packet = Packet.find(identifier, NAMESPACE, true)
+    if packet then return packet end
+
+    -- Get next usable packet ID
     local id = gm._mod_net_message_getUniqueID()
-    print("'"..NAMESPACE.."' added packet ID '"..math.floor(id).."'")
-    return Packet.wrap(id)
+
+    local nsid = NAMESPACE.."-"..identifier
+    local packet = Packet.internal.wrap(NAMESPACE, identifier, nsid, id)
+
+    -- Add to find table
+    __packet_find_table:set(packet, identifier, NAMESPACE, id)
+
+    return packet
+end
+
+
+--@static
+--@return       Packet or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
+--[[
+Searches for the specified packet and returns it.
+If no namespace is provided, searches in your mod's namespace first, and vanilla tiers second.
+]]
+Packet.find = function(identifier, namespace, namespace_is_specified)
+    -- Check in find table
+    local cached = __packet_find_table:get(identifier, namespace, namespace_is_specified)
+    return cached
 end
 
 
@@ -51,8 +158,13 @@ Returns a Packet wrapper containing the provided packet ID.
 ]]
 Packet.wrap = function(packet_id)
     -- Input:   number
-    -- Wraps:   number
-    return make_proxy(packet_id, metatable_packet)
+    -- Wraps:   N/A; returns existing wrapper
+    local packet = __packet_find_table:get(packet_id)
+    if not packet then
+        log.error("Packet.wrap: Packet ID '"..packet_id.."' is not used", 2)
+        return
+    end
+    return packet
 end
 
 
@@ -92,7 +204,7 @@ methods_packet = {
                 local buffer = Buffer.net_message_begin()
                 buffer:write_ushort(SendType.ALL)
                 fn(buffer, ...)
-                Packet.internal.net_message_send(self.value, SendType.ALL)
+                Packet.internal.net_message_send(self.id, SendType.ALL)
             end
 
         elseif Net.client then
@@ -102,7 +214,7 @@ methods_packet = {
                 local buffer = Buffer.net_message_begin()
                 buffer:write_ushort(SendType.ALL)
                 fn(buffer, ...)
-                Packet.internal.net_message_send(self.value, SendType.HOST)
+                Packet.internal.net_message_send(self.id, SendType.HOST)
             end
 
         end
@@ -126,7 +238,7 @@ methods_packet = {
             local buffer = Buffer.net_message_begin()
             buffer:write_ushort(SendType.DIRECT)
             fn(buffer, ...)
-            Packet.internal.net_message_send(self.value, SendType.DIRECT, target)
+            Packet.internal.net_message_send(self.id, SendType.DIRECT, target)
         end
     end,
 
@@ -149,7 +261,7 @@ methods_packet = {
             local buffer = Buffer.net_message_begin()
             buffer:write_ushort(SendType.EXCLUDE)
             fn(buffer, ...)
-            Packet.internal.net_message_send(self.value, SendType.EXCLUDE, target)
+            Packet.internal.net_message_send(self.id, SendType.EXCLUDE, target)
         end
     end,
 
@@ -170,7 +282,7 @@ methods_packet = {
             local buffer = Buffer.net_message_begin()
             buffer:write_ushort(SendType.HOST)
             fn(buffer, ...)
-            Packet.internal.net_message_send(self.value, SendType.HOST)
+            Packet.internal.net_message_send(self.id, SendType.HOST)
         end
     end
 
@@ -185,7 +297,7 @@ local wrapper_name = "Packet"
 make_table_once("metatable_packet", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
+        if k == "value" then k = "nsid" end
         if k == "RAPI" then return wrapper_name end
 
         -- Methods
@@ -193,14 +305,18 @@ make_table_once("metatable_packet", {
             return methods_packet[k]
         end
 
-        return nil
+        return __proxy[proxy][k]
     end,
 
 
     __newindex = function(proxy, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
-        or k == "RAPI" then
+        or k == "RAPI"
+        or k == "namespace"
+        or k == "identifier"
+        or k == "nsid"
+        or k == "id" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
@@ -214,11 +330,11 @@ make_table_once("metatable_packet", {
 
 
 
--- ========== Callback ==========
+-- ========== Hooks ==========
 
 Callback.add(RAPI_NAMESPACE, Callback.NET_MESSAGE_ON_RECEIVED, function(packet, buffer, buffer_tell, player)
     -- Check if packet has a deserialization function
-    local fn = __callbacks_onDeserialize[packet.value]
+    local fn = __callbacks_onDeserialize[packet.nsid]
     if not fn then return end
 
     -- Get send type
@@ -242,11 +358,34 @@ Callback.add(RAPI_NAMESPACE, Callback.NET_MESSAGE_ON_RECEIVED, function(packet, 
         -- so must move seek position to `buffer`'s actual size
         gm.buffer_seek(relay_buffer.value, 0, buffer_actual_size)
 
-        Packet.internal.net_message_send(packet.value, SendType.EXCLUDE, player)
+        Packet.internal.net_message_send(packet.id, SendType.EXCLUDE, player)
     end
 
     -- Call deserialization function
     fn(buffer, player)
+end)
+
+
+-- Send identifier <-> packet ID table to new clients
+
+Hook.add_post(RAPI_NAMESPACE, gm.constants.server_new_player, function(self, other, result, args)
+    local sock = args[1].value
+
+    local player
+    local ps = Instance.find_all(gm.constants.oPrePlayer)
+    for _, p in ipairs(ps) do
+        if p.sock == sock then
+            player = p
+            break
+        end
+    end
+
+    if not player then
+        log.warning("Packet: Sync error - cannot find player for socket ID '"..sock.."'")
+        return
+    end
+
+    packet_syncPackets:send_direct(player)
 end)
 
 

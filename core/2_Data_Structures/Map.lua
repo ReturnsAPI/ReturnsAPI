@@ -103,7 +103,7 @@ methods_map = {
     You can also use Lua syntax (e.g., `map.my_key`).
     ]]
     get = function(self, key)
-        if __proxy[proxy] == -4 then log.error("Map does not exist", 2) end
+        if self.value == -4 then log.error("Map does not exist", 2) end
         return Wrap.wrap(gm.ds_map_find_value(self.value, Wrap.unwrap(key)))
     end,
 
@@ -116,7 +116,7 @@ methods_map = {
     You can also use Lua syntax (e.g., `map.my_key = 123`).
     ]]
     set = function(self, key, value)
-        if __proxy[proxy] == -4 then log.error("Map does not exist", 2) end
+        if self.value == -4 then log.error("Map does not exist", 2) end
         gm.ds_map_set(self.value, Wrap.unwrap(key), Wrap.unwrap(value, true))
     end,
 
