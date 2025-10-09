@@ -348,7 +348,7 @@ make_table_once("metatable_packet", {
 -- ========== Hooks ==========
 
 Callback.add(RAPI_NAMESPACE, Callback.NET_MESSAGE_ON_RECEIVED, function(packet, buffer, buffer_tell, player)
-    if type(packet) == "number" then return end
+    if not packet then return end
 
     -- Check if packet has a deserialization function
     local fn = __callbacks_onDeserialize[packet.nsid]

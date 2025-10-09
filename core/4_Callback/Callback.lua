@@ -253,7 +253,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
 
             -- Packet and Message edge cases (41 - net_message_onReceived)
             if callback_type_id == Callback.NET_MESSAGE_ON_RECEIVED then
-                if      i == 1 then arg = Packet.wrap(arg) or arg
+                if      i == 1 then arg = Packet.wrap(arg)  -- `nil` if packet ID is not in use
                 elseif  i == 2 then arg = Buffer.wrap(arg)
                 end
             end
