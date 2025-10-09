@@ -49,45 +49,6 @@ end
 
 
 
--- ========== Internal ==========
-
-LootPool.internal.initialize = function()
-    -- Populate find table with vanilla pools
-    for constant, id in pairs(pool_constants) do
-        local namespace = "ror"
-        local identifier = constant:lower()
-
-        local struct = Global.treasure_loot_pools:get(id)
-
-        -- Custom properties
-        struct.namespace    = namespace
-        struct.identifier   = identifier
-
-        __loot_pool_find_table:set(
-            {
-                wrapper         = LootPool.wrap(id),
-                struct          = struct,
-                crate_obj       = nil,
-                crate_struct    = nil
-            },
-            identifier, namespace, id
-        )
-    end
-
-    -- Update cached wrappers
-    __loot_pool_find_table:loop_and_update_values(function(value)
-        return {
-            wrapper         = LootPool.wrap(value.wrapper),
-            struct          = value.struct,
-            crate_obj       = value.crate_obj,
-            crate_struct    = value.crate_struct
-        }
-    end)
-end
-table.insert(_rapi_initialize, LootPool.internal.initialize)
-
-
-
 -- ========== Properties ==========
 
 --@section Properties
@@ -124,6 +85,45 @@ Property | Type | Description
 `crate_sprite_ping`             | sprite    | 
 `crate_col_index`               | number    | 
 ]]
+
+
+
+-- ========== Internal ==========
+
+LootPool.internal.initialize = function()
+    -- Populate find table with vanilla pools
+    for constant, id in pairs(pool_constants) do
+        local namespace = "ror"
+        local identifier = constant:lower()
+
+        local struct = Global.treasure_loot_pools:get(id)
+
+        -- Custom properties
+        struct.namespace    = namespace
+        struct.identifier   = identifier
+
+        __loot_pool_find_table:set(
+            {
+                wrapper         = LootPool.wrap(id),
+                struct          = struct,
+                crate_obj       = nil,
+                crate_struct    = nil
+            },
+            identifier, namespace, id
+        )
+    end
+
+    -- Update cached wrappers
+    __loot_pool_find_table:loop_and_update_values(function(value)
+        return {
+            wrapper         = LootPool.wrap(value.wrapper),
+            struct          = value.struct,
+            crate_obj       = value.crate_obj,
+            crate_struct    = value.crate_struct
+        }
+    end)
+end
+table.insert(_rapi_initialize, LootPool.internal.initialize)
 
 
 

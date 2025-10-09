@@ -30,6 +30,8 @@ Property | Type | Description
 | - | - | -
 `value`/`nsid`  | string    | *Read-only.* The namespace-identifier of the packet.
 `RAPI`          | string    | *Read-only.* The wrapper name.
+`namespace`     | string    | *Read-only.* The namespace the packet is in.
+`identifier`    | string    | *Read-only.* The identifier for the packet within the namespace.
 `id`            | number    | *Read-only.* The numerical ID of the packet.
 ]]
 
