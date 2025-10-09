@@ -57,11 +57,11 @@ Property | Type | Description
 | - | - | -
 `namespace`             | string    | The namespace the achievement is in.
 `identifier`            | string    | The identifier for the achievement within the namespace.
-`token_name`            | string    | 
+`token_name`            | string    | The localization token for the achievement's name.
 `token_desc`            | string    | 
 `token_desc2`           | string    | 
-`token_unlock_name`     | string    | 
-`unlock_kind`           |           | 
+`token_unlock_name`     | string    | The localization token for the name of the associated content.
+`unlock_kind`           | number    | 
 `unlock_id`             | number    | 
 `sprite_id`             | number    | 
 `sprite_subimage`       | number    | 
@@ -75,10 +75,10 @@ Property | Type | Description
 `progress`              | number    | 
 `unlocked`              |           | 
 `parent_id`             | number    | 
-`progress_needed`       |           | 
-`death_reset`           |           | 
+`progress_needed`       | number    | The amount of progress required to unlock the achievement. <br>`1` by default.
+`death_reset`           | bool      | If `true`, progress will be reset on death. <br>`false` by default.
 `group`                 | number    | 
-`on_completed`          |           | 
+`on_completed`          | number    | The ID of the callback that runs when the achievement is unlocked. <br>The callback function should have no arguments.
 ]]
 
 
@@ -86,6 +86,34 @@ Property | Type | Description
 -- ========== Static Methods ==========
 
 --@section Static Methods
+
+--@static
+--@return   Achievement
+--@param    identifier  | string    | The identifier for the achievement.
+--[[
+Creates a new achievement with the given identifier if it does not already exist,
+or returns the existing one if it does.
+
+The achievement can be associated with a *single*
+piece of content using the `set_unlock_*` instance methods below.
+]]
+Achievement.new = function(NAMESPACE, identifier)
+    Initialize.internal.check_if_started("Achievement.new")
+    if not identifier then log.error("Achievement.new: No identifier provided", 2) end
+
+    -- Return existing achievement if found
+    local achievement = Achievement.find(identifier, NAMESPACE, true)
+    if achievement then return achievement end
+
+    -- Create new
+    achievement = Achievement.wrap(gm.achievement_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return achievement
+end
+
 
 --@static
 --@name         find
@@ -132,5 +160,73 @@ Util.table_append(methods_class_array[name_rapi], {
     --[[
     Prints the achievement's properties.
     ]]
+
+
+    --@instance
+    --@param        artifact   | Artifact   | The artifact to associate with.
+    --[[
+    Associates the achievement with an artifact.
+    ]]
+    set_unlock_artifact = function(self, content)
+        gm.achievement_set_unlock_artifact(self.value, Wrap.unwrap(content))
+    end,
+
+
+    --@instance
+    --@param        equipment   | Equipment | The equipment to associate with.
+    --[[
+    Associates the achievement with an equipment.
+    ]]
+    set_unlock_equipment = function(self, content)
+        gm.achievement_set_unlock_equipment(self.value, Wrap.unwrap(content))
+    end,
+
+
+    --@instance
+    --@param        item        | Item      | The item to associate with.
+    --[[
+    Associates the achievement with an item.
+    ]]
+    set_unlock_item = function(self, content)
+        gm.achievement_set_unlock_item(self.value, Wrap.unwrap(content))
+    end,
+
+
+    --@instance
+    --@param        skill       | Skill     | The skill to associate with.
+    --[[
+    Associates the achievement with a skill.
+
+    More specifically, it associates with all `SurvivorSkillLoadoutUnlockable`s
+    that are of the skill, so the skill must be added to the survivor(s) first.
+    ]]
+    set_unlock_skill = function(self, content)
+        -- TODO
+    end,
+
+
+    --@instance
+    --@param        survivor    | Survivor  | The survivor to associate with.
+    --[[
+    Associates the achievement with a survivor.
+    ]]
+    set_unlock_survivor = function(self, content)
+        gm.achievement_set_unlock_survivor(self.value, Wrap.unwrap(content))
+    end,
+
+
+    --@instance
+    --@param        amount      | number    | The amount of progress to add. <br>`1` by default.
+    --[[
+    Adds progress towards unlocking the achievement.
+    The achievement will be unlocked once progress reaches `progress_needed`.
+    ]]
+    add_progress = function(self, amount)
+        gm.achievement_add_progress(self.value, amount or 1)
+    end,
+
+
+    -- TODO: add is_unlocked (for local player and for any in mp)
+    -- also test everything
 
 })
