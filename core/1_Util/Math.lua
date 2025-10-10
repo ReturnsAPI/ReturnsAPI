@@ -1,7 +1,7 @@
 -- Math
 
 --[[
-Extensions of Lua `math` library.
+Extensions of Lua [`math`](https://www.tutorialspoint.com/lua/lua_math_library.htm) library.
 These are automatically added to `math` on `.auto()` import.
 ]]
 

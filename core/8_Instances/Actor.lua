@@ -86,6 +86,16 @@ Variable                | Type          | Description
 `invincible`            | number        | If more than `0`, the actor is "IMMUNE". <br>If more than `1000`, the actor is "INVINCIBLE". <br>Ticks down by `1` per frame. <br><br>This is a bool value when set by <br>Commando's roll for some reason.
 `still_timer`           | number        | The amount of time the actor has been still (in frames) <br>(i.e., no moving, attacking, etc.) <br>Resets to `0` on acting.
 `stunned`               | bool          | `true` if the actor is stunned.
+
+<br>
+
+Notable `gm` functions for actors.
+TODO populate with more
+
+Function | Arguments | Description
+| - | - | -
+`skill_util_fix_hspeed()`   |  | 
+
 ]]
 
 
@@ -101,29 +111,9 @@ local explosion_mask_height = gm.sprite_get_height(explosion_mask)
 
 -- ========== Instance Methods ==========
 
---@section Instance Methods
-
 methods_actor = {
 
-    --@instance
-    --@return       bool
-    --[[
-    Returns `true` if the actor is on the ground.
-    ]]
-    is_grounded = function(self)
-        return (not Util.bool(self.free))
-    end,
-
-
-    --@instance
-    --@return       bool
-    --[[
-    Returns `true` if the actor is climbing on a rope.
-    ]]
-    is_climbing = function(self)
-        return gm.actor_state_is_climb_state(self.actor_state_current_id)
-    end,
-
+    --@section Instance Methods (`fire_*`)
 
     --@instance
     --@return       Instance
@@ -315,29 +305,10 @@ methods_actor = {
     end,
 
 
-    --@instance
-    --@param        direction   | number    | The direction of knockback. <br>`-1` is left, and `1` is right. <br>Other values will stretch/compress the sprite horizontally.
-    --@optional     duration    | number    | The duration of knockback (in frames). <br>`20` by default.
-    --@optional     force       | number    | The force of knockback (in some unknown metric). <br>`3` by default.
-    --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
-    --[[
-    Applies knockback (stun) to the actor.
-    This can only be called from host, but automatically syncs.
 
-    **Additional note**
-    Seems to stack effects when called multiple times with different `kind`s.
-    (Although they must be called in numerical order? Some combinations seem to not work either.)
-    ]]
-    apply_knockback = function(self, direction, duration, force, kind)
-        gm.actor_knockback_inflict(
-            self.value,
-            kind or Actor.KnockbackKind.STANDARD,
-            direction,
-            duration,
-            force
-        )
-    end,
+    -- ==================================================
 
+    --@section Instance Methods (Item and Buff)
     
     --@instance
     --@param        item        | Item      | The item to give.
@@ -514,6 +485,89 @@ methods_actor = {
     end,
 
 
+
+    -- ==================================================
+
+    --@section Instance Methods (Misc.)
+
+    --@instance
+    --@return       bool
+    --[[
+    Returns `true` if the actor is on the ground.
+    ]]
+    is_grounded = function(self)
+        return (not Util.bool(self.free))
+    end,
+
+
+    --@instance
+    --@return       bool
+    --[[
+    Returns `true` if the actor is climbing on a rope.
+    ]]
+    is_climbing = function(self)
+        return gm.actor_state_is_climb_state(self.actor_state_current_id)
+    end,
+
+
+    --@instance
+    --[[
+    Kills the actor (synced).
+    
+    **Must be called offline or as host.**
+    ]]
+    kill = function(self, amount)
+        gm.actor_kill(self.value)
+    end,
+
+
+    --@instance
+    --@param        direction   | number    | The direction of knockback. <br>A negative value is left, and a positive value is right.
+    --@optional     duration    | number    | The duration of knockback (in frames). <br>`20` by default.
+    --@optional     force       | number    | The force of knockback (in some unknown metric). <br>`3` by default.
+    --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
+    --[[
+    Applies knockback/stun to the actor (synced).
+
+    **Must be called offline or as host.**
+
+    **Additional note**
+    Seems to stack effects when called multiple times with different `kind`s.
+    (Although they must be called in numerical order? Some combinations seem to not work either.)
+    ]]
+    apply_knockback = function(self, direction, duration, force, kind)
+        gm.actor_knockback_inflict(
+            self.value,
+            kind or Actor.KnockbackKind.STANDARD,
+            Math.sign(direction),
+            duration,
+            force
+        )
+    end,
+
+
+    --@instance
+    --@param        amount      | number        | The amount to heal.
+    --[[
+    Heals the actor.
+    ]]
+    heal = function(self, amount)
+        gm.actor_heal_raw(self.value, amount)
+    end,
+
+
+    --@instance
+    --@param        amount      | number        | The amount to heal.
+    --[[
+    Heals the actor (synced).
+    
+    **Must be called offline or as host.**
+    ]]
+    heal_networked = function(self, amount)
+        gm.actor_heal_networked(self.value, amount)
+    end,
+
+
     --@instance
     --[[
     Queues the actor's stats to be recalculated next frame.
@@ -529,9 +583,62 @@ methods_actor = {
     --[[
     Sets a new state for the actor.
     ]]
-    enter_state = function(self, state)
-        gm.actor_set_state(self.value, Wrap.unwrap(state))
+    set_state = function(self, state)
+        -- Needs to be CInstance since argument is passed elsewhere
+        gm.actor_set_state(self.cinstance, Wrap.unwrap(state))
     end,
+
+
+    --@instance
+    --@param        state       | ActorState    | The state to enter.
+    --[[
+    Sets a new state for the actor (synced).
+    
+    **Must be called as the @link {local player | Player#get_local}.**
+    ]]
+    set_state_networked = function(self, state)
+        -- Needs to be CInstance since argument is passed elsewhere
+        gm.actor_set_state_networked(self.cinstance, Wrap.unwrap(state))
+    end,
+
+
+    --@instance
+    --@param        activity        | number    | The activity to set.
+    --@param        activity_type   | number    | `0` by default.
+    --[[
+    Sets activity values for the actor.
+    ]]
+    set_activity = function(self, activity, activity_type)
+        gm.actor_activity_set(self.value, activity, activity_type) --, -1, -1, false)
+    end
+
+
+
+    -- ==================================================
+
+    --@section Skill/State-related game functions for actors
+
+    --[[
+    TODO desc.
+    ]]
+
+    --@instance
+    --@name         skill_util_fix_hspeed
+    --[[
+    desc.
+    ]]
+
+    --@instance
+    --@name         skill_util_apply_friction
+    --[[
+    desc.
+    ]]
+
+    --@instance
+    --@name         skill_util_exit_state_on_anim_end
+    --[[
+    Exits the current state once `image_index` reaches the last frame of the current animation.
+    ]]
 
 }
 

@@ -32,6 +32,9 @@ Property | Type | Description
 --[[
 Returns the Player instance of this game client,
 or an invalid Instance if they do not exist.
+
+On the character select screen in online multiplayer,
+this will return the local `oPrePlayer`.
 ]]
 Player.get_local = function()
     if Net.online then return Global.my_player end
