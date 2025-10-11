@@ -232,7 +232,7 @@ Instance.wrap = function(inst)
     -- Wrap as Instance
     -- and get object_index
     local wrapper = make_proxy(inst, metatable_instance)
-    local obj_index = wrapper:get_object_index()
+    local obj_index = wrapper.object_index
 
     -- Store ID in id_cache
     id_cache[wrapper] = id
@@ -510,7 +510,7 @@ make_table_once("metatable_instance", {
         end
 
         -- Getter
-        local ret = gm.variable_instance_get(id, k)
+        local ret = gm.variable_instance_get(__proxy[proxy], k)
 
         -- For attack instances from `actor:fire_` methods, wrap `attack_info`
         if k == "attack_info" then return AttackInfo.wrap(ret) end
@@ -540,7 +540,7 @@ make_table_once("metatable_instance", {
 
         -- Setter
         if not Instance.exists(proxy) then log.error("Instance does not exist", 2) end
-        gm.variable_instance_set(id, k, Wrap.unwrap(v))
+        gm.variable_instance_set(__proxy[proxy], k, Wrap.unwrap(v))
     end,
 
 
