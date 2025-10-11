@@ -216,7 +216,6 @@ Instance.wrap = function(inst)
 
     elseif _type == "number" then
         -- Check if ID is valid
-        -- Sometimes there will be a CInstance but its ID is 0
         if inst < 100000 then return __invalid_instance end
 
         -- Check cache
