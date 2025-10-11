@@ -1,5 +1,9 @@
 -- Skill
 
+--[[
+Not to be confused with @link {ActorSkill | ActorSkill}.
+]]
+
 local name_rapi = class_name_g2r["class_skill"]
 Skill = __class[name_rapi]
 
@@ -88,7 +92,7 @@ Property | Type | Description
 `cooldown`                      | number    | The base cooldown of the skill (in frames).
 `damage`                        | number    | The damage of the skill; `1` is 100% damage. <br>Does nothing if the skill/states themselves do not refer to it. <br>Can also be gotten using `GM.skill_get_damage( skill )`.
 `max_stock`                     | number    | 
-`start_with_stock`              | bool      | 
+`start_with_stock`              | bool      | If `true`, this skill will start with `max_stock` instead of `0`.
 `auto_restock`                  |           | 
 `required_stock`                |           | 
 `require_key_press`             | bool      | 

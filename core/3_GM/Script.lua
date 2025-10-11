@@ -42,7 +42,7 @@ end)
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`/`cscriptref` |                      | *Read-only.* The `sol.CScriptRef*` being wrapped
+`value`/`cscriptref`| CScriptRef            | *Read-only.* The `sol.CScriptRef*` being wrapped
 `RAPI`              | string                | *Read-only.* The wrapper name.
 `name`              | string                | *Read-only.* The script name.
 `self`              | Struct or Instance    | The struct/instance binded as `self`; used when calling.
@@ -98,7 +98,7 @@ Script.wrap = function(script)
     -- Input:   `sol.CScriptRef*` Script wrapper
     -- Wraps:   `sol.CScriptRef*`
     local proxy = make_proxy(Wrap.unwrap(script), metatable_script)
-    __self_other_cache[proxy] = {nil, nil}    -- self, other (struct CInstance*)
+    __self_other_cache[proxy] = {nil, nil}    -- self, other (sol.CInstance*)
     return proxy
 end
 
@@ -122,9 +122,6 @@ make_table_once("metatable_script", {
         -- Call with manual self/other
         if k == "SO" then
             return function(self, other, ...)
-                if self then self = self.value end
-                if other then other = other.value end
-
                 local args = table.pack(...)
 
                 -- Unwrap args
@@ -132,7 +129,7 @@ make_table_once("metatable_script", {
                     args[i] = Wrap.unwrap(args[i])
                 end
 
-                return Wrap.wrap(__proxy[proxy](self, other, table.unpack(args)))
+                return Wrap.wrap(__proxy[proxy](Wrap.unwrap(self), Wrap.unwrap(other), table.unpack(args)))
             end
         end
     end,
@@ -152,7 +149,7 @@ make_table_once("metatable_script", {
         or k == "other" then
             local index = ((k == "self") and 1) or 2
 
-            -- Convert v into `struct CInstance*` to store
+            -- Convert v into `sol.CInstance*` to store
             local cinstance = Wrap.unwrap(v)
             __self_other_cache[proxy][index] = cinstance
             return
