@@ -86,16 +86,6 @@ Variable                | Type          | Description
 `invincible`            | number        | If more than `0`, the actor is "IMMUNE". <br>If more than `1000`, the actor is "INVINCIBLE". <br>Ticks down by `1` per frame. <br><br>This is a bool value when set by <br>Commando's roll for some reason.
 `still_timer`           | number        | The amount of time the actor has been still (in frames) <br>(i.e., no moving, attacking, etc.) <br>Resets to `0` on acting.
 `stunned`               | bool          | `true` if the actor is stunned.
-
-<br>
-
-Notable `gm` functions for actors.
-TODO populate with more
-
-Function | Arguments | Description
-| - | - | -
-`skill_util_fix_hspeed()`   |  | 
-
 ]]
 
 
@@ -279,7 +269,7 @@ methods_actor = {
         if can_proc == nil then can_proc = true end
 
         local inst = Instance.wrap(
-            gm._mod_attack_fire_direct(
+            gm.call("_mod_attack_fire_direct", nil, nil,
                 self.value,
                 Wrap.unwrap(target),
                 x or target.x,
@@ -635,17 +625,11 @@ methods_actor = {
 local wrapper_name = "Actor"
 
 make_table_once("metatable_actor", {
-    __index = function(proxy, k, checked_exist)
+    __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" or k == "cinstance" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
         if k == "id" then return metatable_instance.__index(proxy, k) end
-
-        -- Check if this actor is valid
-        -- (`checked_exist` will be `true` if passed from Player metatable)
-        if not checked_exist then
-            if not Instance.exists(proxy) then log.error("Actor does not exist", 2) end
-        end
 
         -- Methods
         if methods_actor[k] then
@@ -653,7 +637,7 @@ make_table_once("metatable_actor", {
         end
 
         -- Pass to metatable_instance
-        return metatable_instance.__index(proxy, k, true)
+        return metatable_instance.__index(proxy, k)
     end,
 
 
