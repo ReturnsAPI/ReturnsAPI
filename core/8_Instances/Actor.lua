@@ -223,7 +223,7 @@ methods_actor = {
     ]]
     set_activity = function(self, activity, activity_type)
         gm.actor_activity_set(self.value, activity, activity_type) --, -1, -1, false)
-    end
+    end,
 
     
 
