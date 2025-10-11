@@ -8,11 +8,11 @@ as well as allowing GM function calls with the instance passed in as `self`/`oth
 Instance = new_class()
 
 run_once(function()
-    __instance_data = {}    -- Unique Lua table for each instance
+    __instance_data = {}                            -- Unique Lua table for each instance
+    __id_cache = setmetatable({}, {__mode = "k"})   -- Cache for inst.id
 end)
 
 local wrapper_cache = setmetatable({}, {__mode = "v"})  -- Cache for Instance.wrap
-local id_cache = setmetatable({}, {__mode = "k"})       -- Cache for inst.id
 local object_index_cache = {}                           -- Cache for inst:get_object_index; indexed by ID
 
 -- `__invalid_instance` created at the bottom
@@ -254,7 +254,7 @@ Instance.wrap = function(inst)
 
     -- Store values in caches
     wrapper_cache[id] = wrapper
-    id_cache[wrapper] = id
+    __id_cache[wrapper] = id
 
     return wrapper
 end
@@ -486,7 +486,7 @@ make_table_once("metatable_instance", {
         -- Get wrapped value
         if k == "value" or k == "cinstance" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
-        if k == "id" then return id_cache[proxy] or -4 end
+        if k == "id" then return __id_cache[proxy] or -4 end
 
         -- Methods
         if methods_instance[k] then
