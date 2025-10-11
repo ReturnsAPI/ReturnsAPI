@@ -229,6 +229,9 @@ Instance.wrap = function(inst)
     else return __invalid_instance
     end
 
+    -- Final check for `inst` being `nil` somehow
+    if not inst then return __invalid_instance end
+
     -- Wrap as Instance
     -- and get object_index
     local wrapper = make_proxy(inst, metatable_instance)
