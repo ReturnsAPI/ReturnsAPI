@@ -70,16 +70,13 @@ make_table_once("metatable_player", {
         if k == "RAPI" then return wrapper_name end
         if k == "id" then return metatable_instance.__index(proxy, k) end
 
-        -- Check if this player is valid
-        if not Instance.exists(proxy) then log.error("Player does not exist", 2) end
-
         -- Methods
         if methods_player[k] then
             return methods_player[k]
         end
 
         -- Pass to metatable_actor
-        return metatable_actor.__index(proxy, k, true)
+        return metatable_actor.__index(proxy, k)
     end,
 
 

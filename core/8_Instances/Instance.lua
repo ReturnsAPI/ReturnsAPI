@@ -488,7 +488,7 @@ Util.table_append(methods_instance, {
 local wrapper_name = "Instance"
 
 make_table_once("metatable_instance", {
-    __index = function(proxy, k, checked_exist)
+    __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" or k == "cinstance" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
@@ -499,12 +499,6 @@ make_table_once("metatable_instance", {
                 id_cache[proxy] = inst.id
             end
             return id_cache[proxy]
-        end
-
-        -- Check if this instance is valid
-        -- (`checked_exist` will be `true` if passed from Actor metatable)
-        if not checked_exist then
-            if not Instance.exists(Wrap.unwrap(proxy)) then log.error("Instance does not exist", 2) end
         end
 
         -- Methods
@@ -542,7 +536,6 @@ make_table_once("metatable_instance", {
         end
 
         -- Setter
-        if not Instance.exists(proxy) then log.error("Instance does not exist", 2) end
         gm.variable_instance_set(__proxy[proxy], k, Wrap.unwrap(v))
     end,
 
