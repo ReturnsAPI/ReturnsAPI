@@ -231,37 +231,32 @@ Instance.wrap = function(inst)
     -- Final check for `inst` being `nil` somehow
     if not inst then return __invalid_instance end
 
-    -- Wrap as Instance
-    -- and get object_index
-    local wrapper = make_proxy(inst, metatable_instance)
-    local obj_index = wrapper.object_index
+    -- Get object_index
+    local obj_index = inst.object_index
+    if not obj_index then return __invalid_instance end
 
-    -- Store ID in id_cache
+    -- Check object_index to determine
+    -- what metatable should be used
+    local wrapper
+    
+    -- Player
+    if obj_index == gm.constants.oP then
+        wrapper = make_proxy(inst, metatable_player)
+
+    -- Actor
+    elseif gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1 then
+        wrapper = make_proxy(inst, metatable_actor)
+
+    -- Instance
+    else
+        wrapper = make_proxy(inst, metatable_instance)
+    end
+
+    -- Store values in caches
+    wrapper_cache[id] = wrapper
     id_cache[wrapper] = id
 
-    -- Check object_index to determine if
-    -- "child" metatables should be used instead
-    if obj_index then
-        
-        -- Player
-        if obj_index == gm.constants.oP then
-            wrapper = make_proxy(inst, metatable_player)
-            wrapper_cache[id] = wrapper
-            return wrapper
-        end
-
-        -- Actor
-        if gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1 then
-            wrapper = make_proxy(inst, metatable_actor)
-            wrapper_cache[id] = wrapper
-            return wrapper
-        end
-
-        -- Instance
-        wrapper_cache[id] = wrapper
-        return wrapper
-
-    end
+    return wrapper
 end
 
 
@@ -491,14 +486,7 @@ make_table_once("metatable_instance", {
         -- Get wrapped value
         if k == "value" or k == "cinstance" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
-        if k == "id" then
-            if not id_cache[proxy] then
-                local inst = __proxy[proxy]
-                if not inst then return -4 end
-                id_cache[proxy] = inst.id
-            end
-            return id_cache[proxy]
-        end
+        if k == "id" then return id_cache[proxy] or -4 end
 
         -- Methods
         if methods_instance[k] then
