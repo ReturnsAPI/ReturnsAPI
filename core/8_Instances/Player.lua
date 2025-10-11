@@ -16,9 +16,9 @@ Player = new_class()
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`/`id`    | number    | *Read-only.* The instance ID of the Player.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`cinstance`     | CInstance | *Read-only.* The `sol.CInstance*` of the Player.
+`value`/`cinstance` | CInstance     | *Read-only.* The `sol.CInstance*` of the Actor.
+`RAPI`              | string        | *Read-only.* The wrapper name.
+`id`                | number        | *Read-only.* The instance ID of the Actor.
 ]]
 
 
@@ -41,7 +41,7 @@ Player.get_local = function()
 
     -- Return first oP to exist
     local inst = gm.instance_find(gm.constants.oP, 0)
-    if inst ~= -4 then return Instance.wrap(inst.id) end
+    if inst ~= -4 then return Instance.wrap(inst) end
     return __invalid_instance
 end
 
@@ -66,12 +66,12 @@ local wrapper_name = "Player"
 make_table_once("metatable_player", {
     __index = function(proxy, k)
         -- Get wrapped value
-        if k == "value" or k == "id" then return __proxy[proxy] end
+        if k == "value" or k == "cinstance" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
+        if k == "id" then return metatable_instance.__index(proxy, k) end
 
         -- Check if this player is valid
-        local id = __proxy[proxy]
-        if id == -4 then log.error("Actor does not exist", 2) end
+        if not Instance.exists(proxy) then log.error("Player does not exist", 2) end
 
         -- Methods
         if methods_player[k] then
@@ -79,7 +79,7 @@ make_table_once("metatable_player", {
         end
 
         -- Pass to metatable_actor
-        return metatable_actor.__index(proxy, k, id)
+        return metatable_actor.__index(proxy, k, true)
     end,
 
 

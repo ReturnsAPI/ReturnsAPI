@@ -378,7 +378,7 @@ Util.table_append(methods_class_array[name_rapi], {
 -- Confirmed to work in multiplayer
 
 gm.pre_script_hook(gm.constants.item_use_equipment, function(self, other, result, args)
-    local equipment = Instance.wrap(self.id):equipment_get()
+    local equipment = Instance.wrap(self):equipment_get()
     if equipment and __equipment_is_passive[equipment.value] then
         return false
     end

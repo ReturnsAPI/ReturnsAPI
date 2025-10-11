@@ -36,9 +36,9 @@ Actor.KnockbackKind = {
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`/`id`    | number    | *Read-only.* The instance ID of the Actor.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`cinstance`     | CInstance | *Read-only.* The `sol.CInstance*` of the Actor.
+`value`/`cinstance` | CInstance     | *Read-only.* The `sol.CInstance*` of the Actor.
+`RAPI`              | string        | *Read-only.* The wrapper name.
+`id`                | number        | *Read-only.* The instance ID of the Actor.
 
 <br>
 
@@ -184,8 +184,6 @@ methods_actor = {
     The attack info can be modified before DamageCalculate callbacks run.
     ]]
     fire_explosion = function(self, x, y, width, height, damage, explosion_sprite, sparks_sprite, can_proc)
-        local id = self.value
-
         -- Attack will proc by default
         if can_proc == nil then can_proc = true end
 
@@ -229,14 +227,12 @@ methods_actor = {
     The attack info can be modified before DamageCalculate callbacks run.
     ]]
     fire_explosion_local = function(self, x, y, width, height, damage, explosion_sprite, sparks_sprite, can_proc)
-        local id = self.value
-
         -- Attack will proc by default
         if can_proc == nil then can_proc = true end
 
         gm.call("fire_explosion_local",
-            self.cinstance, -- self
-            nil,            -- other
+            self.value, -- self
+            nil,        -- other
             0,
             x,
             y,
@@ -279,8 +275,6 @@ methods_actor = {
     The attack info can be modified before DamageCalculate callbacks run.
     ]]
     fire_direct = function(self, target, damage, direction, x, y, hit_sprite, can_proc)
-        local id = self.value
-
         -- Attack will proc by default
         if can_proc == nil then can_proc = true end
 
@@ -350,7 +344,7 @@ methods_actor = {
     Returns the number of stacks of the specified item the actor has.
     ]]
     item_count = function(self, item, kind)
-        local id = self.value
+        local id = self.id
         
         -- Argument check
         item = Wrap.unwrap(item)
@@ -364,7 +358,7 @@ methods_actor = {
         -- Return from cache if stored
         if __item_count_cache[id][item][kind] then return __item_count_cache[id][item][kind] end
 
-        local count = gm.item_count(id, item, kind or Item.StackKind.NORMAL)
+        local count = gm.item_count(self.value, item, kind or Item.StackKind.NORMAL)
 
         -- Store in cache and return
         __item_count_cache[id][item][kind] = count
@@ -385,13 +379,7 @@ methods_actor = {
         if type(buff) ~= "number" then log.error("buff_apply: buff is invalid", 2) end
         if not duration then log.error("buff_apply: duration is missing", 2) end
 
-        -- * This needs to be `cinstance` because the argument is
-        -- passed directly to the on_apply callback, meaning that
-        -- if it is an ID (number) it does *not* get wrapped as an Actor
-        --      This does not apply to `buff_remove` or `item_give/take`
-        --      since `id` is passed instead of the argument, so RoM
-        --      recognizes it as a CInstance. Very weird circumstance.
-        gm.apply_buff(self.cinstance, buff, duration, count or 1)
+        gm.apply_buff(self.value, buff, duration, count or 1)
 
         -- Clamp to max stack or under
         -- Funny stuff happens if this is exceeded
@@ -406,7 +394,7 @@ methods_actor = {
     Removes stacks of the specified buff from the actor.
     ]]
     buff_remove = function(self, buff, count)
-        local actor_id = self.value
+        local id = self.id
         count = count or 1
 
         -- Argument check
@@ -417,7 +405,7 @@ methods_actor = {
 
         -- Remove buff entirely if count >= current_count
         if count >= current_count then
-            gm.remove_buff(actor_id, buff)
+            gm.remove_buff(self.value, buff)
             return
         end
 
@@ -427,8 +415,8 @@ methods_actor = {
         self:queue_recalculate_stats()
 
         -- Reset cached value
-        if not __buff_count_cache[actor_id] then __buff_count_cache[actor_id] = {} end
-        __buff_count_cache[actor_id][buff] = nil
+        if not __buff_count_cache[id] then __buff_count_cache[id] = {} end
+        __buff_count_cache[id][buff] = nil
     end,
 
 
@@ -439,7 +427,7 @@ methods_actor = {
     Returns the number of stacks of the specified buff the actor has.
     ]]
     buff_count = function(self, buff)
-        local id = self.value
+        local id = self.id
 
         -- Argument check
         buff = Wrap.unwrap(buff)
@@ -584,8 +572,7 @@ methods_actor = {
     Sets a new state for the actor.
     ]]
     set_state = function(self, state)
-        -- Needs to be CInstance since argument is passed elsewhere
-        gm.actor_set_state(self.cinstance, Wrap.unwrap(state))
+        gm.actor_set_state(self.value, Wrap.unwrap(state))
     end,
 
 
@@ -597,8 +584,7 @@ methods_actor = {
     **Must be called as the @link {local player | Player#get_local}.**
     ]]
     set_state_networked = function(self, state)
-        -- Needs to be CInstance since argument is passed elsewhere
-        gm.actor_set_state_networked(self.cinstance, Wrap.unwrap(state))
+        gm.actor_set_state_networked(self.value, Wrap.unwrap(state))
     end,
 
 
@@ -649,17 +635,16 @@ methods_actor = {
 local wrapper_name = "Actor"
 
 make_table_once("metatable_actor", {
-    __index = function(proxy, k, id)
+    __index = function(proxy, k, checked_exist)
         -- Get wrapped value
-        if k == "value" or k == "id" then return __proxy[proxy] end
+        if k == "value" or k == "cinstance" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
+        if k == "id" then return metatable_instance.__index(proxy, k) end
 
         -- Check if this actor is valid
-        -- (`id` may be passed from Player metatable
-        -- to not have to access with proxy again)
-        if not id then
-            id = __proxy[proxy]
-            if id == -4 then log.error("Actor does not exist", 2) end
+        -- (`checked_exist` will be `true` if passed from Player metatable)
+        if not checked_exist then
+            if not Instance.exists(proxy) then log.error("Actor does not exist", 2) end
         end
 
         -- Methods
@@ -668,7 +653,7 @@ make_table_once("metatable_actor", {
         end
 
         -- Pass to metatable_instance
-        return metatable_instance.__index(proxy, k, id)
+        return metatable_instance.__index(proxy, k, true)
     end,
 
 
@@ -732,7 +717,7 @@ gm.post_script_hook(gm.constants.buff_create, function(self, other, result, args
     --      This is because buff_create will never run more than once
     --      for a buff, so if it is removed it cannot be readded
     Callback.add("__permanent", buff.on_remove, function(actor)
-        local id = actor.value
+        local id = actor.id
         if not __buff_count_cache[id] then __buff_count_cache[id] = {} end
         __buff_count_cache[id][buff.value] = nil
     end, 1000000000)    -- Make sure this runs first
@@ -764,10 +749,11 @@ end)
 -- Remove `*_count_cache` on non-player kill
 
 gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
-    local actor_id = Instance.wrap(args[1].value).id
+    local actor = Instance.wrap(args[1].value)
+    local actor_id = actor.id
 
     -- Do not clear for player deaths
-    local obj_ind = gm.variable_instance_get(actor_id, "object_index")
+    local obj_ind = actor:get_object_index()
     if obj_ind ~= gm.constants.oP then
         __item_count_cache[actor_id] = nil
         __buff_count_cache[actor_id] = nil

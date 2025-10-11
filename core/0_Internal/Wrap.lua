@@ -11,17 +11,11 @@ Wrap = new_class()
 --@static
 --@return       any
 --@param        value           |       | The value to unwrap (if applicable).
---@optional     use_cinstance   | bool  | If `true`, Instance wrappers will return their `sol.CInstance*`. <br>`false` by default.
 --[[
 Returns the unwrapped value of a RAPI wrapper,
 or `value` if it is not a wrapper.
 ]]
-Wrap.unwrap = function(value, use_cinstance)
-    if use_cinstance
-    and type(value) == "table"
-    and instance_wrappers[value.RAPI] then
-        return value.cinstance
-    end
+Wrap.unwrap = function(value)
     return __proxy[value] or value
 end
 
@@ -46,7 +40,8 @@ Wrap.wrap = function(value)
 
         -- Instance
         elseif sol == "sol.CInstance*" then
-            return Instance.wrap(value.id)
+            print("WRAPPING", value, value.id)
+            return Instance.wrap(value)
 
         -- Script
         elseif sol == "sol.CScriptRef*" then

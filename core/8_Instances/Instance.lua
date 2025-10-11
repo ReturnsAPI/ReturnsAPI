@@ -11,9 +11,9 @@ run_once(function()
     __instance_data = {}    -- Unique Lua table for each instance
 end)
 
-local wrapper_cache = setmetatable({}, {__mode = "v"})      -- Cache for Instance.wrap
-local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for inst.cinstance
-local object_index_cache = {}                               -- Cache for inst:get_object_index; indexed by ID
+local wrapper_cache = setmetatable({}, {__mode = "v"})  -- Cache for Instance.wrap
+local id_cache = setmetatable({}, {__mode = "k"})       -- Cache for inst.id
+local object_index_cache = {}                           -- Cache for inst:get_object_index; indexed by ID
 
 -- `__invalid_instance` created at the bottom
 
@@ -35,10 +35,10 @@ instance_wrappers = {
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`value`/`id`    | number    | *Read-only.* The instance ID of the Instance.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`cinstance`     | CInstance | *Read-only.* The `sol.CInstance*` of the Instance.
-`attack_info`   | AttackInfo | The attack_info struct of *attack instances*. <br>Comes automatically wrapped.
+`value`/`cinstance` | CInstance     | *Read-only.* The `sol.CInstance*` of the Instance.
+`RAPI`              | string        | *Read-only.* The wrapper name.
+`id`                | number        | *Read-only.* The instance ID of the Instance.
+`attack_info`       | AttackInfo    | The attack_info struct of *attack instances*. <br>Comes automatically wrapped.
 
 <br>
 
@@ -58,6 +58,7 @@ Property | Type | Description
 Returns `true` if the instance exists, and `false` otherwise.
 ]]
 Instance.exists = function(inst)
+    if not inst then return false end
     return (gm.instance_exists(Wrap.unwrap(inst)) == 1)
 end
 
@@ -90,11 +91,12 @@ Destroys the instance.
 Also exists as an @link {instance method | Instance#destroy-instance}.
 ]]
 Instance.destroy = function(inst)
+    if not inst then return end
     inst = Wrap.unwrap(inst)
     gm.instance_destroy(inst)
 
     -- Clear instance data
-    __instance_data[inst] = nil
+    __instance_data[inst.id] = nil
 end
 
 
@@ -104,7 +106,7 @@ end
 --@param        n           | number    | The *n*-th instance, indexed from 1. <br>`1` by default.
 --[[
 Returns the first (or *n*-th) instance of the specified object,
-or an invalid instance (value of `-4`).
+or an invalid instance (value `nil` and id `-4`).
 ]]
 Instance.find = function(object, n)
     local object = Wrap.unwrap(object)
@@ -116,7 +118,7 @@ Instance.find = function(object, n)
     -- Vanilla object
     if object < Object.CUSTOM_START then
         local inst = gm.instance_find(object, n - 1)
-        if inst ~= -4 then return Instance.wrap(inst.id) end
+        if inst ~= -4 then return Instance.wrap(inst) end
     
     -- Custom object
     else
@@ -177,44 +179,64 @@ This table is useful for storing Lua data (such as tables) in instances, which c
 It is automatically deleted upon the instance's destruction.
 ]]
 Instance.get_data = function(instance, subtable, namespace, namespace_is_specified)
-    local id = Wrap.unwrap(instance)
-    if (type(id) ~= "number") or (id < 100000) then log.error("Instance.get_data: Instance does not exist", 2) end
+    local id = Instance.wrap(instance).id
+    if id < 100000 then log.error("Instance.get_data: Instance does not exist", 2) end
     
     subtable = subtable or "__main"
     namespace = namespace or RAPI_NAMESPACE -- Internal RAPI calling of this is not namespace-bound
 
-    if not __instance_data[id] then __instance_data[id] = {} end
-    if not __instance_data[id][namespace] then __instance_data[id][namespace] = {} end
+    __instance_data[id] = __instance_data[id] or {}
+    __instance_data[id][namespace] = __instance_data[id][namespace] or {}
     local ns = __instance_data[id][namespace]
-    if not ns[subtable] then ns[subtable] = {} end
+    ns[subtable] = ns[subtable] or {}
     return ns[subtable]
 end
 
 
 --@static
 --@return       Instance
---@param        id          | number    | The instance ID to wrap.
+--@param        inst        | CInstance or number   | The CInstance or instance ID to wrap.
 --[[
 Returns an Instance wrapper containing the provided instance.
 ]]
-Instance.wrap = function(id)
-    local _type = type(id)
-    if _type == "table" then return id end
-    if _type == "userdata" then
-        id = id.id
-        _type = "number"
-    end
-    if (_type ~= "number") or (id < 100000) then
-        return __invalid_instance
-    end
+Instance.wrap = function(inst)
+    -- Get CInstance and ID
+    local _type = type(inst)
+    local id
 
-    -- Check cache
-    if wrapper_cache[id] then return wrapper_cache[id] end
+    if _type == "userdata" then
+        id = inst.id
+
+        -- Check if ID is valid
+        -- Sometimes there will be a CInstance but its ID is 0
+        if id < 100000 then return __invalid_instance end
+
+        -- Check cache
+        if wrapper_cache[id] then return wrapper_cache[id] end
+
+    elseif _type == "number" then
+        -- Check if ID is valid
+        -- Sometimes there will be a CInstance but its ID is 0
+        if inst < 100000 then return __invalid_instance end
+
+        -- Check cache
+        if wrapper_cache[inst] then return wrapper_cache[inst] end
+
+        id = inst
+        inst = gm.CInstance.instance_id_to_CInstance[id]
+    
+    elseif _type == "table" then return inst
+    else return __invalid_instance
+    end
 
     -- Wrap as Instance
     -- and get object_index
-    local inst = make_proxy(id, metatable_instance)
-    local obj_index = inst.object_index
+    print("INST", inst)
+    local wrapper = make_proxy(inst, metatable_instance)
+    local obj_index = wrapper:get_object_index()
+
+    -- Store ID in id_cache
+    id_cache[wrapper] = id
 
     -- Check object_index to determine if
     -- "child" metatables should be used instead
@@ -222,21 +244,21 @@ Instance.wrap = function(id)
         
         -- Player
         if obj_index == gm.constants.oP then
-            inst = make_proxy(id, metatable_player)
-            wrapper_cache[id] = inst
-            return inst
+            wrapper = make_proxy(inst, metatable_player)
+            wrapper_cache[id] = wrapper
+            return wrapper
         end
 
         -- Actor
         if gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1 then
-            inst = make_proxy(id, metatable_actor)
-            wrapper_cache[id] = inst
-            return inst
+            wrapper = make_proxy(inst, metatable_actor)
+            wrapper_cache[id] = wrapper
+            return wrapper
         end
 
         -- Instance
-        wrapper_cache[id] = inst
-        return inst
+        wrapper_cache[id] = wrapper
+        return wrapper
 
     end
 end
@@ -252,8 +274,8 @@ methods_instance = {}
 -- Add GM scripts
 for fn_name, fn in pairs(GM_callso) do
     methods_instance[fn_name] = function(self, ...)
-        if self.value == -4 then log.error(fn_name..": Instance does not exist", 2) end
-        return fn(self, self, ...)
+        if not Instance.exists(self) then log.error(fn_name..": Instance does not exist", 2) end
+        return fn(self, nil, ...)
     end
 end
 
@@ -267,13 +289,10 @@ Util.table_append(methods_instance, {
     Also exists as a @link {static method | Instance#destroy-static}.
     ]]
     destroy = function(self)
-        local value = self.value
-        gm.instance_destroy(value)
+        gm.instance_destroy(self.value)
 
-        -- Clear instance data and
-        -- make this wrapper invalid
-        __instance_data[value] = nil
-        __proxy[self] = -4
+        -- Clear instance data
+        __instance_data[self.id] = nil
     end,
 
 
@@ -294,11 +313,11 @@ Util.table_append(methods_instance, {
     ]]
     get_object_index = function(self)
         -- Check cache
-        local value = self.value
-        local object_index = object_index_cache[value]
+        local id = self.id
+        local object_index = object_index_cache[id]
         if not object_index then
             object_index = self:get_object_index_self()
-            object_index_cache[value] = object_index
+            object_index_cache[id] = object_index
         end
         
         return object_index
@@ -319,14 +338,13 @@ Util.table_append(methods_instance, {
     ]]
     is_colliding = function(self, object, x, y)
         local object = Wrap.unwrap(object)
-        local cinst = self.cinstance
 
         -- Vanilla object
         if object < Object.CUSTOM_START then
             return (gm.call(
                 "place_meeting",
-                cinst,
-                cinst,
+                self.value,
+                nil,
                 x or self.x,
                 y or self.y,
                 object
@@ -342,8 +360,8 @@ Util.table_append(methods_instance, {
 
             local count = gm.call(
                 "instance_place_list",
-                cinst,
-                cinst,
+                self.value,
+                nil,
                 x or self.x,
                 y or self.y,
                 object_to_check,
@@ -392,11 +410,10 @@ Util.table_append(methods_instance, {
         local insts = {}
         local list = List.new()
 
-        local cinst = self.cinstance
         local count = gm.call(
             "instance_place_list",
-            cinst,
-            cinst,
+            self.value,
+            nil,
             x or self.x,
             y or self.y,
             object_to_check,
@@ -469,27 +486,24 @@ Util.table_append(methods_instance, {
 local wrapper_name = "Instance"
 
 make_table_once("metatable_instance", {
-    __index = function(proxy, k, id)
+    __index = function(proxy, k, checked_exist)
         -- Get wrapped value
-        if k == "value" or k == "id" then return __proxy[proxy] end
+        if k == "value" or k == "cinstance" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
-        if k == "cinstance" then
-            -- Check cache
-            local cinstance = cinstance_cache[proxy]
-            if not cinstance then
-                cinstance = gm.CInstance.instance_id_to_CInstance[__proxy[proxy]] 
-                cinstance_cache[proxy] = cinstance
+        if k == "id" then
+            if not id_cache[proxy] then
+                local inst = __proxy[proxy]
+                if not inst then return -4 end
+                id_cache[proxy] = inst.id
             end
-            
-            return cinstance
+            return id_cache[proxy]
         end
 
         -- Check if this instance is valid
-        -- (`id` may be passed from Actor metatable
-        -- to not have to access with proxy again)
-        if not id then
-            id = __proxy[proxy]
-            if id == -4 then log.error("Instance does not exist", 2) end
+        -- (`checked_exist` will be `true` if passed from Actor metatable)
+        if not checked_exist then
+            print("PROXY", proxy, Wrap.unwrap(proxy), gm.instance_exists(Wrap.unwrap(proxy).id), Wrap.unwrap(proxy).id)
+            if not Instance.exists(Wrap.unwrap(proxy)) then log.error("Instance does not exist", 2) end
         end
 
         -- Methods
@@ -520,21 +534,21 @@ make_table_once("metatable_instance", {
     __newindex = function(proxy, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
-        or k == "id"
         or k == "RAPI"
-        or k == "cinstance" then
+        or k == "cinstance"
+        or k == "id" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
         -- Setter
-        local id = __proxy[proxy]
-        if id == -4 then log.error("Instance does not exist", 2) end
-        gm.variable_instance_set(id, k, Wrap.unwrap(v, true))
+        if not Instance.exists(proxy) then log.error("Instance does not exist", 2) end
+        gm.variable_instance_set(id, k, Wrap.unwrap(v))
     end,
 
 
     __eq = function(proxy, other)
-        return proxy.value == Instance.wrap(other).value
+        -- Check if instance IDs are the same
+        return proxy.id == Instance.wrap(other).id
     end,
 
     
@@ -559,12 +573,12 @@ end)
 -- Remove `__instance_data` on non-player kill
 
 gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
-    local actor_id = Instance.wrap(args[1].value).id
+    local actor = Instance.wrap(args[1].value)
 
     -- Do not clear for player deaths
-    local obj_ind = gm.variable_instance_get(actor_id, "object_index")
+    local obj_ind = actor:get_object_index()
     if obj_ind ~= gm.constants.oP then
-        __instance_data[actor_id] = nil
+        __instance_data[actor.id] = nil
     end
 end)
 
@@ -585,7 +599,7 @@ end)
 
 
 -- Create invalid_instance
-run_once(function() __invalid_instance = make_proxy(-4, metatable_instance) end)
+run_once(function() __invalid_instance = make_proxy(nil, metatable_instance) end)
 
 -- Public export
 __class.Instance = Instance

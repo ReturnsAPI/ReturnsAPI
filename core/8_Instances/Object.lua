@@ -300,7 +300,7 @@ methods_object = {
     Also exists as a @link {method of Instance | Instance#create}.
     ]]
     create = function(self, x, y)
-        return Instance.wrap(gm.instance_create(Wrap.unwrap(x) or 0, Wrap.unwrap(y) or 0, self.value).id)
+        return Instance.wrap(gm.instance_create(Wrap.unwrap(x) or 0, Wrap.unwrap(y) or 0, self.value))
     end,
 
 

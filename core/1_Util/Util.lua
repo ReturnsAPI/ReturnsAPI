@@ -131,36 +131,32 @@ Util.log_hook = function(self, other, result, args)
 
     -- self
     output = output.."\n[self]    "
-    local self_raw = Wrap.unwrap(self)
-    if gm.is_struct(self_raw) then
-        output = output.."struct"..log_struct(self_raw)
+    self = Wrap.unwrap(self)
+    if gm.is_struct(self) then
+        output = output.."struct"..log_struct(self)
     else
-        if type(self) == "table" and instance_wrappers[self.RAPI] then self = self.cinstance end
         local status, ret = pcall(object_get_name, self)
         output = output..((status and tostring(ret)) or tostring(self))
     end
 
     -- other
     output = output.."\n[other]   "
-    local other_raw = Wrap.unwrap(other)
-    if gm.is_struct(other_raw) then
-        output = output.."struct"..log_struct(other_raw)
+    other = Wrap.unwrap(other)
+    if gm.is_struct(other) then
+        output = output.."struct"..log_struct(other)
     else
-        if type(other) == "table" and instance_wrappers[other.RAPI] then other = other.cinstance end
         local status, ret = pcall(object_get_name, other)
         output = output..((status and tostring(ret)) or tostring(other))
     end
 
     -- result
     output = output.."\n[result]  "
-    result = result.value
-    local result_raw = Wrap.unwrap(result)
-    if gm.is_struct(result_raw) then
-        output = output.."struct"..log_struct(result_raw)
-    elseif gm.is_array(result_raw) then
-        output = output.."array"..log_array(result_raw)
+    result = Wrap.unwrap(result.value)
+    if gm.is_struct(result) then
+        output = output.."struct"..log_struct(result)
+    elseif gm.is_array(result) then
+        output = output.."array"..log_array(result)
     else
-        if type(result) == "table" and instance_wrappers[result.RAPI] then result = result.cinstance end
         local status, ret = pcall(object_get_name, result)
         output = output..((status and tostring(ret)) or tostring(result))
     end
@@ -168,14 +164,12 @@ Util.log_hook = function(self, other, result, args)
     -- args
     output = output.."\n\n[args]"
     for i, arg in ipairs(args) do
-        arg = arg.value
-        local arg_raw = Wrap.unwrap(arg)
-        if gm.is_struct(arg_raw) then
-            output = output.."\nstruct"..log_struct(arg_raw)
-        elseif gm.is_array(arg_raw) then
-            output = output.."\narray"..log_array(arg_raw)
+        arg = Wrap.unwrap(arg.value)
+        if gm.is_struct(arg) then
+            output = output.."\nstruct"..log_struct(arg)
+        elseif gm.is_array(arg) then
+            output = output.."\narray"..log_array(arg)
         else
-            if type(arg) == "table" and instance_wrappers[arg.RAPI] then arg = arg.cinstance end
             local status, ret = pcall(object_get_name, arg)
             output = output.."\n"..((status and tostring(ret)) or tostring(arg))
         end

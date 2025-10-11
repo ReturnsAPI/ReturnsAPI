@@ -249,11 +249,12 @@ end)
 -- Remove from `__actors_holding_buff` on non-player kill
 
 gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
-    local actor_id = Instance.wrap(args[1].value).id
+    local actor = Instance.wrap(args[1].value)
+    local actor_id = actor.id
     if not __actors_holding_buff[actor_id] then return end
 
     -- Do not clear for player deaths
-    local obj_ind = gm.variable_instance_get(actor_id, "object_index")
+    local obj_ind = actor:get_object_index()
     if obj_ind ~= gm.constants.oP then
         for buff_id, _ in pairs(__actors_holding_buff[actor_id]) do
             __actors_holding_buff[buff_id][actor_id] = nil

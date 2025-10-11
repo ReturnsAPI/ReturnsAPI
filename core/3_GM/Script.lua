@@ -122,8 +122,8 @@ make_table_once("metatable_script", {
         -- Call with manual self/other
         if k == "SO" then
             return function(self, other, ...)
-                if self then self = self.cinstance end
-                if other then other = other.cinstance end
+                if self then self = self.value end
+                if other then other = other.value end
 
                 local args = table.pack(...)
 
@@ -154,9 +154,6 @@ make_table_once("metatable_script", {
 
             -- Convert v into `struct CInstance*` to store
             local cinstance = Wrap.unwrap(v)
-            if instance_wrappers[Util.type(v)] then
-                cinstance = v.cinstance
-            end
             __self_other_cache[proxy][index] = cinstance
             return
         end

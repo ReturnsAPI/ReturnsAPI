@@ -16,7 +16,7 @@ run_once(function()
         -- a "key" to access the real table/data in storage.
         -- Access using `__proxy[proxy]` for get/set
         local proxy = {}
-        __proxy[proxy] = t or {}
+        __proxy[proxy] = t or ((not mt and {}) or nil)
         setmetatable(proxy, mt or proxy_default_mt)
         return proxy
     end

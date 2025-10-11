@@ -1,5 +1,7 @@
 -- Packet
 
+-- TODO: Don't pass tables in `make_proxy` since they will be user-accessible via Wrap.unwrap
+
 Packet = new_class()
 
 run_once(function()
