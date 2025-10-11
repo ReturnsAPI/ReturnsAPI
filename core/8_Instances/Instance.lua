@@ -231,7 +231,6 @@ Instance.wrap = function(inst)
 
     -- Wrap as Instance
     -- and get object_index
-    print("INST", inst)
     local wrapper = make_proxy(inst, metatable_instance)
     local obj_index = wrapper:get_object_index()
 
@@ -502,7 +501,6 @@ make_table_once("metatable_instance", {
         -- Check if this instance is valid
         -- (`checked_exist` will be `true` if passed from Actor metatable)
         if not checked_exist then
-            print("PROXY", proxy, Wrap.unwrap(proxy), gm.instance_exists(Wrap.unwrap(proxy).id), Wrap.unwrap(proxy).id)
             if not Instance.exists(Wrap.unwrap(proxy)) then log.error("Instance does not exist", 2) end
         end
 

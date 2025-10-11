@@ -40,7 +40,6 @@ Wrap.wrap = function(value)
 
         -- Instance
         elseif sol == "sol.CInstance*" then
-            print("WRAPPING", value, value.id)
             return Instance.wrap(value)
 
         -- Script
