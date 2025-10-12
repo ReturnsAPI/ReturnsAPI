@@ -161,7 +161,7 @@ methods_modoptions = {
     --@instance
     --@return       ModOptionsKeybind
     --@param        identifier  | string    | The identifier for the element.
-    --@optional     default     | number    | The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind.
+    --@optional     default     | number    | The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind. <br>If not provided, key will be unbinded by default.
     --[[
     Adds a @link {dropdown | ModOptionsKeybind} to the ModOptions.
     ]]
