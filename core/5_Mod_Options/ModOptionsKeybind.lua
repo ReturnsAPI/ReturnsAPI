@@ -3,16 +3,28 @@
 -- The class table is private, but the wrappers are publicly accessible
 
 -- TODO:
--- * Firstly, see if you can actually check bind press or not
--- * `add_verb` should be called in Initialize actually
---      * Currently you have to open settings menu to create the binds (dumb)
 -- * Disable no-duplicates check for custom binds
+
+--[[
+Use @link {`player:control` | Player#control} to check for in-game input (i.e., while not paused).
+]]
 
 ModOptionsKeybind = new_class()
 
 run_once(function()
     __custom_verbs = {}
+    __add_verb_queue = {}
 end)
+
+vanilla_player_verbs = {
+    "left", "right", "up", "down", "jump",
+    "skill1", "skill2", "skill3", "skill4",
+    "equipment", "interact", "swap",
+    "aim_left", "aim_right",
+    "emote", "ping",
+    "emote_1", "emote_2", "emote_3", "emote_4", 
+    "tab", "pause"
+}
 
 
 
@@ -89,6 +101,12 @@ table.insert(_rapi_initialize, function()
     for verb, keycode in pairs(settings.keybinds) do
         __custom_verbs[verb] = keycode
     end
+
+    -- Add verbs in queue
+    for _, verb_table in ipairs(__add_verb_queue) do
+        ModOptionsKeybind.internal.add_verb(table.unpack(verb_table))
+    end
+    __add_verb_queue = {}
 end)
 
 
@@ -100,13 +118,18 @@ ModOptionsKeybind.new = function(namespace, identifier, default)
 
     local verb = namespace.."."..identifier
 
+    -- Add verb immediately post-Initialize;
+    -- otherwise add to queue
+    if Initialize.has_started() then
+        ModOptionsKeybind.internal.add_verb(verb, default)
+    else table.insert(__add_verb_queue, {verb, default})
+    end
+
     local element_data_table = {
         namespace       = namespace,
         identifier      = identifier,
         verb            = verb,
         constructor     = function()
-            ModOptionsKeybind.internal.add_verb(verb, default)
-
             local struct = Struct.new(
                 gm.constants.UIOptionsButtonControlRemapKey,
                 namespace.."."..identifier,
@@ -202,4 +225,15 @@ gm.post_script_hook(gm.constants.input_binding_set, function(self, other, result
         settings.keybinds[verb] = keycode
     end
     file:write(settings)
+end)
+
+
+local ptr = gm.get_script_function_address(gm.constants.__input_update_ticking_verbs)
+
+-- Hooks line 26 (right after `var name_num = array_length(global.__input_ticking_verbs_array);`)
+memory.dynamic_hook_mid("RAPI.ModOptionsKeybind.__input_update_ticking_verbs", {}, {}, 0, ptr:add(0xC13), function(args)
+    local ticking_verbs = Global.__input_ticking_verbs_array
+    for verb, _ in pairs(__custom_verbs) do
+        ticking_verbs:push(verb)
+    end
 end)
