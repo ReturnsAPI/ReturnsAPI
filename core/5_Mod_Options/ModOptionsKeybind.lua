@@ -4,6 +4,7 @@
 
 -- TODO:
 -- * Disable no-duplicates check for custom binds
+-- * Add controller support
 
 --[[
 Use @link {`player:control` | Player#control} to check for in-game input (i.e., while not paused).
