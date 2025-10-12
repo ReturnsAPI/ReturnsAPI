@@ -1,3 +1,5 @@
+**Still an active work in progress! (Dev builds are uploaded on the server)**
+
 API for modding [*Risk of Rain Returns*](https://store.steampowered.com/app/1337520/Risk_of_Rain_Returns/).  
 Documentation can be found on the [wiki](https://github.com/ReturnsAPI/ReturnsAPI/wiki).  
 
