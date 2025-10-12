@@ -707,12 +707,14 @@ methods_actor = {
     --[[
     desc.
     ]]
+    
 
     --@instance
     --@name         skill_util_apply_friction
     --[[
     desc.
     ]]
+
 
     --@instance
     --@name         skill_util_exit_state_on_anim_end

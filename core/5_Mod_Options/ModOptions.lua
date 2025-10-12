@@ -159,6 +159,33 @@ methods_modoptions = {
 
 
     --@instance
+    --@return       ModOptionsKeybind
+    --@param        identifier  | string    | The identifier for the element.
+    --@optional     default     | number    | The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind.
+    --[[
+    Adds a @link {dropdown | ModOptionsKeybind} to the ModOptions.
+    ]]
+    add_keybind = function(self, identifier, default)
+        if not identifier           then log.error("add_keybind: No identifier provided", 2) end
+        if identifier == "header"
+        or identifier == "ordered"  then log.error("add_keybind: identifier '"..identifier.."' is reserved", 2) end
+        if self:find(identifier)    then log.error("add_keybind: identifier '"..identifier.."' already in use", 2) end
+
+        local _type = type(default)
+        if _type ~= "nil" and _type ~= "number" then log.error("add_keybind: default key is invalid", 2) end
+
+        local self_table = __proxy[self]
+
+        local element = ModOptionsKeybind.new(__proxy[self].namespace, identifier, default)
+        
+        self_table.elements[identifier] = element
+        table.insert(self_table.elements.ordered, element)
+
+        return element
+    end,
+
+
+    --@instance
     --@return       ModOptions<Element> or nil
     --@param        identifier  | string    | 
     --[[
