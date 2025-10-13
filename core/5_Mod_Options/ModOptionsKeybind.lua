@@ -7,7 +7,14 @@
 -- * Add controller support
 
 --[[
-Use @link {`player:control` | Player#control} to check for in-game input (i.e., while not paused).
+**Input Checking**
+Function | Description
+| - | -
+`gm.input_check( verb )`            | Returns `true` if the verb input is being held.
+`gm.input_check_pressed( verb )`    | Returns `true` if the verb input was just pressed.
+`gm.input_check_released( verb )`   | Returns `true` if the verb input was just released.
+
+Player also has a {`control` | Player#control} instance method, which is more restricted.
 ]]
 
 ModOptionsKeybind = new_class()
@@ -62,8 +69,8 @@ ModOptionsKeybind.internal.add_verb = function(verb, default)
     Global.__input_profile_dict["keyboard_and_mouse"][verb] = bind
     local verb_data = Global.__input_profile_dict["keyboard_and_mouse"][verb]
 
-    Global.__input_basic_verb_array:push(verb)
-    Global.__input_basic_verb_dict[verb] = true
+    -- Global.__input_basic_verb_array:push(verb)   -- Adding this will result in duplicate custom verbs in menus
+    -- Global.__input_basic_verb_dict[verb] = true
     Global.__input_all_verb_array:push(verb)
     Global.__input_all_verb_dict[verb] = true
 

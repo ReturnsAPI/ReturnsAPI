@@ -56,10 +56,12 @@ methods_player = {
     --@instance
     --@return       bool
     --@param        verb        | string    | The verb to check.
-    --@optional     type        | number    | `0` - Returns `true` if input is being held. <br>`1` - Returns `true` if input was just pressed. <br>`2` - Returns `true` if input was just released. <br><br>`0` by default.
+    --@optional     type        | number    | <br>`0` - Returns `true` if the verb input is being held. <br>`1` - Returns `true` if the verb input was just pressed. <br>`2` - Returns `true` if the verb input was just released. <br><br>`0` by default.
     --[[
     Returns the input status for a verb.
-    Only returns `true` for the local player.
+    Only returns `true` for the local player, and if the game is not paused.
+
+    For more general uses, use @link {`gm.input_check_*` | ModOptionsKeybind} functions instead.
     ]]
     control = function(self, verb, _type)
         if (not vanilla_player_verbs[verb]) and (not __custom_verbs[verb]) then log.error("control: verb is invalid", 2) end
