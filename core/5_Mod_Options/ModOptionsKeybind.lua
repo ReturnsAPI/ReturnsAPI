@@ -47,7 +47,7 @@ Property | Type | Description
 `RAPI`          | string    | *Read-only.* The wrapper name.
 `namespace`     | string    | *Read-only.* The namespace of the ModOptions the element is in.
 `identifier`    | string    | *Read-only.* The identifier of the element.
-`verb`          | string    | *Read-only.* The verb name for the keybind.
+`verb`          | string    | *Read-only.* The verb name for the keybind. <br>Equal to `"<namespace>.<identifier>"`.
 ]]
 
 

@@ -163,7 +163,7 @@ methods_modoptions = {
     --@param        identifier  | string    | The identifier for the element.
     --@optional     default     | number    | The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind. <br>If not provided, key will be unbinded by default.
     --[[
-    Adds a @link {dropdown | ModOptionsKeybind} to the ModOptions.
+    Adds a @link {keybind | ModOptionsKeybind} to the ModOptions.
     ]]
     add_keybind = function(self, identifier, default)
         if not identifier           then log.error("add_keybind: No identifier provided", 2) end
