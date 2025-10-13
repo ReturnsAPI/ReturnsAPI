@@ -14,7 +14,7 @@ Function | Description
 `gm.input_check_pressed( verb )`    | Returns `true` if the verb input was just pressed.
 `gm.input_check_released( verb )`   | Returns `true` if the verb input was just released.
 
-Player also has a {`control` | Player#control} instance method, which is more restricted.
+Player also has a @link {`control` | Player#control} instance method, which is more restrictive.
 ]]
 
 ModOptionsKeybind = new_class()
