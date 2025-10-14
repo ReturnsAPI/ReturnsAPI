@@ -144,8 +144,6 @@ ModOptionsKeybind.new = function(namespace, identifier, default)
                 verb,
                 "keyboard_and_mouse"
             )
-            struct.background_height = struct.background_height + 38
-            struct.is_odd = true
             return struct.value
         end
     }

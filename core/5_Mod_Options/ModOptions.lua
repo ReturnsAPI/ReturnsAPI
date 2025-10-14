@@ -303,9 +303,26 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
         local header = Struct.new(gm.constants.UIOptionsGroupHeader, data_table.namespace..".header").value
         gm.array_push(tab, header)
 
+        -- ModOptionsKeybind styling
+        local first_key
+        local is_odd = false
+
         -- Elements
         for _, element in ipairs(data_table.elements.ordered) do
-            gm.array_push(tab, __proxy[element].constructor())
+            local struct = __proxy[element].constructor()
+
+            if element.RAPI == "ModOptionsKeybind" then
+                if not first_key then first_key = struct end
+                first_key.background_height = first_key.background_height + 38
+                
+                struct.is_odd = is_odd
+                is_odd = not is_odd
+            else
+                first_key = nil
+                is_odd = false
+            end
+
+            gm.array_push(tab, struct)
         end
     end
 end)
