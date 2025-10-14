@@ -32,6 +32,9 @@ Class.internal.initialize = function()
     -- __class_find_tables[name_global][namespace][identifier]  = element_table (see in next section below)
     -- __class_find_tables[name_global][id]                     = element_table
 
+    -- Remove garbage data from `class_artifact`
+    Global.class_artifact:resize(Global.count_artifact)
+
     -- Populate class_wrappers on initialize
     -- since some class arrays existn't before then
     for name_rapi, name_global in pairs(class_name_r2g) do
