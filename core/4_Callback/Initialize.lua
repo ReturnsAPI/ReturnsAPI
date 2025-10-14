@@ -26,6 +26,23 @@ end
 
 Initialize.internal.remove_all = function(NAMESPACE)
     __initialize_cache:remove_all(NAMESPACE)
+
+    -- Call hotloadable Initialize functions again (if initialization loop already ran)
+    -- Do this after 1 frame though to allow `Initialize.add_hotloadable`s to run again first
+    if not __initialized_done then return end
+    Alarm.add(RAPI_NAMESPACE, 1, function()
+        __initialize_cache:loop_and_call_functions(function(fn_table)
+            if  fn_table.namespace == NAMESPACE
+            and fn_table.fn.hotload then
+                local status, err = pcall(fn_table.fn.fn)
+                if not status then
+                    if (err == nil)
+                    or (err == "C++ exception") then err = "GameMaker error (see above)" end
+                    log.warning("\n"..fn_table.namespace..": Initialize (ID '"..fn_table.id.."') failed to execute fully.\n"..err)
+                end
+            end
+        end)
+    end)
 end
 table.insert(_clear_namespace_functions, Initialize.internal.remove_all)
 
@@ -41,7 +58,7 @@ table.insert(_clear_namespace_functions, Initialize.internal.remove_all)
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --@param        fn          | function  | The function to register.
 --[[
-Adds a new function to run during ReturnsAPI's initialization loop.
+Adds a new function to run exactly once during ReturnsAPI's initialization loop.
 This happens after all vanilla content has loaded.
 
 **Priority Convention**
@@ -51,9 +68,26 @@ If you need to be more specific than that, try to keep a distance of at least `1
 ]]
 Initialize.add = function(NAMESPACE, arg1, arg2)
     if type(arg1) == "function" then
-        return __initialize_cache:add(arg1, NAMESPACE)
+        return __initialize_cache:add({fn = arg1}, NAMESPACE)
     end
-    return __initialize_cache:add(arg2, NAMESPACE, arg1)
+    return __initialize_cache:add({fn = arg2}, NAMESPACE, arg1)
+end
+
+
+--@static
+--@param        fn          | function  | The function to register.
+--@overload
+--@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@param        fn          | function  | The function to register.
+--[[
+Version of @link {`add` | Initialize#add} that automatically calls the function
+again when your mod is hotloaded after ReturnsAPI's initialization loop.
+]]
+Initialize.add_hotloadable = function(NAMESPACE, arg1, arg2)
+    if type(arg1) == "function" then
+        return __initialize_cache:add({fn = arg1, hotload = true}, NAMESPACE)
+    end
+    return __initialize_cache:add({fn = arg2, hotload = true}, NAMESPACE, arg1)
 end
 
 
@@ -94,7 +128,7 @@ gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, resu
         if not __initialized_done then
 
             __initialize_cache:loop_and_call_functions(function(fn_table)
-                local status, err = pcall(fn_table.fn)
+                local status, err = pcall(fn_table.fn.fn)
                 if not status then
                     if (err == nil)
                     or (err == "C++ exception") then err = "GameMaker error (see above)" end
