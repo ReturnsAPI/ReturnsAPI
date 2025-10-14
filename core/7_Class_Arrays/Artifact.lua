@@ -43,14 +43,14 @@ Property | Type | Description
 | - | - | -
 `namespace`         | string    | The namespace the artifact is in.
 `identifier`        | string    | The identifier for the artifact within the namespace.
-`token_name`        | string    | 
+`token_name`        | string    | The localization token for the artifact's name.
 `token_pickup_name` | string    | 
 `token_description` | string    | 
 `loadout_sprite_id` | sprite    | 
 `pickup_sprite_id`  | sprite    | 
-`on_set_active`     | number    | 
-`active`            |           | 
-`achievement_id`    | number    | 
+`on_set_active`     | number    | The ID of the callback that runs when entering *and* exiting a run with the artifact enabled. <br>The callback function should have the argument `state` (`true` when entering and `false` when exiting).
+`active`            | bool      | `true` while in a run with the artifact enabled.
+`achievement_id`    | number    | The achievement ID of the artifact. <br>If *not* `-1`, the artifact will be locked until the achievement is unlocked.
 ]]
 
 
@@ -58,6 +58,31 @@ Property | Type | Description
 -- ========== Static Methods ==========
 
 --@section Static Methods
+
+--@static
+--@return   Artifact
+--@param    identifier  | string    | The identifier for the artifact.
+--[[
+Creates a new artifact with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+Artifact.new = function(NAMESPACE, identifier)
+    Initialize.internal.check_if_started("Artifact.new")
+    if not identifier then log.error("Artifact.new: No identifier provided", 2) end
+
+    -- Return existing artifact if found
+    local artifact = Artifact.find(identifier, NAMESPACE, true)
+    if artifact then return artifact end
+
+    -- Create new
+    artifact = Artifact.wrap(gm.artifact_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return artifact
+end
+
 
 --@static
 --@name         find
