@@ -124,7 +124,7 @@ ItemLog.new_from_item = function(NAMESPACE, item)
     if type(item.value) ~= "number" then log.error("ItemLog.new_from_item: Invalid item", 2) end
 
     -- Use existing log or create a new one
-    local log = ItemLog.find(item.identifier, NAMESPACE)
+    local log = ItemLog.find(item.identifier, NAMESPACE, true)
              or ItemLog.new(NAMESPACE, item.identifier)
 
     -- Set sprite and object IDs
@@ -159,7 +159,7 @@ ItemLog.new_from_equipment = function(NAMESPACE, equip)
     if type(equip.value) ~= "number" then log.error("ItemLog.new_from_equipment: Invalid equipment", 2) end
 
     -- Use existing log or create a new one
-    local log = ItemLog.find(equip.identifier, NAMESPACE)
+    local log = ItemLog.find(equip.identifier, NAMESPACE, true)
              or ItemLog.new(NAMESPACE, equip.identifier)
 
     -- Set sprite and object IDs

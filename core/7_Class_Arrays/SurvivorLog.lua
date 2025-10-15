@@ -121,7 +121,7 @@ SurvivorLog.new_from_survivor = function(NAMESPACE, survivor)
     if type(survivor.value) ~= "number" then log.error("SurvivorLog.new_from_survivor: Invalid survivor", 2) end
 
     -- Use existing log or create a new one
-    local log = SurvivorLog.find(survivor.identifier, NAMESPACE)
+    local log = SurvivorLog.find(survivor.identifier, NAMESPACE, true)
              or SurvivorLog.new(NAMESPACE, survivor.identifier)
 
     -- Set sprite and icon IDs

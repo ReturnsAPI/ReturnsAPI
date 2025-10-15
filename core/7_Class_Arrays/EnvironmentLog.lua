@@ -150,7 +150,7 @@ EnvironmentLog.new_from_stage = function(NAMESPACE, stage)
     if type(stage.value) ~= "number" then log.error("EnvironmentLog.new_from_stage: Invalid stage", 2) end
 
     -- Use existing log or create a new one
-    local log = EnvironmentLog.find(stage.identifier, NAMESPACE)
+    local log = EnvironmentLog.find(stage.identifier, NAMESPACE, true)
              or EnvironmentLog.new(NAMESPACE, stage.identifier)
 
     -- Set the stage ID of the log

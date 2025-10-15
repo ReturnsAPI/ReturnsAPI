@@ -222,7 +222,7 @@ LootPool.new_from_tier = function(NAMESPACE, tier)
     if type(tier.value) ~= "number" then log.error("LootPool.new_from_tier: Invalid tier", 2) end
     
     -- Use existing pool or create a new one
-    local pool = LootPool.find(tier.identifier, NAMESPACE)
+    local pool = LootPool.find(tier.identifier, NAMESPACE, true)
               or LootPool.new(NAMESPACE, tier.identifier)
 
     -- Set pool properties
