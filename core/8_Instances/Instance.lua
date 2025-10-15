@@ -393,7 +393,7 @@ Util.table_append(methods_instance, {
     instances found, and can be somewhat expensive at high numbers.
     Be mindful of this.
     ]]
-    get_collisions = function(self, object, x, y)  
+    get_collisions = function(self, object, x, y)
         local object = Wrap.unwrap(object)
 
         -- Figure out correct object to check
@@ -461,7 +461,7 @@ Util.table_append(methods_instance, {
 
     *Technical:* Calls `gm.collision_rectangle_list`.
     ]]
-    get_collisions_rectangle = function(self, object, x1, y1, x2, y2)  
+    get_collisions_rectangle = function(self, object, x1, y1, x2, y2)
         local object = Wrap.unwrap(object)
 
         -- Figure out correct object to check
@@ -479,6 +479,73 @@ Util.table_append(methods_instance, {
             y1,
             x2,
             y2,
+            object_to_check,
+            false,
+            true,
+            list.value,
+            false
+        )
+
+        -- Convert output list to table
+        if count > 0 then
+
+            -- Vanilla object
+            if object < Object.CUSTOM_START then
+                for _, inst in ipairs(list) do
+                    table.insert(insts, inst)
+                end
+
+            -- Custom object
+            else
+                for _, inst in ipairs(list) do
+                    -- Check if `__object_index` matches
+                    if inst:get_object_index() == object then
+                        table.insert(insts, inst)
+                    end
+                end
+
+            end
+        end
+        
+        list:destroy()
+
+        return insts
+    end,
+
+
+    --@instance
+    --@return       table
+    --@param        object      | Object    | The object to check.
+    --@param        radius      | number    | The radius of the circle.
+    --@optional     x           | number    | The central x position of the circle. <br>Uses this instance's current position by default.
+    --@optional     y           | number    | The central y position of the circle. <br>Uses this instance's current position by default.
+    --[[
+    Returns a table of all instances of the specified object that
+    this instance can collide with in the given circular area.
+
+    **NOTE:** The execution time scales with the number of
+    instances found, and can be somewhat expensive at high numbers.
+    Be mindful of this.
+
+    *Technical:* Calls `gm.collision_circle_list`.
+    ]]
+    get_collisions_circle = function(self, object, radius, x, y)
+        local object = Wrap.unwrap(object)
+
+        -- Figure out correct object to check
+        local object_to_check = object
+        if object >= Object.CUSTOM_START then
+            local obj_array = Object.wrap(object).array
+            object_to_check = obj_array:get(Object.Property.BASE)
+        end
+
+        local insts = {}
+        local list = List.new()
+
+        local count = gm.call("collision_circle_list", self.value, nil,
+            x or self.x,
+            y or self.y,
+            radius,
             object_to_check,
             false,
             true,
