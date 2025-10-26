@@ -3,7 +3,7 @@
 API for modding [*Risk of Rain Returns*](https://store.steampowered.com/app/1337520/Risk_of_Rain_Returns/).  
 Documentation can be found on the [wiki](https://github.com/ReturnsAPI/ReturnsAPI/wiki).  
 
-Include `ReturnsAPI-ReturnsAPI-0.1.18` as a dependency in `manifest.json`, and import it with:  
+Include `ReturnsAPI-ReturnsAPI-0.1.19` as a dependency in `manifest.json`, and import it with:  
 ```lua
 -- Automatically adds class references directly to your mod,
 -- and performs other actions (such as autoregistering for language loading)

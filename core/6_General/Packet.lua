@@ -73,22 +73,29 @@ Packet.internal.initialize = function()
 
             buffer:write_uint_packed(count)
 
-            -- Loop through `pairs` and write
-            for id, t in ipairs(_pairs) do
+            -- Loop through `_pairs` and write
+            for id, t in pairs(_pairs) do
+                print("Syncing packet with ID "..id.." (nsid "..t.namespace.."-"..t.identifier..")")
                 buffer:write_uint_packed(id)
                 buffer:write_string(t.namespace)
                 buffer:write_string(t.identifier)
             end
+
+            print("Sync write count is "..count)
         end,
 
         function(buffer, player)
             local count = buffer:read_uint_packed()
+            
+            print("Sync read count is "..count)
 
             for i = 1, count do
                 -- Read host nsid <-> packet ID pair
                 local new_id        = buffer:read_uint_packed()
                 local namespace     = buffer:read_string()
                 local identifier    = buffer:read_string()
+                
+                print("Syncing packet to new ID "..new_id.." (nsid "..namespace.."-"..identifier..")")
 
                 -- Get wrapper
                 local wrapper = __packet_find_table:get(identifier, namespace, true)
@@ -150,6 +157,8 @@ Packet.new = function(NAMESPACE, identifier)
 
     -- Add to find table
     __packet_find_table:set(packet, identifier, NAMESPACE, id)
+
+    print("Created Packet with ID "..id.." (nsid "..nsid..")")
 
     return packet
 end
