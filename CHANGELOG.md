@@ -1,3 +1,7 @@
+### v0.1.19
+- Artifact : Renamed `loadout_sprite_id` and `pickup_sprite_id` to `sprite_loadout_id` and `sprite_pickup_id` to match consistency with everything else
+
+
 ### v0.1.18
 - Initial build uploaded to Thunderstore
 - ModOptionsKeybind : Add alternating background styling
