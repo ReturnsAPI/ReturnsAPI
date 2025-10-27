@@ -1,3 +1,7 @@
+### v0.1.22
+- Map : Add `print`
+- Language : Fix some files not being loaded
+
 ### v0.1.21
 - Actor
     - Add `apply_dot`

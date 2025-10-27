@@ -112,18 +112,21 @@ local function load_from_folder(folder_path)
         local files = path.get_files(folder_path)
         for _, file in ipairs(files) do
             local filename = path.filename(file):sub(1, -5):lower()
-            local lang_table = require(file)
+            local lang_table
 
             -- Store table if English
             if (filename == "english")
-            or (folder_lang == "english") then table.insert(eng_tables, lang_table) end
+            or (folder_lang == "english") then
+                lang_table = require(file)
+                table.insert(eng_tables, lang_table)
+            end
 
             -- Parse returned table if it matches language
             if (filename == language)
             or (folder_lang == language) then
                 found = true
+                if not lang_table then lang_table = require(file) end
                 parse_keys(language_map, lang_table)
-                break
             end
         end
 
