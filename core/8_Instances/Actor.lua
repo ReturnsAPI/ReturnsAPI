@@ -191,24 +191,26 @@ methods_actor = {
 
 
     --@instance
-    --@param        amount      | number        | The amount to heal.
-    --[[
-    Heals the actor.
-    ]]
-    heal = function(self, amount)
-        gm.actor_heal_raw(self.value, amount)
-    end,
-
-
-    --@instance
-    --@param        amount      | number        | The amount to heal.
+    --@param        amount      | number    | The amount to heal.
     --[[
     Heals the actor (synced).
     
     **Must be called offline or as host.**
     ]]
-    heal_networked = function(self, amount)
+    heal = function(self, amount)
         gm.actor_heal_networked(self.value, amount)
+    end,
+
+
+    --@instance
+    --@param        amount      | number    | The amount to heal.
+    --[[
+    Heals the actor's barrier (synced).
+    
+    **Must be called offline or as host.**
+    ]]
+    heal_barrier = function(self, amount)
+        gm.actor_heal_barrier(self.value, amount)
     end,
 
 

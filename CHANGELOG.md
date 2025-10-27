@@ -1,5 +1,8 @@
 ### v0.1.21
-- Actor : Add `apply_dot`
+- Actor
+    - Add `apply_dot`
+    - Add `heal_barrier`
+    - Remove `heal_networked` and moved functionality to `heal`
 
 ### v0.1.20
 - Hook, Callback : `add` methods now return wrappers instead of IDs
