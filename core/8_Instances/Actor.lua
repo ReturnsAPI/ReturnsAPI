@@ -623,13 +623,13 @@ methods_actor = {
 
     -- ==================================================
 
-    --@section Instance Methods ([ActorSkill](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ActorSkill))
+    --@section Instance Methods (ActorSkill)
 
     --@instance
     --@return       ActorSkill
     --@param        slot        | number    | The @link {slot | Skill#slot} to get from.
     --[[
-    Returns the active ActorSkill in the specified slot.
+    Returns the active [ActorSkill](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ActorSkill) in the specified slot.
     This will be the same as `get_default_skill` if there are currently no overrides.
     ]]
     get_active_skill = function(self, slot)
