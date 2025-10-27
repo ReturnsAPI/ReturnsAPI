@@ -1,5 +1,9 @@
 -- DamageCalculate
 
+--[[
+This class provides a way to modify `attack_info` structs on-hit *before* they are applied to the target.
+]]
+
 DamageCalculate = new_class()
 
 run_once(function()
