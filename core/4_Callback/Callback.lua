@@ -116,17 +116,17 @@ end
 
 
 --@static
---@return       number
+--@return       Callback
 --@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
 --@param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
 --@overload
---@return       number
+--@return       Callback
 --@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --@param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
 --[[
 Registers a function under a callback type.
-Returns the unique ID of the registered function.
+Returns a Callback wrapper of the unique ID of the registered function.
 
 **Priority Convention**
 To allow for a decent amount of space between priorities,
@@ -196,21 +196,9 @@ Callback.add = function(NAMESPACE, callback, arg2, arg3)
     end
 
     if type(arg2) == "function" then
-        return __callback_cache:add(arg2, NAMESPACE, 0, callback)
+        return Callback.wrap(__callback_cache:add(arg2, NAMESPACE, 0, callback))
     end
-    return __callback_cache:add(arg3, NAMESPACE, arg2, callback)
-end
-
-
---@static
---@return       function
---@param        id          | number    | The unique ID of the registered function to remove.
---[[
-Removes and returns a registered callback function.
-The ID is the one from @link {`Callback.add` | Callback#add}.
-]]
-Callback.remove = function(id)
-    return __callback_cache:remove(id)
+    return Callback.wrap(__callback_cache:add(arg3, NAMESPACE, arg2, callback))
 end
 
 
@@ -224,6 +212,96 @@ Callback.remove_all = function(NAMESPACE)
     __callback_cache:remove_all(NAMESPACE)
 end
 table.insert(_clear_namespace_functions, Callback.remove_all)
+
+
+
+--@static
+--@return       Callback
+--@param        id          | number    | The callback function ID to wrap.
+--[[
+Returns a Callback wrapper containing the provided callback function ID.
+]]
+Callback.wrap = function(id)
+    -- Input:   number or Callback wrapper
+    -- Wraps:   number
+    return make_proxy(Wrap.unwrap(id), metatable_callback)
+end
+
+
+
+-- ========== Instance Methods ==========
+
+--@section Instance Methods
+
+methods_callback = {
+
+    --@instance
+    --@return       function
+    --[[
+    Removes and returns the registered callback function.
+    ]]
+    remove = function(self)
+        return __callback_cache:remove(self.value)
+    end,
+    
+
+    --@instance
+    --@return       bool
+    --[[
+    Returns `true` if the callback function is enabled.
+    ]]
+    is_enabled = function(self)
+        local fn_table = __callback_cache.id_lookup[self.value]
+
+        return (fn_table and fn_table.enabled)
+            or false
+    end,
+
+
+    --@instance
+    --@param        bool        | bool      | `true` - Enable function <br>`false` - Disable function
+    --[[
+    Toggles the enabled status of the registered callback function.
+    ]]
+    toggle = function(self, bool)
+        if type(bool) ~= "boolean" then log.error("toggle: bool is invalid", 2) end
+        return __callback_cache:toggle(self.value, bool)
+    end
+
+}
+
+
+
+-- ========== Metatables ==========
+
+local wrapper_name = "Callback"
+
+make_table_once("metatable_callback", {
+    __index = function(proxy, k)
+        -- Get wrapped value
+        if k == "value" then return __proxy[proxy] end
+        if k == "RAPI" then return wrapper_name end
+        
+        -- Methods
+        if methods_callback[k] then
+            return methods_callback[k]
+        end
+    end,
+    
+
+    __newindex = function(proxy, k, v)
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+        
+        log.error(wrapper_name.." has no properties to set", 2)
+    end,
+
+
+    __metatable = "RAPI.Wrapper."..wrapper_name
+})
 
 
 

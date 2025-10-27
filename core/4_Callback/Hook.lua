@@ -185,17 +185,17 @@ end)
 --@section Static Methods
 
 --@static
---@return       number
+--@return       Hook
 --@param        script      | number or string  | The game function to hook. <br>(E.g., `gm.constants.instance_number`, `"gml_Object_oOptionsMenu_Create_0"`, etc.)
 --@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args` for script hooks, <br>and `self, other` for object hooks.
 --@overload
---@return       number
+--@return       Hook
 --@param        script      | number or string  | The game function to hook. <br>(E.g., `gm.constants.instance_number`, `"gml_Object_oOptionsMenu_Create_0"`, etc.)
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args` for script hooks, <br>and `self, other` for object hooks.
 --[[
 Registers a function under a game function pre-hook
-Returns the unique ID of the registered function.
+Returns a Hook wrapper of the unique ID of the registered function.
 
 **Priority Convention**
 To allow for a decent amount of space between priorities,
@@ -225,24 +225,24 @@ Hook.add_pre = function(NAMESPACE, script, arg2, arg3)
 
     __hook_current_id = __hook_current_id + 1
     if type(arg2) == "function" then
-        return __pre_hook_cache:add(arg2, NAMESPACE, 0, script, __hook_current_id)
+        return Hook.wrap(__pre_hook_cache:add(arg2, NAMESPACE, 0, script, __hook_current_id))
     end
-    return __pre_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id)
+    return Hook.wrap(__pre_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id))
 end
 
 
 --@static
---@return       number
+--@return       Hook
 --@param        script      | number or string  | The game function to hook. <br>(E.g., `gm.constants.instance_number`, `"gml_Object_oOptionsMenu_Create_0"`, etc.)
 --@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args` for script hooks, <br>and `self, other` for object hooks.
 --@overload
---@return       number
+--@return       Hook
 --@param        script      | number or string  | The game function to hook. <br>(E.g., `gm.constants.instance_number`, `"gml_Object_oOptionsMenu_Create_0"`, etc.)
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --@param        fn          | function  | The function to register. <br>The parameters for it are `self, other, result, args` for script hooks, <br>and `self, other` for object hooks.
 --[[
 Registers a function under a game function post-hook
-Returns the unique ID of the registered function.
+Returns a Hook wrapper of the unique ID of the registered function.
 
 **Priority Convention**
 To allow for a decent amount of space between priorities,
@@ -272,22 +272,9 @@ Hook.add_post = function(NAMESPACE, script, arg2, arg3)
 
     __hook_current_id = __hook_current_id + 1
     if type(arg2) == "function" then
-        return __post_hook_cache:add(arg2, NAMESPACE, 0, script, __hook_current_id)
+        return Hook.wrap(__post_hook_cache:add(arg2, NAMESPACE, 0, script, __hook_current_id))
     end
-    return __post_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id)
-end
-
-
---@static
---@return       function
---@param        id          | number    | The unique ID of the registered function to remove.
---[[
-Removes and returns a registered hook function.
-The ID is the one from @link {`Hook.add_pre` | Hook#add_pre} / @link {`Hook.add_post` | Hook#add_post}.
-]]
-Hook.remove = function(id)
-    return __pre_hook_cache:remove(id)
-        or __post_hook_cache:remove(id)
+    return Hook.wrap(__post_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id))
 end
 
 
@@ -302,6 +289,99 @@ Hook.remove_all = function(NAMESPACE)
     __post_hook_cache:remove_all(NAMESPACE)
 end
 table.insert(_clear_namespace_functions, Hook.remove_all)
+
+
+--@static
+--@return       Hook
+--@param        id          | number    | The hook function ID to wrap.
+--[[
+Returns a Hook wrapper containing the provided hook function ID.
+]]
+Hook.wrap = function(id)
+    -- Input:   number or Hook wrapper
+    -- Wraps:   number
+    return make_proxy(Wrap.unwrap(id), metatable_hook)
+end
+
+
+
+-- ========== Instance Methods ==========
+
+--@section Instance Methods
+
+methods_hook = {
+
+    --@instance
+    --@return       function
+    --[[
+    Removes and returns the registered hook function.
+    ]]
+    remove = function(self)
+        return __pre_hook_cache:remove(self.value)
+            or __post_hook_cache:remove(self.value)
+    end,
+    
+
+    --@instance
+    --@return       bool
+    --[[
+    Returns `true` if the hook function is enabled.
+    ]]
+    is_enabled = function(self)
+        local fn_table_pre  = __pre_hook_cache.id_lookup[self.value]
+        local fn_table_post = __post_hook_cache.id_lookup[self.value]
+
+        return (fn_table_pre and fn_table_pre.enabled)
+            or (fn_table_post and fn_table_post.enabled)
+            or false
+    end,
+
+
+    --@instance
+    --@param        bool        | bool      | `true` - Enable function <br>`false` - Disable function
+    --[[
+    Toggles the enabled status of the registered hook function.
+    ]]
+    toggle = function(self, bool)
+        if type(bool) ~= "boolean" then log.error("toggle: bool is invalid", 2) end
+        return __pre_hook_cache:toggle(self.value, bool)
+            or __post_hook_cache:toggle(self.value, bool)
+    end
+
+}
+
+
+
+-- ========== Metatables ==========
+
+local wrapper_name = "Hook"
+
+make_table_once("metatable_hook", {
+    __index = function(proxy, k)
+        -- Get wrapped value
+        if k == "value" then return __proxy[proxy] end
+        if k == "RAPI" then return wrapper_name end
+        
+        -- Methods
+        if methods_hook[k] then
+            return methods_hook[k]
+        end
+    end,
+    
+
+    __newindex = function(proxy, k, v)
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+        
+        log.error(wrapper_name.." has no properties to set", 2)
+    end,
+
+
+    __metatable = "RAPI.Wrapper."..wrapper_name
+})
 
 
 

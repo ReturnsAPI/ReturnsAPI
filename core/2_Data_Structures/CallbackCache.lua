@@ -62,7 +62,8 @@ run_once(function()
                     fn          = fn,
                     namespace   = namespace,
                     priority    = priority,
-                    section     = section
+                    section     = section,
+                    enabled     = true
                 }
 
                 -- Add callback function data table to priority table
@@ -71,6 +72,17 @@ run_once(function()
 
                 -- Return ID
                 return id
+            end,
+
+
+            -- Toggle a function on/off
+            toggle = function(self, id, bool)
+                -- Find callback function data table
+                local fn_table = self.id_lookup[id]
+                if not fn_table then return end
+
+                -- Toggle status
+                fn_table.enabled = bool
             end,
 
 
@@ -144,7 +156,11 @@ run_once(function()
                     -- Loop through priority table
                     -- and call function on data tables
                     for _, fn_table in ipairs(priority_table) do
-                        fn(fn_table)
+
+                        -- Check if enabled first
+                        if fn_table.enabled then
+                            fn(fn_table)
+                        end
                     end
                 end
             end,

@@ -1,3 +1,7 @@
+### v0.1.20
+- Hook, Callback : `add` methods now return wrappers instead of IDs
+    - Can call `remove`, `is_enabled`, and `toggle(bool)` through them
+
 ### v0.1.19
 - Artifact : Rename `loadout_sprite_id` and `pickup_sprite_id` to `sprite_loadout_id` and `sprite_pickup_id` to match consistency with everything else
 - Packet : Fix packet syncing throwing an error
@@ -12,13 +16,13 @@
 - Instance : Add `get_collisions_rectangle` and `get_collisions_circle`
 
 ### v0.1.17
-ModOptionsKeybind : Fix `press` and `release` not working in menus
+- ModOptionsKeybind : Fix `press` and `release` not working in menus
 
 ### v0.1.16
 - Instance : Make `wrap` and `.id` slightly more efficient
 - Add ActorSkill struct wrapper, and related skill-getting methods to Actor
 - Add ModOptionsKeybind
-  - Still some stuff to tidy up but it's functional for keyboard
+    - Still some stuff to tidy up but it's functional for keyboard
 - Player : Add `control`
 
 ### v0.1.15
@@ -32,7 +36,7 @@ ModOptionsKeybind : Fix `press` and `release` not working in menus
 - Alarm : Add `add_nopause`
 - Add HUD draw callback fix
 - Fix something related to packet syncing
-  - `packet` in `ON_NET_MESSAGE_RECEIVE` will now be `nil` if the packet ID is not in use
+    - `packet` in `ON_NET_MESSAGE_RECEIVE` will now be `nil` if the packet ID is not in use
 
 ### v0.1.12
 - Packet : Sync packet IDs based on identifiers; `new` now requires an identifier
