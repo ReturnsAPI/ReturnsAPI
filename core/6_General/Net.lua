@@ -4,7 +4,7 @@
 ```lua
 -- (bools)
 Net.online   --> `true` if the game client is currently connected online.
-Net.host     --> `true` if the game client is currently the lobby host.
+Net.host     --> `true` if the game client is currently the lobby host, or is offline.
 Net.client   --> `true` if the game client is currently a lobby client.
 ```
 ]]
