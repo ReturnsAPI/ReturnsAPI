@@ -37,7 +37,8 @@ run_once(function()
                 -- Used by Callback to separate by callback types
                 if not self.sections[section] then 
                     self.sections[section] = {
-                        priorities = {}     -- List of priorities in use
+                        priorities  = {},   -- List of priorities in use
+                        count       = 0     -- Number of enabled functions in this section
                     }
                 end
                 local section_table = self.sections[section]
@@ -70,6 +71,8 @@ run_once(function()
                 table.insert(section_table[priority], fn_table)
                 self.id_lookup[id] = fn_table
 
+                section_table.count = section_table.count + 1
+
                 -- Return ID
                 return id
             end,
@@ -81,8 +84,16 @@ run_once(function()
                 local fn_table = self.id_lookup[id]
                 if not fn_table then return end
 
+                local section_table = self.sections[fn_table.section]
+
                 -- Toggle status
-                fn_table.enabled = bool
+                if      (fn_table.enabled and (not bool)) then
+                    fn_table.enabled = false
+                    section_table.count = section_table.count - 1
+                elseif  ((not fn_table.enabled) and bool) then
+                    fn_table.enabled = true
+                    section_table.count = section_table.count + 1
+                end
             end,
 
 
@@ -103,6 +114,10 @@ run_once(function()
                 if #priority_table <= 0 then
                     section_table[fn_table.priority] = nil
                     Util.table_remove_value(section_table.priorities, fn_table.priority)
+                end
+
+                if fn_table.enabled then
+                    section_table.count = section_table.count - 1
                 end
 
                 -- Return callback function
@@ -127,6 +142,10 @@ run_once(function()
                                 if fn_table.namespace == namespace then
                                     table.remove(priority_table, i)
                                     self.id_lookup[fn_table.id] = nil
+
+                                    if fn_table.enabled then
+                                        section_table.count = section_table.count - 1
+                                    end
                                 end
                             end
 
@@ -169,6 +188,12 @@ run_once(function()
             -- Delete a section
             delete_section = function(self, section)
                 self.sections[section] = nil
+            end,
+
+
+            -- Get number of enabled functions in section
+            section_count = function(self, section)
+                return (self.sections[section] and self.sections[section].count) or 0
             end
 
         }

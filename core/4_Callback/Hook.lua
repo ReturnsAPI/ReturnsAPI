@@ -39,12 +39,21 @@ local banned_scripts = {
 
 -- ========== Internal ==========
 
-Hook.internal.add_pre_hook = function(script)
-    __pre_hooks[script] = true
+Hook.internal.manage_pre_hook = function(script)
+    -- Enable/disable existing hook based on
+    -- whether or not there are currently any
+    -- enabled functions in section
+    if __pre_hooks[script] then
+        if __pre_hook_cache:section_count(script) > 0 then
+            gm.hook_enable(__pre_hooks[script])
+        else gm.hook_disable(__pre_hooks[script])
+        end
+        return
+    end
 
     -- Script
     if type(script) == "number" then
-        gm.pre_script_hook(script, function(self, other, result, args)
+        __pre_hooks[script] = gm.pre_script_hook(script, function(self, other, result, args)
             -- Wrap args
             local _self     = Wrap.wrap(self)
             local _other    = Wrap.wrap(other)
@@ -84,7 +93,7 @@ Hook.internal.add_pre_hook = function(script)
 
     -- Object
     else
-        gm.pre_code_execute(script, function(self, other)
+        __pre_hooks[script] = gm.pre_code_execute(script, function(self, other)
             -- Wrap args
             local _self     = Wrap.wrap(self)
             local _other    = Wrap.wrap(other)
@@ -111,12 +120,21 @@ Hook.internal.add_pre_hook = function(script)
 end
 
 
-Hook.internal.add_post_hook = function(script)
-    __post_hooks[script] = true
+Hook.internal.manage_post_hook = function(script)
+    -- Enable/disable existing hook based on
+    -- whether or not there are currently any
+    -- enabled functions in section
+    if __post_hooks[script] then
+        if __post_hook_cache:section_count(script) > 0 then
+            gm.hook_enable(__post_hooks[script])
+        else gm.hook_disable(__post_hooks[script])
+        end
+        return
+    end
 
     -- Script
     if type(script) == "number" then
-        gm.post_script_hook(script, function(self, other, result, args)
+        __post_hooks[script] = gm.post_script_hook(script, function(self, other, result, args)
             -- Wrap args
             local _self     = Wrap.wrap(self)
             local _other    = Wrap.wrap(other)
@@ -145,7 +163,7 @@ Hook.internal.add_post_hook = function(script)
 
     -- Object
     else
-        gm.post_code_execute(script, function(self, other)
+        __post_hooks[script] = gm.post_code_execute(script, function(self, other)
             -- Wrap args
             local _self     = Wrap.wrap(self)
             local _other    = Wrap.wrap(other)
@@ -167,10 +185,12 @@ end
 
 Hook.internal.readd_hooks = function()
     for script, _ in pairs(__pre_hooks) do
-        Hook.internal.add_pre_hook(script)
+        __pre_hooks[script] = nil
+        Hook.internal.manage_pre_hook(script)
     end
     for script, _ in pairs(__post_hooks) do
-        Hook.internal.add_post_hook(script)
+        __post_hooks[script] = nil
+        Hook.internal.manage_post_hook(script)
     end
 end
 
@@ -218,16 +238,18 @@ Hook.add_pre = function(NAMESPACE, script, arg2, arg3)
         log.error("Hook.add_pre: No function provided", 2)
     end
 
-    -- Create actual hook
-    if not __pre_hooks[script] then
-        Hook.internal.add_pre_hook(script)
+    __hook_current_id = __hook_current_id + 1
+
+    local wrapper
+    if type(arg2) == "function" then
+        wrapper = Hook.wrap(__pre_hook_cache:add(arg2, NAMESPACE, 0, script, __hook_current_id))
+    else wrapper = Hook.wrap(__pre_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id))
     end
 
-    __hook_current_id = __hook_current_id + 1
-    if type(arg2) == "function" then
-        return Hook.wrap(__pre_hook_cache:add(arg2, NAMESPACE, 0, script, __hook_current_id))
-    end
-    return Hook.wrap(__pre_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id))
+    -- Create actual hook
+    Hook.internal.manage_pre_hook(script)
+
+    return wrapper
 end
 
 
@@ -265,16 +287,18 @@ Hook.add_post = function(NAMESPACE, script, arg2, arg3)
         log.error("Hook.add_post: No function provided", 2)
     end
 
-    -- Create actual hook
-    if not __post_hooks[script] then
-        Hook.internal.add_post_hook(script)
+    __hook_current_id = __hook_current_id + 1
+
+    local wrapper
+    if type(arg2) == "function" then
+        wrapper = Hook.wrap(__post_hook_cache:add(arg2, NAMESPACE, 0, script, __hook_current_id))
+    else wrapper = Hook.wrap(__post_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id))
     end
 
-    __hook_current_id = __hook_current_id + 1
-    if type(arg2) == "function" then
-        return Hook.wrap(__post_hook_cache:add(arg2, NAMESPACE, 0, script, __hook_current_id))
-    end
-    return Hook.wrap(__post_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id))
+    -- Create actual hook
+    Hook.internal.manage_post_hook(script)
+
+    return wrapper
 end
 
 
@@ -317,10 +341,21 @@ methods_hook = {
     Removes and returns the registered hook function.
     ]]
     remove = function(self)
-        return __pre_hook_cache:remove(self.value)
-            or __post_hook_cache:remove(self.value)
+        local fn_table_pre  = __pre_hook_cache.id_lookup[self.value]
+        if fn_table_pre then
+            local fn = __pre_hook_cache:remove(self.value)
+            Hook.internal.manage_pre_hook(fn_table_pre.section)
+            return fn
+        end
+
+        local fn_table_post = __post_hook_cache.id_lookup[self.value]
+        if fn_table_post then
+            local fn = __post_hook_cache:remove(self.value)
+            Hook.internal.manage_post_hook(fn_table_post.section)
+            return fn
+        end
     end,
-    
+
 
     --@instance
     --@return       bool
@@ -344,8 +379,20 @@ methods_hook = {
     ]]
     toggle = function(self, bool)
         if type(bool) ~= "boolean" then log.error("toggle: bool is invalid", 2) end
-        return __pre_hook_cache:toggle(self.value, bool)
-            or __post_hook_cache:toggle(self.value, bool)
+
+        local fn_table_pre  = __pre_hook_cache.id_lookup[self.value]
+        if fn_table_pre then
+            __pre_hook_cache:toggle(self.value, bool)
+            Hook.internal.manage_pre_hook(fn_table_pre.section)
+            return
+        end
+
+        local fn_table_post = __post_hook_cache.id_lookup[self.value]
+        if fn_table_post then
+            __post_hook_cache:toggle(self.value, bool)
+            Hook.internal.manage_post_hook(fn_table_post.section)
+            return
+        end
     end
 
 }

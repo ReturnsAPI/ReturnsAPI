@@ -1,6 +1,7 @@
 ### v0.1.20
 - Hook, Callback : `add` methods now return wrappers instead of IDs
     - Can call `remove`, `is_enabled`, and `toggle(bool)` through them
+- Hook : Disable internal script_hook if no hook functions of that type exist
 
 ### v0.1.19
 - Artifact : Rename `loadout_sprite_id` and `pickup_sprite_id` to `sprite_loadout_id` and `sprite_pickup_id` to match consistency with everything else
