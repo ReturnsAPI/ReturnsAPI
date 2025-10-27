@@ -176,6 +176,20 @@ methods_map = {
     ]]
     clear = function(self)
         gm.ds_map_clear(self.value)
+    end,
+
+
+    --@instance
+    --[[
+    Prints the map.
+    ]]
+    print = function(self)
+        local str = ""
+        local keys = GM.ds_map_keys_to_array(self.value)
+        for _, key in ipairs(keys) do
+            str = str.."\n"..Util.pad_string_right(key, 32).." = "..Util.tostring(self[key])
+        end
+        print(str)
     end
 
 }
