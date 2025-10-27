@@ -623,7 +623,7 @@ methods_actor = {
 
     -- ==================================================
 
-    --@section Instance Methods (ActorSkill)
+    --@section Instance Methods ([ActorSkill](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ActorSkill))
 
     --@instance
     --@return       ActorSkill
