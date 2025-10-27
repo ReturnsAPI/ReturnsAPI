@@ -268,8 +268,9 @@ end)
 
 gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
     local actor_id  = Instance.wrap(args[1].value).id
-    local new_id    = Instance.wrap(args[2].value).id
+    if not __actors_holding_buff[actor_id] then return end
 
+    local new_id    = Instance.wrap(args[2].value).id
     __actors_holding_buff[new_id] = __actors_holding_buff[new_id] or {}
 
     -- For all of prev actor's buffs, remove prev actor and add new actor

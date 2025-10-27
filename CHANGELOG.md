@@ -1,3 +1,6 @@
+### v0.1.23
+- (Internal) Item, Buff : Fix error that may be thrown by `actor_transform` hooks
+
 ### v0.1.22
 - Map : Add `print`
 - Language : Fix some files not being loaded
