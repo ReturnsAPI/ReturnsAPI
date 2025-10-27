@@ -162,6 +162,35 @@ methods_actor = {
 
 
     --@instance
+    --@return       Instance
+    --@param        damage      | number    | The damage dealt per tick. <br>This parameter will be treated as a damage coefficient if `source` is provided.
+    --@param        ticks       | number    | The total number of damage ticks.
+    --@param        rate        | number    | The number of frames between ticks. <br>(E.g., `6` = 10 ticks per second)
+    --@optional     source      | Actor     | The inflictor of the damage.
+    --@optional     color       | color     | The color of the damage number. <br>`Color.WHITE` by default.
+    --@optional     use_raw_damage  | bool  | If `true`, damage will *not* be treated as a damage coefficient if `source` is provided. <br>`false` by default.
+    --[[
+    Applies DoT (damage over time) to the actor (synced).
+    Returns the DoT instance.
+
+    **Must be called offline or as host.**
+    ]]
+    apply_dot = function(self, damage, ticks, rate, source, color, use_raw_damage)
+        local dot = gm.instance_create(0, 0, gm.constants.oDot)
+        dot.target      = Wrap.unwrap(self)
+        dot.damage      = damage
+        if source then
+            dot.parent = Wrap.unwrap(source)
+            if not use_raw_damage then dot.damage = damage * source.damage end
+        end
+        dot.ticks       = ticks
+        dot.rate        = rate
+        dot.textColor   = color or Color.WHITE
+        return Instance.wrap(dot)
+    end,
+
+
+    --@instance
     --@param        amount      | number        | The amount to heal.
     --[[
     Heals the actor.

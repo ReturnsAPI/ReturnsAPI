@@ -1,3 +1,6 @@
+### v0.1.21
+- Actor : Add `apply_dot`
+
 ### v0.1.20
 - Hook, Callback : `add` methods now return wrappers instead of IDs
     - Can call `remove`, `is_enabled`, and `toggle(bool)` through them
