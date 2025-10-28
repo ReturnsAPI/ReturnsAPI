@@ -241,7 +241,7 @@ Util.table_append(methods_class_array[name_rapi], {
     Associates the achievement with a skill.
 
     More specifically, it associates with all `SurvivorSkillLoadoutUnlockable`s
-    that are of the skill, so the skill must be added to the survivor(s) first.
+    that are of the skill, so the skill must be added to the survivor first.
     ]]
     set_unlock_skill = function(self, content)
         if self.value < 0 then log.error("set_unlock_skill: Achievement does not exist", 2) end
