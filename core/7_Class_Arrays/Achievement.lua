@@ -3,6 +3,8 @@
 local name_rapi = class_name_g2r["class_achievement"]
 Achievement = __class[name_rapi]
 
+skill_achievement_map = {}
+
 
 
 -- ========== Enums ==========
@@ -100,6 +102,24 @@ Property | Type | Description
 `group`                 | number    | The section to list under in Logbook. <br>`0` - Challenge <br>`1` - Characters <br>`2` - Artifacts <br>`0` by default.
 `on_completed`          | number    | The ID of the callback that runs when the achievement is unlocked. <br>The callback function should have no arguments.
 ]]
+
+
+
+-- ========== Internal ==========
+
+Achievement.internal.populate_skill_achievement_map = function()
+    -- Loop through unlockables array and associate
+    -- with the first instance of the skill found
+    -- (Will have to ignore if the skill appears anywhere else)
+    local unlockables_array = Global.survivor_loadout_unlockables
+    for i, unlockable in ipairs(unlockables_array) do
+        local skill_id = unlockable.skill_id
+        if skill_id then
+            skill_achievement_map[skill_id] = unlockable.achievement_id
+        end
+    end
+end
+table.insert(_rapi_initialize, Achievement.internal.populate_skill_achievement_map)
 
 
 
@@ -225,7 +245,23 @@ Util.table_append(methods_class_array[name_rapi], {
     ]]
     set_unlock_skill = function(self, content)
         if self.value < 0 then log.error("set_unlock_skill: Achievement does not exist", 2) end
-        -- TODO
+        local skill_id = Wrap.unwrap(content)
+        
+        -- Loop through unlockables array and associate
+        -- with the first instance of the skill found
+        -- (Will have to ignore if the skill appears anywhere else)
+        local unlockables_array = Global.survivor_loadout_unlockables
+        for i, unlockable in ipairs(unlockables_array) do
+            if unlockable.skill_id == skill_id then
+                gm.achievement_set_unlock_survivor_loadout_unlockable(self.value, unlockable.index)
+                skill_achievement_map[skill_id] = self.value
+
+                -- Game currently does not set this due to a mistake
+                -- (`scr_achievement` line 602)
+                unlockable.achievement_id = self.value
+                break
+            end
+        end
     end,
 
 

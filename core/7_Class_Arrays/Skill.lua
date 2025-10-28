@@ -196,13 +196,11 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@return       Achievement
     --[[
-    (TODO)
-
     Returns the associated @link {Achievement | Achievement} if it exists,
     or an invalid Achievement if it does not.
     ]]
     get_achievement = function(self)
-        -- TODO
+        return Achievement.wrap(skill_achievement_map[self.value] or -1)
     end
 
 })
