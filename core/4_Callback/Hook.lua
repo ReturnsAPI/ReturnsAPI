@@ -185,10 +185,12 @@ end
 
 Hook.internal.readd_hooks = function()
     for script, _ in pairs(__pre_hooks) do
+        gm.hook_disable(__pre_hooks[script])
         __pre_hooks[script] = nil
         Hook.internal.manage_pre_hook(script)
     end
     for script, _ in pairs(__post_hooks) do
+        gm.hook_disable(__post_hooks[script])
         __post_hooks[script] = nil
         Hook.internal.manage_post_hook(script)
     end

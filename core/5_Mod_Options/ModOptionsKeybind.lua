@@ -213,7 +213,7 @@ make_table_once("metatable_modoptionskeybind", {
 
 -- ========== Hooks ==========
 
-gm.post_script_hook(gm.constants.input_binding_set, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.input_binding_set, Callback.Priority.BEFORE, function(self, other, result, args)
     -- Check if bind is custom verb
     local verb = args[1].value
     if not __custom_verbs[verb] then return end

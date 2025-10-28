@@ -396,7 +396,7 @@ end)
 
 -- Send identifier <-> packet ID table to new clients
 
-Hook.add_post(RAPI_NAMESPACE, gm.constants.server_new_player, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.server_new_player, Callback.Priority.BEFORE, function(self, other, result, args)
     local sock = args[1].value
 
     local player

@@ -112,7 +112,7 @@ table.insert(_clear_namespace_functions, Alarm.remove_all)
 
 -- ========== Hooks ==========
 
-gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, Callback.Priority.BEFORE, function(self, other, result, args)
     -- Increment frame counter while unpaused
     if not Global.pause then __alarm_current_frame = __alarm_current_frame + 1 end
     __alarm_current_frame_nopause = __alarm_current_frame_nopause + 1
