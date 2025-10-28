@@ -1,3 +1,6 @@
+### v0.1.24
+- Achievement : Add `Kind` and `Group` enums
+
 ### v0.1.23
 - (Internal) Item, Buff : Fix error that may be thrown by `actor_transform` hooks
 - ModOptionsKeybind : Add controller support (also fixes a crash)

@@ -39,6 +39,26 @@ ON_COMPLETED            23
 ]]
 
 
+--@enum
+Achievement.Kind = {
+    NONE                        = 0,
+    MODE                        = 1,
+    SURVIVOR                    = 2,
+    ITEM                        = 3,
+    EQUIPMENT                   = 4,
+    ARTIFACT                    = 5,
+    SURVIVOR_LOADOUT_UNLOCKABLE = 6 
+}
+
+
+--@enum
+Achievement.Group = {
+    CHALLENGE   = 0,
+    CHARACTER   = 1,
+    ARTIFACT    = 2
+}
+
+
 
 -- ========== Properties ==========
 
@@ -74,10 +94,10 @@ Property | Type | Description
 `milestone_survivor`    |           | 
 `progress`              | number    | 
 `unlocked`              |           | 
-`parent_id`             | number    | 
+`parent_id`             | number    | The ID of the parent achievement to list the achievement under in Logbook. <br>Used in vanilla for survivor skill unlocks. <br>`-1` by default.
 `progress_needed`       | number    | The amount of progress required to unlock the achievement. <br>`1` by default.
 `death_reset`           | bool      | If `true`, progress will be reset on death. <br>`false` by default.
-`group`                 | number    | 
+`group`                 | number    | The section to list under in Logbook. <br>`0` - Challenge <br>`1` - Characters <br>`2` - Artifacts <br>`0` by default.
 `on_completed`          | number    | The ID of the callback that runs when the achievement is unlocked. <br>The callback function should have no arguments.
 ]]
 
