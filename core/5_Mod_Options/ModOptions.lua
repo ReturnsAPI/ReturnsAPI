@@ -160,23 +160,26 @@ methods_modoptions = {
 
     --@instance
     --@return       ModOptionsKeybind
-    --@param        identifier  | string    | The identifier for the element.
-    --@optional     default     | number    | The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind. <br>If not provided, key will be unbinded by default.
+    --@param        identifier      | string    | The identifier for the element.
+    --@optional     default         | number    | The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind. <br>If not provided, will be unbinded by default.
+    --@optional     default_gamepad | number    | The [input code](https://manual.gamemaker.io/beta/en/GameMaker_Language/GML_Reference/Game_Input/GamePad_Input/Gamepad_Input.htm) of the default bind. <br>If not provided, will be unbinded by default.
     --[[
     Adds a @link {keybind | ModOptionsKeybind} to the ModOptions.
     ]]
-    add_keybind = function(self, identifier, default)
+    add_keybind = function(self, identifier, default, default_gamepad)
         if not identifier           then log.error("add_keybind: No identifier provided", 2) end
         if identifier == "header"
         or identifier == "ordered"  then log.error("add_keybind: identifier '"..identifier.."' is reserved", 2) end
         if self:find(identifier)    then log.error("add_keybind: identifier '"..identifier.."' already in use", 2) end
 
         local _type = type(default)
-        if _type ~= "nil" and _type ~= "number" then log.error("add_keybind: default key is invalid", 2) end
+        if _type ~= "nil" and _type ~= "number" then log.error("add_keybind: default is invalid", 2) end
+        _type = type(default_gamepad)
+        if _type ~= "nil" and _type ~= "number" then log.error("add_keybind: default_gamepad is invalid", 2) end
 
         local self_table = __proxy[self]
 
-        local element = ModOptionsKeybind.new(__proxy[self].namespace, identifier, default)
+        local element = ModOptionsKeybind.new(__proxy[self].namespace, identifier, default, default_gamepad)
         
         self_table.elements[identifier] = element
         table.insert(self_table.elements.ordered, element)

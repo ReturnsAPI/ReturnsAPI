@@ -1,3 +1,0 @@
-- Add base `new` methods that are missing
-- Add `Achievement.Kind` and `Achievement.Group` enums
-- Finish ActorSkin

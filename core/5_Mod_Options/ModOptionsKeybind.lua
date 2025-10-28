@@ -21,6 +21,7 @@ ModOptionsKeybind = new_class()
 
 run_once(function()
     __custom_verbs = {}
+    __custom_verbs_gamepad = {}
     __add_verb_queue = {}
 end)
 
@@ -54,22 +55,32 @@ Property | Type | Description
 
 -- ========== Internal ==========
 
-ModOptionsKeybind.internal.add_verb = function(verb, default)
+ModOptionsKeybind.internal.add_verb = function(verb, default, default_gamepad)
     -- Not sure how much of this is necessary
     -- Works though so don't touch anything
 
     if Global.__input_profile_dict["keyboard_and_mouse"][verb] then return end
 
+    -- Create keyboard bind
     local bind = gm.input_binding_empty()
-    if      __custom_verbs[verb]   then bind = gm.input_binding_key(__custom_verbs[verb])
-    elseif  default > 0                 then bind = gm.input_binding_key(default)
+    if     __custom_verbs[verb] then bind = gm.input_binding_key(__custom_verbs[verb])
+    elseif default > 0          then bind = gm.input_binding_key(default)
     end
     __custom_verbs[verb] = bind.value
 
-    Global.__input_profile_dict["keyboard_and_mouse"][verb] = bind
-    local verb_data = Global.__input_profile_dict["keyboard_and_mouse"][verb]
+    -- Create controller bind
+    local bind_gamepad = gm.input_binding_empty()
+    if     __custom_verbs_gamepad[verb] then bind_gamepad = gm.input_binding_gamepad_button(__custom_verbs_gamepad[verb])
+    elseif default_gamepad > 0          then bind_gamepad = gm.input_binding_gamepad_button(default_gamepad)
+    end
+    __custom_verbs_gamepad[verb] = bind_gamepad.value
 
-    -- Global.__input_basic_verb_array:push(verb)   -- Adding this will result in duplicate custom verbs in menus
+    Global.__input_profile_dict["keyboard_and_mouse"][verb] = bind
+    Global.__input_profile_dict["gamepad"][verb]            = bind_gamepad
+    local verb_data         = Global.__input_profile_dict["keyboard_and_mouse"][verb]
+    local verb_data_gamepad = Global.__input_profile_dict["gamepad"][verb]
+
+    -- Global.__input_basic_verb_array:push(verb)   -- Adding these will result in duplicate custom verbs in menus
     -- Global.__input_basic_verb_dict[verb] = true
     Global.__input_all_verb_array:push(verb)
     Global.__input_all_verb_dict[verb] = true
@@ -89,6 +100,8 @@ ModOptionsKeybind.internal.add_verb = function(verb, default)
     for _, struct in ipairs(__input_class_players) do
         struct.__verb_ensure("keyboard_and_mouse", verb)
         struct.__binding_set("keyboard_and_mouse", verb, 0, verb_data)
+        struct.__verb_ensure("gamepad", verb)
+        struct.__binding_set("gamepad", verb, 0, verb_data_gamepad)
 
         struct.__verb_state_array = gm.array_create(ticking_verbs_count, 0);
         for j = 1, ticking_verbs_count do
@@ -121,7 +134,7 @@ end)
 
 -- ========== Static Methods ==========
 
-ModOptionsKeybind.new = function(namespace, identifier, default)
+ModOptionsKeybind.new = function(namespace, identifier, default, default_gamepad)
     default = default or -1
 
     local verb = namespace.."."..identifier
@@ -129,8 +142,8 @@ ModOptionsKeybind.new = function(namespace, identifier, default)
     -- Add verb immediately post-Initialize;
     -- otherwise add to queue
     if Initialize.has_started() then
-        ModOptionsKeybind.internal.add_verb(verb, default)
-    else table.insert(__add_verb_queue, {verb, default})
+        ModOptionsKeybind.internal.add_verb(verb, default, default_gamepad)
+    else table.insert(__add_verb_queue, {verb, default, default_gamepad})
     end
 
     local element_data_table = {
@@ -138,11 +151,14 @@ ModOptionsKeybind.new = function(namespace, identifier, default)
         identifier      = identifier,
         verb            = verb,
         constructor     = function()
+            local control_remap_profile = gm.input_profile_get(0)
+            -- ^ actual is `input_player_index = (oPauseMenu.pause_player == -1) ? 0 : oPauseMenu.pause_player`
+
             local struct = Struct.new(
                 gm.constants.UIOptionsButtonControlRemapKey,
                 namespace.."."..identifier,
                 verb,
-                "keyboard_and_mouse"
+                control_remap_profile   -- "keyboard_and_mouse"
             )
             return struct.value
         end
@@ -227,8 +243,12 @@ Hook.add_post(RAPI_NAMESPACE, gm.constants.input_binding_set, Callback.Priority.
     local file = TOML.new(RAPI_NAMESPACE)
     local settings = file:read() or {}
     settings.keybinds = {}
+    settings.keybinds_gamepad = {}
     for verb, keycode in pairs(__custom_verbs) do
         settings.keybinds[verb] = keycode
+    end
+    for verb, keycode in pairs(__custom_verbs_gamepad) do
+        settings.keybinds_gamepad[verb] = keycode
     end
     file:write(settings)
 end)

@@ -1,5 +1,6 @@
 ### v0.1.23
 - (Internal) Item, Buff : Fix error that may be thrown by `actor_transform` hooks
+- ModOptionsKeybind : Add controller support (also fixes a crash)
 
 ### v0.1.22
 - Map : Add `print`
