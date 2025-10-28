@@ -630,7 +630,9 @@ make_table_once("metatable_instance", {
         end
 
         -- Getter
-        local ret = gm.variable_instance_get(__proxy[proxy], k)
+        local value = __proxy[proxy]
+        if not value then return nil end
+        local ret = gm.variable_instance_get(value, k)
 
         -- For attack instances from `actor:fire_` methods, wrap `attack_info`
         if k == "attack_info" then return AttackInfo.wrap(ret) end
@@ -659,7 +661,9 @@ make_table_once("metatable_instance", {
         end
 
         -- Setter
-        gm.variable_instance_set(__proxy[proxy], k, Wrap.unwrap(v))
+        local value = __proxy[proxy]
+        if not value then return end
+        gm.variable_instance_set(value, k, Wrap.unwrap(v))
     end,
 
 

@@ -1,3 +1,7 @@
+### v0.1.25
+- Instance : Getter/setter will now return `nil` for invalid instances (with `value` of `nil`)
+    - This is only really relevant to the weird case of a CInstance having an id of 0; <br>otherwise you should still be checking `Instance.exists()`
+
 ### v0.1.24
 - Achievement
     - Add `Kind` and `Group` enums
