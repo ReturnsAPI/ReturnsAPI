@@ -4,7 +4,6 @@
 
 -- TODO:
 -- * Disable no-duplicates check for custom binds
--- * Add controller support
 
 --[[
 **Input Checking**
@@ -63,15 +62,15 @@ ModOptionsKeybind.internal.add_verb = function(verb, default, default_gamepad)
 
     -- Create keyboard bind
     local bind = gm.input_binding_empty()
-    if     __custom_verbs[verb] then bind = gm.input_binding_key(__custom_verbs[verb])
-    elseif default > 0          then bind = gm.input_binding_key(default)
+    if     __custom_verbs[verb]     then bind = gm.input_binding_key(__custom_verbs[verb])
+    elseif default and default > 0  then bind = gm.input_binding_key(default)
     end
     __custom_verbs[verb] = bind.value
 
     -- Create controller bind
     local bind_gamepad = gm.input_binding_empty()
-    if     __custom_verbs_gamepad[verb] then bind_gamepad = gm.input_binding_gamepad_button(__custom_verbs_gamepad[verb])
-    elseif default_gamepad > 0          then bind_gamepad = gm.input_binding_gamepad_button(default_gamepad)
+    if     __custom_verbs_gamepad[verb]             then bind_gamepad = ModOptionsKeybind.internal.input_binding_gamepad(__custom_verbs_gamepad[verb])
+    elseif default_gamepad and default_gamepad > 0  then bind_gamepad = ModOptionsKeybind.internal.input_binding_gamepad(default_gamepad)
     end
     __custom_verbs_gamepad[verb] = bind_gamepad.value
 
@@ -108,6 +107,20 @@ ModOptionsKeybind.internal.add_verb = function(verb, default, default_gamepad)
             struct.__verb_state_array[j] = struct.__verb_state_dict[ticking_verbs[j]];
         end
         struct.__profile_choice_updated()
+    end
+end
+
+
+ModOptionsKeybind.internal.input_binding_gamepad = function(input_code)
+    -- Button
+    local axis_lh = 32785
+    if input_code < axis_lh then
+        return gm.input_binding_gamepad_button(input_code)
+
+    -- Axis
+    else
+        return gm.input_binding_gamepad_axis(input_code)
+
     end
 end
 
