@@ -1,3 +1,6 @@
+### v0.1.26
+- Survivor : Fix error thrown on death for custom survivors
+
 ### v0.1.25
 - Instance
     - Getter/setter will now return `nil` for invalid instances (with `value` of `nil`)

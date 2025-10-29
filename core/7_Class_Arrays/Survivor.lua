@@ -386,7 +386,8 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
     -- Add stat initialization callback
     -- This is created post `survivor_create` to allow for
     -- modifying vanilla survivor stats too if desired
-    Callback.add("__permanent", Survivor.wrap(result.value).on_init, function(actor)
+    local survivor = Survivor.wrap(result.value)
+    Callback.add("__permanent", survivor.on_init, function(actor)
         local data = __survivor_data[actor.class]
         if not data then return end
 
@@ -409,5 +410,7 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
             actor.attack_speed_level    = level.attack_speed
             actor.critical_chance_level = level.critical_chance
         end
+
+        actor.sprite_palette = survivor.sprite_palette
     end)
 end)
