@@ -109,8 +109,10 @@ Returns the first (or *n*-th) instance of the specified object,
 or an invalid instance (value `nil` and id `-4`).
 ]]
 Instance.find = function(object, n)
-    local object = Wrap.unwrap(object)
-    local n = n or 1
+    object = Wrap.unwrap(object)
+    n = n or 1
+
+    if not object then log.error("Instance.find: object is nil", 2) end
 
     -- GML `instance_find` is faster than `_mod_instance_find`,
     -- so use that for vanilla objects
@@ -143,7 +145,9 @@ instances of the object, and can be *very* expensive at high numbers.
 Try not to call this too much.
 ]]
 Instance.find_all = function(object)
-    local object = Wrap.unwrap(object)
+    object = Wrap.unwrap(object)
+    if not object then log.error("Instance.find_all: object is nil", 2) end
+
     local insts = {}
 
     local count = Instance.count(object)
@@ -162,7 +166,9 @@ end
 Returns the instance count of the specified object.
 ]]
 Instance.count = function(object)
-    return gm._mod_instance_number(Wrap.unwrap(object))
+    object = Wrap.unwrap(object)
+    if not object then log.error("Instance.count: object is nil", 2) end
+    return gm._mod_instance_number(object)
 end
 
 

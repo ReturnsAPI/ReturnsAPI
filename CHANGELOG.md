@@ -1,5 +1,7 @@
 ### v0.1.26
 - Survivor : Fix error thrown on death for custom survivors
+- Instance : Add error messages if arg is `nil` for `find`, `find_all`, and `count`
+- Object : Fix sometimes returning `nil` when passing in `"ror"` namespace
 
 ### v0.1.25
 - Instance
