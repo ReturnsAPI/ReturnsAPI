@@ -144,7 +144,10 @@ Object.find = function(identifier, namespace, namespace_is_specified)
     if cached then return cached end
 
     -- Search in namespace
-    local object = gm._mod_object_find(identifier, namespace)
+    local object
+    if namespace == "ror"   then object = gm.constants["o"..identifier:sub(1, 1):upper()..identifier:sub(2, -1)] end
+    if not object           then object = gm._mod_object_find(identifier, namespace) end
+
     if object ~= -1 then
         object = Object.wrap(object)
         find_cache:set(object, identifier, namespace)
@@ -153,15 +156,15 @@ Object.find = function(identifier, namespace, namespace_is_specified)
 
     -- Also search in "ror" and then gm.constants if passed no `namespace` arg
     if not namespace_is_specified then
-        local object = gm._mod_object_find(identifier, "ror")
-        if object ~= -1 then
+        local object = gm.constants["o"..identifier:sub(1, 1):upper()..identifier:sub(2, -1)]
+        if object then
             object = Object.wrap(object)
             find_cache:set(object, identifier, "ror")
             return object
         end
-
-        local object = gm.constants["o"..identifier:sub(1, 1):upper()..identifier:sub(2, -1)]
-        if object then
+        
+        local object = gm._mod_object_find(identifier, "ror")
+        if object ~= -1 then
             object = Object.wrap(object)
             find_cache:set(object, identifier, "ror")
             return object
