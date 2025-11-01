@@ -276,7 +276,7 @@ methods_instance = {}
 -- Add GM scripts
 for fn_name, fn in pairs(GM_callso) do
     methods_instance[fn_name] = function(self, ...)
-        if not Instance.exists(self) then log.error(fn_name..": Instance does not exist", 2) end
+        if not self.value then log.error(fn_name..": Instance does not exist", 2) end
         return fn(self, nil, ...)
     end
 end
@@ -644,6 +644,17 @@ make_table_once("metatable_instance", {
         local value = __proxy[proxy]
         if not value then return nil end
         local ret = gm.variable_instance_get(value, k)
+
+        -- Return object function callable if key starts with "gml_"
+        if not ret then
+            if k:sub(1, 4) == "gml_" then
+                return function(self, other)
+                    local value = self.value
+                    if not value then log.error(k..": self does not exist", 2) end
+                    return value[k](value, Wrap.unwrap(other))
+                end
+            end
+        end
 
         -- For attack instances from `actor:fire_` methods, wrap `attack_info`
         if k == "attack_info" then return AttackInfo.wrap(ret) end
