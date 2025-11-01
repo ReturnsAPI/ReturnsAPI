@@ -1,3 +1,6 @@
+### v0.1.28
+- Stage : Make `set_title_screen_properties` `objs_*` args actually optional
+
 ### v0.1.27
 - Callback : Allow modifying `result` via return value
 - SurvivorLog : Fix "Max Health" not displaying correctly when calling `new_from_survivor`

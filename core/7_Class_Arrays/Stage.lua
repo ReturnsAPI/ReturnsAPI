@@ -622,8 +622,8 @@ Util.table_append(methods_class_array[name_rapi], {
     set_title_screen_properties = function(self, ground_strip, objs_back, objs_front)
         __stage_populate_biome[self.value] = {
             ground_strip    = ground_strip,
-            objs_back       = objs_back,
-            objs_front      = objs_front
+            objs_back       = objs_back  or {},
+            objs_front      = objs_front or {}
         }
     end
 
