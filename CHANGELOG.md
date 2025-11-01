@@ -1,5 +1,8 @@
 ### v0.1.28
-- Stage : Make `set_title_screen_properties` `objs_*` args actually optional
+- Stage
+    - Make `set_title_screen_properties` `objs_*` args actually optional
+    - Automatically call `remove_all_rooms` on hotload
+
 
 ### v0.1.27
 - Callback : Allow modifying `result` via return value

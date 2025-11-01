@@ -260,6 +260,7 @@ Stage.remove_all_rooms = function(NAMESPACE)
 
     __stage_new_rooms[NAMESPACE] = nil
 end
+table.insert(_clear_namespace_functions, Stage.remove_all_rooms)
 
 
 --@static
