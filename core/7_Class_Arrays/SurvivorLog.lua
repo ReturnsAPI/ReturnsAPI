@@ -134,14 +134,14 @@ SurvivorLog.new_from_survivor = function(NAMESPACE, survivor)
     -- Set stats
     local stats_base = survivor:get_stats_base()
     if stats_base then
-        log.stat_hp_base        = stats_base.hp
+        log.stat_hp_base        = stats_base.health
         log.stat_damage_base    = stats_base.damage
         log.stat_regen_base     = stats_base.regen
         log.stat_armor_base     = stats_base.armor
     end
     local stats_level = survivor:get_stats_level()
     if stats_level then
-        log.stat_hp_level       = stats_level.hp
+        log.stat_hp_level       = stats_level.health
         log.stat_damage_level   = stats_level.damage
         log.stat_regen_level    = stats_level.regen
         log.stat_armor_level    = stats_level.armor

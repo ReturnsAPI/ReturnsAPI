@@ -1,5 +1,7 @@
 ### v0.1.27
 - Callback : Allow modifying `result`
+- Instance : Allow calling object functions with `:`
+- SurvivorLog : Fix "Max Health" not displaying correctly when calling `new_from_survivor`
 
 ### v0.1.26
 - Survivor : Fix error thrown on death for custom survivors
