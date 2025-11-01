@@ -348,11 +348,16 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
 
     -- Call registered functions with wrapped args
     __callback_cache:loop_and_call_functions(function(fn_table)
-        local status, err = pcall(fn_table.fn, table.unpack(wrapped_args))
+        local status, ret = pcall(fn_table.fn, table.unpack(wrapped_args))
         if not status then
-            if (err == nil)
-            or (err == "C++ exception") then err = "GameMaker error (see above)" end
-            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..(Callback.get_type_name(callback_type_id) or callback_type_id).."' failed to execute fully.\n"..err)
+            if (ret == nil)
+            or (ret == "C++ exception") then ret = "GameMaker error (see above)" end
+            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..(Callback.get_type_name(callback_type_id) or callback_type_id).."' failed to execute fully.\n"..ret)
+        end
+
+        -- Result modification
+        if ret then
+            result.value = Wrap.unwrap(ret)
         end
     end, callback_type_id)
 end)

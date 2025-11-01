@@ -1,3 +1,6 @@
+### v0.1.27
+- Callback : Allow modifying `result`
+
 ### v0.1.26
 - Survivor : Fix error thrown on death for custom survivors
 - Instance : Add error messages if arg is `nil` for `find`, `find_all`, and `count`
