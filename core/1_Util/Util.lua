@@ -4,6 +4,20 @@ Util = new_class()
 
 
 
+-- ========== Internal ==========
+
+Util.internal.make_print = function(mod_name)
+    return function(...)
+        local args = table.pack(...)
+        for i = 1, args.n do
+            args[i] = Util.tostring(args[i])
+        end
+        _rom_print_raw(mod_name..": "..table.remove(args, 1), table.unpack(args))
+    end
+end
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods
@@ -17,13 +31,8 @@ Works just like regular `print`, but prints wrapper types instead of "table".
 Automatically replaces `print()` with this on `.auto()` import;
 the original is saved as `lua_print()`.
 ]]
-Util.print = function(...)
-    local args = table.pack(...)
-    for i = 1, args.n do
-        args[i] = Util.tostring(args[i])
-    end
-    print(table.unpack(args))
-end
+Util.print = Util.internal.make_print(_ENV["!guid"])
+-- Each mod gets their own version with their name binded
 
 
 --@static

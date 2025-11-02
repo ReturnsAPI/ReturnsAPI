@@ -115,6 +115,9 @@ function public.setup(env, namespace)
         wrapper[name] = copy
     end
 
+    -- Create unique version of `Util.print` with mod name binded
+    wrapper.Util.print = Util.internal.make_print(env["!guid"])
+
     return wrapper
 end
 
@@ -131,13 +134,13 @@ function public.auto(properties)
 
     -- Override default `print`, `type`, and `tostring` with Util's versions
     if not env.lua_print then
-        env.lua_print = env.print
-        env.lua_type = env.type
-        env.lua_tostring = env.tostring
+        env.lua_print       = env.print
+        env.lua_type        = env.type
+        env.lua_tostring    = env.tostring
     end
-    env.print = Util.print
-    env.type = Util.type
-    env.tostring = Util.tostring
+    env.print       = wrapper.Util.print
+    env.type        = wrapper.Util.type
+    env.tostring    = wrapper.Util.tostring
 
     -- Add Math functions to `math`
     for k, v in pairs(Math) do
@@ -162,8 +165,8 @@ run_on_hotload(function()
         envy.import_all(env, wrapper)
 
         -- Override default `print`, `type`, and `tostring` with Util's versions
-        env.print = Util.print
-        env.type = Util.type
-        env.tostring = Util.tostring
+        env.print       = wrapper.Util.print
+        env.type        = wrapper.Util.type
+        env.tostring    = wrapper.Util.tostring
     end
 end)
