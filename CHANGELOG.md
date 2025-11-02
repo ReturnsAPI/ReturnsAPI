@@ -1,3 +1,6 @@
+### v0.1.30
+- Util.`print` : Remove random extra `nil` that was tacked on
+
 ### v0.1.29
 - ItemLog.`new_from_item` : Add +1 to group if item is achievement-locked
 - Util

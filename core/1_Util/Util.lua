@@ -12,7 +12,12 @@ Util.internal.make_print = function(mod_name)
         for i = 1, args.n do
             args[i] = Util.tostring(args[i])
         end
-        _rom_print_raw(mod_name..": "..table.remove(args, 1), table.unpack(args))
+
+        if args.n <= 0 then
+            _rom_print_raw(mod_name..": ")
+            return
+        end
+        _rom_print_raw(mod_name..": "..args[1], select(2, table.unpack(args)))
     end
 end
 
