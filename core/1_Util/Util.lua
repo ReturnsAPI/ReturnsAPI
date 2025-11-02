@@ -231,6 +231,7 @@ end
 Returns `true` if the table contains the value, and `false` otherwise.
 ]]
 Util.table_has = function(t, value)
+    if not t then return log.error("Util.table_has: t is nil", 2) end
     for k, v in pairs(t) do
         if v == value then return true end
     end
@@ -250,6 +251,7 @@ If multiple of the specified value exists,
 the first key found will be returned.
 ]]
 Util.table_find = function(t, value)
+    if not t then return log.error("Util.table_has: t is nil", 2) end
     for k, v in pairs(t) do
         if v == value then return k end
     end
@@ -265,6 +267,7 @@ Removes the first occurence of the specified
 value from a numerically-indexed table.
 ]]
 Util.table_remove_value = function(t, value)
+    if not t then return log.error("Util.table_has: t is nil", 2) end
     for i, v in ipairs(t) do
         if v == value then
             table.remove(t, i)
@@ -281,6 +284,7 @@ end
 Returns a table of keys of the specified table.
 ]]
 Util.table_get_keys = function(t)
+    if not t then return log.error("Util.table_has: t is nil", 2) end
     local keys = {}
     for k, _ in pairs(t) do
         table.insert(keys, k)

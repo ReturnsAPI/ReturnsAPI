@@ -1,5 +1,6 @@
 ### v0.1.29
 - ItemLog : `new_from_item`: Add +1 to group if item is achievement-locked
+- Util : Add `t` `nil` check for table-related methods
 
 ### v0.1.28
 - Stage
