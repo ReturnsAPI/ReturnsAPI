@@ -1,3 +1,7 @@
+### v0.1.31
+- Script : Wrap args before passing to binded functions
+    - This affects EffectDisplay
+
 ### v0.1.30
 - Util.`print` : Remove random extra `nil` that was tacked on
 

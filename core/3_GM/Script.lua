@@ -196,13 +196,13 @@ gm.post_script_hook(gm.constants.function_dummy, function(self, other, result, a
 		if fn then
 			local arg_table = {}
 			for i = 1, #args do
-				table.insert(arg_table, args[i].value)
+				table.insert(arg_table, Wrap.wrap(args[i].value))
 			end
             
             -- Call function with args
             -- and put return value into result (if applicable)
 			local ret = fn(table.unpack(arg_table))
-			if ret then result.value = ret end
+			if ret then result.value = Wrap.unwrap(ret) end
 		end
 	end
 end)

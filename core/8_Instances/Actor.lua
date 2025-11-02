@@ -477,7 +477,7 @@ methods_actor = {
     item_take = function(self, item, count, kind)
         -- Argument check
         item = Wrap.unwrap(item)
-        if type(item) ~= "number" then log.error("item_give: item is invalid", 2) end
+        if type(item) ~= "number" then log.error("item_take: item is invalid", 2) end
 
         gm.item_take(self.value, item, count or 1, kind or Item.StackKind.NORMAL)
     end,
@@ -495,7 +495,7 @@ methods_actor = {
         
         -- Argument check
         item = Wrap.unwrap(item)
-        if type(item) ~= "number" then log.error("item_give: item is invalid", 2) end
+        if type(item) ~= "number" then log.error("item_count: item is invalid", 2) end
 
         -- Build cache subtable if existn't
         local kind = kind or Item.StackKind.ANY
@@ -578,7 +578,7 @@ methods_actor = {
 
         -- Argument check
         buff = Wrap.unwrap(buff)
-        if type(buff) ~= "number" then log.error("buff_remove: buff is invalid", 2) end
+        if type(buff) ~= "number" then log.error("buff_count: buff is invalid", 2) end
 
         -- Build cache subtable if existn't
         if not __buff_count_cache[id] then __buff_count_cache[id] = {} end
