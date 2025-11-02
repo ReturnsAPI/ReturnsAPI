@@ -1,8 +1,10 @@
+### v0.1.29
+- ItemLog : `new_from_item`: Add +1 to group if item is achievement-locked
+
 ### v0.1.28
 - Stage
     - Make `set_title_screen_properties` `objs_*` args actually optional
     - Automatically call `remove_all_rooms` on hotload
-
 
 ### v0.1.27
 - Callback : Allow modifying `result` via return value

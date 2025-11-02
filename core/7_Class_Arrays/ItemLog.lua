@@ -70,7 +70,7 @@ Property | Type | Description
 `pickup_object_id`  | number    | The ID of the item's pickup object.
 `sprite_id`         | sprite    | The sprite ID of the log.
 `group`             | number    | The ordering "group" the log is placed in.
-`achievement_id`    | number    | The achievement ID of the log. <br>If *not* `-1`, the log will be locked until the achievement is unlocked.
+`achievement_id`    | number    | The achievement ID of the log. <br>If *not* `nil` or `-1`, the log will be locked until the achievement is unlocked.
 ]]
 
 
@@ -132,7 +132,8 @@ ItemLog.new_from_item = function(NAMESPACE, item)
     log.pickup_object_id    = item.object_id
 
     -- Set log group
-    local group = item.tier * 2     -- TODO: Add +1 if item is achievement-locked
+    -- If item is achievement-locked, add +1
+    local group = (item.tier * 2) + ((item.achievement_id and item.achievement_id ~= -1) and 1 or 0)
     log:set_group(group)
 
     -- Set the log ID of the item
