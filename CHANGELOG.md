@@ -1,3 +1,6 @@
+### v0.1.32
+- Actor : Fix `heal` crashing for host in multiplayer
+
 ### v0.1.31
 - Script : Wrap args before passing to binded functions
     - This affects EffectDisplay

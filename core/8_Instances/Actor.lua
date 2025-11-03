@@ -192,13 +192,16 @@ methods_actor = {
 
     --@instance
     --@param        amount      | number    | The amount to heal.
+    --@optional     raw         | bool      | If `true`, no HUD health bar flash appears (if healing the local <br>player), and Aegis does not proc on overheal. <br>`false` by default.
     --[[
     Heals the actor (synced).
     
     **Must be called offline or as host.**
     ]]
-    heal = function(self, amount)
-        gm.actor_heal_networked(self.value, amount)
+    heal = function(self, amount, raw)
+        -- Need to use `id` here, or no flash appears on the HUD health bar
+        if not raw then raw = false end
+        gm.actor_heal_networked(self.id, amount, raw)
     end,
 
 
@@ -210,6 +213,7 @@ methods_actor = {
     **Must be called offline or as host.**
     ]]
     heal_barrier = function(self, amount)
+        if Net.client then return end
         gm.actor_heal_barrier(self.value, amount)
     end,
 
