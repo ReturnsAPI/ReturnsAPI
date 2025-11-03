@@ -59,7 +59,7 @@ table.insert(_rapi_initialize, Sound.internal.initialize)
 --@static
 --@return       Sound
 --@param        identifier  | string    | The identifier for the sound.
---@param        path        | string    | The file path to the sound. <br>`~` expands to your mod folder (without a trailing slash).
+--@param        path        | string    | The file path to the sound. <br>`~` expands to your mod folder.
 --[[
 Creates a new sound with the given identifier if it does not already exist,
 or returns the existing one if it does.
