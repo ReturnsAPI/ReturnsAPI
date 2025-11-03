@@ -1,6 +1,8 @@
 ### v0.1.31
 - Script : Wrap args before passing to binded functions
     - This affects EffectDisplay
+- Add Commando and Huntress auto-unlocked achievements for organization
+    - `"unlock_commando"` and `"unlock_huntress"` (`"ror"` namespace)
 
 ### v0.1.30
 - Util.`print` : Remove random extra `nil` that was tacked on
