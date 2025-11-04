@@ -320,7 +320,7 @@ If no namespace is provided, searches in your mod's namespace.
 ]]
 Callback.find = function(identifier, namespace, namespace_is_specified)
     -- Check in find table
-    local cached = __custom_callback_cache:get(identifier, namespace, namespace_is_specified)
+    local cached = __custom_callback_cache:get(identifier, namespace, true)
     if cached then return cached.id end
 
     return nil
