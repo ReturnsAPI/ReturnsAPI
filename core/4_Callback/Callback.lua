@@ -3,7 +3,9 @@
 Callback = new_class()
 
 run_once(function()
-    __callback_cache = CallbackCache.new()
+    __callback_cache            = CallbackCache.new()
+    __custom_callback_cache     = FindCache.new()
+    __custom_callback_counter   = 0
 end)
 
 local callback_arg_types = {}
@@ -89,6 +91,29 @@ for num_id, _ in ipairs(callback_constants) do
 end
 
 
+--[[
+The following are custom callbacks added by ReturnsAPI.
+]]
+
+--@constants
+--[[
+CUSTOM_START    10000
+]]
+Callback.CUSTOM_START = 10000
+
+--@constants
+--[[
+ON_HEAL         10000
+]]
+local custom_callbacks = {
+    "ON_HEAL",
+}
+for i, v in ipairs(custom_callbacks) do
+    Callback[v] = Callback.CUSTOM_START + i - 1
+end
+
+
+
 --@section Enums
 
 --@enum
@@ -97,6 +122,15 @@ Callback.Priority = {
     BEFORE  = 1000,
     AFTER   = -1000
 }
+
+
+
+-- ========== Internal ==========
+
+Callback.internal.initialize = function()
+    Callback.new(RAPI_NAMESPACE, "onHeal")  -- 10000
+end
+table.insert(_rapi_initialize, Callback.internal.initialize)
 
 
 
@@ -111,6 +145,11 @@ Callback.Priority = {
 Returns the string name of the callback type with the given ID.
 ]]
 Callback.get_type_name = function(num_id)
+    if num_id >= Callback.CUSTOM_START then
+        local t = __custom_callback_cache:get(num_id)
+        return t.namespace.."-"..t.identifier
+    end
+
     return callback_constants[num_id + 1]
 end
 
@@ -182,6 +221,12 @@ Callback                            | Parameters
 `ON_KILL_PROC`                      | 
 `NET_MESSAGE_ON_RECEIVED`           | 
 `CONSOLE_ON_COMMAND`                | 
+
+**ReturnsAPI Custom Callbacks**
+The following are custom callbacks added by ReturnsAPI.
+Callback                            | Parameters
+| --------------------------------- | ----------
+`ON_HEAL`                           | `actor` (Actor) - The actor that is being healed. <br>`amount` (table) - The heal value; access with `.value`. <br><br>Set `amount.value` to change the heal value. <br>This does *not* cover health regeneration or Sprouting Egg.
 ]]
 Callback.add = function(NAMESPACE, callback, arg2, arg3)
     -- Throw error if not numerical ID
@@ -225,6 +270,95 @@ Callback.wrap = function(id)
     -- Input:   number or Callback wrapper
     -- Wraps:   number
     return make_proxy(Wrap.unwrap(id), metatable_callback)
+end
+
+
+
+-- ========== Static Methods (Custom Callbacks) ==========
+
+--@section Static Methods (Custom Callbacks)
+
+--@static
+--@return   number
+--@param    identifier      | string    | The identifier for the custom callback.
+--[[
+Creates a new custom callback with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+Callback.new = function(NAMESPACE, identifier)
+    if not identifier then log.error("Callback.new: No identifier provided", 2) end
+
+    -- Return existing custom callback if found
+    local callback = Callback.find(identifier, NAMESPACE, true)
+    if callback then return callback end
+
+    -- Get next usable ID
+    local id = Callback.CUSTOM_START + __custom_callback_counter
+    __custom_callback_counter = __custom_callback_counter + 1
+
+    -- Add to cache
+    __custom_callback_cache:set(
+        {
+            id          = id,
+            namespace   = NAMESPACE,
+            identifier  = identifier
+        },
+        identifier, NAMESPACE, id
+    )
+
+    return id
+end
+
+
+--@static
+--@return       number or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
+--[[
+Searches for the specified custom callback and returns it.
+If no namespace is provided, searches in your mod's namespace.
+]]
+Callback.find = function(identifier, namespace, namespace_is_specified)
+    -- Check in find table
+    local cached = __custom_callback_cache:get(identifier, namespace, namespace_is_specified)
+    if cached then return cached.id end
+
+    return nil
+end
+
+
+--@static
+--@return       Any or nil
+--@param        callback    | number    | The custom callback to call.
+--@optional     ...         |           | Optional values to pass to callback functions.
+--[[
+Call a custom callback.
+The return value is whatever the most recent return value of a callback function was.
+]]
+Callback.call = function(callback, ...)
+    if (type(callback) ~= "number") or (callback < Callback.CUSTOM_START) then
+        log.error("Callback.call: callback is invalid (must be a custom callback with ID "..Callback.CUSTOM_START.."+)", 2)
+    end
+
+    if not __callback_cache.sections[callback] then return end
+
+    local args = table.pack(...)
+
+    -- Call registered functions with wrapped args
+    local return_value
+    __callback_cache:loop_and_call_functions(function(fn_table)
+        local status, ret = pcall(fn_table.fn, table.unpack(args))
+        if not status then
+            if (ret == nil)
+            or (ret == "C++ exception") then ret = "GameMaker error (see above)" end
+            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..(Callback.get_type_name(callback) or callback).."' failed to execute fully.\n"..ret)
+        end
+
+        -- Return value
+        if ret then return_value = ret end
+    end, callback)
+
+    return return_value
 end
 
 
@@ -358,6 +492,16 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         -- Result modification
         if ret then result.value = Wrap.unwrap(ret) end
     end, callback_type_id)
+end)
+
+
+Hook.add_pre(RAPI_NAMESPACE, gm.constants.actor_heal_networked, Callback.Priority.BEFORE, function(self, other, result, args)
+    -- Runs for both host and client, but value modification does nothing for client
+    local actor   = args[1].value
+    local amount  = { value = args[2].value } -- Allows for passing modification to next callback function
+
+    Callback.call(Callback.ON_HEAL, actor, amount)
+    args[2].value = amount.value
 end)
 
 

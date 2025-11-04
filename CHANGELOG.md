@@ -1,6 +1,8 @@
 ### v0.1.33
 - Actor : Fix `fire_*` methods not accepting Sprite wrappers
 - Hook : Add `actor_heal_raw` to banlist for potential lag
+- Callback : Add support for custom callbacks
+    - Add `Callback.ON_HEAL`
 
 ### v0.1.32
 - Actor : Fix `heal` crashing for host in multiplayer
