@@ -184,6 +184,7 @@ end
 ModOptionsKeybind.wrap = function(element)
     -- Input:   ModOptionsKeybind Lua table
     -- Wraps:   ModOptionsKeybind Lua table
+    element = Wrap.unwrap(element)
     return make_proxy(element, metatable_modoptionskeybind)
 end
 

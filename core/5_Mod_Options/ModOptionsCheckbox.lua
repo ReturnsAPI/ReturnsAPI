@@ -63,6 +63,7 @@ end
 ModOptionsCheckbox.wrap = function(element)
     -- Input:   ModOptionsCheckbox Lua table
     -- Wraps:   ModOptionsCheckbox Lua table
+    element = Wrap.unwrap(element)
     return make_proxy(element, metatable_modoptionscheckbox)
 end
 

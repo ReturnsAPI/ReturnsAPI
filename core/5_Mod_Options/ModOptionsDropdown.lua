@@ -73,6 +73,7 @@ end
 ModOptionsDropdown.wrap = function(element)
     -- Input:   ModOptionsDropdown Lua table
     -- Wraps:   ModOptionsDropdown Lua table
+    element = Wrap.unwrap(element)
     return make_proxy(element, metatable_modoptionsdropdown)
 end
 

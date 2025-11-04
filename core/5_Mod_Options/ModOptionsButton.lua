@@ -53,6 +53,7 @@ end
 ModOptionsButton.wrap = function(element)
     -- Input:   ModOptionsButton Lua table
     -- Wraps:   ModOptionsButton Lua table
+    element = Wrap.unwrap(element)
     return make_proxy(element, metatable_modoptionsbutton)
 end
 
