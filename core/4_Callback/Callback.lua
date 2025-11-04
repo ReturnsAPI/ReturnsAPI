@@ -103,12 +103,14 @@ Callback.CUSTOM_START = 10000
 
 --@constants
 --[[
-ON_HEAL         10000
-ON_SHIELD_BREAK 10001
+ON_HEAL             10000
+ON_SHIELD_BREAK     10001
+ON_SKILL_ACTIVATE   10002
 ]]
 local custom_callbacks = {
     "ON_HEAL",
     "ON_SHIELD_BREAK",
+    "ON_SKILL_ACTIVATE",
 }
 for i, v in ipairs(custom_callbacks) do
     Callback[v] = Callback.CUSTOM_START + i - 1
@@ -223,6 +225,7 @@ Callback                            | Parameters
 | --------------------------------- | ----------
 `ON_HEAL`                           | `actor` (Actor) - The actor that is being healed. <br>`amount` (table) - The heal value; access with `.value`. <br><br>Set `amount.value` to change the heal value (cannot be done as net client). <br>This is called *before* healing is applied, and does <br>*not* cover passive health regeneration or Sprouting Egg.
 `ON_SHIELD_BREAK`                   | `actor` (Actor) <br>`hit_info` (HitInfo)
+`ON_SKILL_ACTIVATE`                 | `actor` (Actor) <br>`slot` (number)
 ]]
 Callback.add = function(NAMESPACE, callback, arg2, arg3)
     -- Throw error if not numerical ID
@@ -524,6 +527,17 @@ Callback.add(RAPI_NAMESPACE, Callback.ON_DAMAGED_PROC, Callback.internal.FIRST, 
         end
     else actor_data.shield_active = true
     end
+end)
+
+
+-- 10002 : onSkillActivate
+Callback.new(RAPI_NAMESPACE, "onSkillActivate")
+
+Hook.add_post(RAPI_NAMESPACE, gm.constants.skill_activate, Callback.internal.FIRST, function(self, other, result, args)
+    local actor = self
+    local slot  = args[1].value
+
+    Callback.call(Callback.ON_SKILL_ACTIVATE, actor, slot)
 end)
 
 
