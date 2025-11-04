@@ -1,3 +1,6 @@
+### v0.1.33
+- Actor : Fix `fire_*` methods not accepting Sprite wrappers
+
 ### v0.1.32
 - Actor : Fix `heal` crashing for host in multiplayer
 

@@ -131,13 +131,13 @@ methods_actor = {
     
     **Must be called offline or as host.**
     ]]
-    kill = function(self, amount)
+    kill = function(self)
         gm.actor_kill(self.value)
     end,
 
 
     --@instance
-    --@param        direction   | number    | The direction of knockback. <br>A negative value is left, and a positive value is right.
+    --@param        direction   | number    | The direction of knockback. <br>A negative value is left, and a positive value is right <br>(actual value doesn't matter; just use `-1` and `1`).
     --@optional     duration    | number    | The duration of knockback (in frames). <br>`20` by default.
     --@optional     force       | number    | The force of knockback (in some unknown metric). <br>`3` by default.
     --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
@@ -301,7 +301,7 @@ methods_actor = {
                 range,
                 direction,
                 damage,
-                hit_sprite or gm.constants.sNone,
+                Wrap.unwrap(hit_sprite) or gm.constants.sNone,
                 can_pierce,
                 can_proc
             )
@@ -346,8 +346,8 @@ methods_actor = {
                 width,
                 height,
                 damage,
-                explosion_sprite or gm.constants.sNone,
-                sparks_sprite or gm.constants.sNone,
+                Wrap.unwrap(explosion_sprite) or gm.constants.sNone,
+                Wrap.unwrap(sparks_sprite) or gm.constants.sNone,
                 can_proc
             )
         )
@@ -388,7 +388,7 @@ methods_actor = {
             x,
             y,
             damage,
-            sparks_sprite or gm.constants.sNone,
+            Wrap.unwrap(sparks_sprite) or gm.constants.sNone,
             2,
             width / explosion_mask_width,
             height / explosion_mask_height
@@ -402,7 +402,7 @@ methods_actor = {
 
         -- Create explosion sprite manually
         if explosion_sprite then
-            gm.instance_create(x, y, gm.constants.oEfExplosion).sprite_index = explosion_sprite
+            gm.instance_create(x, y, gm.constants.oEfExplosion).sprite_index = Wrap.unwrap(explosion_sprite)
         end
 
         return inst
@@ -437,7 +437,7 @@ methods_actor = {
                 y or target.y,
                 direction or 0,
                 damage,
-                hit_sprite or gm.constants.sNone,
+                Wrap.unwrap(hit_sprite) or gm.constants.sNone,
                 can_proc
             )
         )
