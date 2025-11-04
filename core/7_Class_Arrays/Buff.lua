@@ -199,7 +199,7 @@ gm.post_script_hook(gm.constants.buff_create, function(self, other, result, args
     -- * This callback should never be removed, hence the namespace
     --      This is because buff_create will never run more than once
     --      for a buff, so if it is removed it cannot be readded
-    Callback.add("__permanent", buff.on_remove, function(actor)
+    Callback.add("__permanent", buff.on_remove, Callback.internal.FIRST, function(actor)
         
         -- Since this callback runs before the buff is removed,
         -- `buff_count` will never be 0, so the cache reset needs
@@ -215,7 +215,7 @@ gm.post_script_hook(gm.constants.buff_create, function(self, other, result, args
                 __actors_holding_buff[actor_id][buff_id] = nil
             end
         end, actor)
-    end, 1000000000)    -- Make sure this runs first
+    end)
 end)
 
 

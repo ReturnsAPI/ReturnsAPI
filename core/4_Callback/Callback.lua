@@ -125,6 +125,8 @@ Callback.Priority = {
     AFTER   = -1000
 }
 
+Callback.internal.FIRST = 1000000000
+
 
 
 -- ========== Static Methods ==========
@@ -499,7 +501,7 @@ end)
 -- 10000 : onHeal
 Callback.new(RAPI_NAMESPACE, "onHeal")
 
-Hook.add_pre(RAPI_NAMESPACE, gm.constants.actor_heal_networked, Callback.Priority.BEFORE, function(self, other, result, args)
+Hook.add_pre(RAPI_NAMESPACE, gm.constants.actor_heal_networked, Callback.internal.FIRST, function(self, other, result, args)
     -- Runs for both host and client, but value modification does nothing for client
     local actor   = args[1].value
     local amount  = { value = args[2].value } -- Allows for passing modification to next callback function
@@ -512,7 +514,7 @@ end)
 -- 10001 : onShieldBreak
 Callback.new(RAPI_NAMESPACE, "onShieldBreak")
 
-Callback.add(RAPI_NAMESPACE, Callback.ON_DAMAGED_PROC, function(actor, hit_info)
+Callback.add(RAPI_NAMESPACE, Callback.ON_DAMAGED_PROC, Callback.internal.FIRST, function(actor, hit_info)
     -- Check for shield break
     local actor_data = Instance.get_data(actor)
     if actor.shield <= 0 then

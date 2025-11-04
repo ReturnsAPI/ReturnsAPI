@@ -358,7 +358,7 @@ make_table_once("metatable_packet", {
 
 -- ========== Hooks ==========
 
-Callback.add(RAPI_NAMESPACE, Callback.NET_MESSAGE_ON_RECEIVED, function(packet, buffer, buffer_tell, player)
+Callback.add(RAPI_NAMESPACE, Callback.NET_MESSAGE_ON_RECEIVED, Callback.internal.FIRST, function(packet, buffer, buffer_tell, player)
     if not packet then return end
 
     -- Check if packet has a deserialization function
@@ -396,7 +396,7 @@ end)
 
 -- Send identifier <-> packet ID table to new clients
 
-Hook.add_post(RAPI_NAMESPACE, gm.constants.server_new_player, Callback.Priority.BEFORE, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.server_new_player, Callback.internal.FIRST, function(self, other, result, args)
     local sock = args[1].value
 
     local player

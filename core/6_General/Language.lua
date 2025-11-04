@@ -177,7 +177,7 @@ end
 
 -- ========== Hooks ==========
 
-Hook.add_post(RAPI_NAMESPACE, gm.constants.translate_load_active_language, Callback.Priority.BEFORE, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.translate_load_active_language, Callback.internal.FIRST, function(self, other, result, args)
     load_from_folder(PATH.."language")  -- RAPI internal language files
     load_from_mods()
 end)

@@ -387,7 +387,7 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
     -- This is created post `survivor_create` to allow for
     -- modifying vanilla survivor stats too if desired
     local survivor = Survivor.wrap(result.value)
-    Callback.add("__permanent", survivor.on_init, function(actor)
+    Callback.add("__permanent", survivor.on_init, Callback.internal.FIRST, function(actor)
         local data = __survivor_data[actor.class]
         if not data then return end
 
