@@ -332,7 +332,7 @@ end
 --@param        callback    | number    | The custom callback to call.
 --@optional     ...         |           | Optional values to pass to callback functions.
 --[[
-Call a custom callback.
+Call a custom callback; this should generally only be done by the custom callback creator.
 The return value is whatever the most recent return value of a callback function was.
 ]]
 Callback.call = function(callback, ...)
