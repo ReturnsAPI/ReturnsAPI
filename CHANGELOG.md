@@ -3,6 +3,7 @@
 - Callback
     - Add `Callback.ON_SHIELD_BREAK`
     - Add `Callback.ON_SKILL_ACTIVATE`
+    - Add `Callback.ON_EQUIPMENT_SWAP`
 
 ### v0.1.33
 - Actor : Fix `fire_*` methods not accepting Sprite wrappers

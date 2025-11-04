@@ -106,11 +106,13 @@ Callback.CUSTOM_START = 10000
 ON_HEAL             10000
 ON_SHIELD_BREAK     10001
 ON_SKILL_ACTIVATE   10002
+ON_EQUIPMENT_SWAP   10003
 ]]
 local custom_callbacks = {
     "ON_HEAL",
     "ON_SHIELD_BREAK",
     "ON_SKILL_ACTIVATE",
+    "ON_EQUIPMENT_SWAP",
 }
 for i, v in ipairs(custom_callbacks) do
     Callback[v] = Callback.CUSTOM_START + i - 1
@@ -224,8 +226,9 @@ The following are custom callbacks added by ReturnsAPI.
 Callback                            | Parameters
 | --------------------------------- | ----------
 `ON_HEAL`                           | `actor` (Actor) - The actor that is being healed. <br>`amount` (table) - The heal value; access with `.value`. <br><br>Set `amount.value` to change the heal value (cannot be done as net client). <br>This is called *before* healing is applied, and does <br>*not* cover passive health regeneration or Sprouting Egg.
-`ON_SHIELD_BREAK`                   | `actor` (Actor) <br>`hit_info` (HitInfo)
+`ON_SHIELD_BREAK`                   | `actor` (Actor) <br>`hit_info` (HitInfo) <br><br>This only runs when the actor loses shield <br>from taking damage, not when setting `shield`.
 `ON_SKILL_ACTIVATE`                 | `actor` (Actor) <br>`slot` (number)
+`ON_EQUIPMENT_SWAP`                 | `actor` (Actor) <br>`new` (Equipment) <br>`old` (Equipment) <br><br>Runs *before* the equipment is actually set for the actor.
 ]]
 Callback.add = function(NAMESPACE, callback, arg2, arg3)
     -- Throw error if not numerical ID
@@ -538,6 +541,18 @@ Hook.add_post(RAPI_NAMESPACE, gm.constants.skill_activate, Callback.internal.FIR
     local slot  = args[1].value
 
     Callback.call(Callback.ON_SKILL_ACTIVATE, actor, slot)
+end)
+
+
+-- 10003 : onEquipmentSwap
+Callback.new(RAPI_NAMESPACE, "onEquipmentSwap")
+
+Hook.add_pre(RAPI_NAMESPACE, gm.constants.equipment_set, Callback.internal.FIRST, function(self, other, result, args)
+    local actor = args[1].value
+    local new   = (args[2].value ~= -1 and Equipment.wrap(args[2].value)) or nil
+    local old   = actor:equipment_get()
+
+    Callback.call(Callback.ON_EQUIPMENT_SWAP, actor, new, old)
 end)
 
 
