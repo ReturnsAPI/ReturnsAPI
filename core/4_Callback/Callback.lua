@@ -195,32 +195,32 @@ Callback                            | Parameters
 `ON_STAGE_START`                    | None
 `ON_SECOND`                         | `minute` (number) - Current minute on the timer <br>`second` (number) - Current second on the timer
 `ON_MINUTE`                         | `minute` (number) - Current minute on the timer <br>`second` (number) - Current second on the timer
-`ON_ATTACK_CREATE`                  | 
+`ON_ATTACK_CREATE`                  | `attack_info` (AttackInfo)
 `ON_ATTACK_HIT`                     | `hit_info` (HitInfo)
-`ON_ATTACK_HANDLE_START`            | 
-`ON_ATTACK_HANDLE_END`              | 
-`ON_DAMAGE_BLOCKED`                 | 
-`ON_ENEMY_INIT`                     | 
-`ON_ELITE_INIT`                     | 
+`ON_ATTACK_HANDLE_START`            | `attack_info` (AttackInfo)
+`ON_ATTACK_HANDLE_END`              | `attack_info` (AttackInfo)
+`ON_DAMAGE_BLOCKED`                 | `actor` (Actor) <br>`?` (?) <br>`?` (number)
+`ON_ENEMY_INIT`                     | `actor` (Actor)
+`ON_ELITE_INIT`                     | `actor` (Actor)
 `ON_DEATH`                          | `actor` (Actor) - The actor that died <br>`out_of_bounds` (bool) - `true` if the actor died by falling out of bounds
-`ON_PLAYER_INIT`                    | 
-`ON_PLAYER_STEP`                    | 
-`PRE_PLAYER_HUD_DRAW`               | 
-`ON_PLAYER_HUD_DRAW`                | 
-`ON_PLAYER_INVENTORY_UPDATE`        | 
-`ON_PLAYER_DEATH`                   | 
-`ON_CHECKPOINT_RESPAWN`             | 
-`ON_INPUT_PLAYER_DEVICE_UPDATE`     | 
-`ON_PICKUP_COLLECTED`               | 
-`ON_PICKUP_ROLL`                    | 
-`ON_EQUIPMENT_USE`                  | 
-`POST_EQUIPMENT_USE`                | 
-`ON_INTERACTABLE_ACTIVATE`          | 
-`ON_HIT_PROC`                       | 
-`ON_DAMAGED_PROC`                   | 
-`ON_KILL_PROC`                      | 
-`NET_MESSAGE_ON_RECEIVED`           | 
-`CONSOLE_ON_COMMAND`                | 
+`ON_PLAYER_INIT`                    | `player` (Player)
+`ON_PLAYER_STEP`                    | `player` (Player)
+`PRE_PLAYER_HUD_DRAW`               | `player` (Player) <br>`x` (number) <br>`y` (number)
+`ON_PLAYER_HUD_DRAW`                | `player` (Player) <br>`x` (number) <br>`y` (number)
+`ON_PLAYER_INVENTORY_UPDATE`        | `player` (Player)
+`ON_PLAYER_DEATH`                   | `player` (Player)
+`ON_CHECKPOINT_RESPAWN`             | `player` (Player)
+`ON_INPUT_PLAYER_DEVICE_UPDATE`     | `?` (number)
+`ON_PICKUP_COLLECTED`               | `pickup` (Instance) <br>`actor` (Actor) 
+`ON_PICKUP_ROLL`                    | `?` (?)
+`ON_EQUIPMENT_USE`                  | `player` (Player) <br>`equipment` (Equipment) <br>`?` (bool) <br>`?` (number)
+`POST_EQUIPMENT_USE`                | `player` (Player) <br>`equipment` (Equipment) <br>`?` (bool) <br>`?` (number)
+`ON_INTERACTABLE_ACTIVATE`          | `interactable` (Instance) <br>`player` (Player)
+`ON_HIT_PROC`                       | `attacker` (Actor) <br>`target` (Actor) <br>`hit_info` (HitInfo)
+`ON_DAMAGED_PROC`                   | `actor` (Actor) <br>`hit_info` (HitInfo)
+`ON_KILL_PROC`                      | `target` (Actor) <br>`attacker` (Actor)
+`NET_MESSAGE_ON_RECEIVED`           | `packet` (Packet) <br>`buffer` (Buffer) <br>`buffer_tell` (number) <br>`player` (Player)
+`CONSOLE_ON_COMMAND`                | `command` (string)
 
 **ReturnsAPI Custom Callbacks**
 The following are custom callbacks added by ReturnsAPI.
