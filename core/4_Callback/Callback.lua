@@ -276,7 +276,13 @@ end
 
 -- ========== Static Methods (Custom Callbacks) ==========
 
---@section Static Methods (Custom Callbacks)
+--[[
+<br><br>
+
+---
+
+## Static Methods (Custom Callbacks)
+]]
 
 --@static
 --@return   number
