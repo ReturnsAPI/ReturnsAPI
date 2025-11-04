@@ -24,7 +24,7 @@ EffectDisplay.DrawPriority = {
 	CAPE_ABOVE      = -20,
 	ABOVE_BODY      = -100,
 	ABOVE           = -200,
-	PAST            = -1000,
+	POST            = -1000,
 	BARRIER_ABOVE   = -1020
 }
 

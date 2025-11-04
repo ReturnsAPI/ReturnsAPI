@@ -1,3 +1,6 @@
+### v0.1.34
+- EffectDisplay.`DrawPriority` : `PAST` -> `POST`
+
 ### v0.1.33
 - Actor : Fix `fire_*` methods not accepting Sprite wrappers
 - Hook : Add `actor_heal_raw` to banlist for potential lag
