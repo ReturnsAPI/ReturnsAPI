@@ -111,16 +111,3 @@ setmetatable(GM_callso, metatable_callso)
 -- Public export
 __class.GM = GM
 __class_mt.GM = metatable_GM
-
-
-
--- ========== Notable Functions ==========
-
---@section Notable Functions
-
---[[
-**Actors**
-Function | Arguments | Description
-| - | - | -
-`actor_heal_barrier( actor, amount )` | `actor` - The actor to grant to. <br>`amount` - The amount of barrier to grant. | Grants barrier to the actor. <br>Automatically capped by the actor's `maxbarrier`.
-]]

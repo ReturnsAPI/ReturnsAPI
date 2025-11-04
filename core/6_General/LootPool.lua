@@ -435,8 +435,8 @@ make_table_once("metatable_loot_pool", {
 
         -- Setter
         local loot_struct = __loot_pool_find_table:get(__proxy[proxy]).struct
-        if gm.variable_struct_exists(loot_struct, k) then
-            loot_struct[k] = Wrap.unwrap(v)
+        if gm.variable_struct_exists(Wrap.unwrap(loot_struct), k) then
+            loot_struct[k] = v
             return
         end
 
@@ -446,7 +446,7 @@ make_table_once("metatable_loot_pool", {
             return
         end
         local crate_struct = __loot_pool_find_table:get(__proxy[proxy]).crate_struct
-        crate_struct[k:sub(7, -1)] = Wrap.unwrap(v)
+        crate_struct[k:sub(7, -1)] = v
     end,
 
     

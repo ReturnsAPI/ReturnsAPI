@@ -209,6 +209,7 @@ Util.table_append(methods_class_array[name_rapi], {
     ]]
     set_unlock_artifact = function(self, content)
         if self.value < 0 then log.error("set_unlock_artifact: Achievement does not exist", 2) end
+        if not content then log.error("set_unlock_artifact: artifact is not provided", 2) end
         gm.achievement_set_unlock_artifact(self.value, Wrap.unwrap(content))
     end,
 
@@ -220,6 +221,7 @@ Util.table_append(methods_class_array[name_rapi], {
     ]]
     set_unlock_equipment = function(self, content)
         if self.value < 0 then log.error("set_unlock_equipment: Achievement does not exist", 2) end
+        if not content then log.error("set_unlock_equipment: equipment is not provided", 2) end
         gm.achievement_set_unlock_equipment(self.value, Wrap.unwrap(content))
     end,
 
@@ -231,6 +233,7 @@ Util.table_append(methods_class_array[name_rapi], {
     ]]
     set_unlock_item = function(self, content)
         if self.value < 0 then log.error("set_unlock_item: Achievement does not exist", 2) end
+        if not content then log.error("set_unlock_item: item is not provided", 2) end
         gm.achievement_set_unlock_item(self.value, Wrap.unwrap(content))
     end,
 
@@ -245,6 +248,7 @@ Util.table_append(methods_class_array[name_rapi], {
     ]]
     set_unlock_skill = function(self, content)
         if self.value < 0 then log.error("set_unlock_skill: Achievement does not exist", 2) end
+        if not content then log.error("set_unlock_skill: skill is not provided", 2) end
         local skill_id = Wrap.unwrap(content)
         
         -- Loop through unlockables array and associate
@@ -272,6 +276,7 @@ Util.table_append(methods_class_array[name_rapi], {
     ]]
     set_unlock_survivor = function(self, content)
         if self.value < 0 then log.error("set_unlock_survivor: Achievement does not exist", 2) end
+        if not content then log.error("set_unlock_survivor: survivor is not provided", 2) end
         gm.achievement_set_unlock_survivor(self.value, Wrap.unwrap(content))
     end,
 

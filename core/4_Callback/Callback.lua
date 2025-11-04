@@ -356,9 +356,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         end
 
         -- Result modification
-        if ret then
-            result.value = Wrap.unwrap(ret)
-        end
+        if ret then result.value = Wrap.unwrap(ret) end
     end, callback_type_id)
 end)
 

@@ -218,6 +218,7 @@ methods_sprite = {
     Sets the animation speed of the sprite.
     ]]
     set_speed = function(self, speed)
+        if not speed then log.error("set_speed: speed is not provided", 2) end
         gm.sprite_set_speed(self.value, speed, 1)   -- Using `spritespeed_framespergameframe` (1)
     end,
 
@@ -233,6 +234,11 @@ methods_sprite = {
     E.g., For a 16x16 `mySprite`, `mySprite:set_collision_mask(1, 1, 15, 15)` would reduce the hitbox by 1px on each side.
     ]]
     set_collision_mask = function(self, bbox_left, bbox_top, bbox_right, bbox_bottom)
+        if not bbox_left    then log.error("set_collision_mask: bbox_left is not provided", 2) end
+        if not bbox_top     then log.error("set_collision_mask: bbox_top is not provided", 2) end
+        if not bbox_right   then log.error("set_collision_mask: bbox_right is not provided", 2) end
+        if not bbox_bottom  then log.error("set_collision_mask: bbox_bottom is not provided", 2) end
+
         gm.sprite_collision_mask(
             self.value,
             false,

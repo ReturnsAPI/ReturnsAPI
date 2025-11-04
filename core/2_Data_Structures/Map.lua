@@ -103,7 +103,7 @@ methods_map = {
     You can also use Lua syntax (e.g., `map.my_key`).
     ]]
     get = function(self, key)
-        if self.value == -4 then log.error("Map does not exist", 2) end
+        if self.value == -4 then log.error("get: Map does not exist", 2) end
         return Wrap.wrap(gm.ds_map_find_value(self.value, Wrap.unwrap(key)))
     end,
 
@@ -116,23 +116,8 @@ methods_map = {
     You can also use Lua syntax (e.g., `map.my_key = 123`).
     ]]
     set = function(self, key, value)
-        if self.value == -4 then log.error("Map does not exist", 2) end
+        if self.value == -4 then log.error("set: Map does not exist", 2) end
         gm.ds_map_set(self.value, Wrap.unwrap(key), Wrap.unwrap(value, true))
-    end,
-
-
-    --@instance
-    --@param        key         | RValue    | The key to set to.
-    --@param        value       | RValue    | The value to set.
-    --[[
-    Variant of `set` that accepts RValues.
-    ]]
-    set_rvalue = function(self, key, value)
-        local holder = RValue.new_holder(3)
-        holder[0] = RValue.new(self.value)
-        holder[1] = key
-        holder[2] = value
-        gmf.ds_map_set(RValue.new(0), nil, nil, 3, holder)
     end,
 
 
@@ -154,19 +139,6 @@ methods_map = {
     ]]
     delete = function(self, key)
         gm.ds_map_delete(self.value, Wrap.unwrap(key, true))
-    end,
-
-
-    --@instance
-    --@param        key         | RValue    | The key to delete.
-    --[[
-    Variant of `delete` that accepts an RValue.
-    ]]
-    delete_rvalue = function(self, key)
-        local holder = RValue.new_holder(2)
-        holder[0] = RValue.new(self.value)
-        holder[1] = key
-        gmf.ds_map_delete(RValue.new(0), nil, nil, 2, holder)
     end,
 
 

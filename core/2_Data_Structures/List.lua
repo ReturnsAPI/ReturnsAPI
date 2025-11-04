@@ -99,10 +99,10 @@ methods_list = {
     You can also use Lua syntax (e.g., `list[4]`), which starts at `1`.
     ]]
     get = function(self, index, size)
-        if self.value == -4 then log.error("List does not exist", 2) end
+        if self.value == -4 then log.error("get: List does not exist", 2) end
         index = Wrap.unwrap(index)
         size = size or self:size()
-        if index >= size then return nil end
+        if (index < 0) or (index >= size) then return nil end
         return Wrap.wrap(gm.ds_list_find_value(self.value, index))
     end,
 
@@ -115,7 +115,7 @@ methods_list = {
     You can also use Lua syntax (e.g., `list[4] = 56`), which starts at `1`.
     ]]
     set = function(self, index, value)
-        if self.value == -4 then log.error("List does not exist", 2) end
+        if self.value == -4 then log.error("set: List does not exist", 2) end
         gm.ds_list_set(self.value, Wrap.unwrap(index), Wrap.unwrap(value, true))
     end,
 
@@ -137,10 +137,10 @@ methods_list = {
     Appends values to the end of the array.
     ]]
     add = function(self, ...)
-        local values = {...}
+        local values = table.pack(...)
 
-        for i, v in ipairs(values) do
-            values[i] = Wrap.unwrap(v, true)
+        for i = 1, values.n do
+            values[i] = Wrap.unwrap(values[i], true)
         end
 
         gm.ds_list_add(self.value, table.unpack(values))
@@ -201,10 +201,10 @@ methods_list = {
 
 
     --@instance
-    --@return       number
+    --@return       number or nil
     --@param        value       |           | The value to search for.
     --[[
-    Returns the index of the first occurence of the specified value.
+    Returns the index (starting at `0`) of the first occurence of the specified value, or `nil` if not found.
     ]]
     find = function(self, value)
         local ret = gm.ds_list_find_index(self.value, Wrap.unwrap(value, true))
@@ -216,7 +216,7 @@ methods_list = {
     --@instance
     --@optional     descending  | bool      | If `true`, will sort in descending order. <br>`false` by default.
     --[[
-    Returns the index of the first occurence of the specified value.
+    Sorts the list in ascending or descending order.
     ]]
     sort = function(self, descending)
         gm.ds_list_sort(self.value, not descending)

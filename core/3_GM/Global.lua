@@ -44,7 +44,7 @@ metatable_global = {
 
     __newindex = function(t, k, v)
         -- Prevent setting any global that is in cache
-        if __global_cache[k] then log.error("Do not set global variable '"..k.."'", 2) end
+        if __global_cache[k] then log.error("Global: Do not set global variable '"..k.."'", 2) end
         
         gm.variable_global_set(k, Wrap.unwrap(v, true))
     end,

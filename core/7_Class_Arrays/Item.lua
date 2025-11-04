@@ -190,6 +190,9 @@ Util.table_append(methods_class_array[name_rapi], {
     Spawns and returns an item drop.
     ]]
     create = function(self, x, y, target)
+        if not x then log.error("create: x is not provided", 2) end
+        if not y then log.error("create: y is not provided", 2) end
+
         local object_id = self.object_id
         if object_id == nil or object_id == -1 then return nil end
 
@@ -223,6 +226,8 @@ Util.table_append(methods_class_array[name_rapi], {
     Sets the sprite of the item.
     ]]
     set_sprite = function(self, sprite)
+        if not sprite then log.error("set_sprite: sprite is not provided", 2) end
+
         sprite = Wrap.unwrap(sprite)
         self.sprite_id = sprite
     
@@ -238,6 +243,8 @@ Util.table_append(methods_class_array[name_rapi], {
     loot pool (will remove from all previous loot pools).
     ]]
     set_tier = function(self, tier)
+        if not tier then log.error("set_tier: tier is not provided", 2) end
+        
         tier = Wrap.unwrap(tier)
         self.tier = tier
 

@@ -75,7 +75,7 @@ methods_array = {
     --@instance
     --@return       any
     --@param        index       | number    | The index to get from.
-    --@optional     size        | number    | The size of the array, if it already known (this skips a `:size` call).
+    --@optional     size        | number    | The size of the array, if it already known (this skips a `:size()` call).
     --[[
     Returns the value at the specified index (starting at `0`),
     or `nil` if out-of-bounds.
@@ -84,7 +84,7 @@ methods_array = {
     get = function(self, index, size)
         index = Wrap.unwrap(index)
         size = size or self:size()
-        if index >= size then return nil end
+        if (index < 0) or (index >= size) then return nil end
         return Wrap.wrap(gm.array_get(self.value, index))
     end,
 
@@ -128,10 +128,10 @@ methods_array = {
     Appends values to the end of the array.
     ]]
     push = function(self, ...)
-        local values = {...}
+        local values = table.pack(...)
 
-        for i, v in ipairs(values) do
-            values[i] = Wrap.unwrap(v, true)
+        for i = 1, values.n do
+            values[i] = Wrap.unwrap(values[i], true)
         end
 
         gm.array_push(self.value, table.unpack(values))
@@ -166,7 +166,7 @@ methods_array = {
     Deletes value(s) from the specified index, starting at `0`.
     ]]
     delete = function(self, index, number)
-        gm.array_delete(self.value, Wrap.unwrap(index), Wrap.unwrap(number or 1))
+        gm.array_delete(self.value, Wrap.unwrap(index), Wrap.unwrap(number) or 1)
     end,
 
 
@@ -195,7 +195,7 @@ methods_array = {
     --@return       bool
     --@param        value       |           | The value to check.
     --@optional     offset      | number    | The starting index of a subset to search in (`0`-based). <br>`0` by default.
-    --@optional     length      | number    | The length of the subset. <br>`#array` by default.
+    --@optional     length      | number    | The length of the subset. <br>`array:size()` by default.
     --[[
     Returns `true` if the array contains the specified value.
     ]]
@@ -205,10 +205,10 @@ methods_array = {
 
 
     --@instance
-    --@return       number
+    --@return       number or nil
     --@param        value       |           | The value to search for.
     --[[
-    Returns the index of the first occurence of the specified value.
+    Returns the index (starting at `0`) of the first occurence of the specified value, or `nil` if not found.
     ]]
     find = function(self, value)
         value = Wrap.unwrap(value, true)
@@ -222,7 +222,7 @@ methods_array = {
     --@instance
     --@optional     descending  | bool      | If `true`, will sort in descending order. <br>`false` by default.
     --[[
-    Returns the index of the first occurence of the specified value.
+    Sorts the array in ascending or descending order.
     ]]
     sort = function(self, descending)
         gm.array_sort(self.value, not descending)

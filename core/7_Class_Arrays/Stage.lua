@@ -182,6 +182,8 @@ Adds a new room(s) to the stage, and adds it as
 a variant to the environment log (if applicable).
 ]]
 Stage.add_room = function(NAMESPACE, stage, ...)
+    if not stage then log.error("Stage.add_room: stage is not provided", 2) end
+
     local self = Stage.wrap(stage)
     local id = self.value
 

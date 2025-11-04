@@ -252,7 +252,7 @@ make_table_once("metatable_item_tier", {
 
         -- Setter
         local struct = __item_tier_find_table:get(__proxy[proxy]).struct
-        struct[k] = Wrap.unwrap(v)
+        struct[k] = v
     end,
 
     

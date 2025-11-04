@@ -199,6 +199,9 @@ methods_sound = {
     Plays the sound at the specified location.
     ]]
     play = function(self, x, y, volume, pitch)
+        if not x then log.error("play: x coordinate is not provided", 2) end
+        if not y then log.error("play: y coordinate is not provided", 2) end
+
         gm.sound_play_at(
             self.value,
             volume  or 1,

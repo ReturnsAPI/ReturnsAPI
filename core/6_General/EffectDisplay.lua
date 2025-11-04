@@ -36,7 +36,7 @@ EffectDisplay.DrawPriority = {
 
 --@static
 --@return       Struct
---@param        sprite		| sprite   	| The sprite ID.
+--@param        sprite		| sprite   	| The sprite.
 --@optional		priority	| number 	| The @link {draw priority | EffectDisplay#DrawPriority}. <br>`EffectDisplay.DrawPriority.ABOVE` by default.
 --@optional     anim_speed 	| number    | The animation speed. <br>`0` by default.
 --@optional     x_origin  	| number    | The x coordinate of the origin (offset). <br>`0` by default.
@@ -44,9 +44,9 @@ EffectDisplay.DrawPriority = {
 --[[
 Returns a EffectDisplaySprite struct.
 ]]
-EffectDisplay.sprite = function(sprite_id, priority, anim_speed, x_offset, y_offset)
+EffectDisplay.sprite = function(sprite, priority, anim_speed, x_offset, y_offset)
 	return Struct.new(gm.constants.EffectDisplaySprite,
-		sprite_id,
+		Wrap.unwrap(sprite),
 		priority 	or EffectDisplay.DrawPriority.ABOVE,
 		anim_speed 	or 0,
 		x_offset 	or 0,
@@ -80,7 +80,7 @@ Returns a EffectDisplayInstance struct.
 ]]
 EffectDisplay.instance = function(object, host_only)
 	return Struct.new(gm.constants.EffectDisplayInstance,
-		object,
+		Wrap.unwrap(object),
 		nil,	-- This is supposed to be a function that is called when the EffectDisplayInstance comes into existence
 		host_only	or false
 	)
@@ -101,7 +101,7 @@ Returns a EffectDisplayParticles struct.
 ]]
 EffectDisplay.particles = function(particle_type, rate, amount, system, xrand, yrand, color)
 	return Struct.new(gm.constants.EffectDisplayParticles,
-		particle_type,
+		Wrap.unwrap(particle_type),
 		rate,
 		amount,
 		system		or Particle.System.ABOVE,

@@ -231,6 +231,8 @@ Util.table_append(methods_class_array[name_rapi], {
     Sets the group of the item log.
     ]]
     set_group = function(self, group)
+        if not group then log.error("set_group: group is not provided", 2) end
+
         self.group = group
 
         -- Setting `.group` does *not* automatically

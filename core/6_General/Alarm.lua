@@ -46,7 +46,7 @@ Alarm.add = function(NAMESPACE, time, fn, ...)
     local id = __alarm_current_id
     
     __alarm_bank:add(fn, NAMESPACE, 0, frame, id)
-    __alarm_bank_args[id] = {...}
+    __alarm_bank_args[id] = table.pack(...)
 
     __alarm_current_id = __alarm_current_id + 1
 
@@ -76,7 +76,7 @@ Alarm.add_nopause = function(NAMESPACE, time, fn, ...)
     local id = __alarm_current_id
     
     __alarm_bank_nopause:add(fn, NAMESPACE, 0, frame, id)
-    __alarm_bank_args_nopause[id] = {...}
+    __alarm_bank_args_nopause[id] = table.pack(...)
 
     __alarm_current_id = __alarm_current_id + 1
 
