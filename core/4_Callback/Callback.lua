@@ -277,8 +277,6 @@ end
 -- ========== Static Methods (Custom Callbacks) ==========
 
 --[[
-<br><br>
-
 ---
 
 ## Static Methods (Custom Callbacks)
