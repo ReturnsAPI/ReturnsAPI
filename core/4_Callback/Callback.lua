@@ -104,9 +104,11 @@ Callback.CUSTOM_START = 10000
 --@constants
 --[[
 ON_HEAL         10000
+ON_SHIELD_BREAK 10001
 ]]
 local custom_callbacks = {
     "ON_HEAL",
+    "ON_SHIELD_BREAK",
 }
 for i, v in ipairs(custom_callbacks) do
     Callback[v] = Callback.CUSTOM_START + i - 1
@@ -122,15 +124,6 @@ Callback.Priority = {
     BEFORE  = 1000,
     AFTER   = -1000
 }
-
-
-
--- ========== Internal ==========
-
-Callback.internal.initialize = function()
-    Callback.new(RAPI_NAMESPACE, "onHeal")  -- 10000
-end
-table.insert(_rapi_initialize, Callback.internal.initialize)
 
 
 
@@ -227,6 +220,7 @@ The following are custom callbacks added by ReturnsAPI.
 Callback                            | Parameters
 | --------------------------------- | ----------
 `ON_HEAL`                           | `actor` (Actor) - The actor that is being healed. <br>`amount` (table) - The heal value; access with `.value`. <br><br>Set `amount.value` to change the heal value. <br>This is called *before* healing is applied, and does <br>*not* cover passive health regeneration or Sprouting Egg.
+`ON_SHIELD_BREAK`                   | `actor` (Actor) <br>`hit_info` (HitInfo)
 ]]
 Callback.add = function(NAMESPACE, callback, arg2, arg3)
     -- Throw error if not numerical ID
@@ -499,6 +493,12 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
 end)
 
 
+
+-- ========== RAPI Custom Callbacks ==========
+
+-- 10000 : onHeal
+Callback.new(RAPI_NAMESPACE, "onHeal")
+
 Hook.add_pre(RAPI_NAMESPACE, gm.constants.actor_heal_networked, Callback.Priority.BEFORE, function(self, other, result, args)
     -- Runs for both host and client, but value modification does nothing for client
     local actor   = args[1].value
@@ -506,6 +506,22 @@ Hook.add_pre(RAPI_NAMESPACE, gm.constants.actor_heal_networked, Callback.Priorit
 
     Callback.call(Callback.ON_HEAL, actor, amount)
     args[2].value = amount.value
+end)
+
+
+-- 10001 : onShieldBreak
+Callback.new(RAPI_NAMESPACE, "onShieldBreak")
+
+Callback.add(RAPI_NAMESPACE, Callback.ON_DAMAGED_PROC, function(actor, hit_info)
+    -- Check for shield break
+    local actor_data = Instance.get_data(actor)
+    if actor.shield <= 0 then
+        if actor_data.shield_active then
+            actor_data.shield_active = false
+            Callback.call(Callback.ON_SHIELD_BREAK, actor, hit_info)
+        end
+    else actor_data.shield_active = true
+    end
 end)
 
 

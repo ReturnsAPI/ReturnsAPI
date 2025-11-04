@@ -1,5 +1,6 @@
 ### v0.1.34
 - EffectDisplay.`DrawPriority` : `PAST` -> `POST`
+- Callback : Add `Callback.ON_SHIELD_BREAK`
 
 ### v0.1.33
 - Actor : Fix `fire_*` methods not accepting Sprite wrappers
