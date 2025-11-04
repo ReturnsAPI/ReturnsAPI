@@ -330,7 +330,7 @@ end
 --@static
 --@return       Any or nil
 --@param        callback    | number    | The custom callback to call.
---@optional     ...         |           | Optional values to pass to callback functions.
+--@optional     ...         |           | Optional values to pass to callback functions. <br>No wrapping/unwrapping is done on these <br>since this system is entirely Lua-sided.
 --[[
 Call a custom callback; this should generally only be done by the custom callback creator.
 The return value is whatever the most recent return value of a callback function was.
