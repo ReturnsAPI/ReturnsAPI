@@ -1,3 +1,6 @@
+### v0.1.35
+- Prevent Commando and Huntress auto-unlocked achievements from appearing as popups
+
 ### v0.1.34
 - EffectDisplay.`DrawPriority` : `PAST` -> `POST`
 - Callback

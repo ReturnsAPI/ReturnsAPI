@@ -46,15 +46,17 @@ table.insert(_rapi_initialize, function()
 end)
 
 
--- This does work but there's no real way to check which achievement outside of midhook
--- Hook.add_pre(RAPI_NAMESPACE, "gml_Object_oAchievement_Create_0", function(self, other)
---     Instance.destroy(self)
---     return false
--- end)
-
-
 Hook.add_pre(RAPI_NAMESPACE, gm.constants.achievement_on_unlocked, function(self, other, result, args)
     -- Prevent Divine Intervention unlock from the two achievements above
+    if (args[1].value == unlock_commando.value)
+    or (args[1].value == unlock_huntress.value) then
+        return false
+    end
+end)
+
+
+Hook.add_pre(RAPI_NAMESPACE, gm.constants["achievement_unlocked@gml_Object_oInit_Create_0"], function(self, other, result, args)
+    -- Prevent unlock being added to display queue for the two achievements above
     if (args[1].value == unlock_commando.value)
     or (args[1].value == unlock_huntress.value) then
         return false
