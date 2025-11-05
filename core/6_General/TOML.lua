@@ -7,10 +7,6 @@ Files are stored in `paths.plugins_data()`.
 
 TOML = new_class()
 
-run_once(function()
-    __file_wrapper_bank = {}
-end)
-
 
 
 -- ========== Properties ==========

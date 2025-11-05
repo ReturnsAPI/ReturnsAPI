@@ -643,7 +643,7 @@ make_table_once("metatable_instance", {
         -- Getter
         local value = __proxy[proxy]
         if not value then return nil end
-        local ret = gm.variable_instance_get(value, k)
+        local ret = value[k]   -- Access like this over gm.variable_instance_get
 
         -- Return object function callable if key starts with "gml_"
         if not ret then
@@ -685,7 +685,7 @@ make_table_once("metatable_instance", {
         -- Setter
         local value = __proxy[proxy]
         if not value then return end
-        gm.variable_instance_set(value, k, Wrap.unwrap(v))
+        value[k] = Wrap.unwrap(v)   -- Access like this over gm.variable_instance_set
     end,
 
 
