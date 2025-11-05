@@ -1,5 +1,8 @@
 ### v0.1.35
 - Prevent Commando and Huntress auto-unlocked achievements from appearing as popups
+- Instance : Fix strange issue where getting variables sometimes returned an incorrect value
+    - This happens because CInstances stored in a variable sometimes return different values when accessing a variable via `cinst.var` vs `gm.variable_instance_get(cinst, var)` (?)
+- Display version number under RoM's on the title screen
 
 ### v0.1.34
 - EffectDisplay.`DrawPriority` : `PAST` -> `POST`
