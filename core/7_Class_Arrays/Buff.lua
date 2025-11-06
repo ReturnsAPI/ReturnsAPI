@@ -158,6 +158,8 @@ Util.table_append(methods_class_array[name_rapi], {
     Returns a table of all actors that currently hold at least 1 stack of the buff.
     ]]
     get_holding_actors = function(self)
+        if Global.pause and (not Net.online) then return {} end
+
         local t = {}
 
         for actor_id, _ in pairs(__actors_holding_buff[self.value]) do
@@ -280,4 +282,19 @@ gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, 
         __actors_holding_buff[new_id][buff_id] = true
     end
     __actors_holding_buff[actor_id] = nil
+end)
+
+
+-- Remove instance from `__actors_holding_buff` on client disconnect
+
+gm.post_script_hook(gm.constants.disconnect_player, function(self, other, result, args)
+    if not Global.__run_exists then return end
+
+    local player_id = args[1].value.id
+    if not __actors_holding_buff[player_id] then return end
+
+    for buff_id, _ in pairs(__actors_holding_buff[player_id]) do
+        __actors_holding_buff[buff_id][player_id] = nil
+    end
+    __actors_holding_buff[player_id] = nil
 end)
