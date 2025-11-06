@@ -1,6 +1,6 @@
 ### v0.1.37
 - Internal changes
-    - Instance : Remove cached wrappers early on room change
+    - Instance : Remove cached wrappers on room change
     - Net : Cache net status when entering a run
 - Item, Buff : Make `get_holding_actors` return `{}` while paused in a singleplayer run
 
