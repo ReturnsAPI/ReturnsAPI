@@ -1,7 +1,6 @@
 -- Display version number under RoM's on title screen
 
 Hook.add_post(RAPI_NAMESPACE, "gml_Object_oStartMenu_Draw_0", function(self, other)
-    self = self.value
     if self.menu_transition < 1 then
         self:draw_set_font_w(gm.constants.fntNormal)
         self:draw_set_color(Color(0x446790))

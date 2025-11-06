@@ -712,6 +712,13 @@ gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
             __instance_data[id] = nil
         end
     end
+
+    -- Also remove non-existent cached Instance wrappers
+    for id, _ in pairs(wrapper_cache) do
+        if not Instance.exists(id) then
+            wrapper_cache[id] = nil
+        end
+    end
 end)
 
 
@@ -723,7 +730,9 @@ gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, a
     -- Do not clear for player deaths
     local obj_ind = actor:get_object_index()
     if obj_ind ~= gm.constants.oP then
-        __instance_data[actor.id] = nil
+        local id = actor.id
+        __instance_data[id] = nil
+        wrapper_cache[id]   = nil
     end
 end)
 
@@ -738,6 +747,7 @@ gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, 
     if __instance_data[actor_id] then
         __instance_data[new_id] = __instance_data[actor_id]
         __instance_data[actor_id] = nil
+        wrapper_cache[actor_id]   = nil
     end
 end)
 
