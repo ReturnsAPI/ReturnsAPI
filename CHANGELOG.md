@@ -1,3 +1,6 @@
+### v0.1.36
+- Instance : Revert change from previous patch
+
 ### v0.1.35
 - Prevent Commando and Huntress auto-unlocked achievements from appearing as popups
 - Instance : Fix strange issue where getting variables sometimes returned an incorrect value
