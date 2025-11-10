@@ -2,10 +2,12 @@
 
 --[[
 Slightly easier syntax wrapper for `toml`.
-Files are stored in `paths.plugins_data()`.
+Files are stored in `paths.plugins_data()` (or `paths.config()` if `new_config()` is used).
 ]]
 
 TOML = new_class()
+
+__use_config = __use_config or setmetatable({}, {__mode = "k"})
 
 
 
@@ -33,9 +35,24 @@ Property | Type | Description
 --@optional     name        | string    | The filename to use. <br>Automatically prepended with your namespace. <br>Adding an extension is *not* required; `".toml"` is automatically appended.
 --[[
 Creates a new TOML wrapper and returns it.
+The file will be in the `plugins_data` directory.
 ]]
-TOML.new = function(NAMESPACE, name)    
+TOML.new = function(NAMESPACE, name)
     return make_proxy(NAMESPACE..((name and "-"..tostring(name)) or ""), metatable_toml)
+end
+
+
+--@static
+--@return       TOML
+--@optional     name        | string    | The filename to use. <br>Automatically prepended with your namespace. <br>Adding an extension is *not* required; `".toml"` is automatically appended.
+--[[
+Creates a new TOML wrapper and returns it.
+The file will be in the `config` directory.
+]]
+TOML.new_config = function(NAMESPACE, name)
+    local proxy = TOML.new(NAMESPACE, name)
+    __use_config[proxy] = true
+    return proxy
 end
 
 
@@ -90,6 +107,9 @@ make_table_once("metatable_toml", {
         if k == "value" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
         if k == "path" then
+            if __use_config[proxy] then
+                return path.combine(paths.config(), __proxy[proxy]..".toml")
+            end
             return path.combine(paths.plugins_data(), __proxy[proxy]..".toml")
         end
 

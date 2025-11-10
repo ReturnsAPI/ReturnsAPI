@@ -1,6 +1,7 @@
 ### v0.1.38
 - Script : Add `.script_name` as an alias for `.name`
 - Stage : Add safety checking to *Card-related methods + error for invalid string identifiers
+- TOML : Add `new_config`
 
 ### v0.1.37
 - Internal changes
