@@ -404,7 +404,11 @@ Util.table_append(methods_class_array[name_rapi], {
         -- Add cards
         for _, card in ipairs(args) do
             if type(card) == "string" then
-                card = InteractableCard.find(card)
+                local str = card
+                card = InteractableCard.find(card, "ror", true)
+                if not card then
+                    log.error("add_interactable: '"..str.."' is not a vanilla card", 2)
+                end
             end
             if not interactables_list:contains(card) then
                 interactables_list:add(card)
@@ -428,7 +432,11 @@ Util.table_append(methods_class_array[name_rapi], {
         -- Remove cards
         for _, card in ipairs(args) do
             if type(card) == "string" then
-                card = InteractableCard.find(card)
+                local str = card
+                card = InteractableCard.find(card, "ror", true)
+                if not card then
+                    log.error("remove_interactable: '"..str.."' is not a vanilla card", 2)
+                end
             end
             interactables_list:delete_value(card)
         end
@@ -460,7 +468,11 @@ Util.table_append(methods_class_array[name_rapi], {
         -- Add cards
         for _, card in ipairs(args) do
             if type(card) == "string" then
-                card = InteractableCard.find(card)
+                local str = card
+                card = InteractableCard.find(card, "ror", true)
+                if not card then
+                    log.error("add_interactable_loop: '"..str.."' is not a vanilla card", 2)
+                end
             end
             if not interactables_list:contains(card) then
                 interactables_list:add(card)
@@ -484,7 +496,11 @@ Util.table_append(methods_class_array[name_rapi], {
         -- Remove cards
         for _, card in ipairs(args) do
             if type(card) == "string" then
-                card = InteractableCard.find(card)
+                local str = card
+                card = InteractableCard.find(card, "ror", true)
+                if not card then
+                    log.error("remove_interactable_loop: '"..str.."' is not a vanilla card", 2)
+                end
             end
             interactables_list:delete_value(card)
         end
@@ -516,7 +532,11 @@ Util.table_append(methods_class_array[name_rapi], {
         -- Add cards
         for _, card in ipairs(args) do
             if type(card) == "string" then
-                card = MonsterCard.find(card)
+                local str = card
+                card = MonsterCard.find(card, "ror", true)
+                if not card then
+                    log.error("add_monster: '"..str.."' is not a vanilla card", 2)
+                end
             end
             if not enemy_list:contains(card) then
                 enemy_list:add(card)
@@ -540,7 +560,11 @@ Util.table_append(methods_class_array[name_rapi], {
         -- Remove cards
         for _, card in ipairs(args) do
             if type(card) == "string" then
-                card = MonsterCard.find(card)
+                local str = card
+                card = MonsterCard.find(card, "ror", true)
+                if not card then
+                    log.error("remove_monster: '"..str.."' is not a vanilla card", 2)
+                end
             end
             enemy_list:delete_value(card)
         end
@@ -572,7 +596,11 @@ Util.table_append(methods_class_array[name_rapi], {
         -- Add cards
         for _, card in ipairs(args) do
             if type(card) == "string" then
-                card = MonsterCard.find(card)
+                local str = card
+                card = MonsterCard.find(card, "ror", true)
+                if not card then
+                    log.error("add_monster_loop: '"..str.."' is not a vanilla card", 2)
+                end
             end
             if not enemy_list:contains(card) then
                 enemy_list:add(card)
@@ -596,7 +624,11 @@ Util.table_append(methods_class_array[name_rapi], {
         -- Remove cards
         for _, card in ipairs(args) do
             if type(card) == "string" then
-                card = MonsterCard.find(card)
+                local str = card
+                card = MonsterCard.find(card, "ror", true)
+                if not card then
+                    log.error("remove_monster_loop: '"..str.."' is not a vanilla card", 2)
+                end
             end
             enemy_list:delete_value(card)
         end
