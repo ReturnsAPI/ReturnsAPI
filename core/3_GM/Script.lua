@@ -44,7 +44,7 @@ Property | Type | Description
 | - | - | -
 `value`/`cscriptref`| CScriptRef            | *Read-only.* The `sol.CScriptRef*` being wrapped
 `RAPI`              | string                | *Read-only.* The wrapper name.
-`name`              | string                | *Read-only.* The script name.
+`name`/`script_name`| string                | *Read-only.* The script name.
 `self`              | Struct or Instance    | The struct/instance binded as `self`; used when calling.
 `other`             | Struct or Instance    | The struct/instance binded as `other`; used when calling.
 ]]
@@ -113,7 +113,9 @@ make_table_once("metatable_script", {
         -- Get wrapped value
         if k == "value" then return __proxy[proxy] end
         if k == "RAPI"  then return wrapper_name end
-        if k == "name"  then return __proxy[proxy].script_name:sub(12, -1) end
+        if k == "name" or k == "script_name" then
+            return __proxy[proxy].script_name:sub(12, -1)
+        end
 
         -- Get stored self/other
         if k == "self"  then return __self_other_cache[proxy][1] end
@@ -140,6 +142,7 @@ make_table_once("metatable_script", {
         if k == "value"
         or k == "RAPI"
         or k == "name"
+        or k == "script_name"
         or k == "SO" then
             log.error("Key '"..k.."' is read-only", 2)
         end

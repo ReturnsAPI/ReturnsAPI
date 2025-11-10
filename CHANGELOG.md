@@ -1,3 +1,6 @@
+### v0.1.38
+- Script : Add `.script_name` as an alias for `.name`
+
 ### v0.1.37
 - Internal changes
     - Instance : Remove cached wrappers on room change
