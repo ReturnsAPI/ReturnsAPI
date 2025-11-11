@@ -7,7 +7,7 @@ Files are stored in `paths.plugins_data()` (or `paths.config()` if `new_config()
 
 TOML = new_class()
 
-__use_config = __use_config or setmetatable({}, {__mode = "k"})
+__toml_directories = __toml_directories or setmetatable({}, {__mode = "k"})
 
 
 
@@ -33,25 +33,13 @@ Property | Type | Description
 --@static
 --@return       TOML
 --@optional     name        | string    | The filename to use. <br>Automatically prepended with your namespace. <br>Adding an extension is *not* required; `".toml"` is automatically appended.
+--@optional     directory   | string    | The directory to create in. <br>`paths.plugins_data()` by default.
 --[[
 Creates a new TOML wrapper and returns it.
-The file will be in the `plugins_data` directory.
 ]]
-TOML.new = function(NAMESPACE, name)
-    return make_proxy(NAMESPACE..((name and "-"..tostring(name)) or ""), metatable_toml)
-end
-
-
---@static
---@return       TOML
---@optional     name        | string    | The filename to use. <br>Automatically prepended with your namespace. <br>Adding an extension is *not* required; `".toml"` is automatically appended.
---[[
-Creates a new TOML wrapper and returns it.
-The file will be in the `config` directory.
-]]
-TOML.new_config = function(NAMESPACE, name)
-    local proxy = TOML.new(NAMESPACE, name)
-    __use_config[proxy] = true
+TOML.new = function(NAMESPACE, name, directory)
+    local proxy = make_proxy(NAMESPACE..((name and "-"..tostring(name)) or ""), metatable_toml)
+    __toml_directories[proxy] = directory or paths.plugins_data()
     return proxy
 end
 
@@ -107,10 +95,7 @@ make_table_once("metatable_toml", {
         if k == "value" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
         if k == "path" then
-            if __use_config[proxy] then
-                return path.combine(paths.config(), __proxy[proxy]..".toml")
-            end
-            return path.combine(paths.plugins_data(), __proxy[proxy]..".toml")
+            return path.combine(__toml_directories[proxy], __proxy[proxy]..".toml")
         end
 
         -- Methods
