@@ -402,7 +402,7 @@ Util.table_append(methods_class_array[name_rapi], {
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
         -- Add cards
-        for _, card in ipairs(args) do
+        for i, card in ipairs(args) do
             if type(card) == "string" then
                 local str = card
                 card = InteractableCard.find(card, "ror", true)
@@ -410,6 +410,7 @@ Util.table_append(methods_class_array[name_rapi], {
                     log.error("add_interactable: '"..str.."' is not a vanilla card", 2)
                 end
             end
+            if not card then log.error("add_interactable: card #"..i.." is nil", 2) end
             if not interactables_list:contains(card) then
                 interactables_list:add(card)
             end
@@ -430,7 +431,7 @@ Util.table_append(methods_class_array[name_rapi], {
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
         -- Remove cards
-        for _, card in ipairs(args) do
+        for i, card in ipairs(args) do
             if type(card) == "string" then
                 local str = card
                 card = InteractableCard.find(card, "ror", true)
@@ -438,6 +439,7 @@ Util.table_append(methods_class_array[name_rapi], {
                     log.error("remove_interactable: '"..str.."' is not a vanilla card", 2)
                 end
             end
+            if not card then log.error("remove_interactable: card #"..i.." is nil", 2) end
             interactables_list:delete_value(card)
         end
     end,
@@ -466,7 +468,7 @@ Util.table_append(methods_class_array[name_rapi], {
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
         -- Add cards
-        for _, card in ipairs(args) do
+        for i, card in ipairs(args) do
             if type(card) == "string" then
                 local str = card
                 card = InteractableCard.find(card, "ror", true)
@@ -474,6 +476,7 @@ Util.table_append(methods_class_array[name_rapi], {
                     log.error("add_interactable_loop: '"..str.."' is not a vanilla card", 2)
                 end
             end
+            if not card then log.error("add_interactable_loop: card #"..i.." is nil", 2) end
             if not interactables_list:contains(card) then
                 interactables_list:add(card)
             end
@@ -494,7 +497,7 @@ Util.table_append(methods_class_array[name_rapi], {
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
         -- Remove cards
-        for _, card in ipairs(args) do
+        for i, card in ipairs(args) do
             if type(card) == "string" then
                 local str = card
                 card = InteractableCard.find(card, "ror", true)
@@ -502,6 +505,7 @@ Util.table_append(methods_class_array[name_rapi], {
                     log.error("remove_interactable_loop: '"..str.."' is not a vanilla card", 2)
                 end
             end
+            if not card then log.error("remove_interactable_loop: card #"..i.." is nil", 2) end
             interactables_list:delete_value(card)
         end
     end,
@@ -530,7 +534,7 @@ Util.table_append(methods_class_array[name_rapi], {
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
         -- Add cards
-        for _, card in ipairs(args) do
+        for i, card in ipairs(args) do
             if type(card) == "string" then
                 local str = card
                 card = MonsterCard.find(card, "ror", true)
@@ -538,6 +542,7 @@ Util.table_append(methods_class_array[name_rapi], {
                     log.error("add_monster: '"..str.."' is not a vanilla card", 2)
                 end
             end
+            if not card then log.error("add_monster: card #"..i.." is nil", 2) end
             if not enemy_list:contains(card) then
                 enemy_list:add(card)
             end
@@ -558,7 +563,7 @@ Util.table_append(methods_class_array[name_rapi], {
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
         -- Remove cards
-        for _, card in ipairs(args) do
+        for i, card in ipairs(args) do
             if type(card) == "string" then
                 local str = card
                 card = MonsterCard.find(card, "ror", true)
@@ -566,6 +571,7 @@ Util.table_append(methods_class_array[name_rapi], {
                     log.error("remove_monster: '"..str.."' is not a vanilla card", 2)
                 end
             end
+            if not card then log.error("remove_monster: card #"..i.." is nil", 2) end
             enemy_list:delete_value(card)
         end
     end,
@@ -594,7 +600,7 @@ Util.table_append(methods_class_array[name_rapi], {
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
         -- Add cards
-        for _, card in ipairs(args) do
+        for i, card in ipairs(args) do
             if type(card) == "string" then
                 local str = card
                 card = MonsterCard.find(card, "ror", true)
@@ -602,6 +608,7 @@ Util.table_append(methods_class_array[name_rapi], {
                     log.error("add_monster_loop: '"..str.."' is not a vanilla card", 2)
                 end
             end
+            if not card then log.error("add_monster_loop: card #"..i.." is nil", 2) end
             if not enemy_list:contains(card) then
                 enemy_list:add(card)
             end
@@ -622,7 +629,7 @@ Util.table_append(methods_class_array[name_rapi], {
         if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
 
         -- Remove cards
-        for _, card in ipairs(args) do
+        for i, card in ipairs(args) do
             if type(card) == "string" then
                 local str = card
                 card = MonsterCard.find(card, "ror", true)
@@ -630,6 +637,7 @@ Util.table_append(methods_class_array[name_rapi], {
                     log.error("remove_monster_loop: '"..str.."' is not a vanilla card", 2)
                 end
             end
+            if not card then log.error("remove_monster_loop: card #"..i.." is nil", 2) end
             enemy_list:delete_value(card)
         end
     end,
