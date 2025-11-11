@@ -1,6 +1,6 @@
 ### v0.1.38
 - Script : Add `.script_name` as an alias for `.name`
-- Stage : Add safety checking to *Card-related methods + error for invalid string identifiers
+- Stage : Add safety checking to \*Card-related methods + error for invalid string identifiers
 - TOML.`new` : Add optional `directory` argument
 - Util : Add `get_namespace`
 
