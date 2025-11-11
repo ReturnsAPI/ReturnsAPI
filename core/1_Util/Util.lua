@@ -28,6 +28,17 @@ end
 --@section Static Methods
 
 --@static
+--@return       string or nil
+--@param        guid        | string    | The guid of the mod.
+--[[
+Returns the namespace used by a mod.
+]]
+Util.get_namespace = function(guid)
+    return (__namespace[guid] or {}).namespace
+end
+
+
+--@static
 --@param        ...         |           | A variable amount of arguments to print.
 --[[
 Prints a variable number of arguments.

@@ -66,9 +66,8 @@ end
 
 
 -- Expand "~" to mod folder
-run_once(function() __namespace_path = {} end)  -- Paths to mod folders that use RAPI
 function expand_path(namespace, path)
-    local expansion = __namespace_path[namespace].."/"
+    local expansion = __namespace[namespace].path.."/"
     return path:gsub("~/", expansion):gsub("~", expansion)
 end
 

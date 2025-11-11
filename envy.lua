@@ -2,6 +2,19 @@
 
 run_once(function()
     __auto_setups = {}      -- Store mod ENVs that call `.auto()`; used when hotloading RAPI
+
+    -- Create storage for some ENV things
+    -- and populate with RAPI's things
+    local guid = _ENV["!guid"]
+    local t = {
+        namespace = RAPI_NAMESPACE,
+        guid      = guid,
+        path      = _ENV["!plugins_mod_folder_path"]
+    }
+    __namespace = {
+        [RAPI_NAMESPACE] = t,
+        [guid]  = t
+    }
 end)
 
 
@@ -10,17 +23,24 @@ function public.setup(env, namespace)
         env = envy.getfenv(2)
     end
 
-    local namespace = namespace or env["!guid"]
+    local guid = env["!guid"]
+    local namespace = namespace or guid
 
     -- Prevent taking a namespace already used internally
     if namespace == RAPI_NAMESPACE
     or namespace == "__permanent" then
-        namespace = env["!guid"]
-        log.warning("Cannot use namespace '"..namespace.."'; using '"..env["!guid"].."' instead")
+        namespace = guid
+        log.warning("Cannot use namespace '"..namespace.."'; using '"..guid.."' instead")
     end
     
-    -- Store mod folder path (table is in Internal.lua)
-    __namespace_path[namespace] = env["!plugins_mod_folder_path"]
+    -- Store some ENV things
+    local t = {
+        namespace = namespace,
+        guid      = guid,
+        path      = env["!plugins_mod_folder_path"]
+    }
+    __namespace[namespace] = t
+    __namespace[guid]      = t
 
     -- Create wrapper by copying all class *function* references
     -- This allows for namespace binding for certain functions and
