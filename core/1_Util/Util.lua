@@ -28,13 +28,16 @@ end
 --@section Static Methods
 
 --@static
---@return       string or nil
---@param        guid        | string    | The guid of the mod.
+--@return       table or nil
+--@param        identifier  | string    | The guid or ReturnsAPI namespace of the mod.
 --[[
-Returns the namespace used by a mod.
+Returns a table containing the following keys:
+- `namespace`
+- `guid`
+- `path`
 ]]
-Util.get_namespace = function(guid)
-    return (__namespace[guid] or {}).namespace
+Util.get_mod_info = function(identifier)
+    return (__namespace[identifier] and Util.table_shallow_copy(__namespace[identifier])) or nil
 end
 
 

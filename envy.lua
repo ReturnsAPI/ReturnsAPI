@@ -29,8 +29,16 @@ function public.setup(env, namespace)
     -- Prevent taking a namespace already used internally
     if namespace == RAPI_NAMESPACE
     or namespace == "__permanent" then
-        namespace = guid
         log.warning("Cannot use namespace '"..namespace.."'; using '"..guid.."' instead")
+        namespace = guid
+    end
+
+    -- Prevent taking a namespace already used by another mod
+    if __namespace[namespace] then
+        if guid ~= __namespace[namespace].guid then
+            log.warning("Namespace '"..namespace.."' is already in use; using '"..guid.."' instead")
+            namespace = guid
+        end
     end
     
     -- Store some ENV things
