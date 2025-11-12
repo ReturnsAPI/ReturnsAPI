@@ -1,3 +1,10 @@
+### v0.1.40
+- Callback
+    - `Callback.ON_HEAL`
+        - Fix not being called for effects that use `lifesteal` (e.g., Leeching Seed)
+        - Fix not being called for effects that use `oEfHeal2Nosync` (e.g., Monster Tooth)
+    - Add `has_any`
+
 ### v0.1.39
 - Util : Replace `get_namespace` with `get_mod_info`
 - Prevent using the same namespace as another mod
