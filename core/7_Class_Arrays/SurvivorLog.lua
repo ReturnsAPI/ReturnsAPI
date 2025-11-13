@@ -111,6 +111,8 @@ end
 Creates a new survivor log using an survivor as a base,
 automatically populating the log's properties and
 setting the survivor's `log_id` property.
+
+This should be called *after* setting the survivor's base and level stats.
 ]]
 SurvivorLog.new_from_survivor = function(NAMESPACE, survivor)
     Initialize.internal.check_if_started("SurvivorLog.new_from_survivor")
