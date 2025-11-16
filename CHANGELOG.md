@@ -1,3 +1,6 @@
+### v0.1.41
+- Restore Sniper spotter crit damage number fix
+
 ### v0.1.40
 - Callback
     - `Callback.ON_HEAL`
