@@ -110,16 +110,16 @@ Method | Arguments | Notes
 ]]
 
 
-local params_cache = {}
-
-local params = {
-    --skill_primary = {},
-    skill_secondary = {},
-    skill_utility = {},
-    skill_special = {},
-}
+local params
 
 local function reset_params()
+    params = {
+        --skill_primary = {},
+        skill_secondary = {},
+        skill_utility = {},
+        skill_special = {},
+    }
+
     params.maxhp_add = 0 -- health capacity
     params.maxhp_mult = 1
 
@@ -225,8 +225,6 @@ local gather_params = function(actor)
             log.warning("\n"..fn_table.namespace..": RecalculateStats (ID '"..fn_table.id.."') failed to execute fully.\n"..err)
         end
     end)
-
-    params_cache[actor.id] = params
 end
 
 
@@ -335,9 +333,14 @@ end)
 
 -- pVmax, pGravity1, pGravity2 (post-hook)
 gm.post_script_hook(gm.constants.recalculate_stats, function(self, other, result, args)
+    if not params then return end
+
     self.pVmax     = (self.pVmax     + params.pVmax_add)     * params.pVmax_mult
     self.pGravity1 = (self.pGravity1 + params.pGravity1_add) * params.pGravity1_mult
     self.pGravity2 = (self.pGravity2 + params.pGravity2_add) * params.pGravity2_mult
+    
+    -- delete params table
+    params = nil
 end)
 
 -- Hooks line 196 (`maxbarrier = (maxhp + ...`)
@@ -360,11 +363,9 @@ local index_to_table = {
 -- ^ this actually throws an error on startup so don't
 
 gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@scr_actor_skills"], function(self, other, result, args)
-    local self_struct = Struct.wrap(self)
+    if not params then return end
 
-    local actor_id = self_struct.parent.id
-    local actor_params = params_cache[actor_id]
-    if not actor_params then return end
+    local self_struct = Struct.wrap(self)
 
     -- Get skill_id
     local skill_id = self_struct.skill_id or 0
@@ -375,7 +376,7 @@ gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@s
     if is_primary then return end
 
     local slot_index = self_struct.slot_index
-    local modifiers = actor_params[index_to_table[slot_index]]
+    local modifiers = params[index_to_table[slot_index]]
     if not modifiers then return end
 
     -- add stock
@@ -394,11 +395,6 @@ gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@s
         -- Autobinds `self_struct` as self/other
         -- (See Struct class metatable for specifics of this)
         self_struct.skill_start_cooldown()
-    end
-
-    -- clear cached params on final skill_recalculate_stats call
-    if slot_index == Skill.Slot.SPECIAL then
-        params_cache[actor_id] = nil
     end
 end)
 
