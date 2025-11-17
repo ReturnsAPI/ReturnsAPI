@@ -352,9 +352,10 @@ local index_to_table = {
 }
 
 -- this gets called extremely frequently -- 12 times when an actor spawns, and 4 times each time stats are recaculated. needs to be optimal as possible
-local _actorskill = Struct.new(gm.constants.ActorSkill, nil, 0, nil)  -- Create empty ActorSkill to grab the script name
+-- local _actorskill = Struct.new(gm.constants.ActorSkill, nil, 0, nil)  -- Create empty ActorSkill to grab the script name
+-- ^ this actually throws an error on startup so don't
 
-gm.post_script_hook(gm.constants[_actorskill.skill_recalculate_stats.script_name], function(self, other, result, args)
+gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@scr_actor_skills"], function(self, other, result, args)
     local self_struct = Struct.wrap(self)
 
     -- Get skill_id
