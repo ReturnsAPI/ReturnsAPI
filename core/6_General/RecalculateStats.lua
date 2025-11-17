@@ -110,6 +110,8 @@ Method | Arguments | Notes
 ]]
 
 
+local params_cache = {}
+
 local params = {
     --skill_primary = {},
     skill_secondary = {},
@@ -223,6 +225,8 @@ local gather_params = function(actor)
             log.warning("\n"..fn_table.namespace..": RecalculateStats (ID '"..fn_table.id.."') failed to execute fully.\n"..err)
         end
     end)
+
+    params_cache[actor.id] = params
 end
 
 
@@ -358,6 +362,10 @@ local index_to_table = {
 gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@scr_actor_skills"], function(self, other, result, args)
     local self_struct = Struct.wrap(self)
 
+    local actor_id = self_struct.parent.id
+    local actor_params = params_cache[actor_id]
+    if not actor_params then return end
+
     -- Get skill_id
     local skill_id = self_struct.skill_id or 0
     local skill = Skill.wrap(skill_id)
@@ -365,11 +373,9 @@ gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@s
     -- Check if skill is primary
     local is_primary = skill.is_primary or false
     if is_primary then return end
-    
-    gather_params(self_struct.parent)
 
-    local skill_index = self_struct.slot_index or 1
-    local modifiers = params[index_to_table[skill_index]]
+    local slot_index = self_struct.slot_index
+    local modifiers = actor_params[index_to_table[slot_index]]
     if not modifiers then return end
 
     -- add stock
@@ -388,6 +394,11 @@ gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@s
         -- Autobinds `self_struct` as self/other
         -- (See Struct class metatable for specifics of this)
         self_struct.skill_start_cooldown()
+    end
+
+    -- clear cached params on final skill_recalculate_stats call
+    if slot_index == Skill.Slot.SPECIAL then
+        params_cache[actor_id] = nil
     end
 end)
 
