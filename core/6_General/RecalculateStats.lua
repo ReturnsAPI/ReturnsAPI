@@ -84,7 +84,7 @@ Method | Arguments | Notes
 `maxshield_add( value )`                    | `value` (number) <br>* The value to add.          | 
 `maxshield_mult( value )`                   | `value` (number) <br>* The value to multiply by.  | 
 `maxshield_add_from_maxhp( value )`         | `value` (number) <br>* The value to add.          | Adds `maxshield` based on % of `maxhp` (without modifying `maxhp`).
-`maxhp_convert_to_maxshield( value )`       | `value` (number) <br>* The value to convert.      | *Converts* % of `maxhp` to `maxshield`. <br>This value *can* be greater than `1.0`.
+`maxhp_convert_to_maxshield( value )`       | `value` (number) <br>* The value to convert.      | Converts % of `maxhp` to `maxshield`. <br>This value *can* be greater than `1.0`.
 `maxbarrier_add( value )`                   | `value` (number) <br>* The value to add.          | 
 `maxbarrier_mult( value )`                  | `value` (number) <br>* The value to multiply by.  | 
 `armor_add( value )`                        | `value` (number) <br>* The value to add.          | 
