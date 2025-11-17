@@ -360,9 +360,10 @@ gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@s
 
     -- Get skill_id
     local skill_id = self_struct.skill_id or 0
+    local skill = Skill.wrap(skill_id)
 
     -- Check if skill is primary
-    local is_primary = class_skill:get(skill_id):get(17) or false
+    local is_primary = skill.is_primary or false
     if is_primary then return end
     
     gather_params(self_struct.parent)
@@ -382,7 +383,7 @@ gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@s
     self_struct.cooldown = cooldown
 
     -- start cooldown if necessary. ugly because orig already calls this before this hook, but oh well
-    local auto_restock = class_skill:get(skill_id):get(10) or false
+    local auto_restock = skill.auto_restock or false
     if auto_restock then
         -- Autobinds `self_struct` as self/other
         -- (See Struct class metatable for specifics of this)
