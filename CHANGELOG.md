@@ -1,5 +1,6 @@
 ### v0.1.41
 - Restore Sniper spotter crit damage number fix
+- Restore better RecalculateStats API from in-dev RAPI
 
 ### v0.1.40
 - Callback
