@@ -56,7 +56,7 @@ methods_player = {
     --@instance
     --@return       bool
     --@param        verb        | string    | The verb to check.
-    --@optional     type        | number    | <br>`0` - Returns `true` if the verb input is being held. <br>`1` - Returns `true` if the verb input was just pressed. <br>`2` - Returns `true` if the verb input was just released. <br><br>`0` by default.
+    --@optional     type        | number    | <br>`0` - Returns `true` if the verb input is being held. <br>`1` - Returns `true` if the verb input was just pressed. <br>`-1` - Returns `true` if the verb input was just released. <br><br>`0` by default.
     --[[
     Returns the input status for a verb.
     Only returns `true` for the local player, and if the game is not paused.

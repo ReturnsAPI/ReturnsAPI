@@ -1,3 +1,12 @@
+### v0.1.42
+- Actor : Add `buff_time`
+- Util
+    - Add `set`
+    - Add `enum`
+- Player:`control`
+    - Fix not working for vanilla verbs
+    - Fix incorrect description for release (should be `-1`)
+
 ### v0.1.41
 - Restore Sniper spotter crit damage number fix
 - Restore better RecalculateStats API from in-dev RAPI

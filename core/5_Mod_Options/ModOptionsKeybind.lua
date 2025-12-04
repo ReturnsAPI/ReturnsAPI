@@ -24,7 +24,7 @@ run_once(function()
     __add_verb_queue = {}
 end)
 
-vanilla_player_verbs = {
+vanilla_player_verbs = Util.enum({
     "left", "right", "up", "down", "jump",
     "skill1", "skill2", "skill3", "skill4",
     "equipment", "interact", "swap",
@@ -32,7 +32,7 @@ vanilla_player_verbs = {
     "emote", "ping",
     "emote_1", "emote_2", "emote_3", "emote_4", 
     "tab", "pause"
-}
+}, 0)
 
 
 
