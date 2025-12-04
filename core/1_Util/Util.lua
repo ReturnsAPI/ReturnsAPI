@@ -470,6 +470,44 @@ end
 
 
 --@static
+--@return       table
+--@param        list        | table     | The list of keys.
+--[[
+Returns a set from a list of keys (i.e., table where `k = true` for all `k` in the list)
+]]
+Util.set = function(list)
+    local set = {}
+    for _, k in ipairs(list) do
+        set[k] = true
+    end
+    return set
+end
+
+
+--@static
+--@return       table
+--@param        list        | table     | The list of keys.
+--@optional     start       | number    | The starting value for the first element. <br>`1` by default.
+--@optional     add         | number    | Increment for each key. <br>`1` by default.
+--@optional     mult        | number    | Multiplier for each key (applied *after* `add`). <br>`1` by default.
+--[[
+Returns an enum from a list of keys (i.e., table where `k = <number>` for all `k` in the list)
+]]
+Util.enum = function(list, start, add, mult)
+    start = start or 1
+    add   = add   or 1
+    mult  = mult  or 1
+
+    local enum = {}
+    for _, k in ipairs(list) do
+        enum[k] = start
+        start = (start + add) * mult
+    end
+    return enum
+end
+
+
+--@static
 --@return       number
 --@param        stack_count | number    | The stack count.
 --@param        chance      | number    | The proc chance/scaling/etc. *per stack*, between `0` and `1`.
