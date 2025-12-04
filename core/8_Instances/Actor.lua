@@ -603,6 +603,21 @@ methods_actor = {
 
 
     --@instance
+    --@return       number
+    --@param        buff        | Buff      | The buff to check.
+    --[[
+    Returns the remaining duration (in frames) of the specified buff the actor has.
+    ]]
+    buff_time = function(self, buff)
+        -- Argument check
+        buff = Wrap.unwrap(buff)
+        if type(buff) ~= "number" then log.error("buff_time: buff is invalid", 2) end
+
+        return math.max(gm.get_buff_time(self.value, buff), 0)
+    end,
+
+
+    --@instance
     --@return       Equipment or nil
     --[[
     Returns the actor's current equipment.
