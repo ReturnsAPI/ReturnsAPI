@@ -51,77 +51,117 @@ end
 
 
 
--- ========== Struct Methods ==========
+-- ========== Instance Methods ==========
 
---@section Struct Methods
+--@section Instance Methods
 
---[[
-**These should be called using `.` instead of `:`**,
-since they are methods belonging to the struct and not the wrapper (i.e., they are @link {Script | Script}s).
-]]
+methods_actorskill = {
 
---@instance
---@name         set_cooldown
---@param        value       | number    | The cooldown to set (in frames).
---@param        slot        | number    | The @link {slot | Skill#slot} to get from.
---[[
-Sets the base cooldown of the ActorSkill.
-]]
+    --@instance
+    --@param        value       | number    | The cooldown to set (in frames).
+    --[[
+    Sets the base cooldown of the ActorSkill.
+    ]]
+    set_cooldown = function(self, value)
+        if not value then log.error("set_cooldown: value is invalid", 2) end
 
-
---@instance
---@name         freeze_cooldown
---[[
-Freezes the remaining cooldown of the ActorSkill for one frame.
-]]
+        metatable_struct.__index(self, "set_cooldown")
+        (
+            value
+        )
+    end,
 
 
---@instance
---@name         cancel_cooldown
---[[
-Removes the remaining cooldown for the ActorSkill.
-]]
+    --@instance
+    --[[
+    Freezes the remaining cooldown of the ActorSkill for one frame.
+    ]]
+    freeze_cooldown = function(self)
+        metatable_struct.__index(self, "freeze_cooldown")
+        ()
+    end,
 
 
---@instance
---@name         reset_cooldown
---[[
-Restarts the cooldown for the ActorSkill and adds
-a stock if the Skill's `auto_restock` is `true`.
-]]
+    --@instance
+    --[[
+    Removes the remaining cooldown for the ActorSkill.
+    ]]
+    cancel_cooldown = function(self)
+        metatable_struct.__index(self, "cancel_cooldown")
+        ()
+    end,
 
 
---@instance
---@name         override_cooldown
---@param        value       | number    | The cooldown to set (in frames).
---[[
-Sets the remaining cooldown of the ActorSkill.
-]]
+    --@instance
+    --[[
+    Restarts the cooldown for the ActorSkill and adds
+    a stock if the Skill's `auto_restock` is `true`.
+    ]]
+    reset_cooldown = function(self)
+        Util.print(metatable_struct.__index(self, "reset_cooldown"))
+
+        metatable_struct.__index(self, "reset_cooldown")
+        ()
+    end,
 
 
---@instance
---@name         set_stock
---@param        value       | number    | The stock to set.
---[[
-Sets the current stock of the ActorSkill.
-]]
+    --@instance
+    --@param        value       | number    | The cooldown to set (in frames).
+    --[[
+    Sets the remaining cooldown of the ActorSkill.
+    ]]
+    override_cooldown = function(self, value)
+        if not value then log.error("override_cooldown: value is invalid", 2) end
+
+        local stopwatch = self.cooldown_stopwatch.value
+        gm.stopwatch_stop(stopwatch)
+        gm.stopwatch_start(stopwatch, Global._current_frame + value)
+    end,
 
 
---@instance
---@name         add_stock
---@param        value       | number    | The amount of stocks to add.
---@param        ignore_max  | bool      | If `true`, added stocks can go past `max_stock`.
---[[
-Adds (a) stock to the ActorSkill.
-]]
+    --@instance
+    --@param        value       | number    | The stock to set.
+    --[[
+    Sets the current stock of the ActorSkill.
+    ]]
+    set_stock = function(self, value)
+        if not value then log.error("set_stock: value is invalid", 2) end
+
+        metatable_struct.__index(self, "set_stock")
+        (
+            value
+        )
+    end,
 
 
---@instance
---@name         remove_stock
---@param        value       | number    | The amount of stocks to remove.
---[[
-Removes (a) stock from the ActorSkill.
-]]
+    --@instance
+    --@param        value       | number    | The amount of stocks to add. <br>`1` by default.
+    --@param        ignore_max  | bool      | If `true`, added stocks can go past `max_stock`. <br>`false` by default.
+    --[[
+    Adds (a) stock to the ActorSkill.
+    ]]
+    add_stock = function(self, value, ignore_max)
+        metatable_struct.__index(self, "add_stock")
+        (
+            value       or 1,
+            ignore_max  or false
+        )
+    end,
+
+
+    --@instance
+    --@param        value       | number    | The amount of stocks to remove. <br>`1` by default.
+    --[[
+    Removes (a) stock from the ActorSkill.
+    ]]
+    remove_stock = function(self, value)
+        metatable_struct.__index(self, "remove_stock")
+        (
+            value or 1
+        )
+    end,
+
+}
 
 
 
@@ -136,6 +176,11 @@ make_table_once("metatable_actorskill", {
         if k == "RAPI" then return wrapper_name end
         if k == "skill" then return Skill.wrap(proxy.skill_id) end
 
+        -- Methods
+        if methods_actorskill[k] then
+            return methods_actorskill[k]
+        end
+
         -- Pass to metatable_struct
         return metatable_struct.__index(proxy, k)
     end,
@@ -145,7 +190,8 @@ make_table_once("metatable_actorskill", {
         -- Throw read-only error for certain keys
         if k == "value"
         or k == "RAPI"
-        or k == "skill" then
+        or k == "skill"
+        or methods_actorskill[k] then
             log.error("Key '"..k.."' is read-only", 2)
         end
 

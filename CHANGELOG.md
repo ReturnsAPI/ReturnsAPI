@@ -6,6 +6,11 @@
 - Player:`control`
     - Fix not working for vanilla verbs
     - Fix incorrect description for release (should be `-1`)
+- ActorSkill : Add wrapper methods around struct methods
+    - Use `:` instead of `.`
+    - Add argument checking
+    - Add default args to `add_stock` and `remove_stock`
+    - Reimplement `override_cooldown` to always work
 
 ### v0.1.41
 - Restore Sniper spotter crit damage number fix
