@@ -407,6 +407,11 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
             end
         end
 
+        -- Set base speed to 2.8 (except for Robomando)
+        if actor.class ~= 15 then
+            actor.pHmax_base = 2.8
+        end
+
         -- Set palette
         if Util.bool(survivor.sprite_palette) then
             actor.sprite_palette = survivor.sprite_palette
