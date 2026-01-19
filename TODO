@@ -1,0 +1,11 @@
+Nov 2025
+- Add base `new` methods that are missing
+- Finish ActorSkin
+- whatever azu asked for in the thread related to holding input
+- control profile switching crash   https://discord.com/channels/1171745917272084550/1175150719700058233/1432812221653848085
+- controls not saving               https://discord.com/channels/1171745917272084550/1423821376296587385/1432978775280451584
+- Add HitInfo methods
+- Readd other equipment methods for Actor(?)
+
+Dec 2025
+- 

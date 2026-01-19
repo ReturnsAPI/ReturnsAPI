@@ -87,9 +87,9 @@ Property | Type | Description
 `sprite_idle`               | sprite    | 
 `sprite_portrait`           | sprite    | 
 `sprite_portrait_small`     | sprite    | 
-`sprite_palette`            |           | 
-`sprite_portrait_palette`   |           | 
-`sprite_loadout_palette`    |           | 
+`sprite_palette`            | sprite    | **This should not be manually set.**
+`sprite_portrait_palette`   | sprite    | Unused in vanilla, but used by ReturnsAPI. **This should not be manually set.**
+`sprite_loadout_palette`    | sprite    | Unused in vanilla, but used by ReturnsAPI. **This should not be manually set.**
 `sprite_credits`            | sprite    | 
 `primary_color`             | color     | 
 `select_sound_id`           | sound     | 
@@ -99,8 +99,8 @@ Property | Type | Description
 `milestone_items_1`         |           | 
 `milestone_stages_1`        |           | 
 `on_init`                   | number    | The ID of the callback that runs when an instance of the survivor is created. <br>The callback function should have the argument `actor`.
-`on_step`                   | number    | The ID of the callback that runs when . <br>The callback function should have the arguments `(TODO)`.
-`on_remove`                 | number    | The ID of the callback that runs when . <br>The callback function should have the arguments `(TODO)`.
+`on_step`                   | number    | The ID of the callback that runs when (TODO). <br>The callback function should have the arguments `(TODO)`.
+`on_remove`                 | number    | The ID of the callback that runs when (TODO). <br>The callback function should have the arguments `(TODO)`.
 `is_secret`                 | bool      | 
 `cape_offset`               | Array     | Stores the drawing offset for Prophet's Cape. <br>Array order: `x_offset, y_offset, x_offset_climbing, y_offset_climbing`
 ]]
@@ -359,11 +359,6 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
-    add_skin = function(self, skin)
-        -- TODO: Should accept an ActorSkin
-    end,
-
-
     --@instance
     --@return       Achievement
     --[[
@@ -388,29 +383,36 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
     -- modifying vanilla survivor stats too if desired
     local survivor = Survivor.wrap(result.value)
     Callback.add("__permanent", survivor.on_init, Callback.internal.FIRST, function(actor)
+        -- Base and level stats
         local data = __survivor_data[actor.class]
-        if not data then return end
+        if data then
+            local base = data.stats_base
+            if base then
+                actor.maxhp_base            = base.health
+                actor.damage_base           = base.damage
+                actor.hp_regen_base         = base.regen
+                actor.armor_base            = base.armor
+                actor.attack_speed_base     = base.attack_speed
+                actor.critical_chance_base  = base.critical_chance
+            end
 
-        local base = data.stats_base
-        if base then
-            actor.maxhp_base            = base.health
-            actor.damage_base           = base.damage
-            actor.hp_regen_base         = base.regen
-            actor.armor_base            = base.armor
-            actor.attack_speed_base     = base.attack_speed
-            actor.critical_chance_base  = base.critical_chance
+            local level = data.stats_level
+            if level then
+                actor.maxhp_level           = level.health
+                actor.damage_level          = level.damage
+                actor.hp_regen_level        = level.regen
+                actor.armor_level           = level.armor
+                actor.attack_speed_level    = level.attack_speed
+                actor.critical_chance_level = level.critical_chance
+            end
         end
 
-        local level = data.stats_level
-        if level then
-            actor.maxhp_level           = level.health
-            actor.damage_level          = level.damage
-            actor.hp_regen_level        = level.regen
-            actor.armor_level           = level.armor
-            actor.attack_speed_level    = level.attack_speed
-            actor.critical_chance_level = level.critical_chance
+        -- Set palette
+        if Util.bool(survivor.sprite_palette) then
+            actor.sprite_palette = survivor.sprite_palette
+        else
+            log.warning("Survivor '"..survivor.namespace.."-"..survivor.identifier.."' has no `sprite_palette` set; defaulting to 'gm.constants.sCommandoPalette'")
+            actor.sprite_palette = gm.constants.sCommandoPalette
         end
-
-        actor.sprite_palette = survivor.sprite_palette
     end)
 end)
