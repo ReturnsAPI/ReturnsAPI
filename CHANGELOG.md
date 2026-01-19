@@ -1,3 +1,6 @@
+### v0.1.43
+- Survivor : Set `pHmax_base` to `2.8` on init
+
 ### v0.1.42
 - Actor : Add `buff_time`
 - Util

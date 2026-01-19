@@ -388,29 +388,41 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
     -- modifying vanilla survivor stats too if desired
     local survivor = Survivor.wrap(result.value)
     Callback.add("__permanent", survivor.on_init, Callback.internal.FIRST, function(actor)
+        -- Base and level stats
         local data = __survivor_data[actor.class]
-        if not data then return end
+        if data then
+            local base = data.stats_base
+            if base then
+                actor.maxhp_base            = base.health
+                actor.damage_base           = base.damage
+                actor.hp_regen_base         = base.regen
+                actor.armor_base            = base.armor
+                actor.attack_speed_base     = base.attack_speed
+                actor.critical_chance_base  = base.critical_chance
+            end
 
-        local base = data.stats_base
-        if base then
-            actor.maxhp_base            = base.health
-            actor.damage_base           = base.damage
-            actor.hp_regen_base         = base.regen
-            actor.armor_base            = base.armor
-            actor.attack_speed_base     = base.attack_speed
-            actor.critical_chance_base  = base.critical_chance
+            local level = data.stats_level
+            if level then
+                actor.maxhp_level           = level.health
+                actor.damage_level          = level.damage
+                actor.hp_regen_level        = level.regen
+                actor.armor_level           = level.armor
+                actor.attack_speed_level    = level.attack_speed
+                actor.critical_chance_level = level.critical_chance
+            end
         end
 
-        local level = data.stats_level
-        if level then
-            actor.maxhp_level           = level.health
-            actor.damage_level          = level.damage
-            actor.hp_regen_level        = level.regen
-            actor.armor_level           = level.armor
-            actor.attack_speed_level    = level.attack_speed
-            actor.critical_chance_level = level.critical_chance
+        -- Set base speed to 2.8 (except for Robomando)
+        if actor.class ~= 15 then
+            actor.pHmax_base = 2.8
         end
 
-        actor.sprite_palette = survivor.sprite_palette
+        -- Set palette
+        if Util.bool(survivor.sprite_palette) then
+            actor.sprite_palette = survivor.sprite_palette
+        else
+            log.warning("Survivor '"..survivor.namespace.."-"..survivor.identifier.."' has no `sprite_palette` set; defaulting to 'gm.constants.sCommandoPalette'")
+            actor.sprite_palette = gm.constants.sCommandoPalette
+        end
     end)
 end)
