@@ -114,6 +114,25 @@ Property | Type | Description
 
 
 
+-- ========== Internal ==========
+
+Survivor.internal.initialize = function()
+    -- Add existing vanilla palette sprites to 1st alt skin (SurvivorSkillLoadoutUnlockables)
+    -- Needs to be non-default since every survivor shares the same default
+    for i = 0, Survivor.CUSTOM_START - 1 do
+        local survivor = Survivor.wrap(i)
+        local name = string.upper(survivor.identifier:sub(1, 1))..survivor.identifier:sub(2, -1)
+        local default = survivor.skin_family.elements:get(1)
+        default.identifier       = "default_set"
+        default.palette          = gm.constants["s"..name.."Palette"]
+        default.palette_portrait = gm.constants["s"..name.."PortraitPalette"]
+        default.palette_loadout  = gm.constants["sSelect"..name.."Palette"]
+    end
+end
+table.insert(_rapi_initialize, Survivor.internal.initialize)
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods
@@ -426,8 +445,6 @@ Util.table_append(methods_class_array[name_rapi], {
                     0,      -- y
                     1,      -- w
                     height, -- h
-                    false,  -- removeback
-                    false,  -- smooth
                     0,      -- yorig
                     0       -- xorig
                 )
@@ -540,4 +557,77 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
             actor.sprite_palette = gm.constants.sCommandoPalette
         end
     end)
+end)
+
+
+-- On going to character select screen,
+gm.pre_script_hook(gm.constants.room_goto_w, function(self, other, result, args)
+    if args[1].value ~= gm.constants.rSelect then return end
+
+    -- Build final palette sprites for each survivor
+    for i = 0, #Class.Survivor - 1 do
+        local survivor = Survivor.wrap(i)
+
+        print("Building for "..survivor.identifier)
+
+        local palettes = {} -- palette (in-run), portrait, loadout
+        local keys = {"palette", "palette_portrait", "palette_loadout"}
+        local skin_family = survivor.skin_family.elements
+
+        -- Loop through skin_family and assemble palette sprites together
+        for j, unlockable in ipairs(skin_family) do
+            if unlockable.identifier then
+
+                print("identifier: "..unlockable.identifier)
+
+                for p, key in ipairs(keys) do
+                    local spr = palettes[p]
+                    local new = unlockable[key]
+
+                    -- Start with this if this is the first sprite found
+                    if not spr then
+                        print("new")
+                        palettes[p] = new
+                    
+                    -- Otherwise merge with existing sprite
+                    else
+                        print("merge")
+                        local width = gm.sprite_get_width(spr)
+                        local height = gm.sprite_get_height(spr)
+
+                        -- Draw existing sprite onto surface
+                        -- and then the new one at the end
+                        -- (Assuming palette sprites past the initial
+                        -- are 1 column wide, which should be the case)
+                        local surf = gm.surface_create(width + 1, height)
+                        gm.surface_set_target(surf)
+                        gm.draw_sprite(spr, 0, 0, 0)
+                        gm.draw_sprite(new, 0, width - 1, 0)
+                        gm.surface_reset_target()
+
+                        -- Create new sprite from surface
+                        palettes[p] = gm.sprite_create_from_surface_w(
+                            "rapi",
+                            "skinIntermediate",
+                            surf,       -- index
+                            0,          -- x
+                            0,          -- y
+                            width + 1,  -- w
+                            height,     -- h
+                            0,          -- yorig
+                            0           -- xorig
+                        )
+                        gm.surface_free(surf)
+                        
+                    end
+                end
+            end
+        end
+
+        -- Assign constructed palettes to survivor properties
+        -- (These sprites are not stored anywhere in ResourceManager but whatever)
+        survivor.sprite_palette          = palettes[1] or -1
+        survivor.sprite_portrait_palette = palettes[2] or -1
+        survivor.sprite_loadout_palette  = palettes[3] or -1
+    end
 end)
