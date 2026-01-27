@@ -138,6 +138,22 @@ Property | Type | Description
 -- ========== Internal ==========
 
 Survivor.internal.initialize = function()
+    -- Replace incorrect palettes with correct ones
+    -- local dir = path.combine(PATH, "core/data/loadout_palettes")
+    -- local files = path.get_files(dir)
+    -- for _, file in ipairs(files) do
+    --     local filename = path.stem(path.filename(file))
+    --     gm.sprite_replace(gm.constants[filename], file, 1, false, false, 0, 0)
+    -- end
+
+    -- Add correct palettes
+    local dir = path.combine(PATH, "core/data/loadout_palettes")
+    local files = path.get_files(dir)
+    for _, filepath in ipairs(files) do
+        local identifier = path.stem(path.filename(filepath))
+        Sprite.new(RAPI_NAMESPACE, identifier, filepath)
+    end
+
     -- Add existing vanilla palette sprites to 1st alt skin (SurvivorSkillLoadoutUnlockables)
     -- Needs to be non-default since every survivor shares the same default
     -- Judgement skin should be separated and added to the last alt skin
@@ -154,14 +170,20 @@ Survivor.internal.initialize = function()
         local name2 = name
         if survivor.identifier == "mercenary" then name2 = "Merc" end
 
+        -- Vanilla resources
         local palettes = {
             gm.constants["s"..name.."Palette"],
             gm.constants["s"..name2.."PortraitPalette"],
             gm.constants["sSelect"..name.."Palette"]
         }
+
+        -- RAPI-added resources
+        local loadout = Sprite.find(survivor.identifier.."PaletteLoadout", RAPI_NAMESPACE, true)
+        if loadout then palettes[3] = loadout.value end
+
         local pal_main = {}
         local pal_judgement = {}
-
+        
         for p, spr in ipairs(palettes) do
             local width = gm.sprite_get_width(spr)
             local height = gm.sprite_get_height(spr)
@@ -174,7 +196,7 @@ Survivor.internal.initialize = function()
 
             -- Main set
             pal_main[p] = gm.sprite_create_from_surface_w(
-                "rapi",
+                RAPI_NAMESPACE,
                 "skinIntermediate",
                 surf,       -- index
                 0,          -- x
@@ -187,7 +209,7 @@ Survivor.internal.initialize = function()
 
             -- Judgement
             pal_judgement[p] = gm.sprite_create_from_surface_w(
-                "rapi",
+                RAPI_NAMESPACE,
                 "skinIntermediate",
                 surf,       -- index
                 width - 1,  -- x
@@ -517,7 +539,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
                 -- Create new sprite from surface
                 skin[j] = gm.sprite_create_from_surface_w(
-                    "rapi",
+                    RAPI_NAMESPACE,
                     "skin_"..self.identifier.."-"..identifier.."_"..skin_suffix[j],
                     surf,   -- index
                     0,      -- x
@@ -682,7 +704,7 @@ gm.pre_script_hook(gm.constants.room_goto_w, function(self, other, result, args)
 
                         -- Create new sprite from surface
                         palettes[p] = gm.sprite_create_from_surface_w(
-                            "rapi",
+                            RAPI_NAMESPACE,
                             "skinIntermediate",
                             surf,       -- index
                             0,          -- x
