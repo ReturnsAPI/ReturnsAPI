@@ -158,7 +158,7 @@ Packet.new = function(NAMESPACE, identifier)
     -- Add to find table
     __packet_find_table:set(packet, identifier, NAMESPACE, id)
 
-    print("Created Packet with ID "..id.." (nsid "..nsid..")")
+    print("Created Packet with ID "..math.floor(id).." (nsid '"..nsid.."')")
 
     return packet
 end

@@ -87,9 +87,9 @@ Property | Type | Description
 `sprite_idle`               | sprite    | 
 `sprite_portrait`           | sprite    | 
 `sprite_portrait_small`     | sprite    | 
-`sprite_palette`            |           | 
-`sprite_portrait_palette`   |           | 
-`sprite_loadout_palette`    |           | 
+`sprite_palette`            | sprite    | **This should not be manually set.**
+`sprite_portrait_palette`   | sprite    | Unused in vanilla, but used by ReturnsAPI. **This should not be manually set.**
+`sprite_loadout_palette`    | sprite    | Unused in vanilla, but used by ReturnsAPI. **This should not be manually set.**
 `sprite_credits`            | sprite    | 
 `primary_color`             | color     | 
 `select_sound_id`           | sound     | 
@@ -99,8 +99,8 @@ Property | Type | Description
 `milestone_items_1`         |           | 
 `milestone_stages_1`        |           | 
 `on_init`                   | number    | The ID of the callback that runs when an instance of the survivor is created. <br>The callback function should have the argument `actor`.
-`on_step`                   | number    | The ID of the callback that runs when . <br>The callback function should have the arguments `(TODO)`.
-`on_remove`                 | number    | The ID of the callback that runs when . <br>The callback function should have the arguments `(TODO)`.
+`on_step`                   | number    | The ID of the callback that runs when (TODO). <br>The callback function should have the arguments `(TODO)`.
+`on_remove`                 | number    | The ID of the callback that runs when (TODO). <br>The callback function should have the arguments `(TODO)`.
 `is_secret`                 | bool      | 
 `cape_offset`               | Array     | Stores the drawing offset for Prophet's Cape. <br>Array order: `x_offset, y_offset, x_offset_climbing, y_offset_climbing`
 ]]
@@ -359,8 +359,53 @@ Util.table_append(methods_class_array[name_rapi], {
     end,
 
 
+    --@instance
+    --@param        skin        | ActorSkin | The skin to add.
+    --[[
+    Adds a skin.
+    Does nothing if the skin is already present.
+    ]]
     add_skin = function(self, skin)
-        -- TODO: Should accept an ActorSkin
+        skin = Wrap.unwrap(skin)
+
+        if type(skin) ~= "number" then log.error("add_skin: Invalid skin argument", 2) end
+
+        -- Check if skin is already present in skin family
+        local array = self.array:get(Survivor.Property.SKIN_FAMILY).elements
+        for i, skin_loadout_unlockable in ipairs(array) do
+            if skin_loadout_unlockable.skin_id == skin then
+                return
+            end
+        end
+
+        -- Add new SurvivorSkinLoadoutUnlockable to skin family
+        array:push(
+            Struct.new(
+                gm.constants.SurvivorSkinLoadoutUnlockable,
+                skin
+            )
+        )
+    end,
+
+
+    --@instance
+    --@param        skin        | ActorSkin | The skin to remove.
+    --[[
+    Removes a skin.
+    ]]
+    remove_skin = function(self, skin)
+        skin = Wrap.unwrap(skin)
+
+        if type(skin) ~= "number" then log.error("remove_skin: Invalid skin argument", 2) end
+
+        -- Remove correct SurvivorSkinLoadoutUnlockable from slot family
+        local array = self.array:get(Survivor.Property.SKIN_FAMILY).elements
+        for i, skin_loadout_unlockable in ipairs(array) do
+            if skin_loadout_unlockable.skin_id == skin then
+                array:delete(i)
+                return
+            end
+        end
     end,
 
 
@@ -412,8 +457,8 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
             end
         end
 
-        -- Set base speed to 2.8 (except for Robomando)
-        if actor.class ~= 15 then
+        -- Set base speed to 2.8 for custom survivors
+        if actor.class > 15 then
             actor.pHmax_base = 2.8
         end
 

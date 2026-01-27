@@ -244,7 +244,7 @@ Util.table_append(methods_class_array[name_rapi], {
     Associates the achievement with a skill.
 
     More specifically, it associates with all `SurvivorSkillLoadoutUnlockable`s
-    that are of the skill, so the skill must be added to the survivor first.
+    that are of the skill, so the **skill must be added to the survivor first**.
     ]]
     set_unlock_skill = function(self, content)
         if self.value < 0 then log.error("set_unlock_skill: Achievement does not exist", 2) end
@@ -266,6 +266,19 @@ Util.table_append(methods_class_array[name_rapi], {
                 break
             end
         end
+    end,
+
+
+    --@instance
+    --@param        skin        | ActorSkin | The skin to associate with.
+    --[[
+    Associates the achievement with a skin.
+
+    More specifically, it associates with all `SurvivorSkinLoadoutUnlockable`s
+    that are of the skin, so the **skin must be added to the survivor first**.
+    ]]
+    set_unlock_skin = function(self, content)
+        -- Similar to set_unlock_skill
     end,
 
 
