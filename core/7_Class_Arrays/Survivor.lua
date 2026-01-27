@@ -138,14 +138,6 @@ Property | Type | Description
 -- ========== Internal ==========
 
 Survivor.internal.initialize = function()
-    -- Replace incorrect palettes with correct ones
-    -- local dir = path.combine(PATH, "core/data/loadout_palettes")
-    -- local files = path.get_files(dir)
-    -- for _, file in ipairs(files) do
-    --     local filename = path.stem(path.filename(file))
-    --     gm.sprite_replace(gm.constants[filename], file, 1, false, false, 0, 0)
-    -- end
-
     -- Add correct palettes
     local dir = path.combine(PATH, "core/data/loadout_palettes")
     local files = path.get_files(dir)
@@ -170,7 +162,7 @@ Survivor.internal.initialize = function()
         local name2 = name
         if survivor.identifier == "mercenary" then name2 = "Merc" end
 
-        -- Vanilla resources
+        -- Vanilla resources (fallback)
         local palettes = {
             gm.constants["s"..name.."Palette"],
             gm.constants["s"..name2.."PortraitPalette"],
@@ -178,12 +170,16 @@ Survivor.internal.initialize = function()
         }
 
         -- RAPI-added resources
-        local loadout = Sprite.find(survivor.identifier.."PaletteLoadout", RAPI_NAMESPACE, true)
-        if loadout then palettes[3] = loadout.value end
+        local palette   = Sprite.find(survivor.identifier.."Palette", RAPI_NAMESPACE, true)
+        local portrait  = Sprite.find(survivor.identifier.."PalettePortrait", RAPI_NAMESPACE, true)
+        local loadout   = Sprite.find(survivor.identifier.."PaletteLoadout", RAPI_NAMESPACE, true)
+        if palette  then palettes[1] = palette.value end
+        if portrait then palettes[2] = portrait.value end
+        if loadout  then palettes[3] = loadout.value end
 
         local pal_main = {}
         local pal_judgement = {}
-        
+
         for p, spr in ipairs(palettes) do
             local width = gm.sprite_get_width(spr)
             local height = gm.sprite_get_height(spr)
