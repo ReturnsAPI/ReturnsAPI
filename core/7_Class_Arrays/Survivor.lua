@@ -119,14 +119,78 @@ Property | Type | Description
 Survivor.internal.initialize = function()
     -- Add existing vanilla palette sprites to 1st alt skin (SurvivorSkillLoadoutUnlockables)
     -- Needs to be non-default since every survivor shares the same default
+    -- Judgement skin should be separated and added to the last alt skin
     for i = 0, Survivor.CUSTOM_START - 1 do
         local survivor = Survivor.wrap(i)
+        local skin_family = survivor.skin_family.elements
+
+        -- TODO: Since many palettes are wrong, this lookup of vanilla
+        -- resources will be replaced with RAPI-added palette pngs
         local name = string.upper(survivor.identifier:sub(1, 1))..survivor.identifier:sub(2, -1)
-        local default = survivor.skin_family.elements:get(1)
+        if survivor.identifier == "hand"     then name = "HAND" end
+        if survivor.identifier == "engineer" then name = "Engi" end
+
+        local name2 = name
+        if survivor.identifier == "mercenary" then name2 = "Merc" end
+
+        local palettes = {
+            gm.constants["s"..name.."Palette"],
+            gm.constants["s"..name2.."PortraitPalette"],
+            gm.constants["sSelect"..name.."Palette"]
+        }
+        local pal_main = {}
+        local pal_judgement = {}
+
+        for p, spr in ipairs(palettes) do
+            local width = gm.sprite_get_width(spr)
+            local height = gm.sprite_get_height(spr)
+
+            -- Main set
+            local surf = gm.surface_create(width, height)
+            gm.surface_set_target(surf)
+            gm.draw_sprite(spr, 0, 0, 0)
+            gm.surface_reset_target()
+
+            -- Main set
+            pal_main[p] = gm.sprite_create_from_surface_w(
+                "rapi",
+                "skinIntermediate",
+                surf,       -- index
+                0,          -- x
+                0,          -- y
+                width - 1,  -- w
+                height,     -- h
+                0,          -- yorig
+                0           -- xorig
+            )
+
+            -- Judgement
+            pal_judgement[p] = gm.sprite_create_from_surface_w(
+                "rapi",
+                "skinIntermediate",
+                surf,       -- index
+                width - 1,  -- x
+                0,          -- y
+                1,          -- w
+                height,     -- h
+                0,          -- yorig
+                0           -- xorig
+            )
+
+            gm.surface_free(surf)
+        end
+
+        local default = skin_family:get(1)
         default.identifier       = "default_set"
-        default.palette          = gm.constants["s"..name.."Palette"]
-        default.palette_portrait = gm.constants["s"..name.."PortraitPalette"]
-        default.palette_loadout  = gm.constants["sSelect"..name.."Palette"]
+        default.palette          = pal_main[1]
+        default.palette_portrait = pal_main[2]
+        default.palette_loadout  = pal_main[3]
+
+        local judgement = skin_family:get(#skin_family - 1)
+        judgement.identifier       = "judgement"
+        judgement.palette          = pal_judgement[1]
+        judgement.palette_portrait = pal_judgement[2]
+        judgement.palette_loadout  = pal_judgement[3]
     end
 end
 table.insert(_rapi_initialize, Survivor.internal.initialize)
@@ -426,20 +490,13 @@ Util.table_append(methods_class_array[name_rapi], {
                 -- Draw relevant column onto surface
                 local surf = gm.surface_create(1, height)
                 gm.surface_set_target(surf)
-                gm.draw_sprite(spr, 0, -i, 0)
+                gm.draw_sprite(spr, 0, 1 - i, 0)
                 gm.surface_reset_target()
 
                 -- Create new sprite from surface
-                local sprite_identifier
-                local k = 1
-                repeat
-                    sprite_identifier = "skin_"..self.identifier.."-"..identifier.."_"..skin_suffix[j]..k
-                    k = k + 1
-                until (not Sprite.find(sprite_identifier, "rapi"))
-
                 skin[j] = gm.sprite_create_from_surface_w(
                     "rapi",
-                    sprite_identifier,
+                    "skin_"..self.identifier.."-"..identifier.."_"..skin_suffix[j],
                     surf,   -- index
                     0,      -- x
                     0,      -- y
@@ -478,16 +535,16 @@ Util.table_append(methods_class_array[name_rapi], {
                 -- Create new SurvivorSkinLoadoutUnlockable
                 local unlockable = Struct.new(
                     gm.constants.SurvivorSkinLoadoutUnlockable,
-                    gm.actor_skin_get_default_palette_swap(index or #skin_family)
+                    gm.actor_skin_get_default_palette_swap(index or (#skin_family - 1))
                 )
                 unlockable.identifier       = identifier
                 unlockable.palette          = skin[1]
                 unlockable.palette_portrait = skin[2]
                 unlockable.palette_loadout  = skin[3]
 
-                -- Add unlockable to skin_family
+                -- Add unlockable to skin_family (just before Judgement skins)
                 -- or replace existing
-                if not index then skin_family:push(unlockable)
+                if not index then skin_family:insert(#skin_family - 1, unlockable)
                 else skin_family:set(index, unlockable)
                 end
 
@@ -562,13 +619,13 @@ end)
 
 -- On going to character select screen,
 gm.pre_script_hook(gm.constants.room_goto_w, function(self, other, result, args)
+    -- if true then return end
+
     if args[1].value ~= gm.constants.rSelect then return end
 
     -- Build final palette sprites for each survivor
     for i = 0, #Class.Survivor - 1 do
         local survivor = Survivor.wrap(i)
-
-        print("Building for "..survivor.identifier)
 
         local palettes = {} -- palette (in-run), portrait, loadout
         local keys = {"palette", "palette_portrait", "palette_loadout"}
@@ -578,20 +635,16 @@ gm.pre_script_hook(gm.constants.room_goto_w, function(self, other, result, args)
         for j, unlockable in ipairs(skin_family) do
             if unlockable.identifier then
 
-                print("identifier: "..unlockable.identifier)
-
                 for p, key in ipairs(keys) do
                     local spr = palettes[p]
                     local new = unlockable[key]
 
                     -- Start with this if this is the first sprite found
                     if not spr then
-                        print("new")
                         palettes[p] = new
                     
                     -- Otherwise merge with existing sprite
                     else
-                        print("merge")
                         local width = gm.sprite_get_width(spr)
                         local height = gm.sprite_get_height(spr)
 
@@ -602,7 +655,7 @@ gm.pre_script_hook(gm.constants.room_goto_w, function(self, other, result, args)
                         local surf = gm.surface_create(width + 1, height)
                         gm.surface_set_target(surf)
                         gm.draw_sprite(spr, 0, 0, 0)
-                        gm.draw_sprite(new, 0, width - 1, 0)
+                        gm.draw_sprite(new, 0, width, 0)
                         gm.surface_reset_target()
 
                         -- Create new sprite from surface
