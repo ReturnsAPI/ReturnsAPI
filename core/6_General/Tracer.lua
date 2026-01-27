@@ -83,6 +83,34 @@ end
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | *Read-only.* The ID of the tracer.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+
+<br>
+
+Property | Type | Description
+| - | - | -
+`namespace`                         | string    | The namespace the tracer is in.
+`identifier`                        | string    | The identifier for the tracer within the namespace.
+`consistent_sparks_flip`            | bool      | 
+`show_sparks_if_miss`               | bool      | 
+`sparks_offset_y`                   | number    | 
+`show_end_sparks_on_piercing_hit`   | bool      | 
+`override_sparks_miss`              | number    | 
+`override_sparks_solid`             | number    | 
+`draw_tracer`                       | bool      | 
+]]
+
+
+
 -- ========== Internal ==========
 
 Tracer.internal.initialize = function()
@@ -115,34 +143,6 @@ Tracer.internal.initialize = function()
     end)
 end
 table.insert(_rapi_initialize, Tracer.internal.initialize)
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The ID of the tracer.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-
-<br>
-
-Property | Type | Description
-| - | - | -
-`namespace`                         | string    | The namespace the tracer is in.
-`identifier`                        | string    | The identifier for the tracer within the namespace.
-`consistent_sparks_flip`            | bool      | 
-`show_sparks_if_miss`               | bool      | 
-`sparks_offset_y`                   | number    | 
-`show_end_sparks_on_piercing_hit`   | bool      | 
-`override_sparks_miss`              | number    | 
-`override_sparks_solid`             | number    | 
-`draw_tracer`                       | bool      | 
-]]
 
 
 
