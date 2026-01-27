@@ -72,6 +72,9 @@ gui.add_to_menu_bar(function()
             repeat count = count + 1
             until (not gm.constants["sSelect"..char.."_PAL"..count])
 
+            -- Edge case: Engi_PAL4 is unused
+            if char == "Engi" then count = count - 1 end
+
             for i = 1, count do
                 local name = "sSelect"..char.."_PAL"..i
                 if i == count then name = "sSelect"..char.."_PROV" end

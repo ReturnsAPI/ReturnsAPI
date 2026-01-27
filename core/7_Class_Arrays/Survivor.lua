@@ -471,12 +471,13 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        identifiers         | string or table   | The identifier(s) for the skin(s); consider prefixing with your mod's namespace.. <br>If multiple skins are in the given sprites, pass a table of identifiers (one for each).
+    --@param        identifiers         | string or table   | The identifier(s) for the skin(s); consider prefixing with your mod's namespace. <br>If multiple skins are in the given sprites, pass a table of identifiers (one for each).
     --@param        palette             | sprite            | The palette sprite used in-run.
     --@param        palette_portrait    | sprite            | The palette sprite used in the character portrait. <br>Skin count (width) should be equal to `palette`.
     --@param        palette_loadout     | sprite            | The palette sprite used in the character select animation. <br>Skin count (width) should be equal to `palette`.
     --[[
     Adds a skin(s).
+    New skins are added just before the Judgement skin.
     Existing identifiers will be overwritten with the new palette.
 
     For modded survivors, the **first skin added should be the default palette**.
