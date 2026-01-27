@@ -20,6 +20,8 @@ Property | Type | Description
 `RAPI`          | string    | *Read-only.* The wrapper name.
 `namespace`     | string    | *Read-only.* The namespace the sprite is in.
 `identifier`    | string    | *Read-only.* The identifier for the sprite within the namespace.
+`width`         | number    | *Read-only.* The width of the sprite (in pixels).
+`height`        | number    | *Read-only.* The height of the sprite (in pixels).
 ]]
 
 
@@ -265,6 +267,10 @@ make_table_once("metatable_sprite", {
         -- Get wrapped value
         if k == "value" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
+
+        -- Get width/height
+        if k == "width"  then return math.floor(gm.sprite_get_width (__proxy[proxy])) end
+        if k == "height" then return math.floor(gm.sprite_get_height(__proxy[proxy])) end
         
         -- Methods
         if methods_sprite[k] then
@@ -279,7 +285,11 @@ make_table_once("metatable_sprite", {
     __newindex = function(proxy, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
-        or k == "RAPI" then
+        or k == "RAPI"
+        or k == "namespace"
+        or k == "identifier"
+        or k == "width"
+        or k == "height" then
             log.error("Key '"..k.."' is read-only", 2)
         end
         
