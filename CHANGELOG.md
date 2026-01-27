@@ -1,7 +1,7 @@
 ### v0.1.44
 - Survivor : Add `add_skin`
-- Achievement : Add `set_unlock_skin` (TODO)
-- Sprite : Add `.width` and `.height` getters to wrapper
+- Achievement : Add `set_unlock_skin`
+- Sprite : Add `.width`, `.height`, and `.subimages` getters to wrapper
 
 ### v0.1.43
 - Survivor : Set `pHmax_base` to `2.8` on init

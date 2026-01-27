@@ -22,6 +22,7 @@ Property | Type | Description
 `identifier`    | string    | *Read-only.* The identifier for the sprite within the namespace.
 `width`         | number    | *Read-only.* The width of the sprite (in pixels).
 `height`        | number    | *Read-only.* The height of the sprite (in pixels).
+`subimages`     | number    | *Read-only.* The number of subimages of the sprite.
 ]]
 
 
@@ -269,8 +270,9 @@ make_table_once("metatable_sprite", {
         if k == "RAPI" then return wrapper_name end
 
         -- Get width/height
-        if k == "width"  then return math.floor(gm.sprite_get_width (__proxy[proxy])) end
-        if k == "height" then return math.floor(gm.sprite_get_height(__proxy[proxy])) end
+        if k == "width"     then return math.floor(gm.sprite_get_width (__proxy[proxy])) end
+        if k == "height"    then return math.floor(gm.sprite_get_height(__proxy[proxy])) end
+        if k == "subimages" then return math.floor(gm.sprite_get_number(__proxy[proxy])) end
         
         -- Methods
         if methods_sprite[k] then
@@ -289,7 +291,8 @@ make_table_once("metatable_sprite", {
         or k == "namespace"
         or k == "identifier"
         or k == "width"
-        or k == "height" then
+        or k == "height"
+        or k == "subimages" then
             log.error("Key '"..k.."' is read-only", 2)
         end
         
