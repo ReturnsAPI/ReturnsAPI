@@ -153,8 +153,7 @@ Survivor.internal.initialize = function()
         local survivor = Survivor.wrap(i)
         local skin_family = survivor.skin_family.elements
 
-        -- TODO: Since many palettes are wrong, this lookup of vanilla
-        -- resources will be replaced with RAPI-added palette pngs
+        -- Vanilla resources (fallback)
         local name = string.upper(survivor.identifier:sub(1, 1))..survivor.identifier:sub(2, -1)
         if survivor.identifier == "hand"     then name = "HAND" end
         if survivor.identifier == "engineer" then name = "Engi" end
@@ -162,7 +161,6 @@ Survivor.internal.initialize = function()
         local name2 = name
         if survivor.identifier == "mercenary" then name2 = "Merc" end
 
-        -- Vanilla resources (fallback)
         local palettes = {
             gm.constants["s"..name.."Palette"],
             gm.constants["s"..name2.."PortraitPalette"],
@@ -177,6 +175,7 @@ Survivor.internal.initialize = function()
         if portrait then palettes[2] = portrait.value end
         if loadout  then palettes[3] = loadout.value end
 
+        -- Separate palettes into main set and judgement
         local pal_main = {}
         local pal_judgement = {}
 
@@ -184,7 +183,6 @@ Survivor.internal.initialize = function()
             local width = gm.sprite_get_width(spr)
             local height = gm.sprite_get_height(spr)
 
-            -- Main set
             local surf = gm.surface_create(width, height)
             gm.surface_set_target(surf)
             gm.draw_sprite(spr, 0, 0, 0)
@@ -219,6 +217,7 @@ Survivor.internal.initialize = function()
             gm.surface_free(surf)
         end
 
+        -- Store in SurvivorSkinLoadoutUnlockables
         local default = skin_family:get(1)
         default.identifier       = "default_set"
         default.palette          = pal_main[1]
