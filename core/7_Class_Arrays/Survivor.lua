@@ -53,6 +53,27 @@ CAPE_OFFSET             33
 ]]
 
 
+--@enum
+Survivor.Class = {
+    COMMANDO    = 0,
+    HUNTRESS    = 1,
+    ENFORCER    = 2,
+    BANDIT      = 3,
+    HAND        = 4,
+    ENGINEER    = 5,
+    MINER       = 6,
+    SNIPER      = 7,
+    ACRID       = 8,
+    MERCENARY   = 9,
+    LOADER      = 10,
+    CHEF        = 11,
+    PILOT       = 12,
+    ARTIFICER   = 13,
+    DRIFTER     = 14,
+    ROBOMANDO   = 15
+}
+
+
 --@constants
 --[[
 CUSTOM_START    16

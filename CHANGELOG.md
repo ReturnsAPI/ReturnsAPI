@@ -1,5 +1,7 @@
 ### v0.1.44
-- Survivor : Add `add_skin`
+- Survivor
+    - Add `add_skin`
+    - Add `Class` enum
 - Achievement : Add `set_unlock_skin`
 - Sprite : Add `.width`, `.height`, and `.subimages` getters to wrapper
 
