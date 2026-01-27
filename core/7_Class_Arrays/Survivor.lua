@@ -53,6 +53,13 @@ CAPE_OFFSET             33
 ]]
 
 
+--@constants
+--[[
+CUSTOM_START    16
+]]
+Survivor.CUSTOM_START = 16
+
+
 
 -- ========== Properties ==========
 
@@ -360,50 +367,113 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        skin        | ActorSkin | The skin to add.
+    --@param        identifiers         | string or table   | The identifier(s) for the skin(s); consider prefixing with your mod's namespace.. <br>If multiple skins are in the given sprites, pass a table of identifiers (one for each).
+    --@param        palette             | sprite            | The palette sprite used in-run.
+    --@param        palette_portrait    | sprite            | The palette sprite used in the character portrait. <br>Skin count (width) should be equal to `palette`.
+    --@param        palette_loadout     | sprite            | The palette sprite used in the character select animation. <br>Skin count (width) should be equal to `palette`.
     --[[
-    Adds a skin.
-    Does nothing if the skin is already present.
+    Adds a skin(s).
+    Existing identifiers will be overwritten with the new palette.
+
+    For modded survivors, the **first skin added should be the default palette**.
     ]]
-    add_skin = function(self, skin)
-        skin = Wrap.unwrap(skin)
+    add_skin = function(self, identifiers, palette, palette_portrait, palette_loadout)
+        if not identifiers then log.error("add_skin: Invalid identifiers argument", 2) end
+        if type(identifiers) == "string" then identifiers = {identifiers} end
 
-        if type(skin) ~= "number" then log.error("add_skin: Invalid skin argument", 2) end
+        palette          = Wrap.unwrap(palette)
+        palette_portrait = Wrap.unwrap(palette_portrait)
+        palette_loadout  = Wrap.unwrap(palette_loadout)
+        if type(palette)          ~= "number" then log.error("add_skin: Invalid palette argument", 2) end
+        if type(palette_portrait) ~= "number" then log.error("add_skin: Invalid palette_portrait argument", 2) end
+        if type(palette_loadout)  ~= "number" then log.error("add_skin: Invalid palette_loadout argument", 2) end
 
-        -- Check if skin is already present in skin family
-        local array = self.array:get(Survivor.Property.SKIN_FAMILY).elements
-        for i, skin_loadout_unlockable in ipairs(array) do
-            if skin_loadout_unlockable.skin_id == skin then
-                return
+        local count = gm.sprite_get_width(palette)
+        local countp = gm.sprite_get_width(palette_portrait)
+        local countl = gm.sprite_get_width(palette_loadout)
+        if count ~= countp then log.error("add_skin: palette_portrait skin count does not match palette", 2) end
+        if count ~= countl then log.error("add_skin: palette_loadout skin count does not match palette", 2) end
+
+        for i = 1, count do
+            local identifier = identifiers[i]
+
+            local skin = {palette, palette_portrait, palette_loadout}
+            local skin_suffix = {"palette", "portrait", "loadout"}
+
+            -- Extract relevant columns from each sprite
+            for j, spr in ipairs(skin) do
+                local height = gm.sprite_get_height(spr)
+
+                -- Draw relevant column onto surface
+                local surf = gm.surface_create(1, height)
+                gm.surface_set_target(surf)
+                gm.draw_sprite(spr, 0, -i, 0)
+                gm.surface_reset_target()
+
+                -- Create new sprite from surface
+                local sprite_identifier
+                local k = 1
+                repeat
+                    sprite_identifier = "skin_"..self.identifier.."-"..identifier.."_"..skin_suffix[j]..k
+                    k = k + 1
+                until (not Sprite.find(sprite_identifier, "rapi"))
+
+                skin[j] = gm.sprite_create_from_surface_w(
+                    "rapi",
+                    sprite_identifier,
+                    surf,   -- index
+                    0,      -- x
+                    0,      -- y
+                    1,      -- w
+                    height, -- h
+                    false,  -- removeback
+                    false,  -- smooth
+                    0,      -- yorig
+                    0       -- xorig
+                )
+                gm.surface_free(surf)
             end
-        end
 
-        -- Add new SurvivorSkinLoadoutUnlockable to skin family
-        array:push(
-            Struct.new(
-                gm.constants.SurvivorSkinLoadoutUnlockable,
-                skin
-            )
-        )
-    end,
+            local skin_family = self.skin_family.elements
+            local default = skin_family:get(0)
 
+            -- Check if identifier is already present in skin_family
+            local index
+            for j, sslu in ipairs(skin_family) do
+                if sslu.identifier == identifier then
+                    index = j - 1
+                    break
+                end
+            end
 
-    --@instance
-    --@param        skin        | ActorSkin | The skin to remove.
-    --[[
-    Removes a skin.
-    ]]
-    remove_skin = function(self, skin)
-        skin = Wrap.unwrap(skin)
+            -- Check if this is a modded survivor
+            -- and first skin being added
+            -- OR if index is 0 (in which case modifying default by identifier)
+            if  (self.value >= Survivor.CUSTOM_START
+            and (not default.identifier))
+            or  index == 0 then
+                default.identifier       = identifier
+                default.palette          = skin[1]
+                default.palette_portrait = skin[2]
+                default.palette_loadout  = skin[3]
+                
+            else
+                -- Create new SurvivorSkinLoadoutUnlockable
+                local unlockable = Struct.new(
+                    gm.constants.SurvivorSkinLoadoutUnlockable,
+                    gm.actor_skin_get_default_palette_swap(index or #skin_family)
+                )
+                unlockable.identifier       = identifier
+                unlockable.palette          = skin[1]
+                unlockable.palette_portrait = skin[2]
+                unlockable.palette_loadout  = skin[3]
 
-        if type(skin) ~= "number" then log.error("remove_skin: Invalid skin argument", 2) end
+                -- Add unlockable to skin_family
+                -- or replace existing
+                if not index then skin_family:push(unlockable)
+                else skin_family:set(index, unlockable)
+                end
 
-        -- Remove correct SurvivorSkinLoadoutUnlockable from slot family
-        local array = self.array:get(Survivor.Property.SKIN_FAMILY).elements
-        for i, skin_loadout_unlockable in ipairs(array) do
-            if skin_loadout_unlockable.skin_id == skin then
-                array:delete(i)
-                return
             end
         end
     end,
@@ -458,7 +528,7 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
         end
 
         -- Set base speed to 2.8 for custom survivors
-        if actor.class > 15 then
+        if actor.class >= Survivor.CUSTOM_START then
             actor.pHmax_base = 2.8
         end
 

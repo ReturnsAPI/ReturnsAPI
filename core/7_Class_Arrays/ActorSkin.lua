@@ -1,5 +1,10 @@
 -- ActorSkin
 
+--[[
+This class is here for completeness.
+Skin adding should be done through @link {`survivor:add_skin` | Survivor#add_skin }.
+]]
+
 local name_rapi = class_name_g2r["class_actor_skin"]
 ActorSkin = __class[name_rapi]
 
