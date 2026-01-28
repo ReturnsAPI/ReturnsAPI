@@ -51,7 +51,7 @@ Automatically replaces `print()` with this on `.auto()` import;
 the original is saved as `lua_print()`.
 ]]
 Util.print = Util.internal.make_print(_ENV["!guid"])
--- Each mod gets their own version with their name binded
+-- Each mod gets their own version with their name binded in `envy.lua`
 
 
 --@static
@@ -279,7 +279,7 @@ If multiple of the specified value exists,
 the first key found will be returned.
 ]]
 Util.table_find = function(t, value)
-    if not t then return log.error("Util.table_has: t is nil", 2) end
+    if not t then return log.error("Util.table_find: t is nil", 2) end
     for k, v in pairs(t) do
         if v == value then return k end
     end
@@ -295,7 +295,7 @@ Removes the first occurence of the specified
 value from a numerically-indexed table.
 ]]
 Util.table_remove_value = function(t, value)
-    if not t then return log.error("Util.table_has: t is nil", 2) end
+    if not t then return log.error("Util.table_remove_value: t is nil", 2) end
     for i, v in ipairs(t) do
         if v == value then
             table.remove(t, i)
@@ -312,7 +312,7 @@ end
 Returns a table of keys of the specified table.
 ]]
 Util.table_get_keys = function(t)
-    if not t then return log.error("Util.table_has: t is nil", 2) end
+    if not t then return log.error("Util.table_get_keys: t is nil", 2) end
     local keys = {}
     for k, _ in pairs(t) do
         table.insert(keys, k)
@@ -354,6 +354,8 @@ Appends keys from `src` to `dest`.
 Existing keys will be overwritten.
 ]]
 Util.table_append = function(dest, src)
+    if not dest then return log.error("Util.table_append: dest is nil", 2) end
+    if not src  then return log.error("Util.table_append: src is nil",  2) end
     for k, v in pairs(src) do
         dest[k] = v
     end
@@ -368,6 +370,8 @@ Inserts a table of values (`src`) to `dest`.
 Both should be *numerically-indexed* tables.
 ]]
 Util.table_insert = function(dest, src)
+    if not dest then return log.error("Util.table_insert: dest is nil", 2) end
+    if not src  then return log.error("Util.table_insert: src is nil",  2) end
     for _, v in ipairs(src) do
         table.insert(dest, v)
     end
@@ -380,6 +384,7 @@ end
 Returns a shallow copy of the table.
 ]]
 Util.table_shallow_copy = function(src)
+    if not src then return log.error("Util.table_shallow_copy: src is nil", 2) end
     local t = {}
     for k, v in pairs(src) do
         t[k] = v
