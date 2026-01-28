@@ -29,7 +29,8 @@ run_once(function()
             -- Register a callback function
             -- Stored as a function data table
             -- Returns a unique ID
-            add = function(self, fn, namespace, priority, section, id_override)
+            -- `data` is a table for extraneous information if needed
+            add = function(self, fn, namespace, priority, section, id_override, data)
                 priority = priority or 0    -- Higher values run before lower ones
                 section = section or "main"
 
@@ -64,7 +65,8 @@ run_once(function()
                     namespace   = namespace,
                     priority    = priority,
                     section     = section,
-                    enabled     = true
+                    enabled     = true,
+                    data        = data or {}
                 }
 
                 -- Add callback function data table to priority table

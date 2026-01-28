@@ -242,10 +242,49 @@ Callback.add = function(NAMESPACE, callback, arg2, arg3)
         log.error("Callback.add: No function provided", 2)
     end
 
+    -- Default priority (0)
     if type(arg2) == "function" then
         return Callback.wrap(__callback_cache:add(arg2, NAMESPACE, 0, callback))
     end
+
+    -- Custom priority
     return Callback.wrap(__callback_cache:add(arg3, NAMESPACE, arg2, callback))
+end
+
+
+--@static
+--@return       Callback
+--@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
+--@param        fn          | function  | The function to register. <br>The parameters for it are `self, other`, followed <br>by parameters of the callback type (see above).
+--@overload
+--@return       Callback
+--@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
+--@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@param        fn          | function  | The function to register. <br>The parameters for it are `self, other`, followed <br>by parameters of the callback type (see above).
+--[[
+Variant of @link {`Callback.add` | Callback#add} that passes `self, other`
+as the first two arguments to the callback function,
+which may have useful context for some callback types.
+]]
+Callback.add_SO = function(NAMESPACE, callback, arg2, arg3)
+    -- Throw error if not numerical ID
+    if type(callback) ~= "number" then
+        log.error("Callback.add_SO: Invalid Callback type", 2)
+    end
+
+    -- Throw error if not function
+    if  (type(arg2) ~= "function")
+    and (type(arg3) ~= "function") then
+        log.error("Callback.add_SO: No function provided", 2)
+    end
+
+    -- Default priority (0)
+    if type(arg2) == "function" then
+        return Callback.wrap(__callback_cache:add(arg2, NAMESPACE, 0, callback, nil, {SO = true}))
+    end
+
+    -- Custom priority
+    return Callback.wrap(__callback_cache:add(arg3, NAMESPACE, arg2, callback, nil, {SO = true}))
 end
 
 
@@ -500,7 +539,19 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
 
     -- Call registered functions with wrapped args
     __callback_cache:loop_and_call_functions(function(fn_table)
-        local status, ret = pcall(fn_table.fn, table.unpack(wrapped_args))
+        local status, ret, wrapped_self, wrapped_other
+
+        -- Standard call
+        if not fn_table.data.SO then
+            status, ret = pcall(fn_table.fn, table.unpack(wrapped_args))
+
+        -- SO call
+        else
+            if not wrapped_self  then wrapped_self  = Wrap.wrap(self)  end
+            if not wrapped_other then wrapped_other = Wrap.wrap(other) end
+            status, ret = pcall(fn_table.fn, wrapped_self, wrapped_other, table.unpack(wrapped_args))
+        end
+
         if not status then
             if (ret == nil)
             or (ret == "C++ exception") then ret = "GameMaker error (see above)" end

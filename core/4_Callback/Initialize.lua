@@ -80,7 +80,7 @@ end
 --@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
 --@param        fn          | function  | The function to register.
 --[[
-Version of @link {`add` | Initialize#add} that automatically calls the function
+Variant of @link {`Initialize.add` | Initialize#add} that automatically calls the function
 again when your mod is hotloaded after ReturnsAPI's initialization loop.
 ]]
 Initialize.add_hotloadable = function(NAMESPACE, arg1, arg2)
