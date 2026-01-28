@@ -156,29 +156,29 @@ gui.add_to_menu_bar(function()
             "Chef",
             "Pilot",
             "Arti",
-            -- "Drifter",   -- Drifter is weird here
+            -- "Drifter",   -- Drifter is weird here; done manually
             "Robomando",
         })
     end
 
     if ImGui.Button("Generate portrait palettes") then
         generate("s$Portrait", {
-            -- "Commando",
+            "Commando",
             "Huntress",
-            -- "Enforcer",
-            -- "Bandit",
-            -- "HAND",
-            -- "Engi",
-            -- "Miner",
-            -- "Sniper",
-            -- "Acrid",
-            -- "Merc",
-            -- "Loader",
-            -- "Chef",
-            -- "Pilot",
-            -- "Arti",
-            -- "Drifter",
-            -- "Robomando",
+            "Enforcer",
+            "Bandit",
+            "HAND",
+            "Engi",
+            "Miner",
+            "Sniper",
+            "Acrid",
+            "Merc",
+            "Loader",
+            "Chef",
+            "Pilot",
+            "Arti",
+            "Drifter",
+            "Robomando",
         })
     end
 end)

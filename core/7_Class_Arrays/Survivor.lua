@@ -141,8 +141,8 @@ Property | Type | Description
 Survivor.internal.initialize = function()
     -- Add correct palettes
     for _, dir in ipairs{
-        path.combine(PATH, "core/data/portrait_palettes"),
-        path.combine(PATH, "core/data/loadout_palettes")
+        path.combine(PATH, "core/sprites/portrait_palettes"),
+        path.combine(PATH, "core/sprites/loadout_palettes")
     } do
         local files = path.get_files(dir)
         for _, filepath in ipairs(files) do
