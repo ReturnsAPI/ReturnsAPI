@@ -5,6 +5,7 @@ Survivor = __class[name_rapi]
 
 run_once(function()
     __survivor_data = {}    -- Stores some data for survivors
+    __skin_default_counter = 0
 end)
 
 
@@ -150,8 +151,7 @@ Survivor.internal.initialize = function()
         end
     end
 
-    -- Add existing vanilla palette sprites to 1st alt skin (SurvivorSkillLoadoutUnlockables)
-    -- Needs to be non-default since every survivor shares the same default
+    -- Add existing vanilla palette sprites to default skin (SurvivorSkillLoadoutUnlockable)
     -- Judgement skin should be separated and added to the last alt skin
     for i = 0, Survivor.CUSTOM_START - 1 do
         local survivor = Survivor.wrap(i)
@@ -222,8 +222,8 @@ Survivor.internal.initialize = function()
         end
 
         -- Store in SurvivorSkinLoadoutUnlockables
-        local default = skin_family:get(1)
-        default.identifier       = "default_set"
+        local default = skin_family:get(0)
+        default.identifier       = "main_set"
         default.palette          = pal_main[1]
         default.palette_portrait = pal_main[2]
         default.palette_loadout  = pal_main[3]
@@ -659,6 +659,18 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
             actor.sprite_palette = gm.constants.sCommandoPalette
         end
     end)
+
+    -- For hook below this one
+    Global._survivor_skin_default = nil
+end)
+
+
+-- Prevent every survivor from sharing the same default SurvivorSkinLoadoutUnlockable
+gm.pre_script_hook(gm.constants.actor_skin_create, function(self, other, result, args)
+    if args[2].value == "default" then
+        args[2].value = args[2].value..math.floor(__skin_default_counter)
+        __skin_default_counter = __skin_default_counter + 1
+    end
 end)
 
 
