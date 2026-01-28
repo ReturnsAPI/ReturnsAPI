@@ -745,3 +745,85 @@ gm.pre_script_hook(gm.constants.room_goto_w, function(self, other, result, args)
         survivor.sprite_loadout_palette  = palettes[3] or -1
     end
 end)
+
+
+-- Draw palette-swapped loadout animation
+gm.pre_script_hook(gm.constants.actor_skin_draw_loadout_sprite, function(self, other, result, args)
+    local survivor = Survivor.wrap(args[1].value)
+    local skin_id = args[7].value   -- Indexed from 0
+
+    if survivor.sprite_loadout_palette == -1 then return end
+
+    -- Edge case: Ignore Engineer Judgement skin
+    if  survivor.value == Survivor.Class.ENGINEER
+    and skin_id == 29 then
+        return
+    end
+
+    -- Look for slot index of the SurvivorSkinLoadoutUnlockable matching the skin_id
+    local index = skin_id
+    local skin_family = survivor.skin_family.elements
+    for i, unlockable in ipairs(skin_family) do
+        if unlockable.skin_id == skin_id then
+            index = i - 1
+            break
+        end
+    end
+
+    gm.pal_swap_set(survivor.sprite_loadout_palette, index)
+
+    -- Draw loadout animation
+    gm.draw_sprite_ext(
+        survivor.sprite_loadout,    -- sprite
+        args[2].value,              -- subimg
+        args[3].value,              -- x
+        args[4].value,              -- y
+        args[5].value,              -- xscale
+        args[6].value,              -- yscale
+        0,                          -- rot
+        Color.WHITE,                -- color
+        1                           -- alpha
+    )
+
+    gm.pal_swap_reset()
+
+    return false
+end)
+
+
+-- Draw palette-swapped portraits
+gm.pre_script_hook(gm.constants.actor_skin_draw_portrait, function(self, other, result, args)
+    local survivor = Survivor.wrap(args[1].value)
+    local skin_id = args[8].value   -- Indexed from 0
+
+    if survivor.sprite_portrait_palette == -1 then return end
+
+    -- Look for slot index of the SurvivorSkinLoadoutUnlockable matching the skin_id
+    local index = skin_id
+    local skin_family = survivor.skin_family.elements
+    for i, unlockable in ipairs(skin_family) do
+        if unlockable.skin_id == skin_id then
+            index = i - 1
+            break
+        end
+    end
+    
+    gm.pal_swap_set(survivor.sprite_portrait_palette, index)
+
+    -- Draw portrait
+    gm.draw_sprite_ext(
+        gm.actor_skin_get_portrait_sprite(args[1].value, args[2].value, args[8].value),
+        args[3].value,  -- subimg
+        args[4].value,  -- x
+        args[5].value,  -- y
+        args[6].value,  -- xscale
+        args[7].value,  -- yscale
+        0,              -- rot
+        Color.WHITE,    -- color
+        1               -- alpha
+    )
+
+    gm.pal_swap_reset()
+
+    return false
+end)
