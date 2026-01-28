@@ -500,6 +500,8 @@ Util.table_append(methods_class_array[name_rapi], {
     For modded survivors, the **first skin added should be the default palette**.
     ]]
     add_skin = function(self, identifiers, palette, palette_portrait, palette_loadout)
+        Initialize.internal.check_if_started("add_skin")
+
         if not identifiers then log.error("add_skin: Invalid identifiers argument", 2) end
         if type(identifiers) == "string" then identifiers = {identifiers} end
 
@@ -574,16 +576,16 @@ Util.table_append(methods_class_array[name_rapi], {
                 -- Create new SurvivorSkinLoadoutUnlockable
                 local unlockable = Struct.new(
                     gm.constants.SurvivorSkinLoadoutUnlockable,
-                    gm.actor_skin_get_default_palette_swap(index or (#skin_family - 1))
+                    gm.actor_skin_get_default_palette_swap(index or #skin_family)
                 )
                 unlockable.identifier       = identifier
                 unlockable.palette          = skin[1]
                 unlockable.palette_portrait = skin[2]
                 unlockable.palette_loadout  = skin[3]
 
-                -- Add unlockable to skin_family (just before Judgement skins)
+                -- Add unlockable to skin_family
                 -- or replace existing
-                if not index then skin_family:insert(#skin_family - 1, unlockable)
+                if not index then skin_family:insert(#skin_family, unlockable)
                 else skin_family:set(index, unlockable)
                 end
 
@@ -658,8 +660,6 @@ end)
 
 -- On going to character select screen,
 gm.pre_script_hook(gm.constants.room_goto_w, function(self, other, result, args)
-    -- if true then return end
-
     if args[1].value ~= gm.constants.rSelect then return end
 
     -- Build final palette sprites for each survivor
@@ -712,6 +712,12 @@ gm.pre_script_hook(gm.constants.room_goto_w, function(self, other, result, args)
                         gm.surface_free(surf)
                         
                     end
+                end
+
+                -- Judgement skins: Reassign pal_index based on slot index
+                -- Apparently pal_index is indexed from -1(?), therefore -2
+                if unlockable.identifier == "judgement" then
+                    ActorSkin.wrap(unlockable.skin_id).effect_display.pal_index = j - 2
                 end
             end
         end
