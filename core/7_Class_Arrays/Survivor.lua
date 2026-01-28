@@ -139,11 +139,15 @@ Property | Type | Description
 
 Survivor.internal.initialize = function()
     -- Add correct palettes
-    local dir = path.combine(PATH, "core/data/loadout_palettes")
-    local files = path.get_files(dir)
-    for _, filepath in ipairs(files) do
-        local identifier = path.stem(path.filename(filepath))
-        Sprite.new(RAPI_NAMESPACE, identifier, filepath)
+    for _, dir in ipairs{
+        path.combine(PATH, "core/data/portrait_palettes"),
+        path.combine(PATH, "core/data/loadout_palettes")
+    } do
+        local files = path.get_files(dir)
+        for _, filepath in ipairs(files) do
+            local identifier = path.stem(path.filename(filepath))
+            Sprite.new(RAPI_NAMESPACE, identifier, filepath)
+        end
     end
 
     -- Add existing vanilla palette sprites to 1st alt skin (SurvivorSkillLoadoutUnlockables)
@@ -714,8 +718,8 @@ gm.pre_script_hook(gm.constants.room_goto_w, function(self, other, result, args)
                     end
                 end
 
-                -- Judgement skins: Reassign pal_index based on slot index
-                -- Apparently pal_index is indexed from -1(?), therefore -2
+                -- Judgement skins: Reassign `pal_index` based on slot index
+                -- Apparently `pal_index` here is indexed from -1(?), therefore j - 2
                 if unlockable.identifier == "judgement" then
                     ActorSkin.wrap(unlockable.skin_id).effect_display.pal_index = j - 2
                 end
