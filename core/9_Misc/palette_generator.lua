@@ -163,22 +163,22 @@ gui.add_to_menu_bar(function()
 
     if ImGui.Button("Generate portrait palettes") then
         generate("s$Portrait", {
-            "Commando",
+            -- "Commando",
             "Huntress",
-            "Enforcer",
-            "Bandit",
-            "HAND",
-            "Engi",
-            "Miner",
-            "Sniper",
-            "Acrid",
-            "Merc",
-            "Loader",
-            "Chef",
-            "Pilot",
-            "Arti",
-            "Drifter",
-            "Robomando",
+            -- "Enforcer",
+            -- "Bandit",
+            -- "HAND",
+            -- "Engi",
+            -- "Miner",
+            -- "Sniper",
+            -- "Acrid",
+            -- "Merc",
+            -- "Loader",
+            -- "Chef",
+            -- "Pilot",
+            -- "Arti",
+            -- "Drifter",
+            -- "Robomando",
         })
     end
 end)
