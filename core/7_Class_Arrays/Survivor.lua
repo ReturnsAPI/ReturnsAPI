@@ -521,7 +521,7 @@ Util.table_append(methods_class_array[name_rapi], {
         if count ~= countp then log.error("add_skin: palette_portrait skin count does not match palette", 2) end
         if count ~= countl then log.error("add_skin: palette_loadout skin count does not match palette", 2) end
 
-        if count ~= #identifiers then log.error("add_skin: identifiers count should match palette skin count", 2) end
+        if count ~= #identifiers then log.error("add_skin: identifiers count does not match palette skin count", 2) end
 
         for i = 1, count do
             local identifier = identifiers[i]
