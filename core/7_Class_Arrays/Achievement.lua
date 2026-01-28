@@ -272,6 +272,8 @@ Util.table_append(methods_class_array[name_rapi], {
     --@instance
     --@param        skin        | ActorSkin | The skin to associate with.
     --[[
+    (TODO)
+
     Associates the achievement with a skin.
 
     More specifically, it associates with all `SurvivorSkinLoadoutUnlockable`s
