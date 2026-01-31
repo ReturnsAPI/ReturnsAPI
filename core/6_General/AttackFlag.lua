@@ -9,7 +9,7 @@ AttackFlag = new_class()
 --@section Constants
 
 --[[
-The actual values used in-game are $2^n$ (i.e., bitwise).
+The actual values used by the game are $2^n$ (i.e., bitwise).
 ]]
 
 --@constants

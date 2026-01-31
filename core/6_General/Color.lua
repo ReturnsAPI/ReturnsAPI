@@ -1,6 +1,8 @@
 -- Color
 
 --[[
+The GameMaker engine uses BGR colors.
+
 Alias: `Colour`
 ]]
 
@@ -112,9 +114,9 @@ Color.Text = {
 
 --@static
 --@return       number
---@param        hex         | string    | The hex string of the color (in RGB).
+--@param        hex         | number    | The hex value of the color (in RGB).
 --[[
-Returns a decimal color value from a hex string.
+Returns a BGR value from an RGB value.
 Can also be called via `Color(<hex>)`.
 ]]
 Color.from_hex = function(hex)
@@ -122,26 +124,76 @@ Color.from_hex = function(hex)
 end
 
 
--- switch back MSB (same operation)
+--@static
+--@return       number
+--@param        col         | number    | The value of the color (in BGR).
+--[[
+Returns an RGB value from a BGR value.
+]]
 Color.to_hex = function(col)
     return Color.from_hex(col)
 end
 
 
--- from rgb [0-255] to gamemaker
-Color.from_rgb = function(r,g,b)
-    return b*0x10000+g*0x100+r
+--@static
+--@return       number
+--@param        r           | number    | The red component of the color (0 to 255).
+--@param        g           | number    | The green component of the color (0 to 255).
+--@param        b           | number    | The blue component of the color (0 to 255).
+--[[
+Returns a BGR value from the specified (R, G, B) components.
+]]
+Color.from_rgb = function(r, g, b)
+    return b*0x10000 + g*0x100 + r
 end
 
 
--- from gamemaker to rgb
+--@static
+--@return       number, number, number
+--@param        col         | number    | The value of the color (in BGR).
+--[[
+Returns the (R, G, B) components from a BGR value.
+]]
 Color.to_rgb = function(col)
     return col & 0xff, (col & 0xff00) >> 8, col >> 16 --r, g, b
 end
 
 
--- Hue [0-360], Saturation [0-100], Value [0-100] -> r, g, b [0-255]
+--@static
+--@return       number
+--@param        h           | number    | The hue component of the color (0 to 360).
+--@param        s           | number    | The saturation component of the color (0 to 100).
+--@param        v           | number    | The value component of the color (0 to 100).
+--[[
+Returns a BGR value from the specified (H, S, V) components.
+]]
+Color.from_hsv = function(h, s, v)
+    return Color.from_rgb(Color.hsv_to_rgb(h, s, v))
+end
+
+
+--@static
+--@return       number, number, number
+--@param        col         | number    | The value of the color (in BGR).
+--[[
+Returns the (H, S, V) components from a BGR value.
+]]
+Color.to_hsv = function(col)
+    return Color.rgb_to_hsv(Color.to_rgb(col))
+end
+
+
+--@static
+--@return       number, number, number
+--@param        h           | number    | The hue component of the color (0 to 360).
+--@param        s           | number    | The saturation component of the color (0 to 100).
+--@param        v           | number    | The value component of the color (0 to 100).
+--[[
+Returns (R, G, B) components from (H, S, V) components.
+]]
 Color.hsv_to_rgb = function(h, s, v)
+    -- Hue [0-360], Saturation [0-100], Value [0-100] -> r, g, b [0-255]
+
     if h > 360 or h<0 or s<0 or s > 100 or v < 0 or v > 100 then 
         log.error("Color.hsv_to_rgb: Incorrect hsv values", 2)
         return nil
@@ -173,8 +225,17 @@ Color.hsv_to_rgb = function(h, s, v)
 end
 
 
--- rgb [0-255] -> Hue [0-360], Saturation [0-100], Value [0-100]
+--@static
+--@return       number, number, number
+--@param        r           | number    | The red component of the color (0 to 255).
+--@param        g           | number    | The green component of the color (0 to 255).
+--@param        b           | number    | The blue component of the color (0 to 255).
+--[[
+Returns (H, S, V) components from (R, G, B) components.
+]]
 Color.rgb_to_hsv = function(r, g, b)
+    -- rgb [0-255] -> Hue [0-360], Saturation [0-100], Value [0-100]
+
     if r < 0 or r > 255 or g < 0 or g > 255 or b < 0 or b > 255 then
         log.error("Color.rgb_to_hsv: Incorrect rgb values", 2)
         return nil
@@ -203,14 +264,21 @@ Color.rgb_to_hsv = function(r, g, b)
 end
 
 
-Color.from_hsv = function(h, s, v)
-    return Color.from_rgb(Color.hsv_to_rgb(h,s,v))
-end
+--[[
+<br>
 
+---
 
-Color.to_hsv = function(col)
-    return Color.rgb_to_hsv(Color.to_rgb(col))
-end
+### Notes from the original author ([@LoveBetween](https://github.com/LoveBetween))
+
+All functions from and to hsv will not be exact because of the way it's calculated. Gamemaker has an implementation of hsv but it uses a `0 to 255` range for the Hue, Saturation, and Value fields which I didn't like.
+
+You can use `Colour` instead of `Color` if you prefer.
+
+Gamemaker colors  are `24bit unsigned integers` (values from 0 to 16777216) with each portion of 8bits (0 to 255) respectively coding the the Blue, Green and Red components of the color.
+
+All of these functions are defined entirely in lua, with the purpose of reducing the number of gm calls (and also it was fun).
+]]
 
 
 
