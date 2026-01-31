@@ -291,10 +291,10 @@ end)
 gm.post_script_hook(gm.constants.read_attackinfo, function(self, other, result, args)
     local info = result.value
     local count = gm.readbyte()
-    
-    info.attack_flags_group_count = count
 
     if count > 0 then
+        info.attack_flags_group_count = count
+
         for group = 1, count do
             info["attack_flags_group_"..group] = gm.readuint()
         end
