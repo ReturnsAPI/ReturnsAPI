@@ -105,7 +105,7 @@ CUSTOM_START    32
 
 --@static
 --@return       number
---@param        identifier      | string    | The identifier for the item tier.
+--@param        identifier      | string    | The identifier for the attack flag.
 --[[
 Allocates a new attack flag value for the given identifier if it does not already exist,
 or returns the existing one if it does.
