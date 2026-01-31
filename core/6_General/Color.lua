@@ -265,17 +265,13 @@ end
 
 
 --[[
-<br>
-
 ---
 
 ### Notes from the original author ([@LoveBetween](https://github.com/LoveBetween))
 
 All functions from and to hsv will not be exact because of the way it's calculated. Gamemaker has an implementation of hsv but it uses a `0 to 255` range for the Hue, Saturation, and Value fields which I didn't like.
 
-You can use `Colour` instead of `Color` if you prefer.
-
-Gamemaker colors  are `24bit unsigned integers` (values from 0 to 16777216) with each portion of 8bits (0 to 255) respectively coding the the Blue, Green and Red components of the color.
+Gamemaker colors are `24bit unsigned integers` (values from 0 to 16777216) with each portion of 8bits (0 to 255) respectively coding the the Blue, Green and Red components of the color.
 
 All of these functions are defined entirely in lua, with the purpose of reducing the number of gm calls (and also it was fun).
 ]]
