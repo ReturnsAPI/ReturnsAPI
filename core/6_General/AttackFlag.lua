@@ -2,6 +2,13 @@
 
 AttackFlag = new_class()
 
+AttackFlag.CUSTOM_START = 32
+
+run_once(function()
+    __attack_flag_cache = FindCache.new()
+    __attack_flag_counter = AttackFlag.CUSTOM_START - 1
+end)
+
 
 
 -- ========== Constants ==========
@@ -82,6 +89,57 @@ local flag_constants = {
 -- Add to AttackFlag directly (e.g., AttackFlag.MINER_HEAT)
 for k, v in pairs(flag_constants) do
     AttackFlag[k] = v
+end
+
+
+--@constants
+--[[
+CUSTOM_START    32
+]]
+
+
+
+-- ========== Static Methods ==========
+
+--@section Static Methods
+
+--@static
+--@return       number
+--@param        identifier      | string    | The identifier for the item tier.
+--[[
+Allocates a new attack flag value for the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+AttackFlag.new = function(NAMESPACE, identifier)
+    -- Return existing flag if found
+    local flag = AttackFlag.find(identifier, NAMESPACE, true)
+    if flag then return flag end
+
+    __attack_flag_counter = __attack_flag_counter + 1
+
+    -- Add to cache
+    __attack_flag_cache:set(
+        __attack_flag_counter,
+        identifier,
+        NAMESPACE
+    )
+
+    return __attack_flag_counter
+end
+
+
+--@static
+--@return       number
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
+--[[
+Searches for the specified attack flag value and returns it.
+If no namespace is provided, searches in your mod's namespace.
+]]
+AttackFlag.find = function(identifier, namespace, namespace_is_specified)
+    -- Check in find table
+    local cached = __attack_flag_cache:get(identifier, namespace, true)
+    return cached
 end
 
 

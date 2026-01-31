@@ -140,6 +140,15 @@ methods_attackinfo = {
             return (self.attack_flags & (1 << flag)) > 0
         end
 
+        if  flag >= AttackFlag.CUSTOM_START
+        and flag <= __attack_flag_counter then
+            local group = math.floor(flag / 32)
+            local flag_group = self["attack_flags_group_"..group]
+            if flag_group then
+                return (flag_group & (1 << (flag % 32))) > 0
+            end
+        end
+
         return false
     end,
 
@@ -154,18 +163,58 @@ methods_attackinfo = {
         if (type(flag) ~= "table") or flag.RAPI then flag = table.pack(flag) end
         if state == nil then log.error("set_flags: state argument not provided", 2) end
 
+        local attack_flags_group_count
+        local attack_flags_group = {}
+
         for _, fl in ipairs(flag) do
             fl = Wrap.unwrap(fl)
 
+            -- Vanilla
             if fl <= AttackFlag.FORCE_PROC then
                 fl = 1 << fl
 
+                -- Toggle
                 if ((self.attack_flags & fl) == 0) and state then
                     self.attack_flags = self.attack_flags + fl
                 end
                 if ((self.attack_flags & fl) > 0) and (not state) then
                     self.attack_flags = self.attack_flags - fl
                 end
+
+            -- Custom
+            elseif fl >= AttackFlag.CUSTOM_START
+               and fl <= __attack_flag_counter then
+                local group = math.floor(fl / 32)
+                local flag  = 1 << (fl % 32)
+                
+                -- Only access variables once per `set_flag` call
+                -- and store locally to prevent unnecessary GM calls
+                if not attack_flags_group_count then
+                    attack_flags_group_count = self.attack_flags_group_count or 0
+                end
+                if not attack_flags_group[group] then
+                    attack_flags_group[group] = self["attack_flags_group_"..group] or 0
+                end
+                
+                -- Update highest group count
+                attack_flags_group_count = math.max(attack_flags_group_count, group)
+
+                -- Toggle
+                if ((attack_flags_group[group] & flag) == 0) and state then
+                    attack_flags_group[group] = attack_flags_group[group] + flag
+                end
+                if ((attack_flags_group[group] & flag) > 0) and (not state) then
+                    attack_flags_group[group] = attack_flags_group[group] - flag
+                end
+            end
+        end
+
+        if attack_flags_group_count then
+            self.attack_flags_group_count = attack_flags_group_count
+
+            -- Set unintialized flag groups to 0
+            for group = 1, attack_flags_group_count do
+                self["attack_flags_group_"..group] = attack_flags_group[group] or 0
             end
         end
     end
@@ -218,6 +267,39 @@ make_table_once("metatable_attackinfo", {
     
     __metatable = "RAPI.Wrapper."..wrapper_name
 })
+
+
+
+-- ========== Hooks ==========
+
+-- Write custom attack flags
+gm.post_script_hook(gm.constants.write_attackinfo, function(self, other, result, args)
+    local info = args[1].value
+    local count = info.attack_flags_group_count or 0
+    
+    gm.writebyte(count)
+
+    if count > 0 then
+        for group = 1, count do
+            gm.writeuint(info["attack_flags_group_"..group])
+        end
+    end
+end)
+
+
+-- Read custom attack flags
+gm.post_script_hook(gm.constants.read_attackinfo, function(self, other, result, args)
+    local info = result.value
+    local count = gm.readbyte()
+    
+    info.attack_flags_group_count = count
+
+    if count > 0 then
+        for group = 1, count do
+            info["attack_flags_group_"..group] = gm.readuint()
+        end
+    end
+end)
 
 
 

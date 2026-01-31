@@ -115,8 +115,8 @@ table.insert(_rapi_initialize, ItemTier.internal.initialize)
 --@section Static Methods
 
 --@static
---@return   ItemTier
---@param    identifier      | string    | The identifier for the item tier.
+--@return       ItemTier
+--@param        identifier      | string    | The identifier for the item tier.
 --[[
 Creates a new item tier with the given identifier if it does not already exist,
 or returns the existing one if it does.

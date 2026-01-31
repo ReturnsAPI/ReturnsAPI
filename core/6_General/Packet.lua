@@ -95,7 +95,7 @@ Packet.internal.initialize = function()
                 local namespace     = buffer:read_string()
                 local identifier    = buffer:read_string()
                 
-                print("Syncing packet to new ID "..new_id.." (nsid "..namespace.."-"..identifier..")")
+                print("Syncing packet to new ID "..math.floor(new_id).." (nsid "..namespace.."-"..identifier..")")
 
                 -- Get wrapper
                 local wrapper = __packet_find_table:get(identifier, namespace, true)

@@ -59,8 +59,10 @@ run_once(function()
                 
                 -- Check if "ror" cache
                 if not namespace_is_specified then
-                    local cached = self["ror"][identifier]
-                    if cached then return cached end
+                    if self["ror"] then
+                        local cached = self["ror"][identifier]
+                        if cached then return cached end
+                    end
                 end
 
                 return nil
