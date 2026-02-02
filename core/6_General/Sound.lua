@@ -6,6 +6,8 @@ run_once(function()
     __sound_find_table = FindCache.new()
 end)
 
+local packet_syncSound
+
 
 
 -- ========== Properties ==========
@@ -39,14 +41,33 @@ end
 
 
 Sound.internal.initialize = function()
-    -- Update cached wrappers
-    __sound_find_table:loop_and_update_values(function(value)
-        return {
-            wrapper     = Sound.wrap(value.wrapper),
-            namespace   = value.namespace,
-            identifier  = value.identifier
-        }
-    end)
+    -- Populate cache with vanilla sounds
+    Sound.find_all("ror", true)
+    
+    -- `play_synced`
+    packet_syncSound = Packet.new(RAPI_NAMESPACE, "syncSound")
+    packet_syncSound:set_serializers(
+        function(buffer, identifier, namespace, x, y, volume, pitch)
+            buffer:write_string(identifier)
+            buffer:write_string(namespace)
+            buffer:write_int(x)
+            buffer:write_int(y)
+            buffer:write_half(volume)
+            buffer:write_half(pitch)
+        end,
+
+        function(buffer, player)
+            local sound = Sound.find(buffer:read_string(), buffer:read_string(), true)
+            if sound then
+                sound:play(
+                    buffer:read_int(),
+                    buffer:read_int(),
+                    buffer:read_half(),
+                    buffer:read_half()
+                )
+            end
+        end
+    )
 end
 table.insert(_rapi_initialize, Sound.internal.initialize)
 
@@ -197,6 +218,8 @@ methods_sound = {
     --@optional     pitch       | number    | The pitch of the sound. <br>`1` by default.
     --[[
     Plays the sound at the specified location.
+
+    This does not sync with other players online.
     ]]
     play = function(self, x, y, volume, pitch)
         if not x then log.error("play: x coordinate is not provided", 2) end
@@ -209,6 +232,34 @@ methods_sound = {
             x,
             y
         )
+    end,
+
+
+    --@instance
+    --@param        x           | number    | The x coordinate to play at.
+    --@param        y           | number    | The y coordinate to play at.
+    --@optional     volume      | number    | The volume of the sound. <br>`1` by default.
+    --@optional     pitch       | number    | The pitch of the sound. <br>`1` by default.
+    --[[
+    Plays the sound at the specified location.
+
+    This syncs with other players online, but
+    having every client call {`sound:play` | Sound#play} themselves
+    is preferable since that has no packet latency.
+    ]]
+    play_synced = function(self, x, y, volume, pitch)
+        if not x then log.error("play: x coordinate is not provided", 2) end
+        if not y then log.error("play: y coordinate is not provided", 2) end
+
+        gm.sound_play_at(
+            self.value,
+            volume  or 1,
+            pitch   or 1,
+            x,
+            y
+        )
+
+        packet_syncSound:send_to_all(self.identifier, self.namespace, x, y, volume or 1, pitch or 1)
     end
 
 }
