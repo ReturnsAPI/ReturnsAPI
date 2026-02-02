@@ -309,8 +309,22 @@ Prints a table recursively.
 
 E.g.,
 ```lua
-local t = {[1] = "abc", [2] = 123, [3] = {[1] = "def", [2] = "what", bruh = {baz = "qux"}}, foo = "bar", vec = Vector.ZERO, quux = {okay = Instance.wrap(-4)}}
-Util.table_print(t)
+Util.table_print{
+    [1] = "abc",
+    [2] = 123,
+    [3] = {
+        [1] = "def",
+        [2] = "what",
+        bruh = {
+            baz = "qux"
+        }
+    },
+    foo = "bar",
+    vec = Vector.ZERO,
+    quux = {
+        okay = Instance.wrap(-4)
+    }
+}
 ```
 ```
 From '...<file.lua>' (line <line>)
