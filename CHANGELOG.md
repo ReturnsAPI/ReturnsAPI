@@ -7,6 +7,7 @@
 - Callback : Add `add_SO`
 - AttackFlag : Add `new` and `find`
 - AttackInfo : Add support for custom attack flags
+- Util : Add `print_table`
 
 ### v0.1.43
 - Survivor : Set `pHmax_base` to `2.8` on init

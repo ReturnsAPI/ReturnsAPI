@@ -22,6 +22,57 @@ Util.internal.make_print = function(mod_name)
 end
 
 
+local indent_amount = 4
+
+Util.internal.stringify = function(t, indent)
+    local str = ""
+    local max_index = 0
+
+    local indent_str = ""
+    for i = 1, indent do indent_str = indent_str.." " end
+
+    -- Indexed values
+    if t[1] then
+        for i, v in ipairs(t) do
+            local tostr = Util.tostring(v)
+            local value = " = "..tostr
+
+            local _type = Util.type(v)
+            if _type == "table" then
+                value = ":\n"..Util.internal.stringify(v, indent + indent_amount)
+            elseif _type == "string" then
+                value = " = \""..tostr.."\""
+            end
+
+            str = str.."\n"..indent_str..i..value
+            max_index = i
+        end
+    end
+
+    -- Key-value pairs
+    for k, v in pairs(t) do
+
+        -- Do not print keys that were covered in ipairs
+        if type(k) ~= "number" or k > max_index then
+            local tostr = Util.tostring(v)
+            local value = " = "..tostr
+
+            local _type = Util.type(v)
+            if _type == "table" then
+                value = ":\n"..Util.internal.stringify(v, indent + indent_amount)
+            elseif _type == "string" then
+                value = " = \""..tostr.."\""
+            end
+
+            str = str.."\n"..indent_str..k..value
+        end
+    end
+
+    -- Remove initial "\n" if it exists
+    return (#str > 0 and str:sub(2, -1)) or str
+end
+
+
 
 -- ========== Static Methods ==========
 
@@ -94,6 +145,37 @@ Util.tostring = function(value)
         return value.RAPI..tostring(value):sub(6, -1)
     end
     return tostring(value)
+end
+
+
+--@static
+--@param        t           | table     | The table to print.
+--[[
+Prints a table recursively.
+
+E.g.,
+```lua
+local t = {[1] = "abc", [2] = 123, [3] = {[1] = "def", [2] = "what", bruh = {baz = "qux"}}, foo = "bar", vec = Vector.ZERO, quux = {okay = Instance.wrap(-4)}}
+Util.print_table(t)
+```
+```
+From '...<file.lua>' (line <line>)
+1 = "abc"
+2 = 123
+3:
+    1 = "def"
+    2 = "what"
+    bruh:
+        baz = "qux"
+vec = <0, 0>
+quux:
+    okay = Instance: 00000242806A2388
+foo = "bar"
+```
+]]
+Util.print_table = function(t)
+    local info = debug.getinfo(2, "Sl")
+    print("\nFrom '"..info.short_src.."' (line "..info.currentline..")\n"..Util.internal.stringify(t, 0))
 end
 
 
