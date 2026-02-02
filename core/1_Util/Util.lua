@@ -149,37 +149,6 @@ end
 
 
 --@static
---@param        t           | table     | The table to print.
---[[
-Prints a table recursively.
-
-E.g.,
-```lua
-local t = {[1] = "abc", [2] = 123, [3] = {[1] = "def", [2] = "what", bruh = {baz = "qux"}}, foo = "bar", vec = Vector.ZERO, quux = {okay = Instance.wrap(-4)}}
-Util.print_table(t)
-```
-```
-From '...<file.lua>' (line <line>)
-1 = "abc"
-2 = 123
-3:
-    1 = "def"
-    2 = "what"
-    bruh:
-        baz = "qux"
-vec = <0, 0>
-quux:
-    okay = Instance: 00000242806A2388
-foo = "bar"
-```
-]]
-Util.print_table = function(t)
-    local info = debug.getinfo(2, "Sl")
-    print("\nFrom '"..info.short_src.."' (line "..info.currentline..")\n"..Util.internal.stringify(t, 0))
-end
-
-
---@static
 --@param        self        |           | The `self` argument of the hook.
 --@param        other       |           | The `other` argument of the hook.
 --@param        result      |           | The `result` argument of the hook.
@@ -330,6 +299,37 @@ Returns `true` on success, and `false` otherwise.
 ]]
 Util.chance = function(n)
     return math.random() <= n
+end
+
+
+--@static
+--@param        t           | table     | The table to print.
+--[[
+Prints a table recursively.
+
+E.g.,
+```lua
+local t = {[1] = "abc", [2] = 123, [3] = {[1] = "def", [2] = "what", bruh = {baz = "qux"}}, foo = "bar", vec = Vector.ZERO, quux = {okay = Instance.wrap(-4)}}
+Util.table_print(t)
+```
+```
+From '...<file.lua>' (line <line>)
+1 = "abc"
+2 = 123
+3:
+    1 = "def"
+    2 = "what"
+    bruh:
+        baz = "qux"
+vec = <0, 0>
+quux:
+    okay = Instance: 00000242806A2388
+foo = "bar"
+```
+]]
+Util.table_print = function(t)
+    local info = debug.getinfo(2, "Sl")
+    print("\nFrom '"..info.short_src.."' (line "..info.currentline..")\n"..Util.internal.stringify(t, 0))
 end
 
 
