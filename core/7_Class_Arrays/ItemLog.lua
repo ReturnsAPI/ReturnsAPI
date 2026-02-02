@@ -168,10 +168,11 @@ ItemLog.new_from_equipment = function(NAMESPACE, equip)
     log.pickup_object_id    = equip.object_id
 
     -- Set log group
-    local group = equip.tier * 2    -- TODO: Add +1 if equip is achievement-locked
+    -- If equipment is achievement-locked, add +1
+    local group = (equip.tier * 2) + ((equip.achievement_id and equip.achievement_id ~= -1) and 1 or 0)
     log:set_group(group)
 
-    -- Set the log ID of the equip
+    -- Set the log ID of the equipment
     equip.item_log_id = log
 
     return log

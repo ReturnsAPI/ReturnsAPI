@@ -8,6 +8,7 @@
 - AttackFlag : Add `new` and `find`
 - AttackInfo : Add support for custom attack flags
 - Util : Add `table_print`
+- ItemLog.`new_from_equipment` : Correctly add +1 to group if achievement-locked
 
 ### v0.1.43
 - Survivor : Set `pHmax_base` to `2.8` on init
