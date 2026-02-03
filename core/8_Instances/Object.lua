@@ -183,6 +183,9 @@ Returns a key-value pair table of all objects with the specified tag,
 and the number of objects in the table.
 
 Each key-value pair is `object_index, Object wrapper`.
+
+ReturnsAPI-added tags:
+- `"enemy_projectile"`
 ]]
 Object.find_all_by_tag = function(tag)
     if type(tag) ~= "string" then log.error("Object.find_all_by_tag: tag must be a string", 2) end
