@@ -1,15 +1,14 @@
 ### v0.1.44
+- AttackFlag : Add `new` and `find`
+- AttackInfo : Add support for custom attack flags
+- Callback : Add `add_SO`
+- ItemLog.`new_from_equipment` : Correctly add +1 to group if achievement-locked
 - Survivor
     - Add `add_skin`
     - Add `Class` enum
-- Achievement : Add `set_unlock_skin` (TODO)
-- Sprite : Add `.width`, `.height`, and `.subimages` getters to wrapper
-- Callback : Add `add_SO`
-- AttackFlag : Add `new` and `find`
-- AttackInfo : Add support for custom attack flags
 - Util : Add `table_print`
-- ItemLog.`new_from_equipment` : Correctly add +1 to group if achievement-locked
 - Sound : Add `play_synced`
+- Sprite : Add `.width`, `.height`, and `.subimages` getters to wrapper
 
 ### v0.1.43
 - Survivor : Set `pHmax_base` to `2.8` on init
