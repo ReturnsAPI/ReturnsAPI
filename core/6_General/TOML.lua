@@ -125,4 +125,5 @@ make_table_once("metatable_toml", {
 
 
 
+-- Public export
 __class.TOML = TOML

@@ -82,8 +82,8 @@ Property | Type | Description
 `identifier`        | string    | The identifier for the item within the namespace.
 `token_name`        | string    | The localization token for the item's name.
 `token_text`        | string    | The localization token for the item's pickup text.
-`on_acquired`       | number    | The ID of the callback that runs when the item is acquired. <br>The callback function should have the arguments `actor, stack`.
-`on_removed`        | number    | The ID of the callback that runs when the item is removed. <br>The callback function should have the arguments `actor, stack`.
+`on_acquired`       | number    | The ID of the callback that runs when the item is acquired. <br>The callback function should have the arguments `actor, stack`. <br>`stack` is the value *after* pickup.
+`on_removed`        | number    | The ID of the callback that runs when the item is removed. <br>The callback function should have the arguments `actor, stack`. <br>`stack` is the value *before* removal.
 `tier`              | number    | The tier of the item.
 `sprite_id`         | sprite    | The sprite ID of the item.
 `object_id`         | object    | The object ID of the item.
@@ -108,6 +108,8 @@ Property | Type | Description
 --[[
 Creates a new item with the given identifier if it does not already exist,
 or returns the existing one if it does.
+
+The pickup object for the item will have the same namespace and identifier.
 ]]
 Item.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started("Item.new")

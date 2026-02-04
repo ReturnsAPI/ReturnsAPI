@@ -80,6 +80,7 @@ Creates a new equipment with the given identifier if it does not already exist,
 or returns the existing one if it does.
 
 The equipment is automatically added to the loot pool `LootPool.EQUIPMENT`.
+The pickup object for the equipment will have the same namespace and identifier.
 ]]
 Equipment.new = function(NAMESPACE, identifier)
     Initialize.internal.check_if_started("Equipment.new")

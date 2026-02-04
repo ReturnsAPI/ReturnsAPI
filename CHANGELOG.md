@@ -1,4 +1,5 @@
 ### v0.1.44
+- Add Timer class
 - AttackFlag : Add `new` and `find`
 - AttackInfo : Add support for custom attack flags
 - Callback : Add `add_SO`
@@ -9,6 +10,7 @@
 - Util : Add `table_print`
 - Sound : Add `play_synced`
 - Sprite : Add `.width`, `.height`, and `.subimages` getters to wrapper
+- Vector : Fix `.direction` throwing error
 
 ### v0.1.43
 - Survivor : Set `pHmax_base` to `2.8` on init
