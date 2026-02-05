@@ -160,6 +160,34 @@ end
 
 
 --@static
+--@return       Instance
+--@param        x           | number    | The x position to check from.
+--@param        y           | number    | The y position to check from.
+--@param        object      | Object    | The object to check.
+--[[
+Returns the instance of the given object nearest to the specified position.
+Works with custom objects too.
+]]
+Instance.nearest = function(x, y, object)
+    x      = Wrap.unwrap(x)
+    y      = Wrap.unwrap(y)
+    object = Wrap.unwrap(object)
+
+    if not x      then log.error("Instance.nearest: x is invalid", 2) end
+    if not y      then log.error("Instance.nearest: y is invalid", 2) end
+    if not object then log.error("Instance.nearest: object is invalid", 2) end
+
+    return Instance.wrap(
+        gm._mod_instance_nearest(
+            object,
+            x,
+            y
+        )
+    )
+end
+
+
+--@static
 --@return       number
 --@param        object      | Object    | The object to check.
 --[[

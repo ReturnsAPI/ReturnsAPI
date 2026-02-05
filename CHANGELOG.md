@@ -3,6 +3,7 @@
 - AttackFlag : Add `new` and `find`
 - AttackInfo : Add support for custom attack flags
 - Callback : Add `add_SO`
+- Instance : Add `nearest`
 - ItemLog.`new_from_equipment` : Correctly add +1 to group if achievement-locked
 - Survivor
     - Add `add_skin`
