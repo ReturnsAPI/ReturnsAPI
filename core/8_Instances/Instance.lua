@@ -27,6 +27,8 @@ instance_wrappers = {
 
 -- ========== Constants ==========
 
+--@section Constants
+
 --@constants
 --[[
 INVALID     Instance with value `nil` and id `-4`
