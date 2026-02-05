@@ -15,8 +15,6 @@ end)
 local wrapper_cache = setmetatable({}, {__mode = "v"})  -- Cache for Instance.wrap
 local object_index_cache = {}                           -- Cache for inst:get_object_index; indexed by ID
 
--- `__invalid_instance` created at the bottom
-
 
 -- Wrapper types that are Instances
 instance_wrappers = {
@@ -24,6 +22,16 @@ instance_wrappers = {
     Actor       = true,
     Player      = true
 }
+
+
+
+-- ========== Constants ==========
+
+--@constants
+--[[
+INVALID     Instance with value `nil` and id `-4`
+]]
+-- This is created at the bottom of this file
 
 
 
@@ -130,7 +138,7 @@ Instance.find = function(object, n)
     end
 
     -- No instance found
-    return __invalid_instance
+    return Instance.INVALID
 end
 
 
@@ -245,14 +253,14 @@ Instance.wrap = function(inst)
 
         -- Check if ID is valid
         -- Sometimes there will be a CInstance but its ID is 0
-        if id < 100000 then return __invalid_instance end
+        if id < 100000 then return Instance.INVALID end
 
         -- Check cache
         if wrapper_cache[id] then return wrapper_cache[id] end
 
     elseif _type == "number" then
         -- Check if ID is valid
-        if inst < 100000 then return __invalid_instance end
+        if inst < 100000 then return Instance.INVALID end
 
         -- Check cache
         if wrapper_cache[inst] then return wrapper_cache[inst] end
@@ -261,15 +269,15 @@ Instance.wrap = function(inst)
         inst = gm.CInstance.instance_id_to_CInstance[id]
     
     elseif _type == "table" then return inst
-    else return __invalid_instance
+    else return Instance.INVALID
     end
 
     -- Final check for `inst` being `nil` somehow
-    if not inst then return __invalid_instance end
+    if not inst then return Instance.INVALID end
 
     -- Get object_index
     local obj_index = inst.object_index
-    if not obj_index then return __invalid_instance end
+    if not obj_index then return Instance.INVALID end
 
     -- Check object_index to determine
     -- what metatable should be used
@@ -783,8 +791,11 @@ end)
 
 
 
--- Create invalid_instance
-run_once(function() __invalid_instance = make_proxy(nil, metatable_instance) end)
+-- Create invalid instance
+run_once(function()
+    __instance_invalid = make_proxy(nil, metatable_instance)
+end)
+Instance.INVALID = __instance_invalid
 
 -- Public export
 __class.Instance = Instance

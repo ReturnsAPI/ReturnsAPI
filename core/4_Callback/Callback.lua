@@ -513,7 +513,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
             
             -- Wrap as certain wrappers depending on arg type
             if arg then
-                if      arg_type:match("Instance") and arg == -4    then arg = __invalid_instance   -- Wrap as invalid Instance if -4
+                if      arg_type:match("Instance") and arg == -4    then arg = Instance.INVALID     -- Wrap as invalid Instance if -4
                 elseif  arg_type:match("AttackInfo")                then arg = AttackInfo.wrap(arg) -- Assuming `arg` is a Struct wrapper
                 elseif  arg_type:match("HitInfo")                   then arg = HitInfo.wrap(arg)
                 elseif  arg_type:match("Equipment")                 then arg = Equipment.wrap(arg)

@@ -125,7 +125,7 @@ function public.setup(env, namespace)
                     end
 
                 -- Enums
-                elseif type(v) == "table" then
+                elseif type(v) == "table" and (not v.RAPI) then
                     -- Copy over enum values to new table
                     local t = {}
                     for k2, v2 in pairs(v) do

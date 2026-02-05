@@ -42,7 +42,7 @@ Player.get_local = function()
     -- Return first oP to exist
     local inst = gm.instance_find(gm.constants.oP, 0)
     if inst ~= -4 then return Instance.wrap(inst) end
-    return __invalid_instance
+    return Instance.INVALID
 end
 
 

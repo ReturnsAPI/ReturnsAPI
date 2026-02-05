@@ -3,7 +3,9 @@
 - AttackFlag : Add `new` and `find`
 - AttackInfo : Add support for custom attack flags
 - Callback : Add `add_SO`
-- Instance : Add `nearest`
+- Instance
+    - Add `nearest`
+    - Add `INVALID` constant; maps to the invalid instance with value `nil` and id `-4`
 - ItemLog.`new_from_equipment` : Correctly add +1 to group if achievement-locked
 - Survivor
     - Add `add_skin`
