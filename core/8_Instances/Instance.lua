@@ -116,7 +116,7 @@ end
 --@param        n           | number    | The *n*-th instance, indexed from 1. <br>`1` by default.
 --[[
 Returns the first (or *n*-th) instance of the specified object,
-or an {invalid instance | Instance#INVALID} if none are found.
+or an @link {invalid instance | Instance#INVALID} if none are found.
 ]]
 Instance.find = function(object, n)
     object = Wrap.unwrap(object)
@@ -176,7 +176,7 @@ end
 --@param        object      | Object    | The object to check.
 --[[
 Returns the instance of the given object nearest to the specified position,
-or an {invalid instance | Instance#INVALID} if none are found.
+or an @link {invalid instance | Instance#INVALID} if none are found.
 
 Works with custom objects too.
 ]]
