@@ -31,7 +31,7 @@ instance_wrappers = {
 
 --@constants
 --[[
-INVALID     Instance with value `nil` and id `-4`
+INVALID     Instance_with_value_`nil`_and_id_`-4`
 ]]
 -- This is created at the bottom of this file
 
