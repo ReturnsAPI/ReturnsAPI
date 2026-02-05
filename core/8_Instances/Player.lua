@@ -31,7 +31,7 @@ Property | Type | Description
 --@return       Player or Instance
 --[[
 Returns the Player instance of this game client,
-or an @link {invalid instance | Instance#INVALID} if they do not exist.
+or an @link {invalid instance | Instance#constants} if they do not exist.
 
 On the character select screen in online multiplayer,
 this will return the local `oPrePlayer`.
