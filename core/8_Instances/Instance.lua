@@ -106,7 +106,7 @@ end
 --@param        n           | number    | The *n*-th instance, indexed from 1. <br>`1` by default.
 --[[
 Returns the first (or *n*-th) instance of the specified object,
-or an invalid instance (value `nil` and id `-4`).
+or an invalid instance (value `nil` and id `-4`) if none are found.
 ]]
 Instance.find = function(object, n)
     object = Wrap.unwrap(object)
@@ -165,7 +165,9 @@ end
 --@param        y           | number    | The y position to check from.
 --@param        object      | Object    | The object to check.
 --[[
-Returns the instance of the given object nearest to the specified position.
+Returns the instance of the given object nearest to the specified position,
+or an invalid instance (value `nil` and id `-4`) if none are found.
+
 Works with custom objects too.
 ]]
 Instance.nearest = function(x, y, object)
