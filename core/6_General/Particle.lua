@@ -75,14 +75,8 @@ end
 
 
 Particle.internal.initialize = function()
-    -- Update cached wrappers
-    __particle_find_table:loop_and_update_values(function(value)
-        return {
-            wrapper     = Particle.wrap(value.wrapper),
-            namespace   = value.namespace,
-            identifier  = value.identifier
-        }
-    end)
+    -- Populate cache with vanilla particles
+    Particle.find_all("ror", true)
 end
 table.insert(_rapi_initialize, Particle.internal.initialize)
 
@@ -258,17 +252,6 @@ methods_particle = {
     end,
     create_colour = function(self, x, y, color, count, system)
         self:create_color(x, y, color, count, system)
-    end,
-
-
-    --@instance
-    --@return       string
-    --[[
-    Returns the identifier of the particle.
-    ]]
-    get_identifier = function(self)
-        local lookup_struct = Global.ResourceManager_particleTypes.__assetName
-        return lookup_struct[self.value]
     end
 
 }

@@ -7,12 +7,13 @@
     - Add `nearest`
     - Add `INVALID` constant; maps to the invalid instance with value `nil` and id `-4`
 - ItemLog.`new_from_equipment` : Correctly add +1 to group if achievement-locked
+- Particle : Remove `get_identifer` (why did this exist?)
 - Survivor
     - Add `add_skin`
     - Add `Class` enum
-- Util : Add `table_print`
 - Sound : Add `play_synced`
 - Sprite : Add `.width`, `.height`, and `.subimages` getters to wrapper
+- Util : Add `table_print`
 - Vector : Fix `.direction` throwing error
 
 ### v0.1.43

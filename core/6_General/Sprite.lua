@@ -42,14 +42,8 @@ end
 
 
 Sprite.internal.initialize = function()
-    -- Update cached wrappers
-    __sprite_find_table:loop_and_update_values(function(value)
-        return {
-            wrapper     = Sprite.wrap(value.wrapper),
-            namespace   = value.namespace,
-            identifier  = value.identifier
-        }
-    end)
+    -- Populate cache with vanilla sprites
+    Sprite.find_all("ror", true)
 end
 table.insert(_rapi_initialize, Sprite.internal.initialize)
 
