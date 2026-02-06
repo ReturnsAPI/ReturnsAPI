@@ -114,6 +114,7 @@ make_table_once("metatable_vector", {
 
     __div = function(vec, value)
         -- Scalar divide
+        if value == 0 then log.error("Vector division by 0", 2) end
         return Vector(vec.x / value, vec.y / value)
     end,
 

@@ -16,7 +16,9 @@
 - Sound : Add `play_synced`
 - Sprite : Add `.width`, `.height`, and `.subimages` getters to wrapper
 - Util : Add `table_print`
-- Vector : Fix `.direction` throwing error
+- Vector
+    - Fix `.direction` throwing error
+    - Throw error when dividing by 0
 
 ### v0.1.43
 - Survivor : Set `pHmax_base` to `2.8` on init

@@ -214,6 +214,11 @@ methods_particle = {
     Spawns particles at the specified location.
     ]]
     create = function(self, x, y, count, system)
+        x = Wrap.unwrap(x)
+        y = Wrap.unwrap(y)
+        if not x then log.error("create: x is not valid", 2) end
+        if not y then log.error("create: y is not valid", 2) end
+
         gm.part_particles_create(
             system or Particle.System.ABOVE,
             x,
@@ -241,6 +246,11 @@ methods_particle = {
     Spawns colored particles at the specified location.
     ]]
     create_color = function(self, x, y, color, count, system)
+        x = Wrap.unwrap(x)
+        y = Wrap.unwrap(y)
+        if not x then log.error("create_color: x is not valid", 2) end
+        if not y then log.error("create_color: y is not valid", 2) end
+
         gm.part_particles_create_color(
             system or Particle.System.ABOVE, 
             x,
@@ -250,7 +260,13 @@ methods_particle = {
             count or 1
         )
     end,
+
     create_colour = function(self, x, y, color, count, system)
+        x = Wrap.unwrap(x)
+        y = Wrap.unwrap(y)
+        if not x then log.error("create_colour: x is not valid", 2) end
+        if not y then log.error("create_colour: y is not valid", 2) end
+        
         self:create_color(x, y, color, count, system)
     end
 
