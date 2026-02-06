@@ -106,6 +106,7 @@ Instance.destroy = function(inst)
     gm.instance_destroy(inst)
 
     -- Clear instance data
+    if type(inst) == "number" and inst < 100000 then return end
     __instance_data[inst.id] = nil
 end
 
