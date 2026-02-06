@@ -567,6 +567,13 @@ end)
 
 -- ========== RAPI Custom Callbacks ==========
 
+-- 30 : onPlayerDeath
+-- This is never called by the game
+Hook.add_pre(RAPI_NAMESPACE, gm.constants.actor_component_remove_flagged_for_death_removal, Callback.internal.FIRST, function(self, other, result, args)
+    gm.callback_execute(Callback.ON_PLAYER_DEATH, self.value)
+end)
+
+
 -- 10000 : onHeal
 Callback.new(RAPI_NAMESPACE, "onHeal")
 

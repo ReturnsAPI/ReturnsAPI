@@ -2,7 +2,9 @@
 - Add Timer class
 - AttackFlag : Add `new` and `find`
 - AttackInfo : Add support for custom attack flags
-- Callback : Add `add_SO`
+- Callback
+    - Add `add_SO`
+    - Call `ON_PLAYER_DEATH` on player death (this is never called by the game)
 - Instance
     - Add `nearest`
     - Add `INVALID` constant; maps to the invalid instance with value `nil` and id `-4`
