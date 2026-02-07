@@ -10,6 +10,8 @@ run_once(function()
     __global_cache = {}
 end)
 
+local current_frame
+
 
 
 -- ========== Internal ==========
@@ -37,6 +39,9 @@ metatable_global = {
     __index = function(t, k)
         -- Check cache
         if __global_cache[k] then return __global_cache[k] end
+
+        -- _current_frame
+        if (k == "_current_frame") and current_frame then return current_frame end
         
         return Wrap.wrap(gm.variable_global_get(k))
     end,
@@ -53,6 +58,14 @@ metatable_global = {
     __metatable = "RAPI.Class.Global"
 }
 setmetatable(Global, metatable_global)
+
+
+
+-- ========== Hooks ==========
+
+gm.post_code_execute("gml_Object_oInit_Step_1", function(self, other)
+    current_frame = gm.variable_global_get("_current_frame")
+end)
 
 
 
