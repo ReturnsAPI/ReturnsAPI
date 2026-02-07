@@ -10,8 +10,6 @@ run_once(function()
     __global_cache = {}
 end)
 
-local current_frame
-
 
 
 -- ========== Internal ==========
@@ -19,6 +17,7 @@ local current_frame
 Global.internal.initialize = function()
     -- Cache for some globals; add to it if needed
     make_table_once("__global_cache", {
+        _current_frame                      = __global_cache._current_frame or 0,
         __mtd_deserialize                   = Map.wrap(GM.variable_global_get("__mtd_deserialize")),
         artifact_cognation_enemy_blacklist  = Map.wrap(GM.variable_global_get("artifact_cognation_enemy_blacklist")),
         custom_object                       = GM.variable_global_get("custom_object"),
@@ -39,9 +38,6 @@ metatable_global = {
     __index = function(t, k)
         -- Check cache
         if __global_cache[k] then return __global_cache[k] end
-
-        -- _current_frame
-        if (k == "_current_frame") and current_frame then return current_frame end
         
         return Wrap.wrap(gm.variable_global_get(k))
     end,
@@ -49,10 +45,7 @@ metatable_global = {
 
     __newindex = function(t, k, v)
         -- Prevent setting any global that is in cache
-        if __global_cache[k]
-        or k == "_current_frame" then
-            log.error("Global: Do not set global variable '"..k.."'", 2)
-        end
+        if __global_cache[k] then log.error("Global: Do not set global variable '"..k.."'", 2) end
         
         gm.variable_global_set(k, Wrap.unwrap(v, true))
     end,
@@ -67,7 +60,7 @@ setmetatable(Global, metatable_global)
 -- ========== Hooks ==========
 
 gm.post_code_execute("gml_Object_oInit_Step_1", function(self, other)
-    current_frame = gm.variable_global_get("_current_frame")
+    __global_cache._current_frame = gm.variable_global_get("_current_frame")
 end)
 
 
