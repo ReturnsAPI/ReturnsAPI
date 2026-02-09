@@ -19,6 +19,8 @@
 - Vector
     - Fix `.direction` throwing error
     - Throw error when dividing by 0
+- Misc
+    - Store current stage variant as `Global.stage_variant`
 
 ### v0.1.43
 - Survivor : Set `pHmax_base` to `2.8` on init
