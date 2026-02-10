@@ -11,14 +11,14 @@ Vector = new_class()
 
 methods_vector = {
 
-    normalize = function(self)
+    normalized = function(self)
         local v = Vector(self)
         v.length = 1
         return v
     end,
 
 
-    rotate = function(self, angle)
+    rotated = function(self, angle)
         local v = Vector(self)
         v.direction = v.direction + angle
         return v
