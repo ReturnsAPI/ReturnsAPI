@@ -270,8 +270,8 @@ end)
 
 local ptr = gm.get_script_function_address(gm.constants.__input_update_ticking_verbs)
 
--- Hooks line 26 (right after `var name_num = array_length(global.__input_ticking_verbs_array);`)
--- Look for a long series of Rvalue copies; that is the array being initialized
+-- Hooks line 24 (right before `var name_num = array_length(global.__input_ticking_verbs_array);`)
+-- Look for a long series of rvalue copies; that is the array being initialized
 memory.dynamic_hook_mid("RAPI.ModOptionsKeybind.__input_update_ticking_verbs", {"rbp-D0h"}, {"RValue*"}, 0, ptr:add(0xC13), function(args)
     -- args[1].value is `Global.__input_ticking_verbs_array`
     -- (but will be a bool when paused for some reason)

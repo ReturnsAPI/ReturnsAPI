@@ -35,13 +35,13 @@ local wrapper_name = "Timer"
 make_table_once("metatable_timer_class", {
     
     -- Create new timer
-    __call = function(t, duration)
+    __call = function(t, duration, autostart)
         if duration and (type(duration) ~= "number") then log.error("Timer: duration must be a number", 2) end
         duration = duration or 0
 
         return setmetatable({
             duration = duration,
-            end_time = __timer_frame + duration,
+            end_time = __timer_frame + ((autostart and duration) or 0),
         }, metatable_timer)
     end,
 
