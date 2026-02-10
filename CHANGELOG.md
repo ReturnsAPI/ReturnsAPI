@@ -17,6 +17,7 @@
 - Sprite : Add `.width`, `.height`, and `.subimages` getters to wrapper
 - Util : Add `table_print`
 - Vector
+    - Add `normalize()` and `rotate()`
     - Fix `.direction` throwing error
     - Throw error when dividing by 0
 - Misc

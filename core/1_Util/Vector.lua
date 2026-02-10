@@ -7,6 +7,27 @@ Vector = new_class()
 
 
 
+-- ========== Instance Methods ==========
+
+methods_vector = {
+
+    normalize = function(self)
+        local v = Vector(self)
+        v.length = 1
+        return v
+    end,
+
+
+    rotate = function(self, angle)
+        local v = Vector(self)
+        v.direction = v.direction + angle
+        return v
+    end
+
+}
+
+
+
 -- ========== Metatables ==========
 
 local wrapper_name = "Vector"
@@ -21,7 +42,7 @@ make_table_once("metatable_vector_class", {
             }, metatable_vector)
         end
 
-        if (not x) or (not y) then log.error("Vector: Missing arguments", 2) end
+        if not (x and y) then log.error("Vector: Missing arguments", 2) end
 
         -- New
         return setmetatable({
@@ -54,6 +75,9 @@ make_table_once("metatable_vector", {
         if k == "length"    then return math.sqrt(vec.x^2 + vec.y^2) end
         if k == "direction" then return (-math.atan(vec.y, vec.x) * Math.RAD2DEG) % 360 end
         if k == "RAPI"      then return wrapper_name end
+
+        -- Methods
+        return methods_vector[k]
     end,
 
 
