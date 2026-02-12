@@ -47,7 +47,7 @@ end)
 
 --@static
 --@param        signature       | string    | The signature of the argument. <br>Format: `"command_name (required) [optional] ..."`
---@optional     fn              | function  | The function to register. <br>The parameters for it is `args`. <br>If there is an existing function, <br>this will replace it.
+--@optional     fn              | function  | The function to register. <br>The parameters for it is `args`. <br>If there is an existing function, this will replace it.
 --[[
 Creates a new console command.
 ]]
