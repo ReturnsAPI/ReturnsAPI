@@ -67,7 +67,7 @@ end
 
 --@static
 --@param        message         | string    | The message to print to the console.
---@optional     col             | color     | The color of the message. <br>`Color.Console.BLUE` by default.
+--@optional     col             | color     | The color of the message. <br>@link {`Color.Console.BLUE` | Color#Console} by default.
 --[[
 Prints a message to the console.
 ]]
