@@ -107,6 +107,18 @@ Color.Text = {
 }
 
 
+--@enum
+Color.Console = {
+    WHITE	= 0x9b938c, -- Input
+    RED		= 0x3d33cc,
+    GREEN	= 0x54ad48,
+    BLUE	= 0xcc9b5f, -- Response
+    PINK	= 0xb563af,
+    PURPLE	= 0xb55174,
+    BLACK	= 0x564e4b
+}
+
+
 
 -- ========== Static Methods ==========
 

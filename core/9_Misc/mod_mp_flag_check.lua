@@ -9,7 +9,7 @@ table.insert(_rapi_initialize, function()
     local file = TOML.new(RAPI_NAMESPACE)
     settings = file:read() or {}
 
-    if not settings.disableMPBlock then settings.disableMPBlock = false end
+    if settings.disableMPBlock == nil then settings.disableMPBlock = false end
 
     -- Add toggle to disable online button blocking
     local options = ModOptions.new(RAPI_NAMESPACE)

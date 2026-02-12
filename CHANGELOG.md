@@ -1,10 +1,12 @@
 ### v0.1.44
+- Add Console class
 - Add Timer class
 - AttackFlag : Add `new` and `find`
 - AttackInfo : Add support for custom attack flags
 - Callback
     - Add `add_SO`
     - Call `ON_PLAYER_DEATH` on player death (this is never called by the game)
+- Color : Add `Console` enum
 - Instance
     - Add `nearest`
     - Add `INVALID` constant; maps to the invalid instance with value `nil` and id `-4`
@@ -22,6 +24,7 @@
     - Throw error when dividing by 0
 - Misc
     - Store current stage variant as `Global.stage_variant`
+    - Add option to enable simpler console keybind
 
 ### v0.1.43
 - Survivor : Set `pHmax_base` to `2.8` on init

@@ -2,10 +2,13 @@ return {
     ui = {
         options = {
             [RAPI_NAMESPACE] = {
-                header                  = "RETURNSAPI",
+                header                      = "RETURNSAPI",
 
-                disableMPBlock          = "Disable Online Button Block",
-                ["disableMPBlock.desc"] = "Allows for accessing online multiplayer even if there are incompatible mods.",
+                simplerConsoleBind          = "Simpler Console Bind",
+                ["simplerConsoleBind.desc"] = "Require only <y>`</c> to open the console instead of <y>Shift + `</c>.",
+
+                disableMPBlock              = "Disable Online Button Block",
+                ["disableMPBlock.desc"]     = "Allows for accessing online multiplayer even if there are incompatible mods.",
             }
         }
     },
