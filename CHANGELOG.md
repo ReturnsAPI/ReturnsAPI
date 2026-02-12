@@ -25,6 +25,7 @@
 - Misc
     - Store current stage variant as `Global.stage_variant`
     - Add option to enable simpler console keybind
+    - Add `help` command to console
 
 ### v0.1.43
 - Survivor : Set `pHmax_base` to `2.8` on init
