@@ -68,7 +68,7 @@ Console.new{
         "Does a thing.",
         {"(some_parameter)", "number", "Some numerical value."},
         {"[some_optional]",  "string", "Some optional string value."},
-    }
+    },
     function(args)
         if #args < 1 then
             Console.print("Enter a valid number.")
@@ -178,7 +178,7 @@ end)
 Console.new{
     "help (command)",
     {
-        "Displays usage information for a command.",
+        "Display usage information for a command.",
         {"(command)", "string", "The command to get help for."},
     },
     function(args)
