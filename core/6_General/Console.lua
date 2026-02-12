@@ -58,6 +58,8 @@ end)
 --[[
 Creates a new console command.
 
+--@ptable
+
 E.g.,
 ```lua
 Console.new{
