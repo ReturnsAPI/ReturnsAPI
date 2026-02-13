@@ -132,7 +132,7 @@ methods_actor = {
     **Must be called offline or as host.**
     ]]
     kill = function(self)
-        gm.actor_kill(self.value)
+        self:actor_kill(self)
     end,
 
 

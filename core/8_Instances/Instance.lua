@@ -318,7 +318,7 @@ methods_instance = {}
 for fn_name, fn in pairs(GM_callso) do
     methods_instance[fn_name] = function(self, ...)
         if not self.value then log.error(fn_name..": Instance does not exist", 2) end
-        return fn(self, nil, ...)
+        return fn(self, self, ...)
     end
 end
 
