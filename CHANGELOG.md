@@ -1,6 +1,7 @@
 ### v0.1.44
 - Add Console class
 - Add Timer class
+- Actor : Fix `kill` throwing an error
 - AttackFlag : Add `new` and `find`
 - AttackInfo : Add support for custom attack flags
 - Callback

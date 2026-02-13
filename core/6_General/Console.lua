@@ -165,15 +165,40 @@ Callback.add(RAPI_NAMESPACE, Callback.CONSOLE_ON_COMMAND, Callback.internal.FIRS
     end
 
     local fn = __console_fns[cmd[1]:lower()]
-    if fn then
-        table.remove(cmd, 1)
-        fn(cmd)
+    if not fn then return end
+
+    -- Remove command name
+    table.remove(cmd, 1)
+
+    -- Convert non-string arguments to non-strings
+    for i, arg in ipairs(cmd) do
+        local num = tonumber(arg)
+        if     num            then cmd[i] = num
+        elseif arg == "true"  then cmd[i] = true
+        elseif arg == "false" then cmd[i] = false
+        end
     end
+
+    fn(cmd)
 end)
 
 
 
 -- ========== Built-in ==========
+
+local pad_to_width = function(str, w, char)
+    char = char or " "
+
+    local str_width  = gm.scribble_get_width(str)
+    local char_width = gm.scribble_get_width(char)
+
+    while str_width < w do
+        str = str..char
+        str_width = str_width + char_width
+    end
+
+    return str
+end
 
 Console.new{
     "help (command)",
@@ -182,9 +207,13 @@ Console.new{
         {"(command)", "string", "The command to get help for."},
     },
     function(args)
-        if (#args < 1)
-        or (not __console_commands[args[1]]) then
-            Console.print("Enter a valid command.")
+        if #args < 1 then
+            Console.print("Enter a valid command. \nType <y>list</c> to display valid commands.")
+            return
+        end
+
+        if not __console_commands[args[1]] then
+            Console.print("'"..args[1].."' is not a known command. \nType <y>list</c> to display valid commands.")
             return
         end
 
@@ -198,8 +227,8 @@ Console.new{
         local str = help.description
         if #help.args > 0 then
             for _, arg in ipairs(help.args) do
-                local name  = Util.pad_string_right(arg[1], 24)
-                local _type = Util.pad_string_right(arg[2], 16)
+                local name  = pad_to_width(arg[1], 120).." "
+                local _type = pad_to_width(arg[2], 80).." "
                 local desc  = tostring(arg[3])
                 str = str.."\n"..name.._type..desc
             end
@@ -208,6 +237,25 @@ Console.new{
     end
 }
 
+Console.new{
+    "list",
+    {
+        "Display a list of all commands in alphabetical order.",
+    },
+    function(args)
+        local t = {}
+        for _, cmd in ipairs(List.wrap(__console.commands)) do
+            table.insert(t, cmd)
+        end
+        table.sort(t, function(a, b) return a < b end)
+
+        local str = "Type <y>help (command)</c> for more information on a command."
+        for i, cmd in ipairs(t) do
+            str = str.."\n"..cmd
+        end
+        Console.print(str)
+    end
+}
 
 __console_help["build_id"] = {
     description = "Display the current build information of the game.",
