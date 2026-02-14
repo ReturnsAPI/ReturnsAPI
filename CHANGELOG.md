@@ -1,5 +1,7 @@
 ### v0.1.44
 - Add Console class
+    - Add option to enable simpler console keybind
+    - Add `help` and `list` commands to console
 - Add Timer class
 - Actor : Fix `kill` throwing an error
 - AttackFlag : Add `new` and `find`
@@ -11,6 +13,7 @@
 - Instance
     - Add `nearest`
     - Add `INVALID` constant; maps to the invalid instance with value `nil` and id `-4`
+    - Calling GM functions via `:` now passes the instance as `other` as well (not just `self`)
 - ItemLog.`new_from_equipment` : Correctly add +1 to group if achievement-locked
 - Particle : Remove `get_identifer` (why did this exist?)
 - Survivor
@@ -24,12 +27,10 @@
     - Fix `.direction` throwing error
     - Throw error when dividing by 0
 - Misc
-    - Store current stage variant as `Global.stage_variant`
-    - Add option to enable simpler console keybind
-    - Add `help` command to console
+    - Store current stage variant as `Global.stage_variant` (indexed from 0)
 
 ### v0.1.43
-- Survivor : Set `pHmax_base` to `2.8` on init
+- Survivor : Set `pHmax_base` to `2.8` on init for custom survivors
 
 ### v0.1.42
 - Actor : Add `buff_time`
@@ -38,7 +39,7 @@
     - Add `enum`
 - Player:`control`
     - Fix not working for vanilla verbs
-    - Fix incorrect description for release (should be `-1`)
+    - Fix incorrect description for release on the docs (should be `-1`)
 - ActorSkill : Add wrapper methods around struct methods
     - Use `:` instead of `.`
     - Add argument checking
