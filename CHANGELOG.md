@@ -1,3 +1,6 @@
+### v0.1.45
+- Instance : Remove instance data clearing on `actor_set_dead`
+
 ### v0.1.44
 - Add Console class
     - Add option to enable simpler console keybind
