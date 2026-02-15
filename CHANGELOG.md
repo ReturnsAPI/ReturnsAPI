@@ -6,6 +6,7 @@
 - Hook : Add `step_buff` to banned scripts
 - Instance : Remove instance data clearing on `actor_set_dead`
 - Math : Add `round`
+- Util : Add `pad_string_left/right_to_width`
 
 ### v0.1.44
 - Add Console class

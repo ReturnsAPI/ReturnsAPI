@@ -657,7 +657,7 @@ end
 
 
 --@static
---@return       strings
+--@return       string
 --@param        str         | string    | The string to pad.
 --@param        length      | number    | The desired string length.
 --@optional     char        | string    | The character to use. <br>`" "` (space) by default.
@@ -677,7 +677,7 @@ end
 
 
 --@static
---@return       strings
+--@return       string
 --@param        str         | string    | The string to pad.
 --@param        length      | number    | The desired string length.
 --@optional     char        | string    | The character to use. <br>`" "` (space) by default.
@@ -692,6 +692,58 @@ Util.pad_string_right = function(str, length, char)
     for i = 1, len do
         str = str..char
     end
+    return str
+end
+
+
+--@static
+--@return       string
+--@param        str         | string    | The string to pad.
+--@param        width       | number    | The desired pixel width.
+--@optional     char        | string    | The character to use. <br>`" "` (space) by default.
+--[[
+Returns a string with character padding on the
+left side to match the desired pixel width.
+Width information is based on the current font.
+]]
+Util.pad_string_left_to_width = function(str, width, char)
+    str = tostring(str)
+    char = char or " "
+
+    local str_width  = gm.scribble_get_width(str)
+    local char_width = gm.scribble_get_width(char)
+
+    while str_width < width do
+        str = char..str
+        str_width = str_width + char_width
+    end
+
+    return str
+end
+
+
+--@static
+--@return       string
+--@param        str         | string    | The string to pad.
+--@param        width       | number    | The desired pixel width.
+--@optional     char        | string    | The character to use. <br>`" "` (space) by default.
+--[[
+Returns a string with character padding on the
+right side to match the desired pixel width.
+Width information is based on the current font.
+]]
+Util.pad_string_right_to_width = function(str, width, char)
+    str = tostring(str)
+    char = char or " "
+
+    local str_width  = gm.scribble_get_width(str)
+    local char_width = gm.scribble_get_width(char)
+
+    while str_width < width do
+        str = str..char
+        str_width = str_width + char_width
+    end
+
     return str
 end
 

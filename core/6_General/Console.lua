@@ -186,20 +186,6 @@ end)
 
 -- ========== Built-in ==========
 
-local pad_to_width = function(str, w, char)
-    char = char or " "
-
-    local str_width  = gm.scribble_get_width(str)
-    local char_width = gm.scribble_get_width(char)
-
-    while str_width < w do
-        str = str..char
-        str_width = str_width + char_width
-    end
-
-    return str
-end
-
 Console.new{
     "help (command)",
     {
@@ -227,8 +213,8 @@ Console.new{
         local str = help.description
         if #help.args > 0 then
             for _, arg in ipairs(help.args) do
-                local name  = pad_to_width(arg[1], 120).." "
-                local _type = pad_to_width(arg[2], 80).." "
+                local name  = Util.pad_string_right_to_width(arg[1], 120).." "
+                local _type = Util.pad_string_right_to_width(arg[2], 80).." "
                 local desc  = tostring(arg[3])
                 str = str.."\n"..name.._type..desc
             end
