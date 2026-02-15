@@ -54,20 +54,20 @@ Property | Type | Description
 | - | - | -
 `namespace`                 | string    | The namespace the buff is in.
 `identifier`                | string    | The identifier for the buff within the namespace.
-`show_icon`                 | bool      | `true` if the icon should be shown.
+`show_icon`                 | bool      | `true` if the icon should be shown. <br>`true` by default.
 `icon_sprite`               | sprite    | 
 `icon_subimage`             | number    | 
 `icon_frame_speed`          | number    | 
-`icon_stack_subimage`       | number    | 
-`draw_stack_number`         | bool      | `true` if the buff stack count should be displayed beside the icon.
+`icon_stack_subimage`       | bool      | 
+`draw_stack_number`         | bool      | `true` if the buff stack count should be displayed beside the icon. <br>`false` by default.
 `stack_number_col`          | Array     | An array of colors to use for the drawn stack count. <br>`Array.new(1, Color.WHITE)` by default.
-`max_stack`                 | number    | The maximum number of stacks.
+`max_stack`                 | number    | The maximum number of stacks. <br>`1` by default.
 `on_apply`                  | number    | The ID of the callback that runs when the buff is applied.
 `on_remove`                 | number    | The ID of the callback that runs when the buff is removed.
 `on_step`                   | number    | The ID of the callback that runs every frame while having the buff.
-`is_timed`                  | bool      | 
-`is_debuff`                 | bool      | `true` if the buff is considered a debuff.
-`client_handles_removal`    | bool      | 
+`is_timed`                  | bool      | <br>`true` by default.
+`is_debuff`                 | bool      | `true` if the buff is considered a debuff. <br>`true` by default.
+`client_handles_removal`    | bool      | <br>`false` by default.
 `effect_display`            | EffectDisplay | 
 ]]
 

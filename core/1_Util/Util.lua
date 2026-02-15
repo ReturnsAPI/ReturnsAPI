@@ -459,8 +459,8 @@ end
 
 
 --@static
---@param        dest        | table     | The original table to append to.
---@param        src         | table     | The table to append.
+--@param        dest        | table     | The original table to insert to.
+--@param        src         | table     | The table to insert.
 --[[
 Inserts a table of values (`src`) to `dest`.
 Both should be *numerically-indexed* tables.

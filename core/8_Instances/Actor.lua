@@ -467,7 +467,7 @@ methods_actor = {
         item = Wrap.unwrap(item)
         if type(item) ~= "number" then log.error("item_give: item is invalid", 2) end
 
-        gm.item_give(self.value, item, count or 1, kind or Item.StackKind.NORMAL)
+        gm.item_give(self.value, item, math.floor(count or 1), kind or Item.StackKind.NORMAL)
     end,
 
 
@@ -483,7 +483,7 @@ methods_actor = {
         item = Wrap.unwrap(item)
         if type(item) ~= "number" then log.error("item_take: item is invalid", 2) end
 
-        gm.item_take(self.value, item, count or 1, kind or Item.StackKind.NORMAL)
+        gm.item_take(self.value, item, math.floor(count or 1), kind or Item.StackKind.NORMAL)
     end,
 
 
@@ -530,7 +530,7 @@ methods_actor = {
         if type(buff) ~= "number" then log.error("buff_apply: buff is invalid", 2) end
         if not duration then log.error("buff_apply: duration is missing", 2) end
 
-        gm.apply_buff(self.value, buff, duration, count or 1)
+        gm.apply_buff(self.value, buff, duration, math.floor(count or 1))
 
         -- Clamp to max stack or under
         -- Funny stuff happens if this is exceeded
@@ -546,7 +546,7 @@ methods_actor = {
     ]]
     buff_remove = function(self, buff, count)
         local id = self.id
-        count = count or 1
+        count = math.floor(count or 1)
 
         -- Argument check
         buff = Wrap.unwrap(buff)

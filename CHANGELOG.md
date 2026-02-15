@@ -1,4 +1,5 @@
 ### v0.1.45
+- Actor.`item_give/take`, `buff_apply/remove` : Round non-integer `count`s down
 - Callback
     - Add `ON_SHIELD_RESTORE`
     - `ON_SHIELD_BREAK` : Fix not procing when losing all shield in one hit
