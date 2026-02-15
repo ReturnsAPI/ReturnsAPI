@@ -1,5 +1,10 @@
 ### v0.1.45
+- Callback
+    - Add `ON_SHIELD_RESTORE`
+    - `ON_SHIELD_BREAK` : Fix not procing when losing all shield in one hit
+- Hook : Add `step_buff` to banned scripts
 - Instance : Remove instance data clearing on `actor_set_dead`
+- Math : Add `round`
 
 ### v0.1.44
 - Add Console class

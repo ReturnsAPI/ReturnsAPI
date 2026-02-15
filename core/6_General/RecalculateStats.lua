@@ -231,8 +231,8 @@ end
 
 -- ========== Hooks ==========
 
-gm.pre_script_hook(gm.constants.recalculate_stats, function(self, other, result, args)
-    gather_params(Instance.wrap(self))
+Hook.add_pre(RAPI_NAMESPACE, gm.constants.recalculate_stats, Callback.internal.FIRST, function(self, other, result, args)
+    gather_params(self)
 end)
 
 

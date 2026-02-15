@@ -105,12 +105,14 @@ Callback.CUSTOM_START = 10000
 --[[
 ON_HEAL             10000
 ON_SHIELD_BREAK     10001
-ON_SKILL_ACTIVATE   10002
-ON_EQUIPMENT_SWAP   10003
+ON_SHIELD_RESTORE   10002
+ON_SKILL_ACTIVATE   10003
+ON_EQUIPMENT_SWAP   10004
 ]]
 local custom_callbacks = {
     "ON_HEAL",
     "ON_SHIELD_BREAK",
+    "ON_SHIELD_RESTORE",
     "ON_SKILL_ACTIVATE",
     "ON_EQUIPMENT_SWAP",
 }
@@ -227,6 +229,7 @@ Callback                            | Parameters
 | --------------------------------- | ----------
 `ON_HEAL`                           | `actor` (Actor) - The actor that is being healed. <br>`amount` (table) - The heal value; access with `.value`. <br><br>Set `amount.value` to change the heal value. <br>This is called *before* healing is applied, and does <br>*not* cover passive health regeneration or Sprouting Egg.
 `ON_SHIELD_BREAK`                   | `actor` (Actor) <br>`hit_info` (HitInfo) <br><br>This only runs when the actor loses shield <br>from taking damage, not when setting `shield`.
+`ON_SHIELD_RESTORE`                 | `actor` (Actor) <br><br>This runs *before* `shield = maxshield`.
 `ON_SKILL_ACTIVATE`                 | `actor` (Actor) <br>`slot` (number)
 `ON_EQUIPMENT_SWAP`                 | `actor` (Actor) <br>`new` (Equipment) <br>`old` (Equipment) <br><br>Runs *before* the equipment is actually set for the actor.
 ]]
@@ -634,8 +637,38 @@ Callback.add(RAPI_NAMESPACE, Callback.ON_DAMAGED_PROC, Callback.internal.FIRST, 
     end
 end)
 
+Hook.add_post(RAPI_NAMESPACE, gm.constants.recalculate_stats, Callback.internal.FIRST, function(self, other, result, args)
+    local maxshield = self.maxshield
+    local self_data = Instance.get_data(self)
 
--- 10002 : onSkillActivate
+    if  maxshield > 0
+    and self.shield > 0 then
+        self_data.shield_active = true
+        return
+    end
+
+    if maxshield <= 0 then
+        self_data.shield_active = nil
+    end
+end)
+
+
+-- 10002 : onShieldRestore
+Callback.new(RAPI_NAMESPACE, "onShieldRestore")
+
+Hook.add_pre(RAPI_NAMESPACE, gm.constants.server_message_send, Callback.internal.FIRST, function(self, other, result, args)
+    -- Shield regen sync packet
+    if args[2].value ~= 69 then return end
+    
+    local self_data = Instance.get_data(self)
+    self_data.shield_active = true
+
+    if not Callback.has_any(Callback.ON_SHIELD_RESTORE) then return end
+    Callback.call(Callback.ON_SHIELD_RESTORE, self)
+end)
+
+
+-- 10003 : onSkillActivate
 Callback.new(RAPI_NAMESPACE, "onSkillActivate")
 
 Hook.add_post(RAPI_NAMESPACE, gm.constants.skill_activate, Callback.internal.FIRST, function(self, other, result, args)
@@ -648,7 +681,7 @@ Hook.add_post(RAPI_NAMESPACE, gm.constants.skill_activate, Callback.internal.FIR
 end)
 
 
--- 10003 : onEquipmentSwap
+-- 10004 : onEquipmentSwap
 Callback.new(RAPI_NAMESPACE, "onEquipmentSwap")
 
 Hook.add_pre(RAPI_NAMESPACE, gm.constants.equipment_set, Callback.internal.FIRST, function(self, other, result, args)
