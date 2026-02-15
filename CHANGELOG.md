@@ -3,6 +3,7 @@
 - Callback
     - Add `ON_SHIELD_RESTORE`
     - `ON_SHIELD_BREAK` : Fix not procing when losing all shield in one hit
+- Console : Add `clear`
 - Hook : Add `step_buff` to banned scripts
 - Instance : Remove instance data clearing on `actor_set_dead`
 - Math : Add `round`

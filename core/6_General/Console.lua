@@ -243,6 +243,16 @@ Console.new{
     end
 }
 
+Console.new{
+    "clear",
+    {
+        "Clear console history.",
+    },
+    function(args)
+        List.wrap(__console.history):clear()
+    end
+}
+
 __console_help["build_id"] = {
     description = "Display the current build information of the game.",
     args = {}
