@@ -41,6 +41,17 @@ end
 
 --@static
 --@return       number
+--@param        n           | number    | The value to round.
+--[[
+Returns `n` rounded to the nearest whole number.
+]]
+Math.round = function(n)
+    return math.floor(n + 0.5)
+end
+
+
+--@static
+--@return       number
 --@param        n           | number    | The value to get the sign of.
 --[[
 Returns the sign of the value (either `1`, `-1`, or `0`).
