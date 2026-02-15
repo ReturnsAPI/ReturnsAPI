@@ -33,6 +33,7 @@ end)
 local banned_scripts = {
     gm.constants.step_actor,        -- Bad for performance
     gm.constants.draw_actor,        -- Bad for performance
+    gm.constants.step_buff,         -- Potentially bad for performance
     gm.constants.actor_heal_raw,    -- Potentially bad for performance
 }
 
