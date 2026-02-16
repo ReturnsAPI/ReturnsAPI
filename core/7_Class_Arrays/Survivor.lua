@@ -312,7 +312,7 @@ Returns an Survivor wrapper containing the provided survivor ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the survivor's properties.
     ]]

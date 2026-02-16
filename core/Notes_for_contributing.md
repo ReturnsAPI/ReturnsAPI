@@ -13,7 +13,7 @@ If you have any questions just ping `@Klehrik`.
     - `find` (static method)
     - `find_all` (static method)
     - `wrap` (static method)
-    - `print_properties` (instance method)
+    - `print` (instance method)
     - Metatable for `get`/`set`
 - You do not need to write bodies for these in their `<class>.lua` files, but should still write the documentation.
     - See `7_Class_Arrays/Item.lua` as an example (and perhaps just copy the file).

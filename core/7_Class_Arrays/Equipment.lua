@@ -161,7 +161,7 @@ Returns an Equipment wrapper containing the provided equipment ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the equipment's properties.
     ]]

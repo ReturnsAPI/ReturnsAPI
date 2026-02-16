@@ -219,7 +219,7 @@ Returns an EnvironmentLog wrapper containing the provided environment log ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the environment log's properties.
     ]]

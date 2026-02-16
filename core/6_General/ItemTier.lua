@@ -213,7 +213,7 @@ methods_item_tier = {
     --[[
     Prints the item tier's properties.
     ]]
-    print_properties = function(self)
+    print = function(self)
         local struct = __item_tier_find_table:get(self.value).struct
         struct:print()
     end

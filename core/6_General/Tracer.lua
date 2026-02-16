@@ -242,7 +242,7 @@ methods_tracer = {
     --[[
     Prints the tracer's properties.
     ]]
-    print_properties = function(self)
+    print = function(self)
         local struct = __tracer_find_table:get(self.value).struct
         struct:print()
     end,

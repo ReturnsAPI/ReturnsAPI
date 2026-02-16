@@ -1,6 +1,6 @@
 ﻿{
 	"name": "ReturnsAPI",
-	"version_number": "0.1.45",
+	"version_number": "0.1.46",
 	"website_url": "https://github.com/ReturnsAPI/ReturnsAPI/wiki",
 	"description": "(Mostly done) API for modding Risk of Rain Returns.",
 	"dependencies": [

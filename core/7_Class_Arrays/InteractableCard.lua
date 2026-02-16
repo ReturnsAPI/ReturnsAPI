@@ -125,7 +125,7 @@ Returns an InteractableCard wrapper containing the provided interactable card ID
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the interactable card's properties.
     ]]

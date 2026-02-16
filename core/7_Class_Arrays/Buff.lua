@@ -146,7 +146,7 @@ Returns an Buff wrapper containing the provided buff ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the buff's properties.
     ]]

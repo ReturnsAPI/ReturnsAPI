@@ -88,7 +88,7 @@ Returns an EndingType wrapper containing the provided ending type ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the ending type's properties.
     ]]

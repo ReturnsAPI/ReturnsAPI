@@ -88,7 +88,7 @@ Returns an CLASS_CAPITAL wrapper containing the provided CLASS_LOWER ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the CLASS_LOWER's properties.
     ]]

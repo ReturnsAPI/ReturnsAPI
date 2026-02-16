@@ -197,7 +197,7 @@ Returns an SurvivorLog wrapper containing the provided survivor log ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the survivor log's properties.
     ]]

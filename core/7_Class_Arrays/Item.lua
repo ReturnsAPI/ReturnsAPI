@@ -177,7 +177,7 @@ Returns an Item wrapper containing the provided item ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the item's properties.
     ]]
@@ -223,7 +223,7 @@ Util.table_append(methods_class_array[name_rapi], {
 
 
     --@instance
-    --@param        sprite      | Sprite    | The sprite to set.
+    --@param        sprite      | sprite    | The sprite to set.
     --[[
     Sets the sprite of the item.
     ]]

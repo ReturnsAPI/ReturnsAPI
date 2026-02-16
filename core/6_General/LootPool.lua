@@ -277,7 +277,7 @@ methods_loot_pool = {
     --[[
     Prints the loot pool's properties.
     ]]
-    print_properties = function(self)
+    print = function(self)
         local struct = __loot_pool_find_table[self.value].struct
         struct:print()
     end,

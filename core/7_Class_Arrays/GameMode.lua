@@ -88,7 +88,7 @@ Returns an GameMode wrapper containing the provided game mode ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the game mode's properties.
     ]]

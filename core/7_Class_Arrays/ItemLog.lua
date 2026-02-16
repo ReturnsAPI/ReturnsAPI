@@ -220,7 +220,7 @@ Returns an ItemLog wrapper containing the provided item log ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the item log's properties.
     ]]

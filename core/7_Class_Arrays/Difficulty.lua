@@ -131,7 +131,7 @@ Returns an Difficulty wrapper containing the provided difficulty ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the difficulty's properties.
     ]]

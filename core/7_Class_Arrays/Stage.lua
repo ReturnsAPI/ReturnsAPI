@@ -282,7 +282,7 @@ Returns a Stage wrapper containing the provided stage ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the item's properties.
     ]]
