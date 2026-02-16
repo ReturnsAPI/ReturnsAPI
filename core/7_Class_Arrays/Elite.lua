@@ -39,14 +39,14 @@ Property | Type | Description
 
 Property | Type | Description
 | - | - | -
-`namespace`         | string    | The namespace the elite is in.
-`identifier`        | string    | The identifier for the elite within the namespace.
-`token_name`        | string    | 
-`palette`           |           | 
-`blend_col`         | color     | 
-`healthbar_icon`    |           | 
+`namespace`         | string        | The namespace the elite is in.
+`identifier`        | string        | The identifier for the elite within the namespace.
+`token_name`        | string        | 
+`palette`           | sprite        | 
+`blend_col`         | color         | 
+`healthbar_icon`    | sprite        | 
 `effect_display`    | EffectDisplay | 
-`on_apply`          | number    | 
+`on_apply`          | number        | The ID of the callback that runs when the elite type is applied to an actor. <br>The callback function should have the argument `actor`.
 ]]
 
 
@@ -54,6 +54,31 @@ Property | Type | Description
 -- ========== Static Methods ==========
 
 --@section Static Methods
+
+--@static
+--@return   Elite
+--@param    identifier  | string    | The identifier for the elite type.
+--[[
+Creates a new elite type with the given identifier if it does not already exist,
+or returns the existing one if it does.
+]]
+Elite.new = function(NAMESPACE, identifier)
+    Initialize.internal.check_if_started("Elite.new")
+    if not identifier then log.error("Elite.new: No identifier provided", 2) end
+
+    -- Return existing elite if found
+    local elite = Elite.find(identifier, NAMESPACE, true)
+    if elite then return elite end
+
+    -- Create new
+    elite = Elite.wrap(gm.elite_type_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return elite
+end
+
 
 --@static
 --@name         find
@@ -96,9 +121,27 @@ Returns an Elite wrapper containing the provided elite ID.
 Util.table_append(methods_class_array[name_rapi], {
 
     --@instance
-    --@name         print_properties
+    --@name         print
     --[[
     Prints the elite's properties.
     ]]
+
+
+    --@instance
+    --@param        palette     | sprite    | The palette sprite to set.
+    --[[
+    Sets the palette sprite of the elite type.
+
+    This also calls `GM.elite_generate_palettes()`.
+    ]]
+    set_palette = function(self, palette)
+        if not palette then log.error("set_palette: sprite is not provided", 2) end
+
+        palette = Wrap.unwrap(palette)
+        if type(palette) ~= "number" then log.error("set_palette: Invalid palette argument", 2) end
+
+        self.palette = palette
+        gm.elite_generate_palettes()
+    end,
 
 })

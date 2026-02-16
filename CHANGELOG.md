@@ -1,3 +1,7 @@
+### v0.1.46
+- Class, ItemTier, LootPool, Tracer : Rename `print_properties` to `print`
+- Elite : Add `new` and `set_palette`
+
 ### v0.1.45
 - Actor.`item_give/take`, `buff_apply/remove` : Round non-integer `count`s down
 - Callback
