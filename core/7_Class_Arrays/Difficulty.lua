@@ -1,8 +1,5 @@
 -- Difficulty
 
-local name_rapi = class_name_g2r["class_difficulty"]
-Difficulty = __class[name_rapi]
-
 
 
 -- ========== Enums ==========
@@ -97,7 +94,8 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified difficulty and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 
 
@@ -108,6 +106,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --@optional     property    | number    | The property to check. <br>@link {`Difficulty.Property.NAMESPACE` | Difficulty#Property} by default.
 --[[
 Returns a table of difficultys matching the specified filter and property.
+
+**Note on namespace filter:**
+--@findinfo
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
 Try not to do that too much.
@@ -128,7 +129,7 @@ Returns an Difficulty wrapper containing the provided difficulty ID.
 
 --@section Instance Methods
 
-Util.table_append(methods_class_array[name_rapi], {
+Util.table_append(methods_content_class["Difficulty"], {
 
     --@instance
     --@name         print

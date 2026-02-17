@@ -2,9 +2,6 @@
 
 if true then return end
 
-local name_rapi = class_name_g2r["class_CLASS_LOWER"]
-CLASS_CAPITAL = __class[name_rapi]
-
 
 
 -- ========== Enums ==========
@@ -54,7 +51,8 @@ Property | Type | Description
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified CLASS_LOWER and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 
 
@@ -65,6 +63,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --@optional     property    | number    | The property to check. <br>@link {`CLASS_CAPITAL.Property.NAMESPACE` | CLASS_CAPITAL#Property} by default.
 --[[
 Returns a table of CLASS_LOWERs matching the specified filter and property.
+
+**Note on namespace filter:**
+--@findinfo
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
 Try not to do that too much.
@@ -85,7 +86,7 @@ Returns an CLASS_CAPITAL wrapper containing the provided CLASS_LOWER ID.
 
 --@section Instance Methods
 
-Util.table_append(methods_class_array[name_rapi], {
+Util.table_append(methods_content_class[name_rapi], {
 
     --@instance
     --@name         print

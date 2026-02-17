@@ -5,9 +5,6 @@ This class is here for completeness.
 Skin adding should be done through @link {`survivor:add_skin` | Survivor#add_skin }.
 ]]
 
-local name_rapi = class_name_g2r["class_actor_skin"]
-ActorSkin = __class[name_rapi]
-
 
 
 -- ========== Enums ==========
@@ -65,7 +62,8 @@ Property | Type | Description
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified skin and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 
 
@@ -76,6 +74,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --@optional     property    | number    | The property to check. <br>@link {`ActorSkin.Property.NAMESPACE` | ActorSkin#Property} by default.
 --[[
 Returns a table of skins matching the specified filter and property.
+
+**Note on namespace filter:**
+--@findinfo
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
 Try not to do that too much.
@@ -96,7 +97,7 @@ Returns an ActorSkin wrapper containing the provided skin ID.
 
 --@section Instance Methods
 
-Util.table_append(methods_class_array[name_rapi], {
+Util.table_append(methods_content_class["ActorSkin"], {
 
     --@instance
     --@name         print

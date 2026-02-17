@@ -1,8 +1,5 @@
 -- ItemLog
 
-local name_rapi = class_name_g2r["class_item_log"]
-ItemLog = __class[name_rapi]
-
 
 
 -- ========== Enums ==========
@@ -186,7 +183,8 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified item log and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 
 
@@ -197,6 +195,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --@optional     property    | number    | The property to check. <br>@link {`ItemLog.Property.NAMESPACE` | ItemLog#Property} by default.
 --[[
 Returns a table of item logs matching the specified filter and property.
+
+**Note on namespace filter:**
+--@findinfo
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
 Try not to do that too much.
@@ -217,7 +218,7 @@ Returns an ItemLog wrapper containing the provided item log ID.
 
 --@section Instance Methods
 
-Util.table_append(methods_class_array[name_rapi], {
+Util.table_append(methods_content_class["ItemLog"], {
 
     --@instance
     --@name         print

@@ -1,8 +1,5 @@
 -- Artifact
 
-local name_rapi = class_name_g2r["class_artifact"]
-Artifact = __class[name_rapi]
-
 
 
 -- ========== Enums ==========
@@ -91,7 +88,8 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified artifact and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 
 
@@ -102,6 +100,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --@optional     property    | number    | The property to check. <br>@link {`Artifact.Property.NAMESPACE` | Artifact#Property} by default.
 --[[
 Returns a table of artifacts matching the specified filter and property.
+
+**Note on namespace filter:**
+--@findinfo
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
 Try not to do that too much.
@@ -122,7 +123,7 @@ Returns an Artifact wrapper containing the provided artifact ID.
 
 --@section Instance Methods
 
-Util.table_append(methods_class_array[name_rapi], {
+Util.table_append(methods_content_class["Artifact"], {
 
     --@instance
     --@name         print

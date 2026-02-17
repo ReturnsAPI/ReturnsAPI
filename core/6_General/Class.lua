@@ -1,7 +1,7 @@
 -- Class
 
 --[[
-Allows for accessing class arrays via `Class.<class>`.
+Allows for accessing content class arrays via `Class.<class>`.
 (E.g., `Class.Item`)
 ]]
 
@@ -9,14 +9,15 @@ Class = new_class()
 
 
 
--- ========== Populate RAPI <-> Global name mapping ==========
+-- ========== RAPI <-> Global name mapping ==========
 
--- Passing RAPI class name as key returns
--- its global class name, and vice versa
+-- Mappings for RAPI class name
+-- to global name and vice versa
+local file = toml.decodeFromFile(path.combine(PATH, "core/data/class_name_mapping.txt"))
 
-local file = toml.decodeFromFile(PATH.."core/data/class_name_mapping.txt")
-class_name_r2g = file.mapping   -- RAPI     ->      Global
-class_name_g2r = {}             -- Global   ->      RAPI
+local class_name_r2g = file.mapping   -- RAPI   -> Global
+local class_name_g2r = {}             -- Global -> RAPI
+
 for name_rapi, name_global in pairs(class_name_r2g) do
     class_name_g2r[name_global] = name_rapi
 end
@@ -28,27 +29,11 @@ end
 local class_wrappers = {}
 
 Class.internal.initialize = function()
-    -- For reference:
-    -- __class_find_tables[name_global][namespace][identifier]  = element_table (see in next section below)
-    -- __class_find_tables[name_global][id]                     = element_table
-
-    -- Remove garbage data from `class_artifact`
-    Global.class_artifact:resize(Global.count_artifact)
-
-    -- Populate class_wrappers on initialize
-    -- since some class arrays existn't before then
     for name_rapi, name_global in pairs(class_name_r2g) do
-
+        -- Populate class_wrappers on initialize
+        -- since some content class arrays do not exist before then
         -- Wrap `class_*` in Array wrappers and store in `class_wrappers`
         class_wrappers[name_rapi:upper()] = Global[name_global]
-
-        -- Update cached wrappers in __class_find_tables
-        local find_table = __class_find_tables[name_global]
-        for id, element_table in pairs(find_table) do
-            if type(id) == "number" then
-                element_table.wrapper = __class[name_rapi].wrap(element_table.id)
-            end
-        end
     end
 end
 table.insert(_rapi_initialize, Class.internal.initialize)
@@ -74,27 +59,19 @@ setmetatable(Class, metatable_class)
 
 
 
--- ========== Custom `.find` table ==========
+-- ========== Find Caches ==========
 
--- E.g.,
--- local element_table = {
---     id          = id,
---     namespace   = namespace,
---     identifier  = identifier,
---     array       = Global[name_global]:get(id)
---     wrapper     = __class[class_name_g2r[name_global]].wrap(id)
--- }
--- __class_find_tables["class_item"]["ror"]["meatNugget"] = element_table
--- __class_find_tables["class_item"][0] = element_table
-
+-- Create class find caches
 run_once(function()
-    __class_find_tables = {}
+    __class_find_caches = {}
+
     for name_global, _ in pairs(class_name_g2r) do
-        __class_find_tables[name_global] = {}
+        __class_find_caches[name_global] = __class_find_caches[name_global] or FindCache.new()
     end
 end)
 
--- Detect if new content is added and add to find table
+
+-- Detect if new content is added and add to find cache
 -- All vanilla content is added through these as well
 local hooks = {
     {gm.constants.achievement_create,       "class_achievement"},
@@ -119,26 +96,25 @@ local hooks = {
     {gm.constants.survivor_log_create,      "class_survivor_log"}
 }
 for _, hook in ipairs(hooks) do
+    local name_rapi   = class_name_g2r[hook[2]]
     local name_global = hook[2]
 
     gm.post_script_hook(hook[1], function(self, other, result, args)
-        local namespace     = args[1].value
-        local identifier    = args[2].value
-        local id            = result.value
+        local namespace  = args[1].value
+        local identifier = args[2].value
+        local id         = result.value
 
-        -- Add to find table
+        -- Add to find cache
         if namespace then
-            local element_table = {
-                id          = id,
-                namespace   = namespace,
-                identifier  = identifier,
-                array       = Global[name_global]:get(id),
-                wrapper     = __class[class_name_g2r[name_global]].wrap(id)
-            }
-            local t = __class_find_tables[name_global]
-            if not t[namespace] then t[namespace] = {} end
-            t[namespace][identifier] = element_table
-            t[id] = element_table
+            __class_find_caches[name_global]:set(
+                {
+                    wrapper = __class[name_rapi].wrap(id),
+                    array   = Global[name_global]:get(id),
+                },
+                identifier,
+                namespace,
+                id
+            )
         end
     end)
 end
@@ -156,113 +132,91 @@ end
 --      * print         instance method
 --      * Metatable for get/set properties
 -- 
--- Use __class[<RAPI name>] in their respective
--- files instead of creating a new table
+-- The variable for the class (e.g., `Item`)
+-- will already be defined, so no need to write
+-- `= new_class()` or anything in their files
 -- 
--- Additionally, modify methods_class[<RAPI name>] for instance methods
+-- Additionally, modify `methods_class[<RAPI name>]` for instance methods
 
-methods_class_array = {}
-
-run_once(function()
-    for name_rapi, _ in pairs(class_name_r2g) do
-        make_table_once("metatable_"..name_rapi)
-    end
-end)
 
 -- Load property names from data
 local file = toml.decodeFromFile(PATH.."core/data/class_array.txt")
 local properties = file.array
 
--- Create new class table for every class array
-for name_rapi, name_global in pairs(class_name_r2g) do
-    local metatable_name = "metatable_"..name_rapi
 
+-- Create new class table for every content class
+methods_content_class = {}
+
+for name_rapi, name_global in pairs(class_name_r2g) do
     local class_table = new_class()
 
-    -- Create enum `*.Property` from "class_array.txt"
+    __class[name_rapi] = class_table
+    private[name_rapi] = class_table    -- Define variable for internal use
+
+    local metatable_name = "metatable_"..name_rapi
+
+
+    -- Create enum `Property` from "class_array.txt"
     local enum = {}
     for k, v in pairs(properties[name_global]) do
-        enum[k:upper()] = v     -- e.g., Item.Property.NAMESPACE = 0
-        enum[v] = k             -- e.g., Item.Property[0] = "namespace";    Don't capitalize name here
+        enum[k:upper()] = v -- e.g., Item.Property.NAMESPACE = 0
+        enum[v] = k         -- e.g., Item.Property[0] = "namespace"; don't capitalize property name here
     end
     class_table.Property = enum
 
-    -- new (placeholder)
+
+    -- `new` (placeholder)
     class_table.new = function(NAMESPACE, identifier)
         log.error(name_rapi..".new: Method has not been created for this class yet", 2)
     end
 
-    -- find
+
+    -- `find`
     class_table.find = function(identifier, namespace, namespace_is_specified)
-        -- Search in namespace
-        local namespace_table = __class_find_tables[name_global][namespace]
-        if namespace_table then
-            local element_table = namespace_table[identifier]
-            if element_table then return element_table.wrapper end
-        end
-
-        -- Also search in "ror" namespace by default if unspecified
-        if not namespace_is_specified then
-            element_table = __class_find_tables[name_global]["ror"][identifier]
-            if element_table then return element_table.wrapper end
-        end
-
-        return nil
+        local cached = __class_find_caches[name_global]:get(identifier, namespace, namespace_is_specified)
+        if cached then return cached.wrapper end
     end
 
-    -- find_all
+
+    -- `find_all`
     class_table.find_all = function(NAMESPACE, filter, property)
-        local elements = {}
-        local filter_arg = filter
-        local filter = Wrap.unwrap(filter) or NAMESPACE
-        local property = property or 0  -- Namespace filter by default
+        property = property or 0    -- `namespace` filter by default
 
         -- Namespace filter
         if property == 0 then
-            local namespace_table = __class_find_tables[name_global][filter]
-            if namespace_table then
-                for _, element_table in pairs(namespace_table) do
-                    table.insert(elements, element_table.wrapper)
-                end
-            end
+            local namespace_is_specified = (filter ~= nil)
+            filter = filter or NAMESPACE
+            return __class_find_caches[name_global]:get_all(filter, namespace_is_specified, "wrapper")
+        end
 
-            -- Also search in "ror" namespace if passed no `filter` arg
-            if not filter_arg then
-                filter = "ror"
-                local namespace_table = __class_find_tables[name_global][filter]
-                if namespace_table then
-                    for _, element_table in pairs(namespace_table) do
-                        table.insert(elements, element_table.wrapper)
-                    end
-                end
-            end
 
         -- Other filter (very slow!)
-        else
-            local find_table = __class_find_tables[name_global]
-            local element_max = #find_table
-            for i = 0, element_max do
-                local element_table = find_table[i]
-                if element_table.array:get(property) == filter then
-                    table.insert(elements, element_table.wrapper)
-                end
+        local elements = {}
+        local find_cache = __class_find_caches[name_global]
+
+        for id = 0, #find_cache - 1 do
+            local element_table = find_cache:get(id)
+            if element_table.array:get(property) == filter then
+                table.insert(elements, element_table.wrapper)
             end
         end
 
         return elements
     end
 
-    -- wrap
+
+    -- `wrap`
     class_table.wrap = function(value)
         -- Input:   number
         -- Wraps:   number
         return make_proxy(Wrap.unwrap(value), private[metatable_name])
     end
 
+
     -- Instance methods
-    methods_class_array[name_rapi] = {
+    methods_content_class[name_rapi] = {
         print = function(self)
-            local array = __class_find_tables[name_global][self.value].array
+            local array = __class_find_caches[name_global]:get(self.value).array
             local str = ""
             for i, v in ipairs(array) do
                 str = str.."\n"..Util.pad_string_right(class_table.Property[i - 1], 32).." = "..Util.tostring(v)
@@ -271,6 +225,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
         end
     }
 
+
     -- Metatable
     make_table_once(metatable_name, {
         __index = function(proxy, k)
@@ -278,11 +233,13 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             local value = __proxy[proxy]
             if k == "value" then return value end
             if k == "RAPI"  then return name_rapi end
-            if k == "array" then return __class_find_tables[name_global][value].array end
+            if k == "array" then return __class_find_caches[name_global]:get(value).array end
 
             -- Methods
-            local method = methods_class_array[name_rapi][k]
-            if method then return method end
+            local method = methods_content_class[name_rapi][k]
+            if method then
+                return method
+            end
 
             -- Getter
             if type(k) == "string" then
@@ -322,10 +279,6 @@ for name_rapi, name_global in pairs(class_name_r2g) do
         
         __metatable = "RAPI.Wrapper."..name_rapi
     })
-
-    __class[name_rapi] = class_table
-    private[name_rapi] = class_table    -- To allow internal use in RAPI
-                                        -- if the Lua file doesn't exist yet
 end
 
 

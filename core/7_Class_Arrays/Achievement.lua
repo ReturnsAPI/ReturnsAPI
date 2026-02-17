@@ -1,8 +1,5 @@
 -- Achievement
 
-local name_rapi = class_name_g2r["class_achievement"]
-Achievement = __class[name_rapi]
-
 skill_achievement_map = {}
 
 
@@ -162,7 +159,8 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified achievement and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 
 
@@ -173,6 +171,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --@optional     property    | number    | The property to check. <br>@link {`Achievement.Property.NAMESPACE` | Achievement#Property} by default.
 --[[
 Returns a table of achievements matching the specified filter and property.
+
+**Note on namespace filter:**
+--@findinfo
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
 Try not to do that too much.
@@ -193,7 +194,7 @@ Returns an Achievement wrapper containing the provided achievement ID.
 
 --@section Instance Methods
 
-Util.table_append(methods_class_array[name_rapi], {
+Util.table_append(methods_content_class["Achievement"], {
 
     --@instance
     --@name         print

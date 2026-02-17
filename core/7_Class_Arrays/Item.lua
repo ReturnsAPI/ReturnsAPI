@@ -1,8 +1,5 @@
 -- Item
 
-local name_rapi = class_name_g2r["class_item"]
-Item = __class[name_rapi]
-
 run_once(function()
     __actors_holding_item   = {}
     __toggle_loot_off       = {}    -- Items that are toggled off from dropping
@@ -143,7 +140,8 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified item and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 
 
@@ -154,6 +152,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --@optional     property    | number    | The property to check. <br>@link {`Item.Property.NAMESPACE` | Item#Property} by default.
 --[[
 Returns a table of items matching the specified filter and property.
+
+**Note on namespace filter:**
+--@findinfo
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
 Try not to do that too much.
@@ -174,7 +175,7 @@ Returns an Item wrapper containing the provided item ID.
 
 --@section Instance Methods
 
-Util.table_append(methods_class_array[name_rapi], {
+Util.table_append(methods_content_class["Item"], {
 
     --@instance
     --@name         print

@@ -1,8 +1,5 @@
 -- GameMode
 
-local name_rapi = class_name_g2r["class_game_mode"]
-GameMode = __class[name_rapi]
-
 
 
 -- ========== Enums ==========
@@ -54,7 +51,8 @@ Property | Type | Description
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified game mode and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 
 
@@ -65,6 +63,9 @@ If no namespace is provided, searches in your mod's namespace first, and "ror" s
 --@optional     property    | number    | The property to check. <br>@link {`GameMode.Property.NAMESPACE` | GameMode#Property} by default.
 --[[
 Returns a table of game modes matching the specified filter and property.
+
+**Note on namespace filter:**
+--@findinfo
 
 **NOTE:** Filtering by a non-namespace property is *very slow*!
 Try not to do that too much.
@@ -85,7 +86,7 @@ Returns an GameMode wrapper containing the provided game mode ID.
 
 --@section Instance Methods
 
-Util.table_append(methods_class_array[name_rapi], {
+Util.table_append(methods_content_class["GameMode"], {
 
     --@instance
     --@name         print
