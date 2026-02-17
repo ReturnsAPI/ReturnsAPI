@@ -230,15 +230,37 @@ Console.new{
         "Display a list of all commands in alphabetical order.",
     },
     function(args)
+        -- Sort in alphabetical order
         local t = {}
         for _, cmd in ipairs(List.wrap(__console.commands)) do
             table.insert(t, cmd)
         end
         table.sort(t, function(a, b) return a < b end)
 
-        local str = "Type <y>help (command)</c> for more information on a command."
+        -- Rearrange into 20 rows
+        local rows = {}
+        local row_count = 20
         for i, cmd in ipairs(t) do
-            str = str.."\n"..cmd
+            -- Create row if existn't
+            local row = ((i - 1) % row_count) + 1
+            rows[row] = rows[row] or {}
+
+            table.insert(rows[row], cmd)
+        end
+
+        -- Format and print
+        local str = "Type <y>help (command)</c> for more information on a command.\n"
+        for i, row in ipairs(rows) do
+            local line = ""
+
+            for j, cmd in ipairs(row) do
+                local name = Util.pad_string_right_to_width(cmd, 120)
+
+                if j > 1 then line = line.."| " end
+                line = line.."<y>"..name.."</c>".." "
+            end
+
+            str = str.."\n"..line
         end
         Console.print(str)
     end
