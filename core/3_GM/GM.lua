@@ -6,7 +6,7 @@ wraps/unwraps values with ReturnsAPI wrappers.
 
 E.g.,
 ```lua
-GM.instance_create(x, y, Object.find("lizard"))    --> returns an Actor wrapper
+GM.instance_create(x, y, Object.find("Lizard"))    --> returns an Actor wrapper
 ```
 
 If you need to pass a struct/instance into `self`/`other`, use `GM.SO`.
