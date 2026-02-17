@@ -99,25 +99,48 @@ CUSTOM_START    32
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper**
+Property | Type | Description
+| - | - | -
+`value`         | number    | *Read-only.* The ID of the attack flag.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+`namespace`     | string    | *Read-only.* The namespace the attack flag is in.
+`identifier`    | string    | *Read-only.* The identifier for the attack flag within the namespace.
+]]
+
+
+
 -- ========== Internal ==========
 
--- Populate find cache with vanilla attack flags
-for name, num_id in pairs(flag_constants) do
-    local identifier = name:lower()
-    while true do
-        local pos = identifier:find("_")
-        if not pos then break end
+-- Called at the bottom of this file
+-- (I want to keep the Internal section up here
+-- to match the ordering everywhere else)
+AttackFlag.internal.populate = function()
+    -- Populate find cache with vanilla attack flags
+    for name, num_id in pairs(flag_constants) do
+        local identifier = name:lower()
+        while true do
+            local pos = identifier:find("_")
+            if not pos then break end
 
-        -- E.g., PILOT_RAID -> pilotRaid
-        identifier = identifier:sub(1, pos - 1)..identifier:sub(pos + 1, pos + 1):upper()..identifier:sub(pos + 2, -1)
+            -- E.g., PILOT_RAID -> pilotRaid
+            identifier = identifier:sub(1, pos - 1)..identifier:sub(pos + 1, pos + 1):upper()..identifier:sub(pos + 2, -1)
+        end
+
+        __attack_flag_cache:set(
+            {
+                wrapper = AttackFlag.wrap(num_id),
+            },
+            identifier,
+            "ror",
+            num_id
+        )
     end
-
-    __attack_flag_cache:set(
-        {},
-        identifier,
-        "ror",
-        num_id
-    )
 end
 
 
@@ -127,7 +150,7 @@ end
 --@section Static Methods
 
 --@static
---@return       number
+--@return       AttackFlag
 --@param        identifier      | string    | The identifier for the attack flag.
 --[[
 Allocates a new attack flag value for the given identifier if it does not already exist,
@@ -140,20 +163,24 @@ AttackFlag.new = function(NAMESPACE, identifier)
 
     __attack_flag_counter = __attack_flag_counter + 1
 
+    local wrapper = AttackFlag.wrap(__attack_flag_counter)
+
     -- Add to cache
     __attack_flag_cache:set(
-        {},
+        {
+            wrapper = wrapper,
+        },
         identifier,
         NAMESPACE,
         __attack_flag_counter
     )
 
-    return __attack_flag_counter
+    return wrapper
 end
 
 
 --@static
---@return       number
+--@return       AttackFlag
 --@param        identifier  | string    | The identifier to search for.
 --@optional     namespace   | string    | The namespace to search in.
 --[[
@@ -163,37 +190,70 @@ Searches for the specified attack flag value and returns it.
 ]]
 AttackFlag.find = function(identifier, namespace, namespace_is_specified)
     local cached = __attack_flag_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached.id end
+    if cached then return cached.wrapper end
 end
 
 
 --@static
 --@return       table
---@optional     namespace   | string    | The namespace to check.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Returns a table of all attack flags in the specified namespace.
 
 --@findinfo
 ]]
 AttackFlag.find_all = function(namespace, namespace_is_specified)
-    return __attack_flag_cache:get_all(namespace, namespace_is_specified, "id")
+    return __attack_flag_cache:get_all(namespace, namespace_is_specified, "wrapper")
 end
 
 
 --@static
---@return       string, string (or nil, nil)
---@param        num_id      | number    | The numerical ID of the attack flag.
+--@return       AttackFlag
+--@param        id          | number    | The attack flag ID to wrap.
 --[[
-Returns the identifier and namespace of the attack flag with the given ID.
-(E.g., `2` -> `chefIgnite`, `ror`)
+Returns an AttackFlag wrapper containing the provided attack flag ID.
 ]]
-AttackFlag.get_identifier = function(num_id)
-    -- Check in find table
-    local cached = __attack_flag_cache:get(num_id)
-    if cached then return cached.identifier, cached.namespace end
+AttackFlag.wrap = function(id)
+    -- Input:   number or AttackFlag wrapper
+    -- Wraps:   number
+    return make_proxy(Wrap.unwrap(id), metatable_attack_flag)
 end
 
 
+
+-- ========== Metatables ==========
+
+local wrapper_name = "AttackFlag"
+
+make_table_once("metatable_attack_flag", {
+    __index = function(proxy, k)
+        -- Get wrapped value
+        if k == "value" then return __proxy[proxy] end
+        if k == "RAPI" then return wrapper_name end
+        
+        -- Getter
+        return __attack_flag_cache:get(__proxy[proxy])[k]
+    end,
+    
+
+    __newindex = function(proxy, k, v)
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+        
+        log.error(wrapper_name.." has no properties to set", 2)
+    end,
+
+
+    __metatable = "RAPI.Wrapper."..wrapper_name
+})
+
+
+
+-- Populate
+AttackFlag.internal.populate()
 
 -- Public export
 __class.AttackFlag = AttackFlag

@@ -474,10 +474,11 @@ methods_callback_type = {
                 if (ret == nil)
                 or (ret == "C++ exception") then ret = "GameMaker error (see above)" end
 
-                local callback_type_name = callback
-                local id, ns = Callback.get_identifier(callback)
-                if id then callback_type_name = ns.."-"..id end
-                log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..callback_type_name.."' failed to execute fully.\n"..ret)
+                local callback_name = math.floor(callback)
+                if self.identifier then
+                    callback_name = self.namespace.."-"..self.identifier
+                end
+                log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..callback_name.."' failed to execute fully.\n"..ret)
             end
 
             -- Return value
@@ -561,7 +562,10 @@ make_table_once("metatable_callback_type", {
         end
         
         -- Getter
-        return __callback_find_cache:get(__proxy[proxy])[k]
+        local cache_value = __callback_find_cache:get(__proxy[proxy])
+        if cache_value then
+            return cache_value[k]
+        end
     end,
     
 
@@ -670,11 +674,13 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         if not status then
             if (ret == nil)
             or (ret == "C++ exception") then ret = "GameMaker error (see above)" end
-            
-            local callback_type_name = callback_type_id
-            local id, ns = Callback.get_identifier(callback_type_id)
-            if id then callback_type_name = ns.."-"..id end
-            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..callback_type_name.."' failed to execute fully.\n"..ret)
+
+            local callback_name = math.floor(callback_type_id)
+            local wrapper = Callback.wrap_type(callback_type_id)
+            if wrapper.identifier then
+                callback_name = wrapper.namespace.."-"..wrapper.identifier
+            end
+            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..callback_name.."' failed to execute fully.\n"..ret)
         end
 
         -- Result modification
@@ -815,4 +821,5 @@ end)
 -- Populate
 Callback.internal.populate()
 
+-- Public export
 __class.Callback = Callback
