@@ -99,11 +99,6 @@ Object.internal.initialize = function()
     local resource_manager = Map.wrap(Global.ResourceManager_object.__namespacedAssetLookup)
     
     for identifier, object in pairs(Map.wrap(resource_manager["ror"])) do
-        -- Make first letter lowercase (except for HAND objects)
-        local first_letter = identifier:sub(1, 1):lower()
-        if identifier:find("HAND") then first_letter = identifier:sub(1, 1) end
-        identifier = first_letter..identifier:sub(2, -1)
-
         __object_find_cache:set(
             Object.wrap(object),
             identifier,
@@ -420,7 +415,7 @@ make_table_once("metatable_object", {
                 -- Custom object property table for vanilla objects
                 if not __object_vanilla_properties[value] then
                     local name = gm.object_get_name(value)
-                    name = name:sub(2, 2):lower()..name:sub(3, -1)  -- e.g., oLizard -> lizard
+                    name = name:sub(2, -1)  -- e.g., oLizard -> Lizard
 
                     __object_vanilla_properties[value] = {
                         nil,    -- base

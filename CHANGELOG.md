@@ -1,5 +1,5 @@
 ### v0.1.46
-- AttackFlag : Add `get_identifier`
+- AttackFlag : Add wrapper
 - Callback
     - Add wrapper for callback types (`CallbackType`)
         - Rename existing wrapper to `CallbackFunction`
@@ -9,6 +9,9 @@
     - `wrap` : Now separated into `wrap_type` and `wrap_function`
 - Class, ItemTier, LootPool, Tracer : Rename `print_properties` to `print`
 - Elite : Add `new` and `set_palette`
+- Object.`find` : Vanilla object identifiers now must match the first letter's casing exactly
+    - Capital letter in most cases (as they appear in `Global.ResourceManager_object`)
+    - Consequence of internal restructuring; check your occurences of `Object.find`!
 - Misc
     - All `find` and `find_all` methods : Check globally if no namespace argument is provided
         - The order is non-deterministic except for your mod's namespace, which is guaranteed to be checked first
