@@ -105,7 +105,7 @@ Searches for the specified difficulty and returns it.
 --@param        filter      |           | The filter to search by.
 --@optional     property    | number    | The property to check. <br>@link {`Difficulty.Property.NAMESPACE` | Difficulty#Property} by default.
 --[[
-Returns a table of difficultys matching the specified filter and property.
+Returns a table of difficulties matching the specified filter and property.
 
 **Note on namespace filter:**
 --@findinfo
