@@ -3,7 +3,7 @@
 Callback = new_class()
 
 run_once(function()
-    __callback_cache          = CallbackCache.new()
+    __callback_fn_cache       = CallbackCache.new()
     __callback_find_cache     = FindCache.new()
     __callback_custom_counter = 0
 
@@ -127,34 +127,65 @@ Callback.internal.FIRST = 1000000000
 
 
 
+-- ========== Properties ==========
+
+--@section Properties
+
+--[[
+**Wrapper (CallbackType)**
+Property | Type | Description
+| - | - | -
+`value`         | number    | *Read-only.* The ID of the callback type.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+`namespace`     | string    | *Read-only.* The namespace the callback type is in.
+`identifier`    | string    | *Read-only.* The identifier for the callback type within the namespace.
+
+<br>
+
+**Wrapper (CallbackFunction)**
+Property | Type | Description
+| - | - | -
+`value`         | number    | *Read-only.* The ID of the callback function.
+`RAPI`          | string    | *Read-only.* The wrapper name.
+]]
+
+
+
 -- ========== Internal ==========
 
-local class_callback = Global.class_callback
+-- Called at the bottom of this file
+-- (I want to keep the Internal section up here
+-- to match the ordering everywhere else)
+Callback.internal.populate = function()
+    local class_callback = Global.class_callback
 
-for num_id, name in ipairs(callback_constants) do
-    -- Generate list of argument types for each callback
-    local arg_types = class_callback:get(num_id - 1):get(2)
-    callback_arg_types[num_id - 1] = {}
-    for i, v in ipairs(arg_types) do
-        table.insert(callback_arg_types[num_id - 1], v)
+    for num_id, name in ipairs(callback_constants) do
+        -- Generate list of argument types for each callback
+        local arg_types = class_callback:get(num_id - 1):get(2)
+        callback_arg_types[num_id - 1] = {}
+        for i, v in ipairs(arg_types) do
+            table.insert(callback_arg_types[num_id - 1], v)
+        end
+
+        -- Populate find cache with vanilla callbacks
+        local identifier = name:lower()
+        while true do
+            local pos = identifier:find("_")
+            if not pos then break end
+
+            -- E.g., ON_STAGE_START -> onStageStart
+            identifier = identifier:sub(1, pos - 1)..identifier:sub(pos + 1, pos + 1):upper()..identifier:sub(pos + 2, -1)
+        end
+
+        __callback_find_cache:set(
+            {
+                wrapper = Callback.wrap_type(num_id - 1),
+            },
+            identifier,
+            "ror",
+            num_id - 1
+        )
     end
-
-    -- Populate find cache with vanilla callbacks
-    local identifier = name:lower()
-    while true do
-        local pos = identifier:find("_")
-        if not pos then break end
-
-        -- E.g., ON_STAGE_START -> onStageStart
-        identifier = identifier:sub(1, pos - 1)..identifier:sub(pos + 1, pos + 1):upper()..identifier:sub(pos + 2, -1)
-    end
-
-    __callback_find_cache:set(
-        {},
-        identifier,
-        "ror",
-        num_id - 1
-    )
 end
 
 
@@ -164,17 +195,17 @@ end
 --@section Static Methods
 
 --@static
---@return       Callback
---@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
---@param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
+--@return       CallbackFunction
+--@param        callback    | CallbackType  | The @link {callback type | Callback#constants} to register under.
+--@param        fn          | function      | The function to register. <br>The parameters for it depend on the callback type (see below).
 --@overload
---@return       Callback
---@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
---@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
---@param        fn          | function  | The function to register. <br>The parameters for it depend on the callback type (see below).
+--@return       CallbackFunction
+--@param        callback    | CallbackType  | The @link {callback type | Callback#constants} to register under.
+--@param        priority    | number        | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@param        fn          | function      | The function to register. <br>The parameters for it depend on the callback type (see below).
 --[[
 Registers a function under a callback type.
-Returns a Callback wrapper of the unique ID of the registered function.
+Returns a CallbackFunction wrapper containing a unique ID for the registered function.
 
 **Priority Convention**
 To allow for a decent amount of space between priorities,
@@ -243,6 +274,7 @@ Callback                            | Parameters
 ]]
 Callback.add = function(NAMESPACE, callback, arg2, arg3)
     -- Throw error if not numerical ID
+    callback = Wrap.unwrap(callback)
     if type(callback) ~= "number" then
         log.error("Callback.add: Invalid Callback type", 2)
     end
@@ -255,23 +287,23 @@ Callback.add = function(NAMESPACE, callback, arg2, arg3)
 
     -- Default priority (0)
     if type(arg2) == "function" then
-        return Callback.wrap(__callback_cache:add(arg2, NAMESPACE, 0, callback))
+        return Callback.wrap_function(__callback_fn_cache:add(arg2, NAMESPACE, 0, callback))
     end
 
     -- Custom priority
-    return Callback.wrap(__callback_cache:add(arg3, NAMESPACE, arg2, callback))
+    return Callback.wrap_function(__callback_fn_cache:add(arg3, NAMESPACE, arg2, callback))
 end
 
 
 --@static
---@return       Callback
---@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
---@param        fn          | function  | The function to register. <br>The parameters for it are `self, other`, followed <br>by parameters of the callback type (see above).
+--@return       CallbackFunction
+--@param        callback    | CallbackType  | The @link {callback type | Callback#constants} to register under.
+--@param        fn          | function      | The function to register. <br>The parameters for it are `self, other`, followed <br>by parameters of the callback type (see above).
 --@overload
---@return       Callback
---@param        callback    | number    | The @link {callback type | Callback#constants} to register under.
---@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
---@param        fn          | function  | The function to register. <br>The parameters for it are `self, other`, followed <br>by parameters of the callback type (see above).
+--@return       CallbackFunction
+--@param        callback    | CallbackType  | The @link {callback type | Callback#constants} to register under.
+--@param        priority    | number        | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+--@param        fn          | function      | The function to register. <br>The parameters for it are `self, other`, followed <br>by parameters of the callback type (see above).
 --[[
 Variant of @link {`Callback.add` | Callback#add} that passes `self, other`
 as the first two arguments to the callback function,
@@ -279,6 +311,7 @@ which may have useful context for some callback types.
 ]]
 Callback.add_SO = function(NAMESPACE, callback, arg2, arg3)
     -- Throw error if not numerical ID
+    callback = Wrap.unwrap(callback)
     if type(callback) ~= "number" then
         log.error("Callback.add_SO: Invalid Callback type", 2)
     end
@@ -291,11 +324,11 @@ Callback.add_SO = function(NAMESPACE, callback, arg2, arg3)
 
     -- Default priority (0)
     if type(arg2) == "function" then
-        return Callback.wrap(__callback_cache:add(arg2, NAMESPACE, 0, callback, nil, {SO = true}))
+        return Callback.wrap_function(__callback_fn_cache:add(arg2, NAMESPACE, 0, callback, nil, {SO = true}))
     end
 
     -- Custom priority
-    return Callback.wrap(__callback_cache:add(arg3, NAMESPACE, arg2, callback, nil, {SO = true}))
+    return Callback.wrap_function(__callback_fn_cache:add(arg3, NAMESPACE, arg2, callback, nil, {SO = true}))
 end
 
 
@@ -306,13 +339,13 @@ Removes all registered callbacks functions from your namespace.
 Automatically called when you hotload your mod.
 ]]
 Callback.remove_all = function(NAMESPACE)
-    __callback_cache:remove_all(NAMESPACE)
+    __callback_fn_cache:remove_all(NAMESPACE)
 end
 table.insert(_clear_namespace_functions, Callback.remove_all)
 
 
 --@static
---@return       number or nil
+--@return       CallbackType or nil
 --@param        identifier  | string    | The identifier to search for.
 --@optional     namespace   | string    | The namespace to search in.
 --[[
@@ -323,7 +356,7 @@ Searches for the specified callback type and returns it.
 Callback.find = function(identifier, namespace, namespace_is_specified)
     -- Check in find table
     local cached = __callback_find_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached.id end
+    if cached then return cached.wrapper end
 end
 
 
@@ -336,34 +369,33 @@ Returns a table of all callback types in the specified namespace.
 --@findinfo
 ]]
 Callback.find_all = function(namespace, namespace_is_specified)
-    return __callback_find_cache:get_all(namespace, namespace_is_specified, "id")
+    return __callback_find_cache:get_all(namespace, namespace_is_specified, "wrapper")
 end
 
 
 --@static
---@return       string, string (or nil, nil)
---@param        num_id      | number    | The numerical ID of the callback type.
+--@return       CallbackType
+--@param        id          | number    | The callback type to wrap.
 --[[
-Returns the identifier and namespace of the callback type with the given ID.
-(E.g., `14` -> `onStageStart`, `ror`)
+Returns a CallbackType wrapper containing the provided callback type.
 ]]
-Callback.get_identifier = function(num_id)
-    -- Check in find table
-    local cached = __callback_find_cache:get(num_id)
-    if cached then return cached.identifier, cached.namespace end
+Callback.wrap_type = function(id)
+    -- Input:   number or CallbackType wrapper
+    -- Wraps:   number
+    return make_proxy(Wrap.unwrap(id), metatable_callback_type)
 end
 
 
 --@static
---@return       Callback
+--@return       CallbackFunction
 --@param        id          | number    | The callback function ID to wrap.
 --[[
-Returns a Callback wrapper containing the provided callback function ID.
+Returns a CallbackFunction wrapper containing the provided callback function ID.
 ]]
-Callback.wrap = function(id)
-    -- Input:   number or Callback wrapper
+Callback.wrap_function = function(id)
+    -- Input:   number or CallbackFunction wrapper
     -- Wraps:   number
-    return make_proxy(Wrap.unwrap(id), metatable_callback)
+    return make_proxy(Wrap.unwrap(id), metatable_callback_function)
 end
 
 
@@ -377,7 +409,7 @@ end
 ]]
 
 --@static
---@return   number
+--@return   CallbackType
 --@param    identifier      | string    | The identifier for the custom callback.
 --[[
 Creates a new custom callback with the given identifier if it does not already exist,
@@ -394,75 +426,87 @@ Callback.new = function(NAMESPACE, identifier)
     local id = Callback.CUSTOM_START + __callback_custom_counter
     __callback_custom_counter = __callback_custom_counter + 1
 
+    local wrapper = Callback.wrap_type(id)
+
     -- Add to cache
     __callback_find_cache:set(
-        {},
+        {
+            wrapper = wrapper,
+        },
         identifier,
         NAMESPACE,
         id
     )
 
-    return id
+    return wrapper
 end
 
 
---@static
---@return       Any or nil
---@param        callback    | number    | The custom callback to call.
---@optional     ...         |           | Optional values to pass to callback functions. <br>No wrapping/unwrapping is done on these <br>since this system is entirely Lua-sided.
---[[
-Call a custom callback; this should generally only be done by the custom callback creator.
-The return value is whatever the most recent return value of a callback function was.
-]]
-Callback.call = function(callback, ...)
-    if (type(callback) ~= "number") or (callback < Callback.CUSTOM_START) then
-        log.error("Callback.call: callback is invalid (must be a custom callback with ID "..Callback.CUSTOM_START.."+)", 2)
-    end
 
-    if not __callback_cache.sections[callback] then return end
+-- ========== Instance Methods (CallbackType) ==========
 
-    local args = table.pack(...)
+--@section Instance Methods (CallbackType)
 
-    -- Call registered functions with wrapped args
-    local return_value
-    __callback_cache:loop_and_call_functions(function(fn_table)
-        local status, ret = pcall(fn_table.fn, table.unpack(args))
-        if not status then
-            if (ret == nil)
-            or (ret == "C++ exception") then ret = "GameMaker error (see above)" end
+methods_callback_type = {
 
-            local callback_type_name = callback
-            local id, ns = Callback.get_identifier(callback)
-            if id then callback_type_name = ns.."-"..id end
-            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..callback_type_name.."' failed to execute fully.\n"..ret)
+    --@instance
+    --@return       Any or nil
+    --@optional     ...         |           | Optional values to pass to callback functions. <br>No wrapping/unwrapping is done on these <br>since this system is entirely Lua-sided.
+    --[[
+    Call this custom callback; this should generally only be done by the custom callback creator.
+    The return value is whatever the most recent return value of a callback function was.
+    ]]
+    call = function(self, ...)
+        callback = self.value
+        if callback < Callback.CUSTOM_START then
+            log.error("call: Cannot call vanilla callbacks this way", 2)
         end
 
-        -- Return value
-        if ret then return_value = ret end
-    end, callback)
+        if not __callback_fn_cache.sections[callback] then return end
 
-    return return_value
-end
+        local args = table.pack(...)
+
+        -- Call registered functions with wrapped args
+        local return_value
+        __callback_fn_cache:loop_and_call_functions(function(fn_table)
+            local status, ret = pcall(fn_table.fn, table.unpack(args))
+            if not status then
+                if (ret == nil)
+                or (ret == "C++ exception") then ret = "GameMaker error (see above)" end
+
+                local callback_type_name = callback
+                local id, ns = Callback.get_identifier(callback)
+                if id then callback_type_name = ns.."-"..id end
+                log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..callback_type_name.."' failed to execute fully.\n"..ret)
+            end
+
+            -- Return value
+            if ret then return_value = ret end
+        end, callback)
+
+        return return_value
+    end,
+    
+
+    --@static
+    --@return       bool
+    --[[
+    Returns `true` if there are any callback functions present for this callback type.
+    You can use this as a check before running any logic for {`call` | Callback#call}.
+    ]]
+    has_any = function(self)
+        return __callback_fn_cache:section_count(self.value) > 0
+    end
+
+}
 
 
---@static
---@return       bool
---@param        callback    | number    | The callback to check.
---[[
-Returns `true` if there are any callback functions present for the specified type.
-You can use this as a check before running any logic for `Callback.call`.
-]]
-Callback.has_any = function(callback)
-    return __callback_cache:section_count(callback) > 0
-end
 
+-- ========== Instance Methods (CallbackFunction) ==========
 
+--@section Instance Methods (CallbackFunction)
 
--- ========== Instance Methods ==========
-
---@section Instance Methods
-
-methods_callback = {
+methods_callback_function = {
 
     --@instance
     --@return       function
@@ -470,7 +514,7 @@ methods_callback = {
     Removes and returns the registered callback function.
     ]]
     remove = function(self)
-        return __callback_cache:remove(self.value)
+        return __callback_fn_cache:remove(self.value)
     end,
     
 
@@ -480,7 +524,7 @@ methods_callback = {
     Returns `true` if the callback function is enabled.
     ]]
     is_enabled = function(self)
-        local fn_table = __callback_cache.id_lookup[self.value]
+        local fn_table = __callback_fn_cache.id_lookup[self.value]
 
         return (fn_table and fn_table.enabled)
             or false
@@ -494,7 +538,7 @@ methods_callback = {
     ]]
     toggle = function(self, bool)
         if type(bool) ~= "boolean" then log.error("toggle: bool is invalid", 2) end
-        return __callback_cache:toggle(self.value, bool)
+        return __callback_fn_cache:toggle(self.value, bool)
     end
 
 }
@@ -503,17 +547,50 @@ methods_callback = {
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Callback"
+local wrapper_name = "CallbackType"
 
-make_table_once("metatable_callback", {
+make_table_once("metatable_callback_type", {
+    __index = function(proxy, k)
+        -- Get wrapped value
+        if k == "value" then return __proxy[proxy] end
+        if k == "RAPI" then return wrapper_name end
+
+        -- Methods
+        if methods_callback_type[k] then
+            return methods_callback_type[k]
+        end
+        
+        -- Getter
+        return __callback_find_cache:get(__proxy[proxy])[k]
+    end,
+    
+
+    __newindex = function(proxy, k, v)
+        -- Throw read-only error for certain keys
+        if k == "value"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+        
+        log.error(wrapper_name.." has no properties to set", 2)
+    end,
+
+
+    __metatable = "RAPI.Wrapper."..wrapper_name
+})
+
+
+local wrapper_name = "CallbackFunction"
+
+make_table_once("metatable_callback_function", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return __proxy[proxy] end
         if k == "RAPI" then return wrapper_name end
         
         -- Methods
-        if methods_callback[k] then
-            return methods_callback[k]
+        if methods_callback_function[k] then
+            return methods_callback_function[k]
         end
     end,
     
@@ -538,7 +615,7 @@ make_table_once("metatable_callback", {
 
 gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
     local callback_type_id = args[1].value
-    if not __callback_cache.sections[callback_type_id] then return end
+    if not __callback_fn_cache.sections[callback_type_id] then return end
 
     local wrapped_args = {}
 
@@ -576,7 +653,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
     end
 
     -- Call registered functions with wrapped args
-    __callback_cache:loop_and_call_functions(function(fn_table)
+    __callback_fn_cache:loop_and_call_functions(function(fn_table)
         local status, ret, wrapped_self, wrapped_other
 
         -- Standard call
@@ -617,16 +694,16 @@ end)
 
 
 -- 10000 : onHeal
-Callback.new(RAPI_NAMESPACE, "onHeal")
+local on_heal = Callback.new(RAPI_NAMESPACE, "onHeal")
 
 Hook.add_pre(RAPI_NAMESPACE, gm.constants.actor_heal_networked, Callback.internal.FIRST, function(self, other, result, args)
-    if not Callback.has_any(Callback.ON_HEAL) then return end
+    if not on_heal:has_any() then return end
 
     -- Runs for both host and client, but value modification does nothing for client
     local actor  = args[1].value
     local amount = { value = args[2].value } -- Allows for passing modification to next callback function
 
-    Callback.call(Callback.ON_HEAL, actor, amount)
+    on_heal:call(actor, amount)
     args[2].value = amount.value
 end)
 
@@ -634,12 +711,12 @@ end)
 -- Hooks line 30.5 (between `var amount =` and `actor_heal_raw` call)
 local ptr = gm.get_script_function_address(gm.constants.damager_proc_posthit_clientandserver)
 memory.dynamic_hook_mid("RAPI.Callback.damager_proc_posthit_clientandserver", {"r12", "rbp-D0h"}, {"RValue**", "RValue*"}, 0, ptr:add(0x1172), function(args)
-    if not Callback.has_any(Callback.ON_HEAL) then return end
+    if not on_heal:has_any() then return end
     
     local actor  = Instance.wrap(memory.resolve_pointer_to_type(args[1]:deref():get_address(), "RValue*").value)
     local amount = { value = args[2].value } -- Allows for passing modification to next callback function
 
-    Callback.call(Callback.ON_HEAL, actor, amount)
+    on_heal:call(actor, amount)
     args[2].value = amount.value
 end)
 
@@ -647,30 +724,30 @@ end)
 -- Hooks line 22 (right after `place_meeting` check)
 local ptr = gm.get_object_function_address("gml_Object_oEfHeal2Nosync_Step_2")
 memory.dynamic_hook_mid("RAPI.Callback.gml_Object_oEfHeal2Nosync_Step_2_2", {"r14", "rbp-D0h"}, {"RValue*", "RValue*"}, 0, ptr:add(0x1155), function(args)
-    if not Callback.has_any(Callback.ON_HEAL) then return end
+    if not on_heal:has_any() then return end
     
     local actor  = Instance.wrap(args[1].value)
     local oHeal  = args[2].value
     local amount = { value = oHeal.value }  -- Allows for passing modification to next callback function
                                             -- `.value` here is the heal value
 
-    Callback.call(Callback.ON_HEAL, actor, amount)
+    on_heal:call(actor, amount)
     oHeal.value = amount.value
 end)
 
 
 -- 10001 : onShieldBreak
-Callback.new(RAPI_NAMESPACE, "onShieldBreak")
+local on_shield_break = Callback.new(RAPI_NAMESPACE, "onShieldBreak")
 
 Callback.add(RAPI_NAMESPACE, Callback.ON_DAMAGED_PROC, Callback.internal.FIRST, function(actor, hit_info)
-    if not Callback.has_any(Callback.ON_SHIELD_BREAK) then return end
+    if not on_shield_break:has_any() then return end
 
     -- Check for shield break
     local actor_data = Instance.get_data(actor)
     if actor.shield <= 0 then
         if actor_data.shield_active then
             actor_data.shield_active = false
-            Callback.call(Callback.ON_SHIELD_BREAK, actor, hit_info)
+            on_shield_break:call(actor, hit_info)
         end
     else actor_data.shield_active = true
     end
@@ -693,7 +770,7 @@ end)
 
 
 -- 10002 : onShieldRestore
-Callback.new(RAPI_NAMESPACE, "onShieldRestore")
+local on_shield_restore = Callback.new(RAPI_NAMESPACE, "onShieldRestore")
 
 Hook.add_pre(RAPI_NAMESPACE, gm.constants.server_message_send, Callback.internal.FIRST, function(self, other, result, args)
     -- Shield regen sync packet
@@ -702,37 +779,40 @@ Hook.add_pre(RAPI_NAMESPACE, gm.constants.server_message_send, Callback.internal
     local self_data = Instance.get_data(self)
     self_data.shield_active = true
 
-    if not Callback.has_any(Callback.ON_SHIELD_RESTORE) then return end
-    Callback.call(Callback.ON_SHIELD_RESTORE, self)
+    if not on_shield_restore:has_any() then return end
+    on_shield_restore:call(self)
 end)
 
 
 -- 10003 : onSkillActivate
-Callback.new(RAPI_NAMESPACE, "onSkillActivate")
+local on_skill_activate = Callback.new(RAPI_NAMESPACE, "onSkillActivate")
 
 Hook.add_post(RAPI_NAMESPACE, gm.constants.skill_activate, Callback.internal.FIRST, function(self, other, result, args)
-    if not Callback.has_any(Callback.ON_SKILL_ACTIVATE) then return end
+    if not on_skill_activate:has_any() then return end
 
     local actor = self
     local slot  = args[1].value
 
-    Callback.call(Callback.ON_SKILL_ACTIVATE, actor, slot)
+    on_skill_activate:call(actor, slot)
 end)
 
 
 -- 10004 : onEquipmentSwap
-Callback.new(RAPI_NAMESPACE, "onEquipmentSwap")
+local on_equipment_swap = Callback.new(RAPI_NAMESPACE, "onEquipmentSwap")
 
 Hook.add_pre(RAPI_NAMESPACE, gm.constants.equipment_set, Callback.internal.FIRST, function(self, other, result, args)
-    if not Callback.has_any(Callback.ON_EQUIPMENT_SWAP) then return end
+    if not on_equipment_swap:has_any() then return end
 
     local actor = args[1].value
     local new   = (args[2].value ~= -1 and Equipment.wrap(args[2].value)) or nil
     local old   = actor:equipment_get()
 
-    Callback.call(Callback.ON_EQUIPMENT_SWAP, actor, new, old)
+    on_equipment_swap:call(actor, new, old)
 end)
 
 
+
+-- Populate
+Callback.internal.populate()
 
 __class.Callback = Callback

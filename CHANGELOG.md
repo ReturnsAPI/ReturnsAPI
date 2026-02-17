@@ -1,10 +1,12 @@
 ### v0.1.46
 - AttackFlag : Add `get_identifier`
 - Callback
+    - Add wrapper for callback types (`CallbackType`)
+        - Rename existing wrapper to `CallbackFunction`
+    - Remove `get_identifier`
+    - Remove `call` and `has_any` (now instance methods of `CallbackType`)
     - `find` : Add support for vanilla callbacks
-    - `get_type_name`
-        - Rename to `get_identifier`
-        - Return two arguments instead (e.g., `14` -> `onStageStart`, `ror`)
+    - `wrap` : Now separated into `wrap_type` and `wrap_function`
 - Class, ItemTier, LootPool, Tracer : Rename `print_properties` to `print`
 - Elite : Add `new` and `set_palette`
 - Misc

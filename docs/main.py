@@ -676,7 +676,7 @@ def generate(docs, filename):
                             ptable_shown = True
 
                         elif "@findinfo" in line:
-                            out += "If no namespace is provided, searches globally in a non-deterministic* order.  \n* Guaranteed to check in your mod's namespace first.  \n"
+                            out += "If no namespace is provided, searches globally in a non-deterministic* order.  \n\\* Guaranteed to check in your mod's namespace first.  \n"
                         
                         else:
                             out += line + "  \n"
