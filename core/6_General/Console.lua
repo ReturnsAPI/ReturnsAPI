@@ -134,6 +134,7 @@ Prints a message to the console.
 ]]
 Console.print = function(message, col)
     if not message then log.error("Console.print: No message provided", 2) end
+    if col and type(col) ~= "number" then log.error("Console.print: Invalid col argument", 2) end
     gm.console_add_message(tostring(message), col or Color.Console.BLUE, 0)
 end
 

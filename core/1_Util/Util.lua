@@ -118,7 +118,7 @@ the original is saved as `lua_type()`.
 ]]
 Util.type = function(value, is_RAPI)
     local _type = type(value)
-    arg2 = false    -- is_RAPI? bool
+    local arg2  = false -- is_RAPI? bool
     if _type == "table" then
         local RAPI = value.RAPI
         if RAPI then _type = RAPI end
