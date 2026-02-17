@@ -1,96 +1,130 @@
 -- FindCache
+-- Cache structure for resource lookups
 
--- Cache base for resource lookups
+local mt
 
--- Used by
--- * ItemTier
--- * LootPool
--- * Object
--- * Packet
--- * Particle
--- * Sound
--- * Sprite
--- * Tracer
+FindCache = {
+    --[[
+    Returns a new find cache.
+    ]]
+    new = function()
+        return setmetatable({}, mt)
+    end
+}
 
-run_once(function()
+mt = {__index = {
 
-    FindCache = {
-        new = function()
-            return setmetatable({
-                ror         = {}    -- Vanilla namespace cache
-            }, find_cache_mt)
+    --[[
+    Set a value in cache.  
+    If the value is a non-wrapper table, automatically populates  
+    with the properties `identifier` and `namespace` (and `id` optionally).  
+    ]]
+    set = function(self, value, identifier, namespace, id)
+        -- Create namespace cache if existn't
+        self[namespace] = self[namespace] or {}
+
+        -- Auto-add some properties if non-wrapper table
+        if Util.type(value) == "table" then
+            value.identifier = identifier
+            value.namespace  = namespace
+            value.id         = id
         end
-    }
+
+        -- Set value
+        self[namespace][identifier] = value
+        if id then self[id] = value end
+    end,
 
 
-    find_cache_mt = {
-        __index = {
+    --[[
+    Get a value from cache.  
+    If no namespace is provided, checks all of them in a non-deterministic* order.  
+    * Guaranteed to check in the calling mod's namespace first.  
+    If a number is passed, get by numerical ID.  
+    ]]
+    get = function(self, identifier, namespace, namespace_is_specified)
+        -- Get by numerical ID
+        if type(identifier) == "number" then
+            return self[identifier]
+        end
 
-            -- Set value in cache
-            -- Can optionally provide a unique numerical ID
-            --      * Used by ItemTier and LootPool for example
-            set = function(self, value, identifier, namespace, num_id)
-                -- Create namespace cache if existn't
-                self[namespace] = self[namespace] or {}
+        -- Check in namespace table
+        if self[namespace] then
+            local cached = self[namespace][identifier]
+            if cached then return cached end
+        end
 
-                -- Set value
-                self[namespace][identifier] = value
-
-                -- Set value keyed to a numerical ID
-                if num_id then self[num_id] = value end
-            end,
-
-
-            -- Get value from cache in provided namespace,
-            -- or default namespace *and* "ror" if not provided
-            -- Alternatively, get value using numerical ID
-            get = function(self, identifier, namespace, namespace_is_specified)
-                -- Get value from cache using numerical ID
-                if type(identifier) == "number" then
-                    return self[identifier]
+        -- Global find (no explicit namespace argument)
+        -- Check in all remaining namespace tables
+        if not namespace_is_specified then
+            for ns, ns_table in pairs(self) do
+                if  type(ns) ~= "number"
+                and ns ~= namespace then
+                    local cached = ns_table[identifier]
+                    if cached then return cached end
                 end
+            end
+        end
+    end,
 
-                -- Create namespace cache if existn't
-                self[namespace] = self[namespace] or {}
 
-                -- Check in namespace cache
-                local cached = self[namespace][identifier]
-                if cached then return cached end
-                
-                -- Check if "ror" cache
-                if not namespace_is_specified then
-                    if self["ror"] then
-                        local cached = self["ror"][identifier]
-                        if cached then return cached end
-                    end
+    --[[
+    Get a table of values from specified namespace cache.  
+    If no namespace is provided, checks all of them in a non-deterministic* order.  
+    * Guaranteed to check in the calling mod's namespace first.  
+    If `key` is provided, the values will be the key's values.  
+    ]]
+    get_all = function(self, namespace, namespace_is_specified, key)
+        local t = {}
+
+        -- Get all in namespace table
+        if self[namespace] then
+            for identifier, value in pairs(self[namespace]) do
+                if key then table.insert(t, value[key])
+                else        table.insert(t, value)
                 end
+            end
+        end
 
-                return nil
-            end,
-
-
-            -- Loop all cached values
-            -- and apply a function to update them
-            -- Function should accept `value` as only argument,
-            -- and return the new value to set
-            loop_and_update_values = function(self, fn)
-                for namespace, namespace_table in pairs(self) do
-
-                    -- Numerical ID
-                    if type(namespace) == "number" then
-                        self[namespace] = fn(namespace_table) or self[namespace]
-
-                    -- Loop through namespace table
-                    else
-                        for identifier, value in pairs(namespace_table) do
-                            namespace_table[identifier] = fn(value) or namespace_table[identifier]
+        -- Global get (no explicit namespace argument)
+        -- Get in all remaining namespace tables
+        if not namespace_is_specified then
+            for ns, ns_table in pairs(self) do
+                if  type(ns) ~= "number"
+                and ns ~= namespace then
+                    for identifier, value in pairs(ns_table) do
+                        if key then table.insert(t, value[key])
+                        else        table.insert(t, value)
                         end
-
                     end
                 end
             end
+        end
 
-        }
-    }
+        return t
+    end,
 
-end)
+
+    --[[
+    Apply a function to all cached values.  
+    The function should accept `value` as the only argument, and return the new value to set.  
+    ]]
+    map = function(self, fn)
+        -- Loop through all namespace tables
+        -- and replace elements with `fn(value)` if there is a return value
+        for ns, ns_table in pairs(self) do
+
+            -- Numerical ID
+            if type(ns) == "number" then
+                self[ns] = fn(ns_table) or self[ns]
+
+            -- Namespace table
+            else
+                for identifier, value in pairs(ns_table) do
+                    ns_table[identifier] = fn(value) or ns_table[identifier]
+                end
+            end
+        end
+    end
+
+}}

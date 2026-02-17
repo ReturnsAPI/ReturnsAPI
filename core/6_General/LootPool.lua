@@ -7,7 +7,7 @@
 LootPool = new_class()
 
 run_once(function()
-    __loot_pool_find_table = FindCache.new()
+    __loot_pool_cache = FindCache.new()
 end)
 
 local enable_capture = false
@@ -93,35 +93,25 @@ Property | Type | Description
 LootPool.internal.initialize = function()
     -- Populate find table with vanilla pools
     for constant, id in pairs(pool_constants) do
-        local namespace = "ror"
         local identifier = constant:lower()
-
-        local struct = Global.treasure_loot_pools:get(id)
+        local struct     = Global.treasure_loot_pools:get(id)
 
         -- Custom properties
-        struct.namespace    = namespace
-        struct.identifier   = identifier
+        struct.namespace  = "ror"
+        struct.identifier = identifier
 
-        __loot_pool_find_table:set(
+        __loot_pool_cache:set(
             {
                 wrapper         = LootPool.wrap(id),
                 struct          = struct,
                 crate_obj       = nil,
-                crate_struct    = nil
+                crate_struct    = nil,
             },
-            identifier, namespace, id
+            identifier,
+            "ror",
+            id
         )
     end
-
-    -- Update cached wrappers
-    __loot_pool_find_table:loop_and_update_values(function(value)
-        return {
-            wrapper         = LootPool.wrap(value.wrapper),
-            struct          = value.struct,
-            crate_obj       = value.crate_obj,
-            crate_struct    = value.crate_struct
-        }
-    end)
 end
 table.insert(_rapi_initialize, LootPool.internal.initialize)
 
@@ -191,14 +181,16 @@ LootPool.new = function(NAMESPACE, identifier)
     gm.object_set_depth(crate_obj.value, -289)
 
     -- Add to find table
-    __loot_pool_find_table:set(
+    __loot_pool_cache:set(
         {
             wrapper         = pool,
             struct          = struct,
             crate_obj       = crate_obj,
-            crate_struct    = binded_struct
+            crate_struct    = binded_struct,
         },
-        identifier, NAMESPACE, id
+        identifier,
+        NAMESPACE,
+        id
     )
 
     return pool
@@ -242,14 +234,25 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified loot pool and returns it.
-If no namespace is provided, searches in your mod's namespace first, and vanilla pools second.
+
+--@findinfo
 ]]
 LootPool.find = function(identifier, namespace, namespace_is_specified)
-    -- Check in find table
-    local cached = __loot_pool_find_table:get(identifier, namespace, namespace_is_specified)
+    local cached = __loot_pool_cache:get(identifier, namespace, namespace_is_specified)
     if cached then return cached.wrapper end
+end
 
-    return nil
+
+--@static
+--@return       table
+--@optional     namespace   | string    | The namespace to check.
+--[[
+Returns a table of all loot pools in the specified namespace.
+
+--@findinfo
+]]
+LootPool.find_all = function(namespace, namespace_is_specified)
+    return __loot_pool_cache:get_all(namespace, namespace_is_specified, "wrapper")
 end
 
 
@@ -278,7 +281,7 @@ methods_loot_pool = {
     Prints the loot pool's properties.
     ]]
     print = function(self)
-        local struct = __loot_pool_find_table[self.value].struct
+        local struct = __loot_pool_cache[self.value].struct
         struct:print()
     end,
 
@@ -392,7 +395,7 @@ methods_loot_pool = {
     Returns the command crate that was generated alongside this loot pool.
     ]]
     get_crate = function(self)
-        return __loot_pool_find_table:get(__proxy[self]).crate_obj
+        return __loot_pool_cache:get(__proxy[self]).crate_obj
     end
 
 }
@@ -415,13 +418,13 @@ make_table_once("metatable_loot_pool", {
         end
 
         -- Getter
-        local loot_struct = __loot_pool_find_table:get(__proxy[proxy]).struct
+        local loot_struct = __loot_pool_cache:get(__proxy[proxy]).struct
         local ret = loot_struct[k]
         if ret then return ret end
 
         -- Getter (Crate)
         if k == "crate_sprite" then return proxy:get_crate().obj_sprite end
-        local crate_struct = __loot_pool_find_table:get(__proxy[proxy]).crate_struct
+        local crate_struct = __loot_pool_cache:get(__proxy[proxy]).crate_struct
         return crate_struct[k:sub(7, -1)]
     end,
 
@@ -434,7 +437,7 @@ make_table_once("metatable_loot_pool", {
         end
 
         -- Setter
-        local loot_struct = __loot_pool_find_table:get(__proxy[proxy]).struct
+        local loot_struct = __loot_pool_cache:get(__proxy[proxy]).struct
         if gm.variable_struct_exists(Wrap.unwrap(loot_struct), k) then
             loot_struct[k] = v
             return
@@ -445,7 +448,7 @@ make_table_once("metatable_loot_pool", {
             gm.object_get_sprite_w(proxy:get_crate().value, Wrap.unwrap(v))
             return
         end
-        local crate_struct = __loot_pool_find_table:get(__proxy[proxy]).crate_struct
+        local crate_struct = __loot_pool_cache:get(__proxy[proxy]).crate_struct
         crate_struct[k:sub(7, -1)] = v
     end,
 

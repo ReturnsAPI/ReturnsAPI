@@ -99,6 +99,29 @@ CUSTOM_START    32
 
 
 
+-- ========== Internal ==========
+
+-- Populate find cache with vanilla attack flags
+for name, num_id in pairs(flag_constants) do
+    local identifier = name:lower()
+    while true do
+        local pos = identifier:find("_")
+        if not pos then break end
+
+        -- E.g., PILOT_RAID -> pilotRaid
+        identifier = identifier:sub(1, pos - 1)..identifier:sub(pos + 1, pos + 1):upper()..identifier:sub(pos + 2, -1)
+    end
+
+    __attack_flag_cache:set(
+        {},
+        identifier,
+        "ror",
+        num_id
+    )
+end
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods
@@ -119,9 +142,10 @@ AttackFlag.new = function(NAMESPACE, identifier)
 
     -- Add to cache
     __attack_flag_cache:set(
-        __attack_flag_counter,
+        {},
         identifier,
-        NAMESPACE
+        NAMESPACE,
+        __attack_flag_counter
     )
 
     return __attack_flag_counter
@@ -134,12 +158,39 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified attack flag value and returns it.
-If no namespace is provided, searches in your mod's namespace.
+
+--@findinfo
 ]]
 AttackFlag.find = function(identifier, namespace, namespace_is_specified)
+    local cached = __attack_flag_cache:get(identifier, namespace, namespace_is_specified)
+    if cached then return cached.id end
+end
+
+
+--@static
+--@return       table
+--@optional     namespace   | string    | The namespace to check.
+--[[
+Returns a table of all attack flags in the specified namespace.
+
+--@findinfo
+]]
+AttackFlag.find_all = function(namespace, namespace_is_specified)
+    return __attack_flag_cache:get_all(namespace, namespace_is_specified, "id")
+end
+
+
+--@static
+--@return       string, string (or nil, nil)
+--@param        num_id      | number    | The numerical ID of the attack flag.
+--[[
+Returns the identifier and namespace of the attack flag with the given ID.
+(E.g., `2` -> `chefIgnite`, `ror`)
+]]
+AttackFlag.get_identifier = function(num_id)
     -- Check in find table
-    local cached = __attack_flag_cache:get(identifier, namespace, true)
-    return cached
+    local cached = __attack_flag_cache:get(num_id)
+    if cached then return cached.identifier, cached.namespace end
 end
 
 

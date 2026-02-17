@@ -7,17 +7,15 @@ This class provides some functionality for manipulating GameMaker objects.
 Object = new_class()
 
 run_once(function()
-    __object_wrapper_cache = {}
-    __object_array_cache = {}
-
+    __object_find_cache = FindCache.new()
     __object_tags = {}
+
+    __object_array_cache = {}
     __object_vanilla_properties = {}    -- Object.Property table but for vanilla objects
 
     __object_serializers = {}
     __object_deserializers = {}
 end)
-
-local find_cache = FindCache.new()
 
 
 
@@ -94,6 +92,30 @@ Property | Type | Description
 
 
 
+-- ========== Internal ==========
+
+Object.internal.initialize = function()
+    -- Populate cache with vanilla objects
+    local resource_manager = Map.wrap(Global.ResourceManager_object.__namespacedAssetLookup)
+    
+    for identifier, object in pairs(Map.wrap(resource_manager["ror"])) do
+        -- Make first letter lowercase (except for HAND objects)
+        local first_letter = identifier:sub(1, 1):lower()
+        if identifier:find("HAND") then first_letter = identifier:sub(1, 1) end
+        identifier = first_letter..identifier:sub(2, -1)
+
+        __object_find_cache:set(
+            Object.wrap(object),
+            identifier,
+            "ror",
+            object
+        )
+    end
+end
+table.insert(_rapi_initialize, Object.internal.initialize)
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods
@@ -110,7 +132,7 @@ Object.new = function(NAMESPACE, identifier, parent)
     if not identifier then log.error("Object.new: No identifier provided", 2) end
 
     -- Return existing object if found
-    local obj = Object.find(identifier, NAMESPACE)
+    local obj = Object.find(identifier, NAMESPACE, true)
     if obj then return obj end
 
     -- Create new object
@@ -126,6 +148,8 @@ Object.new = function(NAMESPACE, identifier, parent)
     -- Add to deserialization map for online syncing
     Global.__mtd_deserialize:set(obj, gm.constants.__lf_init_multiplayer_globals_customobject_deserialize)
 
+    -- Adding to find table is done in the hook at the bottom
+
     return Object.wrap(obj)
 end
 
@@ -136,42 +160,24 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified object and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 Object.find = function(identifier, namespace, namespace_is_specified)
-    -- Check in cache
-    local cached = find_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached end
+    return __object_find_cache:get(identifier, namespace, namespace_is_specified)
+end
 
-    -- Search in namespace
-    local object
-    if namespace == "ror"   then object = gm.constants["o"..identifier:sub(1, 1):upper()..identifier:sub(2, -1)] end
-    if not object           then object = gm._mod_object_find(identifier, namespace) end
 
-    if object ~= -1 then
-        object = Object.wrap(object)
-        find_cache:set(object, identifier, namespace)
-        return object
-    end
+--@static
+--@return       table
+--@optional     namespace   | string    | The namespace to search in.
+--[[
+Returns a table of all objects in the specified namespace.
 
-    -- Also search in "ror" and then gm.constants if passed no `namespace` arg
-    if not namespace_is_specified then
-        local object = gm.constants["o"..identifier:sub(1, 1):upper()..identifier:sub(2, -1)]
-        if object then
-            object = Object.wrap(object)
-            find_cache:set(object, identifier, "ror")
-            return object
-        end
-        
-        local object = gm._mod_object_find(identifier, "ror")
-        if object ~= -1 then
-            object = Object.wrap(object)
-            find_cache:set(object, identifier, "ror")
-            return object
-        end
-    end
-
-    return nil
+--@findinfo
+]]
+Object.find_all = function(namespace, namespace_is_specified)
+    return __object_find_cache:get_all(namespace, namespace_is_specified)
 end
 
 
@@ -179,10 +185,10 @@ end
 --@return       table, number
 --@param        tag         | string    | The tag to search by.
 --[[
-Returns a key-value pair table of all objects with the specified tag,
+Returns a *key-value pair* table of all objects with the specified tag,
 and the number of objects in the table.
 
-Each key-value pair is `object_index, Object wrapper`.
+Each key-value pair is `<object_index> = <Object wrapper>`.
 
 ReturnsAPI-added tags:
 - `"enemy_projectile"`
@@ -280,12 +286,9 @@ table.insert(_clear_namespace_functions, Object.remove_all_serializers)
 Returns an Object wrapper containing the provided object index.
 ]]
 Object.wrap = function(object)
-    -- Check cache
-    if __object_wrapper_cache[object] then return __object_wrapper_cache[object] end
-
-    local proxy = make_proxy(Wrap.unwrap(object), metatable_object)
-    __object_wrapper_cache[object] = proxy
-    return proxy
+    -- Input:   number or Object wrapper
+    -- Wraps:   number
+    return make_proxy(Wrap.unwrap(object), metatable_object)
 end
 
 
@@ -454,8 +457,8 @@ make_table_once("metatable_object", {
         local index = Object.Property[k:upper()]
         if index then
             if value < Object.CUSTOM_START then
-                if (index == Object.Property.OBJ_DEPTH)     then return gm.object_get_depth(value) end
-                if (index == Object.Property.OBJ_SPRITE)    then return gm.object_get_sprite(value) end
+                if (index == Object.Property.OBJ_DEPTH)  then return gm.object_get_depth(value) end
+                if (index == Object.Property.OBJ_SPRITE) then return gm.object_get_sprite(value) end
                 return proxy.array[index + 1]
             end
             return proxy.array:get(index)
@@ -476,8 +479,8 @@ make_table_once("metatable_object", {
         local index = Object.Property[k:upper()]
         if index then
             if value < Object.CUSTOM_START then
-                if      (index == Object.Property.OBJ_DEPTH)    then gm.object_set_depth(value, Wrap.unwrap(v))
-                elseif  (index == Object.Property.OBJ_SPRITE)   then gm.object_set_sprite(value, Wrap.unwrap(v))
+                if     (index == Object.Property.OBJ_DEPTH)  then gm.object_set_depth(value, Wrap.unwrap(v))
+                elseif (index == Object.Property.OBJ_SPRITE) then gm.object_set_sprite(value, Wrap.unwrap(v))
                 else proxy.array[index + 1] = v
                 end
                 return
@@ -495,6 +498,20 @@ make_table_once("metatable_object", {
 
 
 -- ========== Hooks ==========
+
+-- Add new objects to find table
+Hook.add_post(RAPI_NAMESPACE, gm.constants.object_add_w, Callback.internal.FIRST, function(self, other, result, args)
+    local id = result.value
+    if id == -1 then return end
+
+    __object_find_cache:set(
+        Object.wrap(id),
+        args[2].value,
+        args[1].value,
+        id
+    )
+end)
+
 
 gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_serialize, function(self, other, result, args)
     local index = self.__object_index

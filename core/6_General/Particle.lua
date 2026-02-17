@@ -3,7 +3,7 @@
 Particle = new_class()
 
 run_once(function()
-    __particle_find_table = FindCache.new()
+    __particle_find_cache = FindCache.new()
 end)
 
 
@@ -62,21 +62,22 @@ Property | Type | Description
 
 -- ========== Internal ==========
 
-Particle.internal.add_to_find_table = function(wrapper, namespace, identifier, id)
-    __particle_find_table:set(
-        {
-            wrapper     = wrapper,
-            namespace   = namespace,
-            identifier  = identifier
-        },
-        identifier, namespace, id
-    )
-end
-
-
 Particle.internal.initialize = function()
     -- Populate cache with vanilla particles
-    Particle.find_all("ror", true)
+    local resource_manager = Map.wrap(Global.ResourceManager_particleTypes.__namespacedAssetLookup)
+    
+    for identifier, part in pairs(Map.wrap(resource_manager["ror"])) do
+        local wrapper = Particle.wrap(part)
+
+        __particle_find_cache:set(
+            {
+                wrapper = wrapper,
+            },
+            identifier,
+            "ror",
+            part
+        )
+    end
 end
 table.insert(_rapi_initialize, Particle.internal.initialize)
 
@@ -101,12 +102,9 @@ Particle.new = function(NAMESPACE, identifier)
     -- Create new particle
     local part = gm.part_type_create_w(NAMESPACE, identifier)
 
-    local wrapper = Particle.wrap(part)
+    -- Adding to find table is done in the hook at the bottom
 
-    -- Add to find table
-    Particle.internal.add_to_find_table(wrapper, NAMESPACE, identifier, part)
-
-    return wrapper
+    return Particle.wrap(part)
 end
 
 
@@ -116,39 +114,12 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified particle and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 Particle.find = function(identifier, namespace, namespace_is_specified)
-    -- Check in cache
-    local cached = __particle_find_table:get(identifier, namespace, namespace_is_specified)
+    local cached = __particle_find_cache:get(identifier, namespace, namespace_is_specified)
     if cached then return cached.wrapper end
-
-    -- Search in namespace
-    local particle
-    local resource_manager = Map.wrap(Global.ResourceManager_particleTypes.__namespacedAssetLookup)
-    local namespace_map = resource_manager[namespace]
-    if namespace_map then particle = Map.wrap(namespace_map)[identifier] end
-
-    if particle then
-        local wrapper = Particle.wrap(particle)
-        Particle.internal.add_to_find_table(wrapper, namespace, identifier, particle)
-        return wrapper
-    end
-
-    -- Also search in "ror" namespace if passed no `namespace` arg
-    if not namespace_is_specified then
-        local particle
-        local namespace_map = resource_manager["ror"]
-        if namespace_map then particle = Map.wrap(namespace_map)[identifier] end
-        
-        if particle then
-            local wrapper = Particle.wrap(particle)
-            Particle.internal.add_to_find_table(wrapper, "ror", identifier, particle)
-            return wrapper
-        end
-    end
-
-    return nil
 end
 
 
@@ -157,31 +128,11 @@ end
 --@optional     namespace   | string    | The namespace to check.
 --[[
 Returns a table of all particles in the specified namespace.
-If no namespace is provided, retrieves from both your mod's namespace and "ror".
+
+--@findinfo
 ]]
 Particle.find_all = function(namespace, namespace_is_specified)
-    local parts = {}
-    local resource_manager = Map.wrap(Global.ResourceManager_particleTypes.__namespacedAssetLookup)
-
-    -- Search in namespace
-    if resource_manager[namespace] then
-        for identifier, part in pairs(Map.wrap(resource_manager[namespace])) do
-            local wrapper = Particle.wrap(part)
-            table.insert(parts, wrapper)
-            Particle.internal.add_to_find_table(wrapper, namespace, identifier, part)
-        end
-    end
-
-    -- Also search in "ror" namespace if passed no `namespace` arg
-    if not namespace_is_specified then
-        for identifier, part in pairs(Map.wrap(resource_manager["ror"])) do
-            local wrapper = Particle.wrap(part)
-            table.insert(parts, wrapper)
-            Particle.internal.add_to_find_table(wrapper, "ror", identifier, part)
-        end
-    end
-    
-    return parts
+    return __particle_find_cache:get_all(namespace, namespace_is_specified, "wrapper")
 end
 
 
@@ -333,7 +284,7 @@ make_table_once("metatable_particle", {
         end
 
         -- Getter
-        return __particle_find_table:get(__proxy[proxy])[k]
+        return __particle_find_cache:get(__proxy[proxy])[k]
     end,
 
 
@@ -350,6 +301,25 @@ make_table_once("metatable_particle", {
 
     __metatable = "RAPI.Wrapper."..wrapper_name
 })
+
+
+
+-- ========== Hooks ==========
+
+-- Add new particles to find table
+Hook.add_post(RAPI_NAMESPACE, gm.constants.part_type_create_w, Callback.internal.FIRST, function(self, other, result, args)
+    local id = result.value
+    if id == -1 then return end
+
+    __particle_find_cache:set(
+        {
+            wrapper = Particle.wrap(id),
+        },
+        args[2].value,
+        args[1].value,
+        id
+    )
+end)
 
 
 

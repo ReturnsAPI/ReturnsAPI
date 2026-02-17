@@ -26,6 +26,7 @@ Methods
 -- @param    <name> | <type(s)> | <desc>    (Optional)  A required parameter of the method
 -- @optional <name> | <type(s)> | <desc>    (Optional)  An optional parameter of the method
 -- @ptable                                  (Optional)  Display the parameter table at this position, allowing for text after it
+-- @findinfo                                (Optional)  Display information about `find`/`find_all` at this position
 """
 
 
@@ -673,6 +674,9 @@ def generate(docs, filename):
                         if "@ptable" in line:
                             out += parameter_table() + "  \n"
                             ptable_shown = True
+
+                        elif "@findinfo" in line:
+                            out += "If no namespace is provided, searches globally in a non-deterministic* order.  \n* Guaranteed to check in your mod's namespace first.  \n"
                         
                         else:
                             out += line + "  \n"

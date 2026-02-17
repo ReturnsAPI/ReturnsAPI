@@ -5,7 +5,7 @@
 ItemTier = new_class()
 
 run_once(function()
-    __item_tier_find_table = FindCache.new()
+    __item_tier_cache = FindCache.new()
 end)
 
 
@@ -80,31 +80,23 @@ Property | Type | Description
 ItemTier.internal.initialize = function()
     -- Populate find table with vanilla tiers
     for constant, id in pairs(tier_constants) do
-        local namespace = "ror"
         local identifier = constant:lower()
-
-        local struct = Global.item_tiers:get(id)
+        local struct     = Global.item_tiers:get(id)
 
         -- Custom properties
-        struct.namespace    = namespace
-        struct.identifier   = identifier
+        struct.namespace  = "ror"
+        struct.identifier = identifier
 
-        __item_tier_find_table:set(
+        __item_tier_cache:set(
             {
                 wrapper = ItemTier.wrap(id),
-                struct  = struct
+                struct  = struct,
             },
-            identifier, namespace, id
+            identifier,
+            "ror",
+            id
         )
     end
-
-    -- Update cached wrappers
-    __item_tier_find_table:loop_and_update_values(function(value)
-        return {
-            wrapper = ItemTier.wrap(value.wrapper),
-            struct  = value.struct
-        }
-    end)
 end
 table.insert(_rapi_initialize, ItemTier.internal.initialize)
 
@@ -160,12 +152,14 @@ ItemTier.new = function(NAMESPACE, identifier)
     local tier = ItemTier.wrap(id)
 
     -- Add to find table
-    __item_tier_find_table:set(
+    __item_tier_cache:set(
         {
             wrapper = tier,
-            struct  = struct
+            struct  = struct,
         },
-        identifier, NAMESPACE, id
+        identifier,
+        NAMESPACE,
+        id
     )
 
     return tier
@@ -178,14 +172,25 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified item tier and returns it.
-If no namespace is provided, searches in your mod's namespace first, and vanilla tiers second.
+
+--@findinfo
 ]]
 ItemTier.find = function(identifier, namespace, namespace_is_specified)
-    -- Check in find table
-    local cached = __item_tier_find_table:get(identifier, namespace, namespace_is_specified)
+    local cached = __item_tier_cache:get(identifier, namespace, namespace_is_specified)
     if cached then return cached.wrapper end
+end
 
-    return nil
+
+--@static
+--@return       table
+--@optional     namespace   | string    | The namespace to check.
+--[[
+Returns a table of all item tiers in the specified namespace.
+
+--@findinfo
+]]
+ItemTier.find_all = function(namespace, namespace_is_specified)
+    return __item_tier_cache:get_all(namespace, namespace_is_specified, "wrapper")
 end
 
 
@@ -214,7 +219,7 @@ methods_item_tier = {
     Prints the item tier's properties.
     ]]
     print = function(self)
-        local struct = __item_tier_find_table:get(self.value).struct
+        local struct = __item_tier_cache:get(self.value).struct
         struct:print()
     end
 
@@ -238,7 +243,7 @@ make_table_once("metatable_item_tier", {
         end
 
         -- Getter
-        local struct = __item_tier_find_table:get(__proxy[proxy]).struct
+        local struct = __item_tier_cache:get(__proxy[proxy]).struct
         return struct[k]
     end,
 
@@ -251,7 +256,7 @@ make_table_once("metatable_item_tier", {
         end
 
         -- Setter
-        local struct = __item_tier_find_table:get(__proxy[proxy]).struct
+        local struct = __item_tier_cache:get(__proxy[proxy]).struct
         struct[k] = v
     end,
 

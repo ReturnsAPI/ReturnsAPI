@@ -5,10 +5,10 @@
 Packet = new_class()
 
 run_once(function()
-    __packet_find_table = FindCache.new()
+    __packet_find_cache = FindCache.new()
 
-    __callbacks_onSerialize     = {}    -- Stores callback functions to run on serialization/deserialization
-    __callbacks_onDeserialize   = {}
+    __callbacks_onSerialize   = {}  -- Stores callback functions to run on serialization/deserialization
+    __callbacks_onDeserialize = {}
 end)
 
 local SendType = {
@@ -63,10 +63,13 @@ Packet.internal.initialize = function()
             local count = 0
             local _pairs = {}
 
-            -- Loop through `__packet_find_table` and add nsid <-> packet ID pairs
-            __packet_find_table:loop_and_update_values(function(value)
+            -- Loop through `__packet_find_cache` and add nsid <-> packet ID pairs
+            __packet_find_cache:map(function(value)
                 if not _pairs[value.id] then
-                    _pairs[value.id] = {namespace = value.namespace, identifier = value.identifier}
+                    _pairs[value.id] = {
+                        namespace = value.namespace,
+                        identifier = value.identifier,
+                    }
                     count = count + 1
                 end
             end)
@@ -75,7 +78,7 @@ Packet.internal.initialize = function()
 
             -- Loop through `_pairs` and write
             for id, t in pairs(_pairs) do
-                print("Syncing packet with ID "..id.." (nsid "..t.namespace.."-"..t.identifier..")")
+                print("Syncing packet with ID "..id.." ("..t.namespace.."-"..t.identifier..")")
                 buffer:write_uint_packed(id)
                 buffer:write_string(t.namespace)
                 buffer:write_string(t.identifier)
@@ -87,7 +90,7 @@ Packet.internal.initialize = function()
         function(buffer, player)
             local count = buffer:read_uint_packed()
             
-            print("Sync read count is "..count)
+            print("Sync read count is "..math.floor(count))
 
             for i = 1, count do
                 -- Read host nsid <-> packet ID pair
@@ -95,14 +98,14 @@ Packet.internal.initialize = function()
                 local namespace     = buffer:read_string()
                 local identifier    = buffer:read_string()
                 
-                print("Syncing packet to new ID "..math.floor(new_id).." (nsid "..namespace.."-"..identifier..")")
+                print("Syncing packet to new ID "..math.floor(new_id).." ("..namespace.."-"..identifier..")")
 
                 -- Get wrapper
-                local wrapper = __packet_find_table:get(identifier, namespace, true)
+                local wrapper = __packet_find_cache:get(identifier, namespace, true)
 
                 if wrapper then
                     -- Remove wrapper from current cache location
-                    __packet_find_table:set(nil, identifier, namespace, wrapper.id)
+                    __packet_find_cache:set(nil, identifier, namespace, wrapper.id)
 
                     -- Modify wrapper to use new ID
                     __proxy[wrapper].id = new_id
@@ -113,15 +116,15 @@ Packet.internal.initialize = function()
 
                     -- Check if there is already an existing wrapper at the new ID
                     -- If so, move that to a new position
-                    local existing = __packet_find_table:get(new_id)
+                    local existing = __packet_find_cache:get(new_id)
                     if existing then
                         local existing_new_id = gm._mod_net_message_getUniqueID()
                         __proxy[existing].id = existing_new_id
-                        __packet_find_table:set(existing, existing.identifier, existing.namespace, existing_new_id)
+                        __packet_find_cache:set(existing, existing.identifier, existing.namespace, existing_new_id)
                     end
 
                     -- Add wrapper to new cache location
-                    __packet_find_table:set(wrapper, identifier, namespace, new_id)
+                    __packet_find_cache:set(wrapper, identifier, namespace, new_id)
                 end
             end
         end
@@ -156,7 +159,7 @@ Packet.new = function(NAMESPACE, identifier)
     local packet = Packet.internal.wrap(NAMESPACE, identifier, nsid, id)
 
     -- Add to find table
-    __packet_find_table:set(packet, identifier, NAMESPACE, id)
+    __packet_find_cache:set(packet, identifier, NAMESPACE, id)
 
     print("Created Packet with ID "..math.floor(id).." (nsid '"..nsid.."')")
 
@@ -170,12 +173,24 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified packet and returns it.
-If no namespace is provided, searches in your mod's namespace first, and vanilla tiers second.
+
+--@findinfo
 ]]
 Packet.find = function(identifier, namespace, namespace_is_specified)
-    -- Check in find table
-    local cached = __packet_find_table:get(identifier, namespace, namespace_is_specified)
-    return cached
+    return __packet_find_cache:get(identifier, namespace, namespace_is_specified)
+end
+
+
+--@static
+--@return       table
+--@optional     namespace   | string    | The namespace to check.
+--[[
+Returns a table of all packets in the specified namespace.
+
+--@findinfo
+]]
+Packet.find_all = function(namespace, namespace_is_specified)
+    return __packet_find_cache:get_all(namespace, namespace_is_specified)
 end
 
 
@@ -189,7 +204,7 @@ or `nil` if the packet ID is not in use.
 Packet.wrap = function(packet_id)
     -- Input:   number
     -- Wraps:   N/A; returns existing wrapper if it exists
-    local packet = __packet_find_table:get(packet_id)
+    local packet = __packet_find_cache:get(packet_id)
     return packet
 end
 

@@ -1,6 +1,17 @@
 ### v0.1.46
+- AttackFlag : Add `get_identifier`
+- Callback
+    - `find` : Add support for vanilla callbacks
+    - `get_type_name`
+        - Rename to `get_identifier`
+        - Return two arguments instead (e.g., `14` -> `onStageStart`, `ror`)
 - Class, ItemTier, LootPool, Tracer : Rename `print_properties` to `print`
 - Elite : Add `new` and `set_palette`
+- Misc
+    - All `find` and `find_all` methods : Check globally if no namespace argument is provided
+        - The order is non-deterministic except for your mod's namespace, which is guaranteed to be checked first
+    - Add `find_all` to several classes
+    - Improve lookup speed for several existing `find_all`s
 
 ### v0.1.45
 - Actor.`item_give/take`, `buff_apply/remove` : Round non-integer `count`s down

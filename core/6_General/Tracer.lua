@@ -3,7 +3,7 @@
 Tracer = new_class()
 
 run_once(function()
-    __tracer_find_table = FindCache.new()
+    __tracer_find_cache = FindCache.new()
     __tracer_callbacks = {}
 end)
 
@@ -116,31 +116,23 @@ Property | Type | Description
 Tracer.internal.initialize = function()
     -- Populate find table with vanilla tracers
     for constant, id in pairs(tracer_constants) do
-        local namespace = "ror"
         local identifier = constant:lower()
-
-        local struct = Global.tracer_info:get(id)
+        local struct     = Global.tracer_info:get(id)
 
         -- Custom properties
-        struct.namespace    = namespace
-        struct.identifier   = identifier
+        struct.namespace  = "ror"
+        struct.identifier = identifier
 
-        __tracer_find_table:set(
+        __tracer_find_cache:set(
             {
                 wrapper = Tracer.wrap(id),
-                struct  = struct
+                struct  = struct,
             },
-            identifier, namespace, id
+            identifier,
+            "ror",
+            id
         )
     end
-
-    -- Update cached wrappers
-    __tracer_find_table:loop_and_update_values(function(value)
-        return {
-            wrapper = Tracer.wrap(value.wrapper),
-            struct  = value.struct
-        }
-    end)
 end
 table.insert(_rapi_initialize, Tracer.internal.initialize)
 
@@ -189,12 +181,14 @@ Tracer.new = function(NAMESPACE, identifier)
     local tracer = Tracer.wrap(id)
 
     -- Add to find table
-    __tracer_find_table:set(
+    __tracer_find_cache:set(
         {
             wrapper = tracer,
-            struct  = struct
+            struct  = struct,
         },
-        identifier, NAMESPACE, id
+        identifier,
+        NAMESPACE,
+        id
     )
 
     return tracer
@@ -207,14 +201,25 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified tracer and returns it.
-If no namespace is provided, searches in your mod's namespace first, and vanilla tracers second.
+
+--@findinfo
 ]]
 Tracer.find = function(identifier, namespace, namespace_is_specified)
-    -- Check in find table
-    local cached = __tracer_find_table:get(identifier, namespace, namespace_is_specified)
+    local cached = __tracer_find_cache:get(identifier, namespace, namespace_is_specified)
     if cached then return cached.wrapper end
+end
 
-    return nil
+
+--@static
+--@return       table
+--@optional     namespace   | string    | The namespace to check.
+--[[
+Returns a table of all tracers in the specified namespace.
+
+--@findinfo
+]]
+Tracer.find_all = function(namespace, namespace_is_specified)
+    return __tracer_find_cache:get_all(namespace, namespace_is_specified, "wrapper")
 end
 
 
@@ -243,7 +248,7 @@ methods_tracer = {
     Prints the tracer's properties.
     ]]
     print = function(self)
-        local struct = __tracer_find_table:get(self.value).struct
+        local struct = __tracer_find_cache:get(self.value).struct
         struct:print()
     end,
 
@@ -277,7 +282,7 @@ make_table_once("metatable_tracer", {
         end
 
         -- Getter
-        local struct = __tracer_find_table:get(__proxy[proxy]).struct
+        local struct = __tracer_find_cache:get(__proxy[proxy]).struct
         return struct[k]
     end,
 
@@ -290,7 +295,7 @@ make_table_once("metatable_tracer", {
         end
 
         -- Setter
-        local struct = __tracer_find_table:get(__proxy[proxy]).struct
+        local struct = __tracer_find_cache:get(__proxy[proxy]).struct
         struct[k] = Wrap.unwrap(v)
     end,
 

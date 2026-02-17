@@ -3,9 +3,11 @@
 Callback = new_class()
 
 run_once(function()
-    __callback_cache            = CallbackCache.new()
-    __custom_callback_cache     = FindCache.new()
-    __custom_callback_counter   = 0
+    __callback_cache          = CallbackCache.new()
+    __callback_find_cache     = FindCache.new()
+    __callback_custom_counter = 0
+
+    __called_post_load = false
 end)
 
 local callback_arg_types = {}
@@ -80,16 +82,6 @@ for i, v in ipairs(callback_constants) do
     Callback[v] = i - 1
 end
 
--- Generate list of argument types for each callback
-for num_id, _ in ipairs(callback_constants) do
-    local class_callback = Global.class_callback
-    local arg_types = class_callback:get(num_id - 1):get(2)
-    callback_arg_types[num_id - 1] = {}
-    for i, v in ipairs(arg_types) do
-        table.insert(callback_arg_types[num_id - 1], v)
-    end
-end
-
 
 --[[
 The following are custom callbacks added by ReturnsAPI.
@@ -135,25 +127,41 @@ Callback.internal.FIRST = 1000000000
 
 
 
+-- ========== Internal ==========
+
+local class_callback = Global.class_callback
+
+for num_id, name in ipairs(callback_constants) do
+    -- Generate list of argument types for each callback
+    local arg_types = class_callback:get(num_id - 1):get(2)
+    callback_arg_types[num_id - 1] = {}
+    for i, v in ipairs(arg_types) do
+        table.insert(callback_arg_types[num_id - 1], v)
+    end
+
+    -- Populate find cache with vanilla callbacks
+    local identifier = name:lower()
+    while true do
+        local pos = identifier:find("_")
+        if not pos then break end
+
+        -- E.g., ON_STAGE_START -> onStageStart
+        identifier = identifier:sub(1, pos - 1)..identifier:sub(pos + 1, pos + 1):upper()..identifier:sub(pos + 2, -1)
+    end
+
+    __callback_find_cache:set(
+        {},
+        identifier,
+        "ror",
+        num_id - 1
+    )
+end
+
+
+
 -- ========== Static Methods ==========
 
 --@section Static Methods
-
---@static
---@return       string
---@param        num_id      | number    | The numerical ID of the callback type (`0` to `42`).
---[[
-Returns the string name of the callback type with the given ID.
-]]
-Callback.get_type_name = function(num_id)
-    if num_id >= Callback.CUSTOM_START then
-        local t = __custom_callback_cache:get(num_id)
-        return t.namespace.."-"..t.identifier
-    end
-
-    return callback_constants[num_id + 1]
-end
-
 
 --@static
 --@return       Callback
@@ -179,8 +187,8 @@ If you need to be more specific than that, try to keep a distance of at least `1
 Parameters are listed in order for each callback.
 Callback                            | Parameters
 | --------------------------------- | ----------
-`ON_LOAD`                           | None
-`POST_LOAD`                         | None
+`ON_LOAD`                           | None <br><br>This is never called.
+`POST_LOAD`                         | None <br><br>This is never called.
 `ON_STEP`                           | None
 `PRE_STEP`                          | None
 `POST_STEP`                         | None
@@ -303,6 +311,48 @@ end
 table.insert(_clear_namespace_functions, Callback.remove_all)
 
 
+--@static
+--@return       number or nil
+--@param        identifier  | string    | The identifier to search for.
+--@optional     namespace   | string    | The namespace to search in.
+--[[
+Searches for the specified callback type and returns it.
+
+--@findinfo
+]]
+Callback.find = function(identifier, namespace, namespace_is_specified)
+    -- Check in find table
+    local cached = __callback_find_cache:get(identifier, namespace, namespace_is_specified)
+    if cached then return cached.id end
+end
+
+
+--@static
+--@return       table
+--@optional     namespace   | string    | The namespace to search in.
+--[[
+Returns a table of all callback types in the specified namespace.
+
+--@findinfo
+]]
+Callback.find_all = function(namespace, namespace_is_specified)
+    return __callback_find_cache:get_all(namespace, namespace_is_specified, "id")
+end
+
+
+--@static
+--@return       string, string (or nil, nil)
+--@param        num_id      | number    | The numerical ID of the callback type.
+--[[
+Returns the identifier and namespace of the callback type with the given ID.
+(E.g., `14` -> `onStageStart`, `ror`)
+]]
+Callback.get_identifier = function(num_id)
+    -- Check in find table
+    local cached = __callback_find_cache:get(num_id)
+    if cached then return cached.identifier, cached.namespace end
+end
+
 
 --@static
 --@return       Callback
@@ -341,37 +391,18 @@ Callback.new = function(NAMESPACE, identifier)
     if callback then return callback end
 
     -- Get next usable ID
-    local id = Callback.CUSTOM_START + __custom_callback_counter
-    __custom_callback_counter = __custom_callback_counter + 1
+    local id = Callback.CUSTOM_START + __callback_custom_counter
+    __callback_custom_counter = __callback_custom_counter + 1
 
     -- Add to cache
-    __custom_callback_cache:set(
-        {
-            id          = id,
-            namespace   = NAMESPACE,
-            identifier  = identifier
-        },
-        identifier, NAMESPACE, id
+    __callback_find_cache:set(
+        {},
+        identifier,
+        NAMESPACE,
+        id
     )
 
     return id
-end
-
-
---@static
---@return       number or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
---[[
-Searches for the specified custom callback and returns it.
-If no namespace is provided, searches in your mod's namespace.
-]]
-Callback.find = function(identifier, namespace, namespace_is_specified)
-    -- Check in find table
-    local cached = __custom_callback_cache:get(identifier, namespace, true)
-    if cached then return cached.id end
-
-    return nil
 end
 
 
@@ -399,7 +430,11 @@ Callback.call = function(callback, ...)
         if not status then
             if (ret == nil)
             or (ret == "C++ exception") then ret = "GameMaker error (see above)" end
-            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..(Callback.get_type_name(callback) or callback).."' failed to execute fully.\n"..ret)
+
+            local callback_type_name = callback
+            local id, ns = Callback.get_identifier(callback)
+            if id then callback_type_name = ns.."-"..id end
+            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..callback_type_name.."' failed to execute fully.\n"..ret)
         end
 
         -- Return value
@@ -558,7 +593,11 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         if not status then
             if (ret == nil)
             or (ret == "C++ exception") then ret = "GameMaker error (see above)" end
-            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..(Callback.get_type_name(callback_type_id) or callback_type_id).."' failed to execute fully.\n"..ret)
+            
+            local callback_type_name = callback_type_id
+            local id, ns = Callback.get_identifier(callback_type_id)
+            if id then callback_type_name = ns.."-"..id end
+            log.warning("\n"..fn_table.namespace..": Callback (ID '"..fn_table.id.."') of type '"..callback_type_name.."' failed to execute fully.\n"..ret)
         end
 
         -- Result modification

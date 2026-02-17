@@ -26,10 +26,10 @@ run_once(function()
     callback_cache_mt = {
         __index = {
 
-            -- Register a callback function
-            -- Stored as a function data table
-            -- Returns a unique ID
-            -- `data` is a table for extraneous information if needed
+            -- Register a callback function  
+            -- Stored as a function data table  
+            -- Returns a unique ID  
+            -- `data` is a table for extraneous information if needed  
             add = function(self, fn, namespace, priority, section, id_override, data)
                 priority = priority or 0    -- Higher values run before lower ones
                 section = section or "main"
@@ -80,7 +80,7 @@ run_once(function()
             end,
 
 
-            -- Toggle a function on/off
+            -- Toggle a function on/off  
             toggle = function(self, id, bool)
                 -- Find callback function data table
                 local fn_table = self.id_lookup[id]
@@ -99,7 +99,7 @@ run_once(function()
             end,
 
 
-            -- Remove a function data table by ID
+            -- Remove a function data table by ID  
             remove = function(self, id)
                 -- Find callback function data table
                 local fn_table = self.id_lookup[id]
@@ -127,8 +127,8 @@ run_once(function()
             end,
 
 
-            -- Remove all function data tables
-            -- added by a namespace
+            -- Remove all function data tables  
+            -- added by a namespace  
             remove_all = function(self, namespace)
                 -- Loop through sections
                 for _, section_table in pairs(self.sections) do
@@ -162,9 +162,9 @@ run_once(function()
             end,
 
 
-            -- Call a function on all function data
-            -- tables in a section in priority order
-            -- Function should accept `fn_table` as only argument
+            -- Call a function on all function data  
+            -- tables in a section in priority order  
+            -- Function should accept `fn_table` as only argument  
             loop_and_call_functions = function(self, fn, section)
                 section = section or "main"
                 local section_table = self.sections[section]
@@ -187,13 +187,13 @@ run_once(function()
             end,
 
 
-            -- Delete a section
+            -- Delete a section  
             delete_section = function(self, section)
                 self.sections[section] = nil
             end,
 
 
-            -- Get number of enabled functions in section
+            -- Get number of enabled functions in section  
             section_count = function(self, section)
                 return (self.sections[section] and self.sections[section].count) or 0
             end

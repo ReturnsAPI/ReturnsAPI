@@ -3,7 +3,7 @@
 Sprite = new_class()
 
 run_once(function()
-    __sprite_find_table = FindCache.new()
+    __sprite_find_cache = FindCache.new()
 end)
 
 
@@ -29,21 +29,22 @@ Property | Type | Description
 
 -- ========== Internal ==========
 
-Sprite.internal.add_to_find_table = function(wrapper, namespace, identifier, id)
-    __sprite_find_table:set(
-        {
-            wrapper     = wrapper,
-            namespace   = namespace,
-            identifier  = identifier
-        },
-        identifier, namespace, id
-    )
-end
-
-
 Sprite.internal.initialize = function()
     -- Populate cache with vanilla sprites
-    Sprite.find_all("ror", true)
+    local resource_manager = Map.wrap(Global.ResourceManager_sprite.__namespacedAssetLookup)
+    
+    for identifier, sprite in pairs(Map.wrap(resource_manager["ror"])) do
+        local wrapper = Sprite.wrap(sprite)
+
+        __sprite_find_cache:set(
+            {
+                wrapper = wrapper,
+            },
+            identifier,
+            "ror",
+            sprite
+        )
+    end
 end
 table.insert(_rapi_initialize, Sprite.internal.initialize)
 
@@ -93,12 +94,9 @@ Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_ori
         log.error("Sprite.new: Could not load sprite at '"..path.."'", 2)
     end
 
-    local wrapper = Sprite.wrap(sprite)
+    -- Adding to find table is done in the hook at the bottom
 
-    -- Add to find table
-    Sprite.internal.add_to_find_table(wrapper, NAMESPACE, identifier, sprite)
-
-    return wrapper
+    return Sprite.wrap(sprite)
 end
 
 
@@ -108,72 +106,25 @@ end
 --@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified sprite and returns it.
-If no namespace is provided, searches in your mod's namespace first, and "ror" second.
+
+--@findinfo
 ]]
 Sprite.find = function(identifier, namespace, namespace_is_specified)
-    -- Check in cache
-    local cached = __sprite_find_table:get(identifier, namespace, namespace_is_specified)
+    local cached = __sprite_find_cache:get(identifier, namespace, namespace_is_specified)
     if cached then return cached.wrapper end
-
-    -- Search in namespace
-    local sprite
-    local resource_manager = Map.wrap(Global.ResourceManager_sprite.__namespacedAssetLookup)
-    local namespace_map = resource_manager[namespace]
-    if namespace_map then sprite = Map.wrap(namespace_map)[identifier] end
-
-    if sprite then
-        local wrapper = Sprite.wrap(sprite)
-        Sprite.internal.add_to_find_table(wrapper, namespace, identifier, sprite)
-        return wrapper
-    end
-
-    -- Also search in "ror" namespace if passed no `namespace` arg
-    if not namespace_is_specified then
-        local sprite
-        local namespace_map = resource_manager["ror"]
-        if namespace_map then sprite = Map.wrap(namespace_map)[identifier] end
-        
-        if sprite then
-            local wrapper = Sprite.wrap(sprite)
-            Sprite.internal.add_to_find_table(wrapper, "ror", identifier, sprite)
-            return wrapper
-        end
-    end
-
-    return nil
 end
 
 
 --@static
 --@return       table
---@optional     namespace   | string    | The namespace to check.
+--@optional     namespace   | string    | The namespace to search in.
 --[[
 Returns a table of all sprites in the specified namespace.
-If no namespace is provided, retrieves from both your mod's namespace and "ror".
+
+--@findinfo
 ]]
 Sprite.find_all = function(namespace, namespace_is_specified)
-    local sprites = {}
-    local resource_manager = Map.wrap(Global.ResourceManager_sprite.__namespacedAssetLookup)
-
-    -- Search in namespace
-    if resource_manager[namespace] then
-        for identifier, sprite in pairs(Map.wrap(resource_manager[namespace])) do
-            local wrapper = Sprite.wrap(sprite)
-            table.insert(sprites, wrapper)
-            Sprite.internal.add_to_find_table(wrapper, namespace, identifier, sprite)
-        end
-    end
-
-    -- Also search in "ror" namespace if passed no `namespace` arg
-    if not namespace_is_specified then
-        for identifier, sprite in pairs(Map.wrap(resource_manager["ror"])) do
-            local wrapper = Sprite.wrap(sprite)
-            table.insert(sprites, wrapper)
-            Sprite.internal.add_to_find_table(wrapper, "ror", identifier, sprite)
-        end
-    end
-    
-    return sprites
+    return __sprite_find_cache:get_all(namespace, namespace_is_specified, "wrapper")
 end
 
 
@@ -274,7 +225,7 @@ make_table_once("metatable_sprite", {
         end
 
         -- Getter
-        return __sprite_find_table:get(__proxy[proxy])[k]
+        return __sprite_find_cache:get(__proxy[proxy])[k]
     end,
     
 
@@ -296,6 +247,25 @@ make_table_once("metatable_sprite", {
 
     __metatable = "RAPI.Wrapper."..wrapper_name
 })
+
+
+
+-- ========== Hooks ==========
+
+-- Add new sprites to find table
+Hook.add_post(RAPI_NAMESPACE, gm.constants.sprite_add_w, Callback.internal.FIRST, function(self, other, result, args)
+    local id = result.value
+    if id == -1 then return end
+
+    __sprite_find_cache:set(
+        {
+            wrapper = Sprite.wrap(id),
+        },
+        args[2].value,
+        args[1].value,
+        id
+    )
+end)
 
 
 
