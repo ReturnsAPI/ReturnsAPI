@@ -29,6 +29,11 @@ if gm.instance_number(gm.constants.oConsole) == 0 then
 end
 
 
+local log_command_locally = function(name, input)
+    local str = "<w>"..name.."</c> used the command '<y>"..input.."</c>'"
+    GM.chat_add_message(Struct.new(gm.constants.ChatMessage, str))
+end
+
 table.insert(_rapi_initialize, function()
     local file = TOML.new(RAPI_NAMESPACE)
     settings = file:read() or {}
@@ -45,6 +50,20 @@ table.insert(_rapi_initialize, function()
         settings.simplerConsoleBind = value
         file:write(settings)
     end)
+
+
+    -- Command chat logging sync
+    packet_syncConsole = Packet.new(RAPI_NAMESPACE, "syncConsole")
+    packet_syncConsole:set_serializers(
+        function(buffer, name, input)
+            buffer:write_string(name)
+            buffer:write_string(input)
+        end,
+
+        function(buffer, player)
+            log_command_locally(buffer:read_string(), buffer:read_string())
+        end
+    )
 end)
 
 
@@ -178,6 +197,16 @@ Callback.add(RAPI_NAMESPACE, Callback.CONSOLE_ON_COMMAND, Callback.internal.FIRS
         elseif arg == "true"  then cmd[i] = true
         elseif arg == "false" then cmd[i] = false
         end
+    end
+
+    -- Log usage in chat in online multiplayer
+    if Net.online then
+        local name = "Player"
+        local p = Player.get_local()
+        if p ~= Instance.INVALID then name = p.user_name end
+
+        log_command_locally(name, input)
+        packet_syncConsole:send_to_all(name, input)
     end
 
     fn(cmd)

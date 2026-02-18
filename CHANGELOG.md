@@ -8,6 +8,9 @@
     - `find` : Add support for vanilla callbacks
     - `wrap` : Now separated into `wrap_type` and `wrap_function`
 - Class, ItemTier, LootPool, Tracer : Rename `print_properties` to `print`
+- Console
+    - `list` : Display columns of 20 commands instead of a long list
+    - Notify all players of command usage in chat in online multiplayer
 - Elite : Add `new` and `set_palette`
 - Object.`find` : Vanilla object identifiers now must match the first letter's casing exactly
     - Capital letter in most cases (as they appear in `Global.ResourceManager_object`)
