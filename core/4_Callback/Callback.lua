@@ -291,6 +291,7 @@ Callback.add = function(NAMESPACE, callback, arg2, arg3)
     end
 
     -- Custom priority
+    if type(arg2) ~= "number" then log.error("Callback.add: Priority should be a number", 2) end
     return Callback.wrap_function(__callback_fn_cache:add(arg3, NAMESPACE, arg2, callback))
 end
 
@@ -328,6 +329,7 @@ Callback.add_SO = function(NAMESPACE, callback, arg2, arg3)
     end
 
     -- Custom priority
+    if type(arg2) ~= "number" then log.error("Callback.add_SO: Priority should be a number", 2) end
     return Callback.wrap_function(__callback_fn_cache:add(arg3, NAMESPACE, arg2, callback, nil, {SO = true}))
 end
 

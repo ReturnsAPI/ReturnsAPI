@@ -70,6 +70,8 @@ Initialize.add = function(NAMESPACE, arg1, arg2)
     if type(arg1) == "function" then
         return __initialize_cache:add({fn = arg1}, NAMESPACE)
     end
+
+    if type(arg1) ~= "number" then log.error("Initialize.add: Priority should be a number", 2) end
     return __initialize_cache:add({fn = arg2}, NAMESPACE, arg1)
 end
 
@@ -87,6 +89,8 @@ Initialize.add_hotloadable = function(NAMESPACE, arg1, arg2)
     if type(arg1) == "function" then
         return __initialize_cache:add({fn = arg1, hotload = true}, NAMESPACE)
     end
+
+    if type(arg1) ~= "number" then log.error("Initialize.add_hotloadable: Priority should be a number", 2) end
     return __initialize_cache:add({fn = arg2, hotload = true}, NAMESPACE, arg1)
 end
 

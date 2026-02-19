@@ -34,6 +34,8 @@ RecalculateStats.add = function(NAMESPACE, arg1, arg2)
     if type(arg1) == "function" then
         return __recalcstats_cache:add(arg1, NAMESPACE)
     end
+
+    if type(arg1) ~= "number" then log.error("RecalculateStats.add: Priority should be a number", 2) end
     return __recalcstats_cache:add(arg2, NAMESPACE, arg1)
 end
 

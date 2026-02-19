@@ -247,7 +247,9 @@ Hook.add_pre = function(NAMESPACE, script, arg2, arg3)
     local wrapper
     if type(arg2) == "function" then
         wrapper = Hook.wrap(__pre_hook_cache:add(arg2, NAMESPACE, 0, script, __hook_current_id))
-    else wrapper = Hook.wrap(__pre_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id))
+    else
+        if type(arg2) ~= "number" then log.error("Hook.add_pre: Priority should be a number", 2) end
+        wrapper = Hook.wrap(__pre_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id))
     end
 
     -- Create actual hook
@@ -296,7 +298,9 @@ Hook.add_post = function(NAMESPACE, script, arg2, arg3)
     local wrapper
     if type(arg2) == "function" then
         wrapper = Hook.wrap(__post_hook_cache:add(arg2, NAMESPACE, 0, script, __hook_current_id))
-    else wrapper = Hook.wrap(__post_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id))
+    else
+        if type(arg2) ~= "number" then log.error("Hook.add_post: Priority should be a number", 2) end
+        wrapper = Hook.wrap(__post_hook_cache:add(arg3, NAMESPACE, arg2, script, __hook_current_id))
     end
 
     -- Create actual hook
