@@ -1,3 +1,10 @@
+### v0.1.47
+- Actor
+    - Add `buff_apply_local`
+    - Add `buff_remove_local`
+    - `buff_apply` : Fix `max_stack` cap not working in online multiplayer
+    - `buff_remove` : Fix not syncing in online multiplayer
+
 ### v0.1.46
 - AttackFlag : Add wrapper
 - Callback

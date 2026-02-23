@@ -162,5 +162,12 @@ end
 
 
 
+-- Add Math functions to `math` for internal use
+for k, v in pairs(Math) do
+    if k ~= "internal" then
+        math[k] = v
+    end
+end
+
 -- Public export
 __class.Math = Math
