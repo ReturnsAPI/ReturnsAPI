@@ -2,6 +2,9 @@
 - Actor
     - Add `buff_apply_local`
     - Add `buff_remove_local`
+    - Add `buff_set_time`
+    - Add `buff_set_time_local`
+    - Rename `buff_time` -> `buff_get_time`
     - `buff_apply` : Fix `max_stack` cap not working in online multiplayer
     - `buff_remove` : Fix not syncing in online multiplayer
 

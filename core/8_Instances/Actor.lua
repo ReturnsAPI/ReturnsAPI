@@ -711,12 +711,53 @@ methods_actor = {
     --[[
     Returns the remaining duration (in frames) of the specified buff the actor has.
     ]]
-    buff_time = function(self, buff)
+    buff_get_time = function(self, buff)
         -- Argument check
         buff = Wrap.unwrap(buff)
-        if type(buff) ~= "number" then log.error("buff_time: buff is invalid", 2) end
+        if type(buff) ~= "number" then log.error("buff_get_time: buff is invalid", 2) end
 
         return math.max(gm.get_buff_time(self.value, buff), 0)
+    end,
+
+
+    --@instance
+    --@return       number
+    --@param        buff        | Buff      | The buff to set.
+    --@param        duration    | number    | The duration of the buff (in frames).
+    --[[
+    Sets the remaining duration (in frames) for a specified buff that the actor has.
+    Does nothing if the actor does not have the buff.
+
+    **Must be called offline or as host.**
+    ]]
+    buff_set_time = function(self, buff, duration)
+        -- Argument check
+        buff = Wrap.unwrap(buff)
+        if type(buff) ~= "number" then log.error("buff_set_time: buff is invalid", 2) end
+        if not duration then log.error("buff_set_time: duration is missing", 2) end
+
+        gm.set_buff_time(self.value, buff, math.max(duration, 0))
+    end,
+
+
+    --@instance
+    --@return       number
+    --@param        buff        | Buff      | The buff to set.
+    --@param        duration    | number    | The duration of the buff (in frames).
+    --[[
+    Sets the remaining duration (in frames) for a specified buff that the actor has.
+    Does nothing if the actor does not have the buff.
+    
+    This is not synced, and should be used for
+    buffs that have `client_handles_removal` as `true`.
+    ]]
+    buff_set_time_local = function(self, buff, duration)
+        -- Argument check
+        buff = Wrap.unwrap(buff)
+        if type(buff) ~= "number" then log.error("buff_set_time_local: buff is invalid", 2) end
+        if not duration then log.error("buff_set_time_local: duration is missing", 2) end
+
+        gm.set_buff_time_nosync(self.value, buff, math.max(duration, 0))
     end,
 
 
