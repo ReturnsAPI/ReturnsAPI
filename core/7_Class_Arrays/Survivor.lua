@@ -138,6 +138,7 @@ Property | Type | Description
 Survivor.internal.initialize = function()
     -- Add correct palettes
     for _, dir in ipairs{
+        path.combine(PATH, "core/sprites/palettes"),
         path.combine(PATH, "core/sprites/portrait_palettes"),
         path.combine(PATH, "core/sprites/loadout_palettes")
     } do

@@ -543,6 +543,28 @@ methods_actor = {
 
 
     --@instance
+    --@return       Equipment or nil
+    --[[
+    Returns the actor's current equipment.
+    ]]
+    equipment_get = function(self)
+        local equip = gm.equipment_get(self.value)
+        if equip >= 0 then return Equipment.wrap(equip) end
+        return nil
+    end,
+
+
+    --@instance
+    --@param        equip       | Equipment | The equipment to set. <br>If `-1`, removes equipment.
+    --[[
+    Sets the actor's equipment.
+    ]]
+    equipment_set = function(self, equip)
+        gm.equipment_set(self.value, Wrap.unwrap(equip))
+    end,
+
+
+    --@instance
     --@param        buff        | Buff      | The buff to apply.
     --@param        duration    | number    | The duration of the buff (in frames).
     --@optional     count       | number    | The amount of stacks to apply. <br>`1` by default.
@@ -721,7 +743,6 @@ methods_actor = {
 
 
     --@instance
-    --@return       number
     --@param        buff        | Buff      | The buff to set.
     --@param        duration    | number    | The duration of the buff (in frames).
     --[[
@@ -741,7 +762,6 @@ methods_actor = {
 
 
     --@instance
-    --@return       number
     --@param        buff        | Buff      | The buff to set.
     --@param        duration    | number    | The duration of the buff (in frames).
     --[[
@@ -758,28 +778,6 @@ methods_actor = {
         if not duration then log.error("buff_set_time_local: duration is missing", 2) end
 
         gm.set_buff_time_nosync(self.value, buff, math.max(duration, 0))
-    end,
-
-
-    --@instance
-    --@return       Equipment or nil
-    --[[
-    Returns the actor's current equipment.
-    ]]
-    equipment_get = function(self)
-        local equip = gm.equipment_get(self.value)
-        if equip >= 0 then return Equipment.wrap(equip) end
-        return nil
-    end,
-
-
-    --@instance
-    --@param        equip       | Equipment | The equipment to set. <br>If `-1`, removes equipment.
-    --[[
-    Sets the actor's equipment.
-    ]]
-    equipment_set = function(self, equip)
-        gm.equipment_set(self.value, Wrap.unwrap(equip))
     end,
 
 

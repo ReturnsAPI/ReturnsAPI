@@ -1,3 +1,6 @@
+### v0.1.48
+- Remove unused skin from Pilot's palettes
+
 ### v0.1.47
 - Actor
     - Add `buff_apply_local`
@@ -6,7 +9,7 @@
     - Add `buff_set_time_local`
     - Rename `buff_time` -> `buff_get_time`
     - `buff_apply` : Fix `max_stack` cap not working in online multiplayer
-    - `buff_remove` : Fix not syncing in online multiplayer
+    - `buff_remove` : Fix individual stack removal not syncing in online multiplayer
 
 ### v0.1.46
 - AttackFlag : Add wrapper
