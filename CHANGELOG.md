@@ -1,6 +1,6 @@
 ### v0.1.48
 - Achievement : Add `set_unlock_skin`
-- Survivor.`add_skin` : Add optional `paint_color` argument
+- Survivor.`add_skin` : Add optional `paint_color` parameter
 - Misc
     - Remove unused skin from Pilot's palettes
     - Fix online-incompatible message text displaying weirdly for certain languages
@@ -115,7 +115,7 @@
 ### v0.1.38
 - Script : Add `.script_name` as an alias for `.name`
 - Stage : Add safety checking to \*Card-related methods + error for invalid string identifiers
-- TOML.`new` : Add optional `directory` argument
+- TOML.`new` : Add optional `directory` parameter
 - Util : Add `get_namespace`
 
 ### v0.1.37
