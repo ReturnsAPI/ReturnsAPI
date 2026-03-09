@@ -83,15 +83,15 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
     end
     
     -- Show "x incompatible mod(s)" text
-    gm.draw_set_font(1)
-    gm.draw_set_halign(1)
-    gm.draw_set_valign(1)
     local str = gm.translate("ui.numIncompatibleMods", #incomp)
     local col = {Color.ORANGE, Color.BLACK, Color.BLACK}
+    gm.scribble_set_blend(Color.WHITE, math.clamp(opacity, 0, 1))
     for i = 3, 1, -1 do
         local c = col[i]
-        gm.draw_text_color(text_x, text_y + i, str, c, c, c, c, opacity)
+        gm.scribble_set_starting_format("fntNormal", c, 1)
+        gm.scribble_draw(text_x, text_y + i - 7, str)
     end
+    gm.scribble_reset(true)
 
     -- Show incompatible mod list
     -- when hovering over with mouse

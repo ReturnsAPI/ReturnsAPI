@@ -1,7 +1,9 @@
 ### v0.1.48
 - Achievement : Add `set_unlock_skin`
 - Survivor.`add_skin` : Add optional `paint_color` argument
-- Remove unused skin from Pilot's palettes
+- Misc:
+    - Remove unused skin from Pilot's palettes
+    - Fix online-incompatible mod message text displaying weirdly for certain languages
 
 ### v0.1.47
 - Actor
