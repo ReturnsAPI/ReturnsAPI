@@ -1,3 +1,7 @@
+### v0.1.49
+- Add a check to `actor_skin_skinnable_set_skin` for valid `sprite_palette`
+    - This fixes Mocha crashing the game when given to certain entities
+
 ### v0.1.48
 - Achievement : Add `set_unlock_skin`
 - Survivor.`add_skin` : Add optional `paint_color` parameter
