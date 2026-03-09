@@ -1,5 +1,5 @@
 ### v0.1.49
-- Add a check to `actor_skin_skinnable_set_skin` for valid `sprite_palette`
+- Call `actor_skin_skinnable_init` in `init_actor_default`
     - This fixes Mocha crashing the game when given to certain entities
 
 ### v0.1.48
