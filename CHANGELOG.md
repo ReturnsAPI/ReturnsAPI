@@ -3,7 +3,7 @@
 - Survivor.`add_skin` : Add optional `paint_color` argument
 - Misc
     - Remove unused skin from Pilot's palettes
-    - Fix online-incompatible mod message text displaying weirdly for certain languages
+    - Fix online-incompatible message text displaying weirdly for certain languages
 
 ### v0.1.47
 - Actor
