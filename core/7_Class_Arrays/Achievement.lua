@@ -271,17 +271,30 @@ Util.table_append(methods_content_class["Achievement"], {
 
 
     --@instance
-    --@param        skin        | ActorSkin | The skin to associate with.
+    --@param        survivor    | Survivor  | The survivor the skin belongs to.
+    --@param        identifier  | string    | The identifier of the skin.
     --[[
-    (TODO)
-
     Associates the achievement with a skin.
 
-    More specifically, it associates with all `SurvivorSkinLoadoutUnlockable`s
-    that are of the skin, so the **skin must be added to the survivor first**.
+    **The skin must be added to the survivor first.**
     ]]
-    set_unlock_skin = function(self, content)
-        -- Similar to set_unlock_skill
+    set_unlock_skin = function(self, survivor, identifier)
+        if self.value < 0 then log.error("set_unlock_skin: Achievement does not exist", 2) end
+        if not survivor   then log.error("set_unlock_skin: survivor is not provided", 2) end
+        if not identifier then log.error("set_unlock_skin: identifier is not provided", 2) end
+
+        survivor = Wrap.wrap(survivor)
+        
+        -- Loop through survivor's skin_family
+        -- and associate with the skin if found
+        local skin_family = survivor.skin_family.elements
+        for i, unlockable in ipairs(skin_family) do
+            if unlockable.identifier == identifier then
+                gm.achievement_set_unlock_survivor_loadout_unlockable(self.value, unlockable.index)
+                self.sprite_id = unlockable.achievement_sprite or gm.constants.sDummySprite
+                break
+            end
+        end
     end,
 
 
