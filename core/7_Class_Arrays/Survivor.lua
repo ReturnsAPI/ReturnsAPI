@@ -504,6 +504,9 @@ Util.table_append(methods_content_class["Survivor"], {
     Existing identifiers will be overwritten with the new palette.
 
     For modded survivors, the **first skin added should be the default palette**.
+
+    **Vanilla skins**
+    The modified vanilla palettes that ReturnsAPI uses can be found in `ReturnsAPI-ReturnsAPI/core/sprites`.
     ]]
     add_skin = function(self, identifiers, palette, palette_portrait, palette_loadout, paint_color)
         Initialize.internal.check_if_started("add_skin")
