@@ -3,6 +3,8 @@
 run_once(function()
     __survivor_data = {}    -- Stores some data for survivors
     __skin_default_counter = 0
+
+    __enable_palette_swap = true    -- If false, uses vanilla implementation
 end)
 
 
@@ -807,6 +809,8 @@ end)
 
 -- Draw palette-swapped loadout animation
 gm.pre_script_hook(gm.constants.actor_skin_draw_loadout_sprite, function(self, other, result, args)
+    if not __enable_palette_swap then return end
+    
     local survivor = Survivor.wrap(args[1].value)
     local skin_id = args[7].value   -- Indexed from 0
 
@@ -851,6 +855,8 @@ end)
 
 -- Draw palette-swapped portraits
 gm.pre_script_hook(gm.constants.actor_skin_draw_portrait, function(self, other, result, args)
+    if not __enable_palette_swap then return end
+
     local survivor = Survivor.wrap(args[1].value)
     local skin_id = args[8].value   -- Indexed from 0
 
@@ -884,4 +890,11 @@ gm.pre_script_hook(gm.constants.actor_skin_draw_portrait, function(self, other, 
     gm.pal_swap_reset()
 
     return false
+end)
+
+
+gui.add_to_menu_bar(function()
+    if ImGui.Button("Palette swapping: "..tostring(__enable_palette_swap)) then
+        __enable_palette_swap = not __enable_palette_swap
+    end
 end)
