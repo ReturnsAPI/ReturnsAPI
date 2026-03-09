@@ -498,17 +498,19 @@ Util.table_append(methods_content_class["Survivor"], {
     --@param        palette             | sprite            | The palette sprite used in-run.
     --@param        palette_portrait    | sprite            | The palette sprite used in the character portrait. <br>Skin count (width) should be equal to `palette`.
     --@param        palette_loadout     | sprite            | The palette sprite used in the character select animation. <br>Skin count (width) should be equal to `palette`.
+    --@optional     paint_color         | color or table    | The color of the paint in the achievement popup's paint bucket. <br>If multiple skins are in the given sprites, pass a table of colors (one for each). <br>If not provided, the paint bucket icon will not appear.
     --[[
     Adds a skin(s).
     Existing identifiers will be overwritten with the new palette.
 
     For modded survivors, the **first skin added should be the default palette**.
     ]]
-    add_skin = function(self, identifiers, palette, palette_portrait, palette_loadout)
+    add_skin = function(self, identifiers, palette, palette_portrait, palette_loadout, paint_color)
         Initialize.internal.check_if_started("add_skin")
 
         if not identifiers then log.error("add_skin: Invalid identifiers argument", 2) end
         if type(identifiers) == "string" then identifiers = {identifiers} end
+        if paint_color and (type(paint_color) ~= "table") then paint_color = {paint_color} end
 
         palette          = Wrap.unwrap(palette)
         palette_portrait = Wrap.unwrap(palette_portrait)
@@ -524,6 +526,7 @@ Util.table_append(methods_content_class["Survivor"], {
         if count ~= countl then log.error("add_skin: palette_loadout skin count does not match palette", 2) end
 
         if count ~= #identifiers then log.error("add_skin: identifiers count does not match palette skin count", 2) end
+        if paint_color and (count ~= #paint_color) then log.error("add_skin: paint_color count does not match palette skin count", 2) end
 
         for i = 1, count do
             local identifier = identifiers[i]
@@ -596,6 +599,54 @@ Util.table_append(methods_content_class["Survivor"], {
                 else skin_family:set(index, unlockable)
                 end
 
+                -- Create achievement popup sprite
+                local height = gm.sprite_get_height(skin[2])
+                local surf = gm.surface_create(2, height)
+                gm.surface_set_target(surf)
+                gm.draw_sprite_part(default.palette_portrait, 0, 0, 0, 1, height, 0, 0)
+                gm.draw_sprite(skin[2], 0, 1, 0)
+                gm.surface_reset_target()
+
+                local pal = gm.sprite_create_from_surface_w(
+                    RAPI_NAMESPACE,
+                    "skin_"..self.identifier.."-"..identifier.."_achievementPalette",
+                    surf,   -- index
+                    0,      -- x
+                    0,      -- y
+                    2,      -- w
+                    height, -- h
+                    0,      -- yorig
+                    0       -- xorig
+                )
+                gm.surface_free(surf)
+
+                local sprite_portrait = self.sprite_portrait
+                local w = gm.sprite_get_width(sprite_portrait)
+                local h = gm.sprite_get_height(sprite_portrait)
+                surf = gm.surface_create(w, h)
+                gm.surface_set_target(surf)
+                gm.pal_swap_set(pal, 1)
+                gm.draw_sprite(sprite_portrait, 0, 0, 0)
+                gm.pal_swap_reset()
+                if paint_color and paint_color[i] then
+                    gm.draw_sprite(gm.constants.sPaintBucket, 0, 16, h - 17)
+                    gm.draw_sprite_ext(gm.constants.sPaintBucket, 1, 16, h - 17, 1, 1, 0, paint_color[i], 1)
+                end
+                gm.surface_reset_target()
+
+                unlockable.achievement_sprite = gm.sprite_create_from_surface_w(
+                    RAPI_NAMESPACE,
+                    "skin_"..self.identifier.."-"..identifier.."_achievement",
+                    surf,   -- index
+                    0,      -- x
+                    0,      -- y
+                    w,      -- w
+                    h,      -- h
+                    0,      -- yorig
+                    0       -- xorig
+                )
+                gm.surface_free(surf)
+
             end
         end
     end,
@@ -663,7 +714,8 @@ gm.post_script_hook(gm.constants.survivor_create, function(self, other, result, 
         end
     end)
 
-    -- For hook below this one
+    -- For the hook below this one
+    -- This is a cache variable used by the game that stores the same default SurvivorSkinLoadoutUnlockable
     Global._survivor_skin_default = nil
 end)
 
