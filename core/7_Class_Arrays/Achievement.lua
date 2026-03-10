@@ -331,7 +331,7 @@ Util.table_append(methods_content_class["Achievement"], {
 
 
     --@instance
-    --@param        amount      | number    | The amount of progress to add. <br>`1` by default.
+    --@optional     amount      | number    | The amount of progress to add. <br>`1` by default.
     --[[
     Adds progress towards unlocking the achievement.
     The achievement will be unlocked once progress reaches `progress_needed`.
