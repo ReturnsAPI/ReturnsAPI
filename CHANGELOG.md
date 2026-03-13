@@ -1,6 +1,7 @@
 ### v0.1.49
 - Call `actor_skin_skinnable_init` in `init_actor_default`
     - This fixes Mocha crashing the game when given to certain entities
+- Fix CHEF OIL JAR + SEAR bug
 
 ### v0.1.48
 - Achievement : Add `set_unlock_skin`
