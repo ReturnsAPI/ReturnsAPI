@@ -23,10 +23,6 @@ local ignore_these = {
     ["data"]            = true,
     ["sprites"]         = true,
     ["unused"]          = true,
-    -- ["2_GM"]            = true,
-    -- ["3_General"]       = true,
-    -- ["4_Class_Arrays"]  = true,
-    -- ["5_Instances"]     = true
 }
 
 local dirs = path.get_directories(PATH.."core")

@@ -7,8 +7,8 @@ If you have any questions just ping `@Klehrik`.
     - If they do not, their namespace will be passed in.
     - This should always be the second-last argument, followed by `namespace_is_specified`, which is `true` if the user passed in an optional namespace.
 
-##### Class Arrays
-- `General/Class.lua` already provides base implementations for each "class array", which includes:
+##### Content Classes
+- `General/Class.lua` already provides base implementations for each content class, which includes:
     - `Property` (enum)
     - `find` (static method)
     - `find_all` (static method)
@@ -16,4 +16,4 @@ If you have any questions just ping `@Klehrik`.
     - `print` (instance method)
     - Metatable for `get`/`set`
 - You do not need to write bodies for these in their `<class>.lua` files, but should still write the documentation.
-    - See `7_Class_Arrays/Item.lua` as an example (and perhaps just copy the file).
+    - See `7_Content_Classes/Item.lua` as an example (and perhaps just copy the file).

@@ -1,7 +1,9 @@
 ### v0.1.49
-- Call `actor_skin_skinnable_init` in `init_actor_default`
-    - This fixes Mocha crashing the game when given to certain entities
-- Fix CHEF OIL JAR + SEAR bug
+- Misc
+    - Call `actor_skin_skinnable_init` in `init_actor_default`
+        - This fixes Mocha crashing the game when given to certain entities
+    - Fix CHEF OIL JAR + SEAR bug
+- Internal : Rename the folder `7_Class_Arrays` to `7_Content_Classes`
 
 ### v0.1.48
 - Achievement : Add `set_unlock_skin`

@@ -40,7 +40,7 @@ table.insert(_rapi_initialize, Class.internal.initialize)
 
 
 make_table_once("metatable_class", {
-    -- Allows for accessing wrapped class arrays via Class.<class> (case-insensitive)
+    -- Allows for accessing wrapped content class arrays via Class.<class> (case-insensitive)
     __index = function(t, k)
         k = k:upper()
         if class_wrappers[k] then return class_wrappers[k] end
@@ -124,7 +124,7 @@ end
 -- ========== Class Base Implementations ==========
 
 -- This file will also create the base implementations
--- for every class array, containing:
+-- for every content class array, containing:
 --      * Property      enum
 --      * find          static method
 --      * find_all      static method
