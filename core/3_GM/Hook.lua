@@ -234,7 +234,7 @@ Hook.add_pre = function(NAMESPACE, script, arg2, arg3)
 
     -- Throw error if script argument is invalid
     if  (type(script) ~= "number")
-    and (type(script) ~= "string") then log.error("Hook.add_pre: script is invalid", 2) end
+    and (type(script) ~= "string") then log.error("Hook.add_pre: script '"..tostring(script).."' is invalid", 2) end
 
     -- Throw error if not function
     if  (type(arg2) ~= "function")
@@ -285,7 +285,7 @@ Hook.add_post = function(NAMESPACE, script, arg2, arg3)
 
     -- Throw error if script argument is invalid
     if  (type(script) ~= "number")
-    and (type(script) ~= "string") then log.error("Hook.add_post: script is invalid", 2) end
+    and (type(script) ~= "string") then log.error("Hook.add_post: script '"..tostring(script).."' is invalid", 2) end
 
     -- Throw error if not function
     if  (type(arg2) ~= "function")

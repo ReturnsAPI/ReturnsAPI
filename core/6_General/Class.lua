@@ -173,6 +173,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
 
     -- `find`
     class_table.find = function(identifier, namespace, namespace_is_specified)
+        Initialize.internal.check_if_started(name_rapi..".find")
         local cached = __class_find_caches[name_global]:get(identifier, namespace, namespace_is_specified)
         if cached then return cached.wrapper end
     end
@@ -180,6 +181,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
 
     -- `find_all`
     class_table.find_all = function(NAMESPACE, filter, property)
+        Initialize.internal.check_if_started(name_rapi..".find_all")
         property = property or 0    -- `namespace` filter by default
 
         -- Namespace filter

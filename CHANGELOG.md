@@ -1,4 +1,6 @@
 ### v0.1.49
+- Content Classes : Throw an error if `find`/`find_all` are called prior to the RAPI initialization loop
+    - Not all content exists at this point
 - Misc
     - Call `actor_skin_skinnable_init` in `init_actor_default`
         - This fixes Mocha crashing the game when given to certain entities
