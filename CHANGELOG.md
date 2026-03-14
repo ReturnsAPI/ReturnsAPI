@@ -1,3 +1,6 @@
+### v0.1.50
+- Remove ModOptionsKeybind (for now at least) due to it breaking control profiles
+
 ### v0.1.49
 - Content Classes : Throw an error if `find`/`find_all` are called prior to the RAPI initialization loop
     - Not all content exists at this point

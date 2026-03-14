@@ -1,5 +1,7 @@
 -- ModOptionsKeybind
 
+if true then return end
+
 -- The class table is private, but the wrappers are publicly accessible
 
 -- TODO:
