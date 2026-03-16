@@ -158,34 +158,34 @@ methods_modoptions = {
     end,
 
 
-    -- --@instance
-    -- --@return       ModOptionsKeybind
-    -- --@param        identifier      | string    | The identifier for the element.
-    -- --@optional     default         | number    | The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind. <br>If not provided, will be unbinded by default.
-    -- --@optional     default_gamepad | number    | The [input code](https://manual.gamemaker.io/beta/en/GameMaker_Language/GML_Reference/Game_Input/GamePad_Input/Gamepad_Input.htm) of the default bind. <br>If not provided, will be unbinded by default.
-    -- --[[
-    -- Adds a @link {keybind | ModOptionsKeybind} to the ModOptions.
-    -- ]]
-    -- add_keybind = function(self, identifier, default, default_gamepad)
-    --     if not identifier           then log.error("add_keybind: No identifier provided", 2) end
-    --     if identifier == "header"
-    --     or identifier == "ordered"  then log.error("add_keybind: identifier '"..identifier.."' is reserved", 2) end
-    --     if self:find(identifier)    then log.error("add_keybind: identifier '"..identifier.."' already in use", 2) end
+    --@instance
+    --@return       ModOptionsKeybind
+    --@param        identifier      | string    | The identifier for the element.
+    --@optional     default         | number    | The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind. <br>If not provided, will be unbinded by default.
+    --@optional     default_gamepad | number    | The [input code](https://manual.gamemaker.io/beta/en/GameMaker_Language/GML_Reference/Game_Input/GamePad_Input/Gamepad_Input.htm) of the default bind. <br>If not provided, will be unbinded by default.
+    --[[
+    Adds a @link {keybind | ModOptionsKeybind} to the ModOptions.
+    ]]
+    add_keybind = function(self, identifier, default, default_gamepad)
+        if not identifier           then log.error("add_keybind: No identifier provided", 2) end
+        if identifier == "header"
+        or identifier == "ordered"  then log.error("add_keybind: identifier '"..identifier.."' is reserved", 2) end
+        if self:find(identifier)    then log.error("add_keybind: identifier '"..identifier.."' already in use", 2) end
 
-    --     local _type = type(default)
-    --     if _type ~= "nil" and _type ~= "number" then log.error("add_keybind: default is invalid", 2) end
-    --     _type = type(default_gamepad)
-    --     if _type ~= "nil" and _type ~= "number" then log.error("add_keybind: default_gamepad is invalid", 2) end
+        local _type = type(default)
+        if _type ~= "nil" and _type ~= "number" then log.error("add_keybind: default is invalid", 2) end
+        _type = type(default_gamepad)
+        if _type ~= "nil" and _type ~= "number" then log.error("add_keybind: default_gamepad is invalid", 2) end
 
-    --     local self_table = __proxy[self]
+        local self_table = __proxy[self]
 
-    --     local element = ModOptionsKeybind.new(__proxy[self].namespace, identifier, default, default_gamepad)
+        local element = ModOptionsKeybind.new(__proxy[self].namespace, identifier, default, default_gamepad)
         
-    --     self_table.elements[identifier] = element
-    --     table.insert(self_table.elements.ordered, element)
+        self_table.elements[identifier] = element
+        table.insert(self_table.elements.ordered, element)
 
-    --     return element
-    -- end,
+        return element
+    end,
 
 
     --@instance
@@ -306,24 +306,24 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
         local header = Struct.new(gm.constants.UIOptionsGroupHeader, data_table.namespace..".header").value
         gm.array_push(tab, header)
 
-        -- -- ModOptionsKeybind styling
-        -- local first_key
-        -- local is_odd = false
+        -- ModOptionsKeybind styling
+        local first_key
+        local is_odd = false
 
         -- Elements
         for _, element in ipairs(data_table.elements.ordered) do
             local struct = __proxy[element].constructor()
 
-            -- if element.RAPI == "ModOptionsKeybind" then
-            --     if not first_key then first_key = struct end
-            --     first_key.background_height = first_key.background_height + 38
+            if element.RAPI == "ModOptionsKeybind" then
+                if not first_key then first_key = struct end
+                first_key.background_height = first_key.background_height + 38
                 
-            --     struct.is_odd = is_odd
-            --     is_odd = not is_odd
-            -- else
-            --     first_key = nil
-            --     is_odd = false
-            -- end
+                struct.is_odd = is_odd
+                is_odd = not is_odd
+            else
+                first_key = nil
+                is_odd = false
+            end
 
             gm.array_push(tab, struct)
         end
