@@ -164,9 +164,9 @@ ModOptionsKeybind.internal.add_verb = function(verb, default, default_gamepad, d
         struct.__verb_ensure("gamepad", verb)
         struct.__binding_set("gamepad", verb, 0, verb_data_gamepad)
 
-        struct.__verb_state_array = gm.array_create(ticking_verbs_count, 0);
+        struct.__verb_state_array = gm.array_create(ticking_verbs_count, 0)
         for j = 1, ticking_verbs_count do
-            struct.__verb_state_array[j] = struct.__verb_state_dict[ticking_verbs[j]];
+            struct.__verb_state_array[j] = struct.__verb_state_dict[ticking_verbs[j]]
         end
         struct.__profile_choice_updated()
     end
@@ -305,8 +305,101 @@ make_table_once("metatable_modoptionskeybind", {
 
 input_instance = nil
 
+gm.pre_script_hook(gm.constants["__profile_export@anon@8396@__input_class_player@__input_class_player"], function(self, other, result, args)
+    if not gm.variable_struct_exists(self.__profiles_dict, args[1]) then
+        log.warning("Profile \"", args[1], "\" doesn't exist for player ", self.__index);
+    end
+    
+    local _output = gm.new_struct();
+    local _profile_struct = gm.variable_struct_get(self.__profiles_dict, args[1]);
+
+    for _v = 1, gm.array_length(gm.variable_global_get("__input_basic_verb_array")) do
+        local _verb_name = gm.variable_global_get("__input_basic_verb_array")[_v]
+
+        print("[EXPORT]:", _verb_name)
+        if not __custom_verbs_gamepad[_verb_name] and not __custom_verbs_key[_verb_name] and not __custom_verbs_mouse_button[_verb_name] then
+            local _new_alternate_array = gm.array_create(0)
+            gm.variable_struct_set(_output, _verb_name, _new_alternate_array)
+            local _alternate_array = gm.variable_struct_get(_profile_struct, _verb_name)
+        
+            if _alternate_array[1] ~= nil then
+                gm.array_push(_new_alternate_array, _alternate_array[1].__export(_alternate_array[1], _alternate_array[1]))
+            end
+        end
+    end
+    
+    if args[2] and args[2].value then
+        if args[3] and args[3].value then
+            result.value = gm.__input_snap_to_json(_output, true, true)
+            return false
+        else
+            result.value = gm.json_stringify(args[2])
+            return false
+        end
+    else
+        result.value = _output;
+        return false
+    end
+
+    return false
+end)
+
+gm.pre_script_hook(gm.constants["__profile_import@anon@9823@__input_class_player@__input_class_player"], function(self, other, result, args)
+    local _json = nil
+        
+    if gm.is_string(args[1]) then
+        _json = gm.json_parse(args[1])
+    else
+        _json = args[1]
+    end
+    
+    if not gm.is_struct(_json) and not gm.is_array(_json) then
+        log.warning("Input must be valid JSON (typeof=", args[1], ")")
+        return false
+    end
+    
+    self.__profile_ensure(self, other, args[2])
+    local _existing_verb_dict = gm.variable_struct_get(self.__profiles_dict, args[2])
+    
+    for _v = 1, gm.array_length(gm.variable_global_get("__input_basic_verb_array")) do
+        local _verb_name = gm.variable_global_get("__input_basic_verb_array")[_v]
+        local _existing_alternate_array = gm.variable_struct_get(_existing_verb_dict, _verb_name)
+        
+        if not gm.is_array(_existing_alternate_array) then
+            _existing_alternate_array = gm.array_create(1, nil)
+            
+            gm.array_set(_existing_alternate_array, 1, gm.input_binding_empty())
+            
+            gm.variable_struct_set(_existing_verb_dict, _verb_name, _existing_alternate_array)
+        end
+        
+        local _alternate_array = gm.variable_struct_get(_json, _verb_name)
+        
+        if gm.is_array(_alternate_array) then
+            if gm.array_length(_alternate_array) ~= 1 then
+                log.warning("JSON malformed, player ", __index, " verb \"", _verb_name, "\" should have ", 1, " alternate bindings, but it had ", gm.array_length(_alternate_array))
+            else
+                _existing_alternate_array[1].__import(_existing_alternate_array[1], _existing_alternate_array[1], _alternate_array[1])
+            end
+
+        else
+            if not __custom_verbs_gamepad[_verb_name] and not __custom_verbs_key[_verb_name] and not __custom_verbs_mouse_button[_verb_name] then
+                log.warning("Player ", __index, " data is missing verb \"", _verb_name, "\"")
+            end
+        end
+    end
+    
+    if args[2] and args[2].value == __profile_name then
+        self.__profile_choice_updated()
+    end
+
+    return false
+end)
+
 gm.pre_script_hook(gm.constants["__binding_reset@anon@21596@__input_class_player@__input_class_player"], function(self, other, result, args)
     local verb = args[2].value
+
+    -- print("[BIND RESET]", verb)
     if __custom_verbs_key[verb] or __custom_verbs_gamepad[verb] or __custom_verbs_mouse_button[verb] then
         print("binding reset, canceling for ", verb)
         return false
@@ -321,11 +414,11 @@ gm.pre_script_hook(gm.constants["__profile_choice_updated@anon@3823@__input_clas
         ModOptionsKeybind.internal.add_verb(k, v, __custom_verbs_gamepad[k])
     end
 
-    self.__current_profile_dict = gm.variable_struct_get(self.__profiles_dict, self.__profile_name);
+    self.__current_profile_dict = gm.variable_struct_get(self.__profiles_dict, self.__profile_name)
 
     local ticking_verbs = gm.variable_global_get("__input_ticking_verbs_array")
 
-    local name_num = gm.array_length(ticking_verbs);
+    local name_num = gm.array_length(ticking_verbs)
 
     if name_num == 29 then
         local t = {}
@@ -335,9 +428,9 @@ gm.pre_script_hook(gm.constants["__profile_choice_updated@anon@3823@__input_clas
         gm.array_push(ticking_verbs, table.unpack(t))
     end
     
-    name_num = gm.array_length(ticking_verbs);
+    name_num = gm.array_length(ticking_verbs)
 
-    self.__binding_current_array = gm.array_create(name_num, nil);
+    self.__binding_current_array = gm.array_create(name_num, nil)
 
     if self.__current_profile_dict then
         print("adding verb to profile dict")
@@ -347,9 +440,9 @@ gm.pre_script_hook(gm.constants["__profile_choice_updated@anon@3823@__input_clas
             gm.variable_struct_set(self.__current_profile_dict, verb, verb_data)
         end
         if __custom_verbs_key[verb] then
-            gm.array_set(verb_data, false, __custom_verbs_key[verb]);
+            gm.array_set(verb_data, false, __custom_verbs_key[verb])
         else
-            gm.array_set(verb_data, false, default);
+            gm.array_set(verb_data, false, default)
         end
     end
     
