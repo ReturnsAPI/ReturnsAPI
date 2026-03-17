@@ -87,6 +87,7 @@ ModOptionsKeybind.internal.add_verb = function(verb, default, default_gamepad, d
 
     if Global.__input_profile_dict["keyboard_and_mouse"][verb] then
         print("verb already here, bailing!", verb, Global.__input_profile_dict["keyboard_and_mouse"][verb])
+        is_inside_add_verb = false
         return
     end
 
@@ -189,8 +190,10 @@ end
 
 
 table.insert(_rapi_initialize, function()
+    print("executing queue!")
     -- Add verbs in queue
     for _, v in ipairs(__add_verb_queue) do
+        print("adding verb from queue", v.verb)
         ModOptionsKeybind.internal.add_verb(v.verb, __custom_verbs_key[verb] or v.default, __custom_verbs_gamepad[verb] or v.default_gamepad)
     end
     __add_verb_queue = {}
@@ -208,7 +211,12 @@ ModOptionsKeybind.new = function(namespace, identifier, default, default_gamepad
     -- otherwise add to queue
     if Initialize.has_started() then
         ModOptionsKeybind.internal.add_verb(verb, __custom_verbs_key[verb] or default, __custom_verbs_gamepad[verb] or default_gamepad)
-    else table.insert(__add_verb_queue, {verb, default, default_gamepad})
+    else 
+        table.insert(__add_verb_queue, {
+            verb = verb,
+            default = default,
+            default_gamepad = default_gamepad
+        })
     end
 
     local element_data_table = {
@@ -330,6 +338,20 @@ gm.pre_script_hook(gm.constants["__profile_choice_updated@anon@3823@__input_clas
     name_num = gm.array_length(ticking_verbs);
 
     self.__binding_current_array = gm.array_create(name_num, nil);
+
+    if self.__current_profile_dict then
+        print("adding verb to profile dict")
+        verb_data = gm.variable_struct_get(self.__current_profile_dict, verb)
+        if verb_data == nil then
+            verb_data = gm.array_create(2, 0)
+            gm.variable_struct_set(self.__current_profile_dict, verb, verb_data)
+        end
+        if __custom_verbs_key[verb] then
+            gm.array_set(verb_data, false, __custom_verbs_key[verb]);
+        else
+            gm.array_set(verb_data, false, default);
+        end
+    end
     
     if self.__current_profile_dict then
         for i = 0, name_num - 1 do
