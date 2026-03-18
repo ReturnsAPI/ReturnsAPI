@@ -22,6 +22,7 @@ if not __custom_verbs_key then
     __custom_verbs_key = {}
     __custom_verbs_mouse_button = {}
     __custom_verbs_gamepad = {}
+    __custom_verbs_all = {}
 
     -- Load saved custom verbs
     local file = TOML.new(RAPI_NAMESPACE)
@@ -92,6 +93,8 @@ ModOptionsKeybind.internal.add_verb = function(verb, default, default_gamepad, d
     end
 
     print("adding verb", verb, default, default_gamepad, default_mouse_button)
+
+    __custom_verbs_all[verb] = true
 
     local bind = nil
     if     __custom_verbs_key[verb]     then bind = gm.input_binding_key(__custom_verbs_key[verb])
@@ -518,4 +521,20 @@ Hook.add_post(RAPI_NAMESPACE, gm.constants.input_binding_set, Callback.internal.
         settings.keybinds_gamepad[verb] = keycode
     end
     file:write(settings)
+end)
+
+-- - Why: Gameplay and non gameplay verbs are in a different array.
+--   the gameplay one is hardcoded and need this hook to add the custom modded verbs to it.
+-- - Where does it hook: line 24 (right before `var name_num = array_length(global.__input_ticking_verbs_array);`)
+--   Look for a long series of rvalue copies; that is the array being initialized
+memory.dynamic_hook_mid("RAPI.ModOptionsKeybind.__input_update_ticking_verbs", {"rbp-D0h"}, {"RValue*"}, 0, gm.get_script_function_address(gm.constants.__input_update_ticking_verbs):add(0xC13), function(args)
+    -- args[1].value is `Global.__input_ticking_verbs_array`
+    -- (but will be a bool when paused for some reason)
+    local ticking_verbs = args[1].value
+    if type(ticking_verbs) == "boolean" then return end
+
+    -- Add custom verbs to array
+    for verb in pairs(__custom_verbs_all) do
+        gm.array_push(ticking_verbs, verb)
+    end
 end)
