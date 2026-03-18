@@ -7,12 +7,14 @@ Include `ReturnsAPI-ReturnsAPI-0.1.51` as a dependency in `manifest.json`, and i
 ```lua
 -- Automatically adds class references directly to your mod,
 -- and performs other actions (such as autoregistering for language loading)
-mods["ReturnsAPI-ReturnsAPI"].auto()
+mods["ReturnsAPI-ReturnsAPI"].auto{
+    namespace = "myMod"
+}
 
 -- or
 
 -- Stores class references in a variable
-local RAPI = mods["ReturnsAPI-ReturnsAPI"].setup()
+local RAPI = mods["ReturnsAPI-ReturnsAPI"].setup(nil, "myMod")
 
 -- See the Importing page for additional properties you can pass:
 -- https://github.com/ReturnsAPI/ReturnsAPI/wiki/Importing
