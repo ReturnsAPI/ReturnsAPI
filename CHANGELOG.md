@@ -1,3 +1,6 @@
+### v0.1.51
+- Require a namespace when importing RAPI
+
 ### v0.1.50
 - Remove ModOptionsKeybind (for now at least) due to it breaking control profiles
 

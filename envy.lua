@@ -1,7 +1,7 @@
 -- ENVY
 
 run_once(function()
-    __auto_setups = {}      -- Store mod ENVs that call `.auto()`; used when hotloading RAPI
+    __auto_setups = {}  -- Store mod ENVs that call `.auto()`; used when hotloading RAPI
 
     -- Create storage for some ENV things
     -- and populate with RAPI's things
@@ -23,21 +23,22 @@ function public.setup(env, namespace)
         env = envy.getfenv(2)
     end
 
+    if not namespace then log.error("setup: No namespace provided", 2) end
+    namespace = tostring(namespace)
+    if namespace:find("-") then log.error("setup: Namespace cannot contain a hyphen ('-')", 2) end
+
     local guid = env["!guid"]
-    local namespace = namespace or guid
 
     -- Prevent taking a namespace already used internally
     if namespace == RAPI_NAMESPACE
     or namespace == "__permanent" then
-        log.warning("Cannot use namespace '"..namespace.."'; using '"..guid.."' instead")
-        namespace = guid
+        log.error("setup: Namespace '"..namespace.."' is reserved", 2)
     end
 
     -- Prevent taking a namespace already used by another mod
     if __namespace[namespace] then
         if guid ~= __namespace[namespace].guid then
-            log.warning("Namespace '"..namespace.."' is already in use; using '"..guid.."' instead")
-            namespace = guid
+            log.error("setup: Namespace '"..namespace.."' is already in use", 2)
         end
     end
     
@@ -151,10 +152,14 @@ end
 
 
 function public.auto(properties)
-    properties = properties or {}
+    if type(properties) ~= "table" then log.error("auto: Properties table not provided", 2) end
+    if not properties.namespace then log.error("auto: No namespace provided", 2) end
+
+    local namespace = tostring(properties.namespace)
+    if namespace:find("-") then log.error("auto: Namespace cannot contain a hyphen ('-')", 2) end
 
     local env = envy.getfenv(2)
-    local wrapper = public.setup(env, properties.namespace)
+    local wrapper = public.setup(env, namespace)
     envy.import_all(env, wrapper)
 
     -- Save mod ENV and properties for calling again on RAPI hotload
@@ -162,13 +167,13 @@ function public.auto(properties)
 
     -- Override default `print`, `type`, and `tostring` with Util's versions
     if not env.lua_print then
-        env.lua_print       = env.print
-        env.lua_type        = env.type
-        env.lua_tostring    = env.tostring
+        env.lua_print     = env.print
+        env.lua_type      = env.type
+        env.lua_tostring  = env.tostring
     end
-    env.print       = wrapper.Util.print
-    env.type        = wrapper.Util.type
-    env.tostring    = wrapper.Util.tostring
+    env.print     = wrapper.Util.print
+    env.type      = wrapper.Util.type
+    env.tostring  = wrapper.Util.tostring
 
     -- Add Math functions to `math`
     for k, v in pairs(Math) do
@@ -177,7 +182,6 @@ function public.auto(properties)
         end
     end
     
-    local namespace = properties.namespace or env["!guid"]
     run_clear_namespace_functions(namespace)    -- in Internal.lua
 
     -- Autoregister to Language
@@ -193,8 +197,8 @@ run_on_hotload(function()
         envy.import_all(env, wrapper)
 
         -- Override default `print`, `type`, and `tostring` with Util's versions
-        env.print       = wrapper.Util.print
-        env.type        = wrapper.Util.type
-        env.tostring    = wrapper.Util.tostring
+        env.print     = wrapper.Util.print
+        env.type      = wrapper.Util.type
+        env.tostring  = wrapper.Util.tostring
     end
 end)
