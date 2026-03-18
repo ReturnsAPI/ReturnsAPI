@@ -64,7 +64,7 @@ methods_player = {
     For more general uses, use @link {`gm.input_check_*` | ModOptionsKeybind} functions instead.
     ]]
     control = function(self, verb, _type)
-        if (not vanilla_player_verbs[verb]) and (not __custom_verbs[verb]) then log.error("control: verb is invalid", 2) end
+        if (not _vanilla_player_verbs[verb]) and (not __custom_verbs_all[verb]) then log.error("control: verb is invalid", 2) end
         return GM.SO.control(self, nil, verb, _type or 0)
     end,
 

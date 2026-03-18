@@ -47,7 +47,7 @@ if not __custom_verbs_key then
     __add_verb_queue = {}
 end
 
-vanilla_player_verbs = Util.enum({
+_vanilla_player_verbs = Util.enum({
     "left", "right", "up", "down", "jump",
     "skill1", "skill2", "skill3", "skill4",
     "equipment", "interact", "swap",
