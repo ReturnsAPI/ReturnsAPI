@@ -57,6 +57,8 @@ _vanilla_player_verbs = Util.enum({
     "tab", "pause"
 }, 0)
 
+
+
 -- ========== Properties ==========
 
 --@section Properties
@@ -70,6 +72,21 @@ Property | Type | Description
 `identifier`    | string    | *Read-only.* The identifier of the element.
 `verb`          | string    | *Read-only.* The verb name for the keybind. <br>Equal to `"<namespace>.<identifier>"`.
 ]]
+
+
+
+-- ========== Debug ==========
+
+local debug_print_enabled = false
+
+local function debug_print(...)
+    if not debug_print_enabled then return end
+    print(...)
+end
+
+gui.add_to_menu_bar(function()
+    debug_print_enabled = ImGui.Checkbox("ModOptionsKeybind debug print", debug_print_enabled)
+end)
 
 
 
@@ -87,12 +104,12 @@ ModOptionsKeybind.internal.add_verb = function(verb, default, default_gamepad, d
     -- Works though so don't touch anything
 
     if Global.__input_profile_dict["keyboard_and_mouse"][verb] then
-        print("verb already here, bailing!", verb, Global.__input_profile_dict["keyboard_and_mouse"][verb])
+        debug_print("verb already here, bailing!", verb, Global.__input_profile_dict["keyboard_and_mouse"][verb])
         is_inside_add_verb = false
         return
     end
 
-    print("adding verb", verb, default, default_gamepad, default_mouse_button)
+    debug_print("adding verb", verb, default, default_gamepad, default_mouse_button)
 
     __custom_verbs_all[verb] = true
 
@@ -193,10 +210,10 @@ end
 
 
 table.insert(_rapi_initialize, function()
-    print("executing queue!")
+    debug_print("executing queue!")
     -- Add verbs in queue
     for _, v in ipairs(__add_verb_queue) do
-        print("adding verb from queue", v.verb)
+        debug_print("adding verb from queue", v.verb)
         ModOptionsKeybind.internal.add_verb(v.verb, __custom_verbs_key[verb] or v.default, __custom_verbs_gamepad[verb] or v.default_gamepad)
     end
     __add_verb_queue = {}
@@ -319,7 +336,7 @@ gm.pre_script_hook(gm.constants["__profile_export@anon@8396@__input_class_player
     for _v = 1, gm.array_length(gm.variable_global_get("__input_basic_verb_array")) do
         local _verb_name = gm.variable_global_get("__input_basic_verb_array")[_v]
 
-        print("[EXPORT]:", _verb_name)
+        debug_print("[EXPORT]:", _verb_name)
         if not __custom_verbs_gamepad[_verb_name] and not __custom_verbs_key[_verb_name] and not __custom_verbs_mouse_button[_verb_name] then
             local _new_alternate_array = gm.array_create(0)
             gm.variable_struct_set(_output, _verb_name, _new_alternate_array)
@@ -402,9 +419,9 @@ end)
 gm.pre_script_hook(gm.constants["__binding_reset@anon@21596@__input_class_player@__input_class_player"], function(self, other, result, args)
     local verb = args[2].value
 
-    -- print("[BIND RESET]", verb)
+    -- debug_print("[BIND RESET]", verb)
     if __custom_verbs_key[verb] or __custom_verbs_gamepad[verb] or __custom_verbs_mouse_button[verb] then
-        print("binding reset, canceling for ", verb)
+        debug_print("binding reset, canceling for ", verb)
         return false
     end
 end)
@@ -436,7 +453,7 @@ gm.pre_script_hook(gm.constants["__profile_choice_updated@anon@3823@__input_clas
     self.__binding_current_array = gm.array_create(name_num, nil)
 
     if self.__current_profile_dict then
-        print("adding verb to profile dict")
+        debug_print("adding verb to profile dict")
         verb_data = gm.variable_struct_get(self.__current_profile_dict, verb)
         if verb_data == nil then
             verb_data = gm.array_create(2, 0)
@@ -461,10 +478,10 @@ gm.pre_script_hook(gm.constants["__profile_choice_updated@anon@3823@__input_clas
                 gm.array_set(self.__binding_current_array, i, c)
             else
                 if __custom_verbs_key[a] then
-                    print("got a custom verb!", a, __custom_verbs_key[a])
+                    debug_print("got a custom verb!", a, __custom_verbs_key[a])
                     gm.array_set(self.__binding_current_array, i, __custom_verbs_key[a])
                 else
-                    -- print("no custom verb for", a)
+                    -- debug_print("no custom verb for", a)
                     gm.array_set(self.__binding_current_array, i, gm.input_binding_empty())
                 end
             end
@@ -473,10 +490,10 @@ gm.pre_script_hook(gm.constants["__profile_choice_updated@anon@3823@__input_clas
         for i = 0, name_num - 1 do
             local a = gm.array_get(ticking_verbs, i)
             if __custom_verbs_key[a] then
-                print("got a custom verb2!", a, __custom_verbs_key[a])
+                debug_print("got a custom verb2!", a, __custom_verbs_key[a])
                 gm.array_set(self.__binding_current_array, i, __custom_verbs_key[a])
             else
-                -- print("no custom verb for2", a)
+                -- debug_print("no custom verb for2", a)
                 gm.array_set(self.__binding_current_array, i, gm.input_binding_empty())
             end
         end
