@@ -1,6 +1,7 @@
 ### v0.1.51
 - Require a namespace when importing RAPI
 - Readd ModOptionsKeybind
+    - Control profiles are no longer broken
     - This also fixes `player:control` not working last patch
 
 ### v0.1.50
