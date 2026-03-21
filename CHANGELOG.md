@@ -1,5 +1,8 @@
 ### v0.1.52
 - Alarm.`add` : Round `time` to an integer value
+- LootPool
+    - `new_from_tier` : Populate `drop_pool` with all current items in the tier
+    - Fix first custom pool added not being populated on run start
 
 ### v0.1.51
 - Require a namespace when importing RAPI

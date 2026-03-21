@@ -204,6 +204,9 @@ end
 Creates a new loot pool using an item tier as a base,
 automatically populating the pool's properties and
 setting the item tier's `*_pool_for_reroll` properties.
+
+This also populates the pool's `drop_pool` with all items *currently* in the tier;
+if you are relying on this, this must be called *after* setting all desired items to the tier.
 ]]
 LootPool.new_from_tier = function(NAMESPACE, tier)
     Initialize.internal.check_if_started("LootPool.new_from_tier")
@@ -211,7 +214,7 @@ LootPool.new_from_tier = function(NAMESPACE, tier)
     if not tier then log.error("LootPool.new_from_tier: No tier provided", 2) end
     tier = ItemTier.wrap(tier)
 
-    if type(tier.value) ~= "number" then log.error("LootPool.new_from_tier: Invalid tier", 2) end
+    if type(tier.value) ~= "number" then log.error("LootPool.new_from_tier: Invalid tier '"..tostring(tier.value).."'", 2) end
     
     -- Use existing pool or create a new one
     local pool = LootPool.find(tier.identifier, NAMESPACE, true)
@@ -223,6 +226,13 @@ LootPool.new_from_tier = function(NAMESPACE, tier)
     -- Set tier properties
     tier.item_pool_for_reroll       = pool
     tier.equipment_pool_for_reroll  = pool
+
+    -- Clear and populate `drop_pool`
+    List.wrap(pool.drop_pool):clear()
+    local items = Item.find_all(RAPI_NAMESPACE, tier.value, Item.Property.TIER)
+    for _, item in ipairs(items) do
+        pool:add_item(item)
+    end
 
     return pool
 end
@@ -468,7 +478,7 @@ gm.post_script_hook(gm.constants.run_update_available_loot, function(self, other
     -- Loop through custom loot pools (ID 7+)
     -- and call update method
     for i = 7, #pools - 1 do
-        pools[i].update_available_drop_pool()
+        pools:get(i).update_available_drop_pool()
     end
 end)
 
