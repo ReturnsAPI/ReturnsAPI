@@ -26,7 +26,7 @@ end)
 
 --@static
 --@return       number
---@param        time        | number    | The number of frames before the function is called.
+--@param        time        | number    | The number of frames before the function is called. <br>Fractional values are rounded to the nearest integer. <br>Minimum `1`.
 --@param        fn          | function  | The function to call.
 --@optional     ...         |           | A variable number of arguments to pass to the function.
 --[[
@@ -42,7 +42,7 @@ Alarm.add = function(NAMESPACE, time, fn, ...)
     if type(fn) ~= "function" then log.error("Alarm.add: fn must be a function (you passed in '"..tostring(fn).."')", 2) end
 
     -- Create new subtable at that frame if existn't
-    local frame = __alarm_current_frame + time + 1  -- +1 for proper time I think
+    local frame = __alarm_current_frame + math.max(math.round(time), 1) + 1  -- +1 for proper time I think
     local id = __alarm_current_id
     
     __alarm_bank:add(fn, NAMESPACE, 0, frame, id)
@@ -56,7 +56,7 @@ end
 
 --@static
 --@return       number
---@param        time        | number    | The number of frames before the function is called.
+--@param        time        | number    | The number of frames before the function is called. <br>Fractional values are rounded to the nearest integer. <br>Minimum `1`.
 --@param        fn          | function  | The function to call.
 --@optional     ...         |           | A variable number of arguments to pass to the function.
 --[[
@@ -72,7 +72,7 @@ Alarm.add_nopause = function(NAMESPACE, time, fn, ...)
     if type(fn) ~= "function" then log.error("Alarm.add_nopause: fn must be a function (you passed in '"..tostring(fn).."')", 2) end
 
     -- Create new subtable at that frame if existn't
-    local frame = __alarm_current_frame_nopause + time + 1  -- +1 for proper time I think
+    local frame = __alarm_current_frame_nopause + math.max(math.round(time), 1) + 1  -- +1 for proper time I think
     local id = __alarm_current_id
     
     __alarm_bank_nopause:add(fn, NAMESPACE, 0, frame, id)

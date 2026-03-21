@@ -1,3 +1,6 @@
+### v0.1.52
+- Alarm.`add` : Round `time` to an integer value
+
 ### v0.1.51
 - Require a namespace when importing RAPI
 - Readd ModOptionsKeybind

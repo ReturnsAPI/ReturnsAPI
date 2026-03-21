@@ -1,10 +1,10 @@
 ﻿{
 	"name": "ReturnsAPI",
-	"version_number": "0.1.51",
+	"version_number": "0.1.52",
 	"website_url": "https://github.com/ReturnsAPI/ReturnsAPI/wiki",
 	"description": "(Mostly done) API for modding Risk of Rain Returns.",
 	"dependencies": [
-		"ReturnOfModding-ReturnOfModding-1.1.16",
+		"ReturnOfModding-ReturnOfModding-1.1.17",
 		"LuaENVY-ENVY-1.2.0"
 	]
 }
