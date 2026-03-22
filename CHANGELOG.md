@@ -1,6 +1,7 @@
 ### v0.1.53
 - Misc
     - Add bounds check for `gm.object_is_ancestor`
+        - This also fixes the crash when viewing stages with custom objects in logbook
 
 ### v0.1.52
 - Alarm.`add` : Round `time` to an integer value
