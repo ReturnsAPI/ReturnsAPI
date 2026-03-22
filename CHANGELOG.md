@@ -1,4 +1,5 @@
 ### v0.1.53
+- Callback:`toggle` : Allow all non-`nil` values for `bool`
 - Misc
     - Add bounds check for `gm.object_is_ancestor`
         - This also fixes the crash when viewing stages with custom objects in logbook

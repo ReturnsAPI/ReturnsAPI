@@ -540,8 +540,8 @@ methods_callback_function = {
     Toggles the enabled status of the registered callback function.
     ]]
     toggle = function(self, bool)
-        if type(bool) ~= "boolean" then log.error("toggle: bool is invalid", 2) end
-        return __callback_fn_cache:toggle(self.value, bool)
+        if type(bool) == "nil" then log.error("toggle: bool is invalid", 2) end
+        return __callback_fn_cache:toggle(self.value, Util.bool(bool))
     end
 
 }
