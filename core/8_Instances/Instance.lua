@@ -14,6 +14,7 @@ end)
 
 local wrapper_cache = setmetatable({}, {__mode = "v"})  -- Cache for Instance.wrap
 local object_index_cache = {}                           -- Cache for inst:get_object_index; indexed by ID
+local ancestor_cache = {}
 
 
 -- Wrapper types that are Instances
@@ -290,13 +291,19 @@ Instance.wrap = function(inst)
     if obj_index == gm.constants.oP then
         wrapper = make_proxy(inst, metatable_player)
 
-    -- Actor
-    elseif gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1 then
-        wrapper = make_proxy(inst, metatable_actor)
-
-    -- Instance
     else
-        wrapper = make_proxy(inst, metatable_instance)
+        if ancestor_cache[obj_index] == nil then
+            ancestor_cache[obj_index] = (gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1)
+        end
+
+        -- Actor
+        if ancestor_cache[obj_index] then
+            wrapper = make_proxy(inst, metatable_actor)
+
+        -- Instance
+        else
+            wrapper = make_proxy(inst, metatable_instance)
+        end
     end
 
     -- Store values in caches
