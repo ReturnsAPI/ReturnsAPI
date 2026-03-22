@@ -3,6 +3,8 @@
 - LootPool
     - `new_from_tier` : Populate `drop_pool` with all current items in the tier
     - Fix first custom pool added not being populated on run start
+- Misc
+    - Readd default import namespace but without the `authorName-` part
 
 ### v0.1.51
 - Require a namespace when importing RAPI

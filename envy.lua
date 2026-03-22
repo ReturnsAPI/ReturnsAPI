@@ -23,11 +23,15 @@ function public.setup(env, namespace)
         env = envy.getfenv(2)
     end
 
-    if not namespace then log.error("setup: No namespace provided", 2) end
-    namespace = tostring(namespace)
-    if namespace:find("-") then log.error("setup: Namespace cannot contain a hyphen ('-')", 2) end
-
     local guid = env["!guid"]
+
+    if namespace then
+        namespace = tostring(namespace)
+        if namespace:find("-") then log.error("setup: Namespace cannot contain a hyphen ('-')", 2) end
+    else
+        namespace = guid:sub(guid:find("-") + 1, -1)
+        log.warning("setup: No namespace provided by '"..guid.."'; defaulting to '"..namespace.."'")
+    end
 
     -- Prevent taking a namespace already used internally
     if namespace == RAPI_NAMESPACE
@@ -147,19 +151,15 @@ function public.setup(env, namespace)
     -- Create unique version of `Util.print` with mod name binded
     wrapper.Util.print = Util.internal.make_print(env["!guid"])
 
-    return wrapper
+    return wrapper, namespace
 end
 
 
 function public.auto(properties)
-    if type(properties) ~= "table" then log.error("auto: Properties table not provided", 2) end
-    if not properties.namespace then log.error("auto: No namespace provided", 2) end
-
-    local namespace = tostring(properties.namespace)
-    if namespace:find("-") then log.error("auto: Namespace cannot contain a hyphen ('-')", 2) end
+    properties = properties or {}
 
     local env = envy.getfenv(2)
-    local wrapper = public.setup(env, namespace)
+    local wrapper, namespace = public.setup(env, properties.namespace)
     envy.import_all(env, wrapper)
 
     -- Save mod ENV and properties for calling again on RAPI hotload
