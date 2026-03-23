@@ -63,11 +63,11 @@ Property | Type | Description
 `identifier`                | string    | The identifier for the item tier within the namespace.
 `fair_item_value`           | number    | <br>`0` by default.
 `text_color`                | string    | The text formatting color code. <br>`"w"` by default.
-`spawn_sound`               | sound     | <br>`wItemDrop_White` by default.
-`pickup_color`              | color     | <br>`Color.WHITE` by default.
-`pickup_color_bright`       | color     | <br>`Color.WHITE` by default.
-`pickup_particle_type`      | number    | <br>`-1` by default.
-`pickup_head_shape`         |           | 
+`spawn_sound`               | sound     | The sound played when an item pickup is spawned. <br>`wItemDrop_White` by default.
+`pickup_color`              | color     | The color used for the pickup head shape and trail. <br>`Color.WHITE` by default.
+`pickup_color_bright`       | color     | The color used for the outer ring of the center of the pickup head. <br>`Color.WHITE` by default.
+`pickup_particle_type`      | Particle  | The particle that is emitted while the item pickup is traveling. <br>Particle should be white; it is blended with `pickup_color`. <br>`-1` by default.
+`pickup_head_shape`         | Array     | An array of points; each point has the format `[angle, dist_from_center]`. <br>E.g., `[[0, 11], [120, 11], [240, 11]\]` makes a triangle with each point being 11px from the center. <br>`nil` by default.
 `ignore_fair`               | bool      | <br>`false` by default.
 `item_pool_for_reroll`      | number    | The ID of the associated item loot pool. <br>`-1` (none) by default.
 `equipment_pool_for_reroll` | number    | The ID of the associated equipment loot pool. <br>`-1` (none) by default.
@@ -221,7 +221,25 @@ methods_item_tier = {
     print = function(self)
         local struct = __item_tier_cache:get(self.value).struct
         struct:print()
-    end
+    end,
+
+
+    --@instance
+    --@param        points      | table     | A table of points; each point has the format `{angle, dist_from_center}`. <br>E.g., `{{0, 11}, {120, 11}, {240, 11}}` makes a triangle with each point being 11px from the center.
+    --[[
+    Sets the item drop head shape.
+    ]]
+    set_head_shape = function(self, points)
+        if type(points) ~= "table" then log.error("set_head_shape: points is invalid", 2) end
+
+        local arr = Array.new()
+        for _, point in ipairs(points) do
+            local p = Array.new(point)
+            arr:push(p)
+        end
+
+        self.pickup_head_shape = arr
+    end,
 
 }
 
