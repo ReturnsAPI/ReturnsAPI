@@ -188,11 +188,12 @@ Util.table_append(methods_content_class["Item"], {
     --@return       Instance
     --@param        x           | number    | The x spawn coordinate.
     --@param        y           | number    | The y spawn coordinate.
-    --@optional     target      | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location.
+    --@optional     target      | Instance  | If provided, the drop will move towards the target instance's position. <br>The position is determined on spawn, and does not follow the instance if they move. <br>If `nil`, will drop in a random direction around the spawn location. <br>`nil` by default.
+    --@optional     hack_double | bool      | If `true`, spawns 2 drops. <br>`false` by default.
     --[[
     Spawns and returns an item drop.
     ]]
-    create = function(self, x, y, target)
+    create = function(self, x, y, target, hack_double)
         if not x then log.error("create: x is not provided", 2) end
         if not y then log.error("create: y is not provided", 2) end
 
@@ -200,7 +201,7 @@ Util.table_append(methods_content_class["Item"], {
         if object_id == nil or object_id == -1 then return nil end
 
         -- This function spawns the item 40 px above, so add 40 to y in the call        
-        gm.item_drop_object(object_id, x, y + 40, Wrap.unwrap(target), false)
+        gm.item_drop_object(object_id, x, y + 40, Wrap.unwrap(target), hack_double or false)
 
         -- Look for drop (because gm.item_drop_object does not actually return the instance for some reason)
         local drop = nil

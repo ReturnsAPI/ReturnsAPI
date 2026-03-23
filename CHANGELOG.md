@@ -1,3 +1,7 @@
+### v0.1.54
+- Item:`create` : Add `hack_double` parameter
+- ItemTier : Add `set_head_shape`
+
 ### v0.1.53
 - Callback:`toggle` : Allow all non-`nil` values for `bool`
 - Misc
