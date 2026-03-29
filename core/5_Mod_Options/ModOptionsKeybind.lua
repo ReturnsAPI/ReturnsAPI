@@ -14,6 +14,30 @@ Function | Description
 `gm.input_check_released( verb )`   | Returns `true` if the verb input was just released.
 
 Player also has a @link {`control` | Player#control} instance method, which is more restrictive.
+
+**Vanilla Verbs**
+`"left"`
+`"right"`
+`"up"`
+`"down"`
+`"jump"`
+`"skill1"`
+`"skill2"`
+`"skill3"`
+`"skill4"`
+`"equipment"`
+`"interact"`
+`"swap"`
+`"aim_left"`
+`"aim_right"`
+`"emote"`
+`"ping"`
+`"emote1"`
+`"emote2"`
+`"emote3"`
+`"emote4"`
+`"tab"`
+`"pause"`
 ]]
 
 ModOptionsKeybind = new_class()
