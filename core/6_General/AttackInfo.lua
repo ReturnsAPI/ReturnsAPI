@@ -57,7 +57,8 @@ methods_attackinfo = {
         local parent = self.parent
         if not Instance.exists(parent) then log.error("use_raw_damage: parent does not exist", 2) end
         
-        self.damage = math.ceil(self.damage / parent.damage)
+        local p_damage = parent.damage
+        self.damage = (p_damage > 0 and math.ceil(self.damage / p_damage)) or 0
     end,
 
 

@@ -1,7 +1,8 @@
 -- HitInfo
 
 --[[
-HitInfo wrappers are "children" of @link {`Struct` | Struct} and @link {`AttackInfo` | AttackInfo}, and can use their properties and instance methods.
+HitInfo wrappers are "children" of @link {`Struct` | Struct}, and can use its properties and instance methods.
+They also contain an @link {`AttackInfo` | AttackInfo}.
 ]]
 
 HitInfo = new_class()
@@ -46,12 +47,7 @@ end
 
 methods_hitinfo = {
 
-    -- Will contain all of AttackInfo's methods but with
-    -- the necessary modifications to HitInfo struct as well
-
-    abc = function(self)
-        
-    end
+    
 
 }
 

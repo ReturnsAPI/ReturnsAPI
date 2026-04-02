@@ -1,3 +1,6 @@
+### v0.1.55
+- AttackInfo:`use_raw_damage` : Add divide-by-0 check
+
 ### v0.1.54
 - Item:`create` : Add `hack_double` parameter
 - ItemTier : Add `set_head_shape`
