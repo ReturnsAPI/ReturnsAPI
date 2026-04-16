@@ -1,45 +1,20 @@
 -- ReturnsAPI
 
-PATH           = _ENV["!plugins_mod_folder_path"].."/"
-RAPI_NAMESPACE = "rapi"  -- Namespace for ReturnsAPI that is used internally
+PATH = _ENV["!plugins_mod_folder_path"]
 
--- ENVY initial setup
 mods["LuaENVY-ENVY"].auto()
 envy = mods["LuaENVY-ENVY"]
 
--- require(".core/unused/profiler2")
+local dir = "."
+local function req(path) return require(dir.."/"..path) end
 
--- Remove internal RAPI hooks on hotload
--- This needs to be called before loading core
-if run_on_hotload then
-    run_on_hotload(function()
-        run_clear_namespace_functions(RAPI_NAMESPACE)  -- in Internal.lua
-    end)
-end
+-- Core
+dir = "./core/utility"
+req("Misc")
+req("Proxy")
 
--- Load core
-local ignore = {
-    ["data"]    = true,
-    ["sprites"] = true,
-    ["unused"]  = true,
-}
-local dirs = path.get_directories(PATH.."core")
+-- Tests
+local dirs = path.get_directories(path.combine(PATH, "tests"))
 for _, dir in ipairs(dirs) do
-    if not ignore[path.filename(dir)] then
-        local files = path.get_files(dir)
-        for _, file in ipairs(files) do
-            require(file)
-        end
-    end
+    require(path.combine(dir, "__init.lua"))
 end
-
--- Run some functions after core load
-for _, fn in ipairs(_run_after_core) do
-    fn()
-end
-
--- ENVY public setup
-require("./envy")
-
--- Prevent anything in run_once() from running again
-hotloaded = true
