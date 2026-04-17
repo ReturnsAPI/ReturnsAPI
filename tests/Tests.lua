@@ -4,9 +4,10 @@ local assert_filename = ""
 local assert_success = ""
 local assert_err = {}
 local report = {}
+local suites = {}
 
 ---@class Tests
-local t = {}
+Tests = {}
 
 --[[
 Initialize a new assert session for a test file. <br>
@@ -60,52 +61,58 @@ local function compile_report(name)
     return out
 end
 
+---@param name string The name of the test suite.
+local function run_test_suite(name)
+    if not name then log.error("run_test_suite: Missing name", 2) end
+    if not suites[name] then log.error("Test suite '"..name.."' does not exist") end
+
+    for _, test in ipairs(suites[name]) do
+        assert_init(test.filename)
+        test.fn()
+    end
+
+    print(compile_report(name))
+end
+
 ---@param cond? any If this evaluates to `true`, the assert passes.
 ---@param msg string The error message to display.
 ---@return boolean success, any ...
-function t.assert(cond, msg)
+function Tests.assert(cond, msg)
     if cond then
         assert_success = assert_success.."✓"
         return
     end
 
     assert_success = assert_success.."."
-    local src = debug.getinfo(2, "S").short_src:sub(40, -1)
-    table.insert(assert_err, "..."..src..": "..msg)
+    local src = debug.getinfo(2, "l").currentline
+    table.insert(assert_err, "Line "..src..": "..msg)
 end
 
 ---@param name string The name of the test suite.
----@param dir string The path to the test suite directory.
-function t.run_test_suite(name, dir)
-    if not name then log.error("run_test_suite: Missing name", 2) end
-    if not dir then log.error("run_test_suite: Missing dir", 2) end
+---@param dir string The path to the test suite directory (relative to `PATH`).
+function Tests.add_test_suite(name, dir)
+    if not name then log.error("add_test_suite: Missing name", 2) end
+    if not dir then log.error("add_test_suite: Missing dir", 2) end
 
-    local files = path.get_files(dir)
+    local suite = {}
+
+    ---@type table<integer, string>
+    local files = path.get_files(path.combine(PATH, dir))
     for _, file in ipairs(files) do
         local filename = path.filename(file)
         if filename ~= "__init.lua" then
-            assert_init(filename)
-            require(file)
+            table.insert(suite, {
+                filename = filename,
+                fn       = require(file),
+            })
         end
     end
 
-    print(compile_report(name))
-end
-
----@param name string The name of the test suite.
----@param dir string The path to the test suite directory.
-function t.add_test_suite(name, dir)
-    if not name then log.error("run_test_suite: Missing name", 2) end
-    if not dir then log.error("run_test_suite: Missing dir", 2) end
+    suites[name] = suite
 
     gui.add_to_menu_bar(function()
         if ImGui.Button(name) then
-            t.run_test_suite(
-                name,
-                dir
-            )
+            run_test_suite(name)
         end
     end)
 end
-
-return t

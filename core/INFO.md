@@ -1,0 +1,3 @@
+- Globals should be stored in `G`
+- Persistent globals (not be reinitialized on hotload) should be stored in `P`
+- Classes are PascalCase; public ones should be added to `C`
