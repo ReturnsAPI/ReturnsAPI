@@ -43,7 +43,7 @@ end
 
 -- ========== Wrapper Methods ==========
 
----@type Array
+---@class Array
 local methods = {}
 
 --[[
@@ -177,6 +177,13 @@ Sorts the array in ascending or descending order.
 ---@param descending? boolean If `true`, will sort in descending order. <br>`false` by default.
 methods.sort = function(self, descending)
     gm.array_sort(self.value, not descending)
+end
+
+--[[
+Prints the array.
+]]
+methods.print = function(self)
+    -- TODO
 end
 
 

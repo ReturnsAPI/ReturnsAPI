@@ -39,13 +39,13 @@ end
 local mt_name = "Proxy"
 
 W.Proxy = {
-    __index = function(t, k)
+    __index = function(proxy, k)
         if k == "RAPI" then return mt_name end
-        return proxy_get(t)[k]
+        return Proxy.get(proxy)[k]
     end,
 
-    __newindex = function(t, k, v)
-        proxy_get(t)[k] = v
+    __newindex = function(proxy, k, v)
+        Proxy.get(proxy)[k] = v
     end,
 
     __metatable = mt_wrapper_name(mt_name),
