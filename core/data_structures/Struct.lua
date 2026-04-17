@@ -10,12 +10,11 @@ Struct wrappers can be get/set to using dot syntax <br>
 Struct = {}
 C.Struct = Struct
 
-
 -- Wrapper types that are Structs
-local struct_wrappers = {
-    Struct = true,
-    AttackInfo = true,
-    HitInfo = true
+G.struct_wrappers = {
+    Struct      = true,
+    AttackInfo  = true,
+    HitInfo     = true,
 }
 
 
