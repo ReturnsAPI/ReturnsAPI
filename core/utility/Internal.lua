@@ -1,5 +1,8 @@
 -- Misc
 
+---@type table<integer, function>
+G.run_after_core = {}
+
 --[[
 Runs a function only on initial load, and never on hotload.
 ]]
@@ -18,6 +21,14 @@ function run_on_hotload(fn)
     if P.hotload then
         fn()
     end
+end
+
+--[[
+Runs a function after `core` has loaded.
+]]
+---@param fn function The function to run.
+function run_after_core(fn)
+    table.insert(G.run_after_core, fn)
 end
 
 --[[

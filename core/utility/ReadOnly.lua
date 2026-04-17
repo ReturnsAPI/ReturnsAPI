@@ -18,6 +18,9 @@ end
 
 -- ========== Metatables ==========
 
+---@class ReadOnly
+---@field RAPI string
+
 local mt_name = "ReadOnly"
 
 W.ReadOnly = {

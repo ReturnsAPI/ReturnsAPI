@@ -1,0 +1,146 @@
+-- Struct
+
+--[[
+Allows for manipulation of GameMaker structs.
+
+Struct wrappers can be get/set to using dot syntax <br>
+(e.g., `struct.my_key = 123`).
+]]
+---@class Struct
+Struct = {}
+C.Struct = Struct
+
+
+-- Wrapper types that are Structs
+local struct_wrappers = {
+    Struct = true,
+    AttackInfo = true,
+    HitInfo = true
+}
+
+
+-- ========== Static Methods ==========
+
+--[[
+Returns a newly created GameMaker struct. <br>
+Can also create one from a constructor.
+]]
+---@param constructor? any A table or constructor.
+---@param ... any Arguments to pass to the constructor.
+---@param t table A Lua table to create the struct from.
+---@return Struct
+---@overload fun(t: table): Struct
+Struct.new = function(constructor, ...)
+    -- Blank struct
+    if not constructor then
+        return Struct.wrap(gm.struct_create())
+    end
+
+    -- Create from Lua table
+    if type(constructor) == "table" then
+        local struct = gm.struct_create()
+        for k, v in pairs(constructor) do
+            struct[k] = Wrap.unwrap(v)
+        end
+        return Struct.wrap(struct)
+    end
+
+    -- From constructor
+    local args = table.pack(...)
+    for i = 1, args.n do
+        args[i] = Wrap.unwrap(args[i])
+    end
+    return Struct.wrap(gm["@@NewGMLObject@@"](constructor, table.unpack(args)))
+end
+
+--[[
+Returns a Struct wrapper containing the provided struct.
+]]
+---@param struct Struct | sol.YYObjectBase* The struct to wrap.
+---@return Struct
+Struct.wrap = function(struct)
+    return Proxy.new(Wrap.unwrap(struct), W.Struct)
+end
+
+
+-- ========== Wrapper Methods ==========
+
+---@class Struct
+local methods = {}
+
+--[[
+Returns a table of keys in use by the struct.
+]]
+---@return table
+methods.get_keys = function(self)
+    local arr = Array.wrap(gm.variable_struct_get_names(self.value))
+    local keys = {}
+    for i, v in ipairs(arr) do
+        keys[i] = v
+    end
+    return keys
+end
+
+--[[
+Prints the struct.
+]]
+methods.print = function(self)
+    -- TODO
+end
+
+
+-- ========== Metatables ==========
+
+---@class Struct
+---@field value sol.YYObjectBase*
+---@field cinstance sol.YYObjectBase*
+---@field RAPI string
+
+local mt_name = "Struct"
+
+W.Struct = {
+    __index = function(proxy, k)
+        -- Get wrapped value
+        if k == "value" or k == "cinstance" then return Proxy.get(proxy) end
+        if k == "RAPI" then return mt_name end
+
+        -- Methods
+        if methods[k] then return methods[k] end
+
+        -- TODO script binding
+        
+        -- Getter
+        local ret = Wrap.wrap(gm.variable_struct_get(Proxy.get(proxy), k))
+        return ret
+    end,
+
+    __newindex = function(proxy, k, v)
+        -- Throw read-only error
+        if k == "value"
+        or k == "cinstance"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+
+        -- Setter
+        gm.variable_struct_set(Proxy.get(proxy), k, Wrap.unwrap(v))
+    end,
+
+    __len = function(proxy)
+        return #proxy:get_keys()
+    end,
+
+    __pairs = function(proxy)
+        local keys = proxy:get_keys()
+        local i = 0
+        return function()
+            i = i + 1
+            if i <= #keys then
+                local k = keys[i]
+                return k, proxy[k]
+            end
+        end
+    end,
+
+    __metatable = mt_wrapper_name(mt_name),
+}

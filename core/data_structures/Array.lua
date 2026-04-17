@@ -94,7 +94,7 @@ end
 --[[
 Appends values to the end of the array.
 ]]
----@param ...any A variable amount of values to push
+---@param ... any A variable amount of values to push
 methods.push = function(self, ...)
     local values = table.pack(...)
     for i = 1, values.n do
@@ -107,7 +107,7 @@ end
 Removes and returns the last element of the array.
 ]]
 ---@return any
-methods.pop = function(self, ...)
+methods.pop = function(self)
     return Wrap.wrap(gm.array_pop(self.value))
 end
 
@@ -162,7 +162,7 @@ Returns the index (starting at `0`) of the first occurence <br>
 of the specified value, or `nil` if not found.
 ]]
 ---@param value any The value to search for.
----@return integer|nil
+---@return integer | nil
 methods.find = function(self, value)
     value = Wrap.unwrap(value)
     for i, v in ipairs(self) do
@@ -189,6 +189,10 @@ end
 
 -- ========== Metatables ==========
 
+---@class Array
+---@field value sol.RefDynamicArrayOfRValue*
+---@field RAPI string
+
 local mt_name = "Array"
 
 W.Array = {
@@ -206,6 +210,12 @@ W.Array = {
     end,
 
     __newindex = function(proxy, k, v)
+        -- Throw read-only error
+        if k == "value"
+        or k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+
         -- Setter
         k = Wrap.unwrap(k)
         proxy:set(k - 1, v)
