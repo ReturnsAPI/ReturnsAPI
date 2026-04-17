@@ -13,11 +13,16 @@ C.Array = Array
 --[[
 Returns a newly created GameMaker array.
 ]]
+---@param t? table A numerically-indexed Lua table to convert into an array.
+---@return Array
+Array.new = function(t) end
+
+--[[
+Returns a newly created GameMaker array.
+]]
 ---@param size? integer The size of the array. <br>`0` by default.
 ---@param default? any The value to populate the array with. <br>`0` by default.
----@param t table A numerically-indexed Lua table to convert into an array.
 ---@return Array
----@overload fun(t: table): Array
 Array.new = function(size, default)
     -- Create array from table
     if type(size) == "table" then

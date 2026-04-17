@@ -89,7 +89,7 @@ function Tests.assert(cond, msg)
 end
 
 ---@param name string The name of the test suite.
----@param dir string The path to the test suite directory (relative to `PATH`).
+---@param dir string The path to the test suite directory.
 function Tests.add_test_suite(name, dir)
     if not name then log.error("add_test_suite: Missing name", 2) end
     if not dir then log.error("add_test_suite: Missing dir", 2) end
@@ -97,7 +97,7 @@ function Tests.add_test_suite(name, dir)
     local suite = {}
 
     ---@type table<integer, string>
-    local files = path.get_files(path.combine(PATH, dir))
+    local files = path.get_files(dir)
     for _, file in ipairs(files) do
         local filename = path.filename(file)
         if filename ~= "__init.lua" then

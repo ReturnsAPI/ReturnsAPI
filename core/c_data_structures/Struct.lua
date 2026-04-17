@@ -10,13 +10,6 @@ Struct wrappers can be get/set to using dot syntax <br>
 Struct = {}
 C.Struct = Struct
 
--- Wrapper types that are Structs
-G.struct_wrappers = {
-    Struct      = true,
-    AttackInfo  = true,
-    HitInfo     = true,
-}
-
 
 -- ========== Static Methods ==========
 
@@ -24,11 +17,17 @@ G.struct_wrappers = {
 Returns a newly created GameMaker struct. <br>
 Can also create one from a constructor.
 ]]
+---@param t? table A Lua table to create the struct from.
+---@return Struct
+Struct.new = function(t) end
+
+--[[
+Returns a newly created GameMaker struct. <br>
+Can also create one from a constructor.
+]]
 ---@param constructor? any A table or constructor.
 ---@param ... any Arguments to pass to the constructor.
----@param t table A Lua table to create the struct from.
 ---@return Struct
----@overload fun(t: table): Struct
 Struct.new = function(constructor, ...)
     -- Blank struct
     if not constructor then
