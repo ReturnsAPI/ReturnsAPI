@@ -19,10 +19,11 @@ M = M or make_table_once()  -- Metatables for classes
 W = W or make_table_once()  -- Metatables for wrappers
 
 -- Core
-req("extensions",   "Math")
-
-req("utility",      "Proxy")
-req("utility",      "ReadOnly")
+req("extensions",       "Math")
+req("utility",          "Proxy")
+req("utility",          "ReadOnly")
+req("utility",          "Wrap")
+req("data_structures",  "Array")
 
 -- Tests
 require("./tests/Tests.lua")

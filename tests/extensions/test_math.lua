@@ -1,4 +1,9 @@
 return function()
+    if not Math then
+        Tests.assert(false, "Math does not exist")
+        return
+    end
+
     Tests.assert(Math.DEG2RAD == (math.pi / 180), "`DEG2RAD` is wrong")
     Tests.assert(Math.RAD2DEG == (180 / math.pi), "`RAD2DEG` is wrong")
 
@@ -40,10 +45,10 @@ return function()
     Tests.assert(Math.clamp(6, 5, 7) == 6, "`clamp(6, 5, 7)` is "..tostring(Math.clamp(6, 5, 7)))
 
     Tests.assert(Math.easein(0.5) == 0.25, "`easein(0.5)` is "..tostring(Math.easein(0.5)))
-    Tests.assert(Math.easein(0.5, 1) == 0.5, "`easein(0.5, 1)` is "..tostring(Math.easein(0.5)))
+    Tests.assert(Math.easein(0.5, 1) == 0.5, "`easein(0.5, 1)` is "..tostring(Math.easein(0.5, 1)))
 
     Tests.assert(Math.easeout(0.5) == 0.75, "`easeout(0.5)` is "..tostring(Math.easeout(0.5)))
-    Tests.assert(Math.easeout(0.5, 1) == 0.5, "`easeout(0.5, 1)` is "..tostring(Math.easeout(0.5)))
+    Tests.assert(Math.easeout(0.5, 1) == 0.5, "`easeout(0.5, 1)` is "..tostring(Math.easeout(0.5, 1)))
 
     Tests.assert(Math.lerp(0, 10, 0.5) == 5, "`lerp(0, 10, 0.5)` is "..tostring(Math.lerp(0, 10, 0.5)))
     Tests.assert(Math.lerp(0, 100, 0.25) == 25, "`lerp(0, 100, 0.25)` is "..tostring(Math.lerp(0, 100, 0.25)))

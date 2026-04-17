@@ -60,11 +60,11 @@ Returns a shallow copy of the table.
 ---@return table
 Table.shallow_copy = function(t)
     if not t then return log.error("Table.shallow_copy: `t` is nil", 2) end
-    local t = {}
-    for k, v in pairs(src) do
-        t[k] = v
+    local t2 = {}
+    for k, v in pairs(t) do
+        t2[k] = v
     end
-    return t
+    return t2
 end
 
 

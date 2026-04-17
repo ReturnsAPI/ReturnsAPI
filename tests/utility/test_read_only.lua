@@ -1,4 +1,9 @@
 return function()
+    if not ReadOnly then
+        Tests.assert(false, "ReadOnly does not exist")
+        return
+    end
+
     local t = {
         abc = 123,
     }

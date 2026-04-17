@@ -1,8 +1,13 @@
 return function()
+    if not Proxy then
+        Tests.assert(false, "Proxy does not exist")
+        return
+    end
+
     local t = {
         abc = 123,
     }
-    local p = proxy_new(t)
+    local p = Proxy.new(t)
 
     local mtname = getmetatable(p)
     Tests.assert(mtname == mt_wrapper_name("Proxy"), "`__metatable` is "..tostring(mtname))
