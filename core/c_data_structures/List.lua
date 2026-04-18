@@ -7,8 +7,11 @@ DS resources should always be destroyed once <br>
 they are no longer in use to free up memory.
 ]]
 ---@class List
-List = {}
+List = new_class()
 C.List = List
+
+local proxy = P.proxy
+local metatable
 
 
 -- ========== Static Methods ==========
@@ -36,7 +39,7 @@ Returns a List wrapper containing the provided list ID.
 ---@param list List | number The ID of the list.
 ---@return List
 List.wrap = function(list)
-    return Proxy.new(Wrap.unwrap(list), W.List)
+    return new_proxy(Wrap.unwrap(list), metatable)
 end
 
 
@@ -51,7 +54,7 @@ Returns `true` if the DS List exists.
 ---@return boolean
 methods.exists = function(self)
     local ret = Util.bool(gm.ds_exists(self.value, 2))
-    if not ret then Proxy.set(self, -4) end
+    if not ret then proxy[self] = -4 end
     return ret
 end
 
@@ -60,7 +63,7 @@ Destroys the DS List.
 ]]
 methods.destroy = function(self)
     gm.ds_list_destroy(self.value)
-    Proxy.set(self, -4)
+    proxy[self] = -4
 end
 
 --[[
@@ -196,9 +199,9 @@ end
 local mt_name = "List"
 
 W.List = {
-    __index = function(proxy, k)
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return Proxy.get(proxy) end
+        if k == "value" then return proxy[t] end
         if k == "RAPI" then return mt_name end
         
         -- Methods
@@ -206,10 +209,10 @@ W.List = {
 
         -- Getter
         k = Wrap.unwrap(k)
-        return proxy:get(k - 1)
+        return t:get(k - 1)
     end,
 
-    __newindex = function(proxy, k, v)
+    __newindex = function(t, k, v)
         -- Throw read-only error
         if k == "value"
         or k == "RAPI" then
@@ -218,28 +221,29 @@ W.List = {
 
         -- Setter
         k = Wrap.unwrap(k)
-        proxy:set(k - 1, v)
+        t:set(k - 1, v)
     end,
     
-    __len = function(proxy)
-        return proxy:size()
+    __len = function(t)
+        return t:size()
     end,
 
-    __pairs = function(proxy)
-        local n = #proxy
-        return function(proxy, k)
+    __pairs = function(t)
+        local n = #t
+        return function(t, k)
             k = k + 1
-            if k <= n then return k, proxy:get(k - 1, n) end
-        end, proxy, 0
+            if k <= n then return k, t:get(k - 1, n) end
+        end, t, 0
     end,
 
-    __ipairs = function(proxy)
-        local n = #proxy
-        return function(proxy, k)
+    __ipairs = function(t)
+        local n = #t
+        return function(t, k)
             k = k + 1
-            if k <= n then return k, proxy:get(k - 1, n) end
-        end, proxy, 0
+            if k <= n then return k, t:get(k - 1, n) end
+        end, t, 0
     end,
 
     __metatable = mt_wrapper_name(mt_name),
 }
+metatable = W.List

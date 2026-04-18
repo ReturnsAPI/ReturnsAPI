@@ -4,8 +4,11 @@
 Allows for easier manipulation of GameMaker arrays.
 ]]
 ---@class Array
-Array = {}
+Array = new_class()
 C.Array = Array
+
+local proxy = P.proxy
+local metatable
 
 
 -- ========== Static Methods ==========
@@ -42,7 +45,7 @@ Returns an Array wrapper containing the provided array.
 ---@return Array
 Array.wrap = function(array)
     array = Wrap.unwrap(array)
-    return Proxy.new(array, W.Array)
+    return new_proxy(array, metatable)
 end
 
 
@@ -201,9 +204,9 @@ end
 local mt_name = "Array"
 
 W.Array = {
-    __index = function(proxy, k)
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return Proxy.get(proxy) end
+        if k == "value" then return proxy[t] end
         if k == "RAPI" then return mt_name end
         
         -- Methods
@@ -211,10 +214,10 @@ W.Array = {
 
         -- Getter
         k = Wrap.unwrap(k)
-        return proxy:get(k - 1)
+        return t:get(k - 1)
     end,
 
-    __newindex = function(proxy, k, v)
+    __newindex = function(t, k, v)
         -- Throw read-only error
         if k == "value"
         or k == "RAPI" then
@@ -223,28 +226,29 @@ W.Array = {
 
         -- Setter
         k = Wrap.unwrap(k)
-        proxy:set(k - 1, v)
+        t:set(k - 1, v)
     end,
     
-    __len = function(proxy)
-        return proxy:size()
+    __len = function(t)
+        return t:size()
     end,
 
-    __pairs = function(proxy)
-        local n = #proxy
-        return function(proxy, k)
+    __pairs = function(t)
+        local n = #t
+        return function(t, k)
             k = k + 1
-            if k <= n then return k, proxy:get(k - 1, n) end
-        end, proxy, 0
+            if k <= n then return k, t:get(k - 1, n) end
+        end, t, 0
     end,
 
-    __ipairs = function(proxy)
-        local n = #proxy
-        return function(proxy, k)
+    __ipairs = function(t)
+        local n = #t
+        return function(t, k)
             k = k + 1
-            if k <= n then return k, proxy:get(k - 1, n) end
-        end, proxy, 0
+            if k <= n then return k, t:get(k - 1, n) end
+        end, t, 0
     end,
 
     __metatable = mt_wrapper_name(mt_name),
 }
+metatable = W.Array

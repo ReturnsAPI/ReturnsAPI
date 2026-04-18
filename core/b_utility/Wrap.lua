@@ -1,8 +1,10 @@
 -- Wrap
 
 ---@class Wrap
-Wrap = {}
+Wrap = new_class()
 C.Wrap = Wrap
+
+local proxy = P.proxy
 
 
 -- ========== Static Methods ==========
@@ -14,7 +16,7 @@ or `value` if it is not a wrapper.
 ---@param value any The value to unwrap (if applicable).
 ---@return any
 Wrap.unwrap = function(value)
-    return Proxy.get(value) or value
+    return proxy[value] or value
 end
 
 --[[

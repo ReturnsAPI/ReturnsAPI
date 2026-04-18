@@ -7,8 +7,11 @@ DS resources should always be destroyed once <br>
 they are no longer in use to free up memory.
 ]]
 ---@class Map
-Map = {}
+Map = new_class()
 C.Map = Map
+
+local proxy = P.proxy
+local metatable
 
 
 -- ========== Static Methods ==========
@@ -40,7 +43,7 @@ Returns a Map wrapper containing the provided map ID.
 ---@param map Map | number The ID of the map.
 ---@return Map
 Map.wrap = function(map)
-    return Proxy.new(Wrap.unwrap(map), W.Map)
+    return new_proxy(Wrap.unwrap(map), metatable)
 end
 
 
@@ -55,7 +58,7 @@ Returns `true` if the DS Map exists.
 ---@return boolean
 methods.exists = function(self)
     local ret = Util.bool(gm.ds_exists(self.value, 1))
-    if not ret then Proxy.set(self, -4) end
+    if not ret then proxy[self] = -4 end
     return ret
 end
 
@@ -64,7 +67,7 @@ Destroys the DS Map.
 ]]
 methods.destroy = function(self)
     gm.ds_map_destroy(self.value)
-    Proxy.set(self, -4)
+    proxy[self] = -4
 end
 
 --[[
@@ -133,19 +136,19 @@ end
 local mt_name = "Map"
 
 W.Map = {
-    __index = function(proxy, k)
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return Proxy.get(proxy) end
+        if k == "value" then return proxy[t] end
         if k == "RAPI" then return mt_name end
         
         -- Methods
         if methods[k] then return methods[k] end
 
         -- Getter
-        return proxy:get(k)
+        return t:get(k)
     end,
 
-    __newindex = function(proxy, k, v)
+    __newindex = function(t, k, v)
         -- Throw read-only error
         if k == "value"
         or k == "RAPI" then
@@ -153,21 +156,21 @@ W.Map = {
         end
 
         -- Setter
-        proxy:set(k, v)
+        t:set(k, v)
     end,
     
-    __len = function(proxy)
-        return proxy:size()
+    __len = function(t)
+        return t:size()
     end,
 
-    __pairs = function(proxy)
-        local key = gm.ds_map_find_first(proxy.value)
+    __pairs = function(t)
+        local key = gm.ds_map_find_first(t.value)
 
         return function()
             if not key then return nil, nil end
 
-            local k, v = key, proxy:get(key)
-            key = gm.ds_map_find_next(proxy.value, key)
+            local k, v = key, t:get(key)
+            key = gm.ds_map_find_next(t.value, key)
 
             return k, v
         end
@@ -175,3 +178,4 @@ W.Map = {
 
     __metatable = mt_wrapper_name(mt_name),
 }
+metatable = W.Map

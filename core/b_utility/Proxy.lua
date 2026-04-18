@@ -1,11 +1,14 @@
 -- Proxy
 
 ---@class Proxy
-Proxy = {}
+Proxy = new_class()
 
-run_once(function()
+run_on_initial_load(function()
     P.proxy = setmetatable({}, {__mode = "k"})
 end)
+
+local proxy = P.proxy
+local metatable
 
 
 -- ========== Static Methods ==========
@@ -16,30 +19,12 @@ a "key" to access the real table/data in storage.
 ]]
 ---@param t any The table/data to make a proxy for.
 ---@param mt? table A metatable to assign to the proxy. <br>`proxy_default_mt` by default.
----@return table
-Proxy.new = function(t, mt)
-    local proxy = {}
-    P.proxy[proxy] = t
-    setmetatable(proxy, mt or W.Proxy)
-    return proxy
-end
-
---[[
-Access the original table/data of a proxy.
-]]
----@param proxy table The proxy.
----@return any
-Proxy.get = function(proxy)
-    return P.proxy[proxy]
-end
-
---[[
-Overwrite the original table/data of a proxy.
-]]
----@param proxy table The proxy.
----@param any value The new value to set.
-Proxy.set = function(proxy, value)
-    P.proxy[proxy] = value
+---@return table proxy
+function new_proxy(t, mt)
+    local p = {}
+    proxy[p] = t
+    setmetatable(p, mt or metatable)
+    return p
 end
 
 
@@ -51,19 +36,20 @@ end
 local mt_name = "Proxy"
 
 W.Proxy = {
-    __index = function(proxy, k)
+    __index = function(t, k)
         if k == "RAPI" then return mt_name end
-        return Proxy.get(proxy)[k]
+        return proxy[t][k]
     end,
 
-    __newindex = function(proxy, k, v)
+    __newindex = function(t, k, v)
         -- Throw read-only error
         if k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
-        Proxy.get(proxy)[k] = v
+        proxy[t][k] = v
     end,
 
     __metatable = mt_wrapper_name(mt_name),
 }
+metatable = W.Proxy

@@ -16,6 +16,8 @@ public.setup = function(env)
         local copy = {}
 
         for k, v in pairs(class) do
+            if k == "internal" then goto continue end
+
             -- Base copy
             copy[k] = v
 
@@ -31,11 +33,47 @@ public.setup = function(env)
                 -- Optional namespace
                 -- (`namespace` (not caps) argument)
                 else
-                    copy[k] = function(...)
-                        local args = {...}
-                        -- args[k] = handle parsing here
-                        return v(table.unpack(args, 1, select("#", ...)))
+                    local pos = nil
+                    local nparams = debug.getinfo(v).nparams
+                    for i = 1, nparams do
+                        if debug.getlocal(v, i):lower() == "namespace" then
+                            pos = i
+                            break
+                        end
                     end
+                    if not pos then goto continue end
+
+                    -- Handled like this to minimize function calls
+                    -- More dev-friendly way would be to use table.pack and unpack
+                    -- if pos == 1 then
+                    --     copy[k] = function(ns)
+                    --         return v(parse_optional_namespace(ns, namespace))
+                    --     end
+                    -- elseif pos == 2 then
+                    --     copy[k] = function(arg1, ns)
+                    --         return v(arg1, parse_optional_namespace(ns, namespace))
+                    --     end
+                    -- elseif pos == 3 then
+                    --     copy[k] = function(arg1, arg2, ns)
+                    --         return v(arg1, arg2, parse_optional_namespace(ns, namespace))
+                    --     end
+                    -- elseif pos == 4 then
+                    --     copy[k] = function(arg1, arg2, arg3, ns)
+                    --         return v(arg1, arg2, arg3, parse_optional_namespace(ns, namespace))
+                    --     end
+                    -- elseif pos == 5 then
+                    --     copy[k] = function(arg1, arg2, arg3, arg4, ns)
+                    --         return v(arg1, arg2, arg3, arg4, parse_optional_namespace(ns, namespace))
+                    --     end
+                    -- elseif pos == 6 then
+                    --     copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns)
+                    --         return v(arg1, arg2, arg3, arg4, arg5, parse_optional_namespace(ns, namespace))
+                    --     end
+                    -- elseif pos == 7 then
+                    --     copy[k] = function(arg1, arg2, arg3, arg4, arg5, arg6, ns)
+                    --         return v(arg1, arg2, arg3, arg4, arg5, arg6, parse_optional_namespace(ns, namespace))
+                    --     end
+                    -- end
                 end
 
             -- Enums
@@ -48,6 +86,8 @@ public.setup = function(env)
                 copy[k] = t
 
             end
+
+            ::continue::
         end
 
         -- Copy over class metatable (if applicable)

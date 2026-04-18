@@ -7,7 +7,7 @@ return function()
     local t = {
         abc = 123,
     }
-    local p = Proxy.new(t)
+    local p = new_proxy(t)
 
     local mtname = getmetatable(p)
     Tests.assert(mtname == mt_wrapper_name("Proxy"), "`__metatable` is "..tostring(mtname))

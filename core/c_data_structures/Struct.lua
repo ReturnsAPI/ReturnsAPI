@@ -7,8 +7,11 @@ Struct wrappers can be get/set to using dot syntax <br>
 (e.g., `struct.my_key = 123`).
 ]]
 ---@class Struct
-Struct = {}
+Struct = new_class()
 C.Struct = Struct
+
+local proxy = P.proxy
+local metatable
 
 
 -- ========== Static Methods ==========
@@ -57,7 +60,7 @@ Returns a Struct wrapper containing the provided struct.
 ---@param struct Struct | sol.YYObjectBase* The struct to wrap.
 ---@return Struct
 Struct.wrap = function(struct)
-    return Proxy.new(Wrap.unwrap(struct), W.Struct)
+    return new_proxy(Wrap.unwrap(struct), metatable)
 end
 
 
@@ -97,9 +100,9 @@ end
 local mt_name = "Struct"
 
 W.Struct = {
-    __index = function(proxy, k)
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" or k == "cinstance" then return Proxy.get(proxy) end
+        if k == "value" or k == "cinstance" then return proxy[t] end
         if k == "RAPI" then return mt_name end
 
         -- Methods
@@ -108,11 +111,11 @@ W.Struct = {
         -- TODO script binding
         
         -- Getter
-        local ret = Wrap.wrap(gm.variable_struct_get(Proxy.get(proxy), k))
+        local ret = Wrap.wrap(gm.variable_struct_get(proxy[t], k))
         return ret
     end,
 
-    __newindex = function(proxy, k, v)
+    __newindex = function(t, k, v)
         -- Throw read-only error
         if k == "value"
         or k == "cinstance"
@@ -121,24 +124,25 @@ W.Struct = {
         end
 
         -- Setter
-        gm.variable_struct_set(Proxy.get(proxy), k, Wrap.unwrap(v))
+        gm.variable_struct_set(proxy[t], k, Wrap.unwrap(v))
     end,
 
-    __len = function(proxy)
-        return #proxy:get_keys()
+    __len = function(t)
+        return #t:get_keys()
     end,
 
-    __pairs = function(proxy)
-        local keys = proxy:get_keys()
+    __pairs = function(t)
+        local keys = t:get_keys()
         local i = 0
         return function()
             i = i + 1
             if i <= #keys then
                 local k = keys[i]
-                return k, proxy[k]
+                return k, t[k]
             end
         end
     end,
 
     __metatable = mt_wrapper_name(mt_name),
 }
+metatable = W.Struct
