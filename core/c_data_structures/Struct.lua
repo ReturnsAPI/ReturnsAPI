@@ -10,6 +10,12 @@ Struct wrappers can be get/set to using dot syntax <br>
 Struct = new_class()
 C.Struct = Struct
 
+local type         = type
+local table_pack   = table.pack
+local table_unpack = table.unpack
+local wrap         = Wrap.wrap
+local unwrap       = Wrap.unwrap
+
 local proxy = P.proxy
 local metatable
 
@@ -41,17 +47,17 @@ Struct.new = function(constructor, ...)
     if type(constructor) == "table" then
         local struct = gm.struct_create()
         for k, v in pairs(constructor) do
-            struct[k] = Wrap.unwrap(v)
+            struct[k] = unwrap(v)
         end
         return Struct.wrap(struct)
     end
 
     -- From constructor
-    local args = table.pack(...)
+    local args = table_pack(...)
     for i = 1, args.n do
-        args[i] = Wrap.unwrap(args[i])
+        args[i] = unwrap(args[i])
     end
-    return Struct.wrap(gm["@@NewGMLObject@@"](constructor, table.unpack(args)))
+    return Struct.wrap(gm["@@NewGMLObject@@"](constructor, table_unpack(args)))
 end
 
 --[[
@@ -60,7 +66,7 @@ Returns a Struct wrapper containing the provided struct.
 ---@param struct Struct | sol.YYObjectBase* The struct to wrap.
 ---@return Struct
 Struct.wrap = function(struct)
-    return new_proxy(Wrap.unwrap(struct), metatable)
+    return new_proxy(unwrap(struct), metatable)
 end
 
 
@@ -74,7 +80,7 @@ Returns a table of keys in use by the struct.
 ]]
 ---@return table
 methods.get_keys = function(self)
-    local arr = Array.wrap(gm.variable_struct_get_names(self.value))
+    local arr = Array.wrap(gm.variable_struct_get_names(proxy[self]))
     local keys = {}
     for i, v in ipairs(arr) do
         keys[i] = v
@@ -111,7 +117,7 @@ W.Struct = {
         -- TODO script binding
         
         -- Getter
-        local ret = Wrap.wrap(gm.variable_struct_get(proxy[t], k))
+        local ret = wrap(gm.variable_struct_get(proxy[t], k))
         return ret
     end,
 
@@ -124,7 +130,7 @@ W.Struct = {
         end
 
         -- Setter
-        gm.variable_struct_set(proxy[t], k, Wrap.unwrap(v))
+        gm.variable_struct_set(proxy[t], k, unwrap(v))
     end,
 
     __len = function(t)

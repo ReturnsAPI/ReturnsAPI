@@ -7,6 +7,12 @@ Allows for easier manipulation of GameMaker arrays.
 Array = new_class()
 C.Array = Array
 
+local type         = type
+local table_pack   = table.pack
+local table_unpack = table.unpack
+local wrap         = Wrap.wrap
+local unwrap       = Wrap.unwrap
+
 local proxy = P.proxy
 local metatable
 
@@ -30,7 +36,7 @@ Array.new = function(size, default)
     -- Create array from table
     if type(size) == "table" then
         local arr = Array.wrap(gm.array_create(0, 0))
-        arr:push(table.unpack(size))
+        arr:push(table_unpack(size))
         return arr
     end
 
@@ -44,7 +50,7 @@ Returns an Array wrapper containing the provided array.
 ---@param array Array | sol.RefDynamicArrayOfRValue* The array to wrap.
 ---@return Array
 Array.wrap = function(array)
-    array = Wrap.unwrap(array)
+    array = unwrap(array)
     return new_proxy(array, metatable)
 end
 
@@ -64,10 +70,10 @@ You can also use Lua syntax (e.g., `array[4]`), which starts at `1`.
 ---@param size? integer The size of the array, if it already known (this skips a `:size()` call).
 ---@return any
 methods.get = function(self, index, size)
-    index = Wrap.unwrap(index)
+    index = unwrap(index)
     size = size or self:size()
     if (index < 0) or (index >= size) then return nil end
-    return Wrap.wrap(gm.array_get(self.value, index))
+    return wrap(gm.array_get(proxy[self], index))
 end
 
 --[[
@@ -78,7 +84,7 @@ You can also use Lua syntax (e.g., `array[4] = 56`), which starts at `1`.
 ---@param index integer The index to set to.
 ---@param value any The value to set.
 methods.set = function(self, index, value)
-    gm.array_set(self.value, Wrap.unwrap(index), Wrap.unwrap(value, true))
+    gm.array_set(proxy[self], unwrap(index), unwrap(value))
 end
 
 --[[
@@ -88,7 +94,7 @@ You can also use Lua syntax (i.e., `#array`).
 ]]
 ---@return integer size
 methods.size = function(self)
-    return gm.array_length(self.value)
+    return gm.array_length(proxy[self])
 end
 
 --[[
@@ -96,7 +102,7 @@ Resizes the array.
 ]]
 ---@param size integer The new size.
 methods.resize = function(self, size)
-    gm.array_resize(self.value, Wrap.unwrap(size))
+    gm.array_resize(proxy[self], unwrap(size))
 end
 
 --[[
@@ -104,11 +110,11 @@ Appends values to the end of the array.
 ]]
 ---@param ... any A variable amount of values to push
 methods.push = function(self, ...)
-    local values = table.pack(...)
+    local values = table_pack(...)
     for i = 1, values.n do
-        values[i] = Wrap.unwrap(values[i])
+        values[i] = unwrap(values[i])
     end
-    gm.array_push(self.value, table.unpack(values))
+    gm.array_push(proxy[self], table_unpack(values))
 end
 
 --[[
@@ -116,7 +122,7 @@ Removes and returns the last element of the array.
 ]]
 ---@return any
 methods.pop = function(self)
-    return Wrap.wrap(gm.array_pop(self.value))
+    return wrap(gm.array_pop(proxy[self]))
 end
 
 --[[
@@ -125,7 +131,7 @@ Inserts a value at the specified index, starting at `0`.
 ---@param index integer The index to insert at.
 ---@param value any The value to insert.
 methods.insert = function(self, index, value)
-    gm.array_insert(self.value, Wrap.unwrap(index), Wrap.unwrap(value))
+    gm.array_insert(proxy[self], unwrap(index), unwrap(value))
 end
 
 --[[
@@ -134,7 +140,7 @@ Deletes value(s) from the specified index, starting at `0`.
 ---@param index integer The index to delete at.
 ---@param count? integer The number of values to delete. <br>`1` by default.
 methods.delete = function(self, index, count)
-    gm.array_delete(self.value, Wrap.unwrap(index), Wrap.unwrap(count) or 1)
+    gm.array_delete(proxy[self], unwrap(index), unwrap(count) or 1)
 end
 
 --[[
@@ -142,16 +148,16 @@ Deletes the first occurence of the specified value.
 ]]
 ---@param value any The value to delete.
 methods.delete_value = function(self, value)
-    local index = self:find(Wrap.unwrap(value))
+    local index = self:find(unwrap(value))
     if not index then return end
-    gm.array_delete(self.value, Wrap.unwrap(index), 1)
+    gm.array_delete(proxy[self], unwrap(index), 1)
 end
 
 --[[
 Deletes all elements in the array, resizing it to 0.
 ]]
 methods.clear = function(self)
-    gm.array_delete(self.value, 0, self:size())
+    gm.array_delete(proxy[self], 0, self:size())
 end
 
 --[[
@@ -162,7 +168,7 @@ Returns `true` if the array contains the specified value.
 ---@param length integer The length of the subset. <br>`array:size()` by default.
 ---@return boolean
 methods.contains = function(self, value, offset, length)
-    return gm.array_contains(self.value, Wrap.unwrap(value), Wrap.unwrap(offset) or 0, Wrap.unwrap(length) or self:size())
+    return gm.array_contains(proxy[self], unwrap(value), unwrap(offset) or 0, unwrap(length) or self:size())
 end
 
 --[[
@@ -172,7 +178,7 @@ of the specified value, or `nil` if not found.
 ---@param value any The value to search for.
 ---@return integer | nil
 methods.find = function(self, value)
-    value = Wrap.unwrap(value)
+    value = unwrap(value)
     for i, v in ipairs(self) do
         if v == value then return i - 1 end
     end
@@ -184,7 +190,7 @@ Sorts the array in ascending or descending order.
 ]]
 ---@param descending? boolean If `true`, will sort in descending order. <br>`false` by default.
 methods.sort = function(self, descending)
-    gm.array_sort(self.value, not descending)
+    gm.array_sort(proxy[self], not descending)
 end
 
 --[[
@@ -213,7 +219,7 @@ W.Array = {
         if methods[k] then return methods[k] end
 
         -- Getter
-        k = Wrap.unwrap(k)
+        k = unwrap(k)
         return t:get(k - 1)
     end,
 
@@ -225,7 +231,7 @@ W.Array = {
         end
 
         -- Setter
-        k = Wrap.unwrap(k)
+        k = unwrap(k)
         t:set(k - 1, v)
     end,
     

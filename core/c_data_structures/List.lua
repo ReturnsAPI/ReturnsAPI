@@ -10,6 +10,12 @@ they are no longer in use to free up memory.
 List = new_class()
 C.List = List
 
+local type         = type
+local table_pack   = table.pack
+local table_unpack = table.unpack
+local wrap         = Wrap.wrap
+local unwrap       = Wrap.unwrap
+
 local proxy = P.proxy
 local metatable
 
@@ -25,7 +31,7 @@ List.new = function(t)
     -- Create list from table
     if type(t) == "table" then
         local list = List.wrap(gm.ds_list_create())
-        list:add(table.unpack(t))
+        list:add(table_unpack(t))
         return list
     end
 
@@ -39,7 +45,7 @@ Returns a List wrapper containing the provided list ID.
 ---@param list List | number The ID of the list.
 ---@return List
 List.wrap = function(list)
-    return new_proxy(Wrap.unwrap(list), metatable)
+    return new_proxy(unwrap(list), metatable)
 end
 
 
@@ -53,7 +59,7 @@ Returns `true` if the DS List exists.
 ]]
 ---@return boolean
 methods.exists = function(self)
-    local ret = Util.bool(gm.ds_exists(self.value, 2))
+    local ret = Util.bool(gm.ds_exists(proxy[self], 2))
     if not ret then proxy[self] = -4 end
     return ret
 end
@@ -62,7 +68,7 @@ end
 Destroys the DS List.
 ]]
 methods.destroy = function(self)
-    gm.ds_list_destroy(self.value)
+    gm.ds_list_destroy(proxy[self])
     proxy[self] = -4
 end
 
@@ -76,11 +82,12 @@ You can also use Lua syntax (e.g., `list[4]`), which starts at `1`.
 ---@param size? integer The size of the list, if already known.
 ---@return any
 methods.get = function(self, index, size)
-    if self.value == -4 then log.error("get: List does not exist", 2) end
-    index = Wrap.unwrap(index)
+    local v = proxy[self]
+    if v == -4 then log.error("get: List does not exist", 2) end
+    index = unwrap(index)
     size = size or self:size()
     if (index < 0) or (index >= size) then return nil end
-    return Wrap.wrap(gm.ds_list_find_value(self.value, index))
+    return wrap(gm.ds_list_find_value(v, index))
 end
 
 --[[
@@ -91,8 +98,9 @@ You can also use Lua syntax (e.g., `list[4] = 56`), which starts at `1`.
 ---@param index integer The index to set to.
 ---@param value any The value to set.
 methods.set = function(self, index, value)
-    if self.value == -4 then log.error("set: List does not exist", 2) end
-    gm.ds_list_set(self.value, Wrap.unwrap(index), Wrap.unwrap(value))
+    local v = proxy[self]
+    if v == -4 then log.error("set: List does not exist", 2) end
+    gm.ds_list_set(v, unwrap(index), unwrap(value))
 end
 
 --[[
@@ -102,7 +110,7 @@ You can also use Lua syntax (i.e., `#list`).
 ]]
 ---@return integer size
 methods.size = function(self)
-    return gm.ds_list_size(self.value)
+    return gm.ds_list_size(proxy[self])
 end
 
 --[[
@@ -110,13 +118,11 @@ Appends values to the end of the list.
 ]]
 ---@param ... any A variable amount of values to add.
 methods.add = function(self, ...)
-    local values = table.pack(...)
-
+    local values = table_pack(...)
     for i = 1, values.n do
-        values[i] = Wrap.unwrap(values[i], true)
+        values[i] = unwrap(values[i])
     end
-
-    gm.ds_list_add(self.value, table.unpack(values))
+    gm.ds_list_add(proxy[self], table_unpack(values))
 end
 
 --[[
@@ -125,7 +131,7 @@ Inserts a value at the specified index, starting at `0`.
 ---@param index integer The index to insert at.
 ---@param value any The value to insert.
 methods.insert = function(self, index, value)
-    gm.ds_list_insert(self.value, Wrap.unwrap(index), Wrap.unwrap(value))
+    gm.ds_list_insert(proxy[self], unwrap(index), unwrap(value))
 end
 
 --[[
@@ -133,7 +139,7 @@ Deletes the value from the specified index, starting at `0`.
 ]]
 ---@param index integer The index to delete at.
 methods.delete = function(self, index)
-    gm.ds_list_delete(self.value, Wrap.unwrap(index))
+    gm.ds_list_delete(proxy[self], unwrap(index))
 end
 
 --[[
@@ -143,14 +149,14 @@ Deletes the first occurence of the specified value.
 methods.delete_value = function(self, value)
     local index = self:find(value)
     if not index then return end
-    gm.ds_list_delete(self.value, index)
+    gm.ds_list_delete(proxy[self], index)
 end
 
 --[[
 Deletes all elements in the list.
 ]]
 methods.clear = function(self)
-    gm.ds_list_clear(self.value)
+    gm.ds_list_clear(proxy[self])
 end
 
 --[[
@@ -159,7 +165,7 @@ Returns `true` if the list contains the specified value.
 ---@param value any The value to check.
 ---@return boolean
 methods.contains = function(self, value)
-    return (gm.ds_list_find_index(self.value, Wrap.unwrap(value)) >= 0)
+    return (gm.ds_list_find_index(proxy[self], unwrap(value)) >= 0)
 end
 
 --[[
@@ -169,7 +175,7 @@ of the specified value, or `nil` if not found.
 ---@param value any The value to search for.
 ---@return integer | nil
 methods.find = function(self, value)
-    local ret = gm.ds_list_find_index(self.value, Wrap.unwrap(value))
+    local ret = gm.ds_list_find_index(proxy[self], unwrap(value))
     if ret < 0 then return nil end
     return ret
 end
@@ -179,7 +185,7 @@ Sorts the list in ascending or descending order.
 ]]
 ---@param descending? boolean If `true`, will sort in descending order. <br>`false` by default.
 methods.sort = function(self, descending)
-    gm.ds_list_sort(self.value, not descending)
+    gm.ds_list_sort(proxy[self], not descending)
 end
 
 --[[
@@ -208,7 +214,7 @@ W.List = {
         if methods[k] then return methods[k] end
 
         -- Getter
-        k = Wrap.unwrap(k)
+        k = unwrap(k)
         return t:get(k - 1)
     end,
 
@@ -220,7 +226,7 @@ W.List = {
         end
 
         -- Setter
-        k = Wrap.unwrap(k)
+        k = unwrap(k)
         t:set(k - 1, v)
     end,
     

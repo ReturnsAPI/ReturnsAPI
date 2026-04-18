@@ -10,6 +10,12 @@ they are no longer in use to free up memory.
 Map = new_class()
 C.Map = Map
 
+local type         = type
+local table_pack   = table.pack
+local table_unpack = table.unpack
+local wrap         = Wrap.wrap
+local unwrap       = Wrap.unwrap
+
 local proxy = P.proxy
 local metatable
 
@@ -43,7 +49,7 @@ Returns a Map wrapper containing the provided map ID.
 ---@param map Map | number The ID of the map.
 ---@return Map
 Map.wrap = function(map)
-    return new_proxy(Wrap.unwrap(map), metatable)
+    return new_proxy(unwrap(map), metatable)
 end
 
 
@@ -57,7 +63,7 @@ Returns `true` if the DS Map exists.
 ]]
 ---@return boolean
 methods.exists = function(self)
-    local ret = Util.bool(gm.ds_exists(self.value, 1))
+    local ret = Util.bool(gm.ds_exists(proxy[self], 1))
     if not ret then proxy[self] = -4 end
     return ret
 end
@@ -66,7 +72,7 @@ end
 Destroys the DS Map.
 ]]
 methods.destroy = function(self)
-    gm.ds_map_destroy(self.value)
+    gm.ds_map_destroy(proxy[self])
     proxy[self] = -4
 end
 
@@ -78,8 +84,9 @@ You can also use Lua syntax (e.g., `map.my_key`).
 ---@param key any The key to get from.
 ---@return any
 methods.get = function(self, key)
-    if self.value == -4 then log.error("get: Map does not exist", 2) end
-    return Wrap.wrap(gm.ds_map_find_value(self.value, Wrap.unwrap(key)))
+    local v = proxy[self]
+    if v == -4 then log.error("get: Map does not exist", 2) end
+    return wrap(gm.ds_map_find_value(v, unwrap(key)))
 end
 
 --[[
@@ -90,8 +97,9 @@ You can also use Lua syntax (e.g., `map.my_key = 123`).
 ---@param key any The key to set to.
 ---@param value any The value to set.
 methods.set = function(self, key, value)
-    if self.value == -4 then log.error("set: Map does not exist", 2) end
-    gm.ds_map_set(self.value, Wrap.unwrap(key), Wrap.unwrap(value))
+    local v = proxy[self]
+    if v == -4 then log.error("set: Map does not exist", 2) end
+    gm.ds_map_set(v, unwrap(key), unwrap(value))
 end
 
 --[[
@@ -101,7 +109,7 @@ You can also use Lua syntax (i.e., `#map`).
 ]]
 ---@return integer size
 methods.size = function(self)
-    return gm.ds_map_size(self.value)
+    return gm.ds_map_size(proxy[self])
 end
 
 --[[
@@ -109,14 +117,14 @@ Deletes the key-value pair of the specified key.
 ]]
 ---@param key any The key to delete.
 methods.delete = function(self, key)
-    gm.ds_map_delete(self.value, Wrap.unwrap(key))
+    gm.ds_map_delete(proxy[self], unwrap(key))
 end
 
 --[[
 Deletes all key-value pairs in the map.
 ]]
 methods.clear = function(self)
-    gm.ds_map_clear(self.value)
+    gm.ds_map_clear(proxy[self])
 end
 
 --[[
@@ -164,13 +172,13 @@ W.Map = {
     end,
 
     __pairs = function(t)
-        local key = gm.ds_map_find_first(t.value)
+        local key = gm.ds_map_find_first(proxy[t])
 
         return function()
             if not key then return nil, nil end
 
             local k, v = key, t:get(key)
-            key = gm.ds_map_find_next(t.value, key)
+            key = gm.ds_map_find_next(proxy[t], key)
 
             return k, v
         end

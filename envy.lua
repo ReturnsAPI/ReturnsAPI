@@ -76,9 +76,9 @@ public.setup = function(env)
                     -- end
                 end
 
-            -- Enums
+            -- Tables
             elseif type(v) == "table" and not v.RAPI then
-                -- Copy enum values to new table
+                -- Copy pairs to new table
                 local t = {}
                 for k2, v2 in pairs(v) do
                     t[k2] = v2
