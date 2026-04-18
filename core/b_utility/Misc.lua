@@ -8,7 +8,7 @@ G.run_after_core = {}
 Returns a table with a subtable called `internal`.
 
 Methods in `internal` will *not* be exported to users, <br>
-and are meant for internal use within ReturnsAPI.
+and are meant for internal use within RAPI.
 ]]
 ---@return table
 function new_class()

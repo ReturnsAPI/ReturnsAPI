@@ -20,7 +20,7 @@ local metatable
 Returns a newly created GameMaker struct. <br>
 Can also create one from a constructor.
 ]]
----@param t? table A Lua table to create the struct from.
+---@param t? table A key-value pair table to convert into a struct.
 ---@return Struct
 Struct.new = function(t) end
 

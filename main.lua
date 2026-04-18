@@ -12,8 +12,8 @@ local function make() local _t = {} return setmetatable({}, {__index = function(
 G = {}          -- Globals
 P = P or {}     -- Persistent globals that are not reinitialized on hotload
 C = {}          -- Public classes for export
-M = M or make() -- Metatables for classes <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows ReturnsAPI hotloads to automatically update existing classes
-W = W or make() -- Metatables for wrappers <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows ReturnsAPI hotloads to automatically update existing wrappers
+M = M or make() -- Metatables for classes <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows RAPI hotloads to automatically update existing classes
+W = W or make() -- Metatables for wrappers <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows RAPI hotloads to automatically update existing wrappers
 
 -- Core
 local dirs = path.get_directories(path.combine(PATH, "core"))
@@ -35,10 +35,13 @@ end
 require("./envy")
 
 -- Tests
-require("./tests/Tests.lua")
-local dirs = path.get_directories(path.combine(PATH, "tests"))
-for _, dir in ipairs(dirs) do
-    require(path.combine(dir, "__init.lua"))
+local tests_dir = path.combine(PATH, "tests")
+if path.exists(tests_dir) then
+    require("./tests/Tests.lua")
+    local dirs = path.get_directories(tests_dir)
+    for _, dir in ipairs(dirs) do
+        require(path.combine(dir, "__init.lua"))
+    end
 end
 
 P.hotload = true
