@@ -44,7 +44,7 @@ for name, _ in pairs(gm.constants) do
         GM[name] = function(...)
             local n = select("#", ...)
             if n == 0 then return wrap(fn()) end
-            if n == 1 then return wrap(fn(unwrap(select(1, ...)))) end
+            if n == 1 then return wrap(fn(unwrap(...))) end
             return wrap(fn(unwrap_args(n, ...)))   -- TODO need to verify if this works the same as before over gm.call
         end
 
@@ -52,7 +52,7 @@ for name, _ in pairs(gm.constants) do
         GM.SO[name] = function(self, other, ...)
             local n = select("#", ...)
             if n == 0 then return wrap(gm_call(name, unwrap(self), unwrap(other))) end
-            if n == 1 then return wrap(gm_call(name, unwrap(self), unwrap(other), unwrap(select(1, ...)))) end
+            if n == 1 then return wrap(gm_call(name, unwrap(self), unwrap(other), unwrap(...))) end
             return wrap(gm_call(name, unwrap(self), unwrap(other), unwrap_args(n, ...)))
         end
 
@@ -65,11 +65,7 @@ end
 ---@class GM
 ---@field SO GM.SO
 
-M.GM = {
-    __index = function(t, k)
-        return rawget(t, k)
-    end,
-    
+M.GM = {    
     __newindex = function(t, k, v)
         log.error("GM has no properties to set", 2)
     end,
@@ -78,11 +74,7 @@ M.GM = {
 }
 setmetatable(GM, M.GM)
 
-M.GM_SO = {
-    __index = function(t, k)
-        return rawget(t, k)
-    end,
-    
+M.GM_SO = {   
     __newindex = function(t, k, v)
         log.error("GM.SO has no properties to set", 2)
     end,
