@@ -8,23 +8,30 @@ GM = new_class()
 C.GM = GM
 
 --[[
-Variant of `GM` that accepts `self` and `other`.
+Variant of `GM` that accepts `self` and `other`. <br>
+*Technical:* Uses `gm.call` (slower than `gm`).
 ]]
 ---@class GM.SO
 GM.SO = new_class()
 C.GM_SO = GM.SO
 
-local type         = type
-local rawget       = rawget
-local table_pack   = table.pack
-local table_unpack = table.unpack
-local gm           = gm
-local gm_call      = gm.call
-local wrap         = Wrap.wrap
-local unwrap       = Wrap.unwrap
+local type    = type
+local rawget  = rawget
+local select  = select
+local gm      = gm
+local gm_call = gm.call
+local wrap    = Wrap.wrap
+local unwrap  = Wrap.unwrap
 
 
 -- ========== Static Methods ==========
+
+-- This is faster than iterative `select(i, ...)`, <br>
+-- and *much* faster than `table.pack/unpack`
+local function unwrap_args(n, arg, ...)
+    if n == 0 then return end
+    return unwrap(arg), unwrap_args(n - 1, ...)
+end
 
 -- Loop through constants and add all scripts to GM
 for name, _ in pairs(gm.constants) do
@@ -33,21 +40,20 @@ for name, _ in pairs(gm.constants) do
     or _type == "gml_script" then
 
         -- Normal
+        local fn = gm[name]
         GM[name] = function(...)
-            local args = table_pack(...)
-            for i = 1, args.n do
-                args[i] = unwrap(args[i])
-            end
-            return wrap(gm[name](table_unpack(args))) -- TODO need to verify if this works over gm.call
+            local n = select("#", ...)
+            if n == 0 then return wrap(fn()) end
+            if n == 1 then return wrap(fn(unwrap(select(1, ...)))) end
+            return wrap(fn(unwrap_args(n, ...)))   -- TODO need to verify if this works the same as before over gm.call
         end
 
         -- self/other
         GM.SO[name] = function(self, other, ...)
-            local args = table_pack(...)
-            for i = 1, args.n do
-                args[i] = unwrap(args[i])
-            end
-            return wrap(gm_call(name, unwrap(self), unwrap(other), table_unpack(args)))
+            local n = select("#", ...)
+            if n == 0 then return wrap(gm_call(name, unwrap(self), unwrap(other))) end
+            if n == 1 then return wrap(gm_call(name, unwrap(self), unwrap(other), unwrap(select(1, ...)))) end
+            return wrap(gm_call(name, unwrap(self), unwrap(other), unwrap_args(n, ...)))
         end
 
     end

@@ -45,6 +45,7 @@ public.setup = function(env)
 
                     -- Handled like this to minimize function calls
                     -- More dev-friendly way would be to use table.pack and unpack
+                    -- TODO
                     -- if pos == 1 then
                     --     copy[k] = function(ns)
                     --         return v(parse_optional_namespace(ns, namespace))
