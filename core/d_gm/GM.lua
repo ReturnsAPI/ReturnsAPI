@@ -29,7 +29,7 @@ local unwrap  = Wrap.unwrap
 -- This is faster than iterative `select(i, ...)`, <br>
 -- and *much* faster than `table.pack/unpack`
 local function unwrap_args(n, arg, ...)
-    if n == 0 then return end
+    if n == 1 then return unwrap(arg) end
     return unwrap(arg), unwrap_args(n - 1, ...)
 end
 
