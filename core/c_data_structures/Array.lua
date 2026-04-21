@@ -70,7 +70,6 @@ You can also use Lua syntax (e.g., `array[4]`), which starts at `1`.
 ---@param size? integer The size of the array, if it already known (this skips a `:size()` call).
 ---@return any
 methods.get = function(self, index, size)
-    index = unwrap(index)
     size = size or self:size()
     if (index < 0) or (index >= size) then return nil end
     return wrap(gm.array_get(proxy[self], index))
@@ -84,7 +83,7 @@ You can also use Lua syntax (e.g., `array[4] = 56`), which starts at `1`.
 ---@param index integer The index to set to.
 ---@param value any The value to set.
 methods.set = function(self, index, value)
-    gm.array_set(proxy[self], unwrap(index), unwrap(value))
+    gm.array_set(proxy[self], index, unwrap(value))
 end
 
 --[[
@@ -102,7 +101,7 @@ Resizes the array.
 ]]
 ---@param size integer The new size.
 methods.resize = function(self, size)
-    gm.array_resize(proxy[self], unwrap(size))
+    gm.array_resize(proxy[self], size)
 end
 
 --[[
@@ -131,7 +130,7 @@ Inserts a value at the specified index, starting at `0`.
 ---@param index integer The index to insert at.
 ---@param value any The value to insert.
 methods.insert = function(self, index, value)
-    gm.array_insert(proxy[self], unwrap(index), unwrap(value))
+    gm.array_insert(proxy[self], index, unwrap(value))
 end
 
 --[[
@@ -140,7 +139,7 @@ Deletes value(s) from the specified index, starting at `0`.
 ---@param index integer The index to delete at.
 ---@param count? integer The number of values to delete. <br>`1` by default.
 methods.delete = function(self, index, count)
-    gm.array_delete(proxy[self], unwrap(index), unwrap(count) or 1)
+    gm.array_delete(proxy[self], index, unwrap(count) or 1)
 end
 
 --[[
@@ -150,7 +149,7 @@ Deletes the first occurence of the specified value.
 methods.delete_value = function(self, value)
     local index = self:find(unwrap(value))
     if not index then return end
-    gm.array_delete(proxy[self], unwrap(index), 1)
+    gm.array_delete(proxy[self], index, 1)
 end
 
 --[[
@@ -168,7 +167,7 @@ Returns `true` if the array contains the specified value.
 ---@param length integer The length of the subset. <br>`array:size()` by default.
 ---@return boolean
 methods.contains = function(self, value, offset, length)
-    return gm.array_contains(proxy[self], unwrap(value), unwrap(offset) or 0, unwrap(length) or self:size())
+    return gm.array_contains(proxy[self], unwrap(value), offset or 0, length or self:size())
 end
 
 --[[

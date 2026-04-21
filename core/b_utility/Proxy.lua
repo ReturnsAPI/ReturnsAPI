@@ -50,6 +50,10 @@ W.Proxy = {
         proxy[t][k] = v
     end,
 
+    __eq = function(p1, p2)
+        return proxy[p1] == proxy[p2]
+    end,
+
     __metatable = mt_wrapper_name(mt_name),
 }
 metatable = W.Proxy

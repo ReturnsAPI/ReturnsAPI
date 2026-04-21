@@ -62,3 +62,28 @@ Returns a `__metatable` string for wrappers.
 function mt_wrapper_name(name)
     return "RAPI.Wrapper."..name
 end
+
+--[[
+Handles optional namespaces for method that have them.
+]]
+---@param namespace string | nil
+---@param default_namespace string
+---@return string namespace, boolean is_specified
+function handle_optional_namespace(namespace, default_namespace)
+    local is_specified = false
+    if namespace then is_specified = true
+    else namespace = default_namespace
+    end
+    return namespace, is_specified
+end
+
+--[[
+Expands `~` to mod folder path.
+]]
+---@param namespace string
+---@param path string
+---@return string expanded_path
+function expand_path(namespace, path)
+    local expansion = P.mod_data[namespace].path.."/"
+    return path:gsub("~", expansion)
+end

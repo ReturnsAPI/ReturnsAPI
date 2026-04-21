@@ -84,7 +84,6 @@ You can also use Lua syntax (e.g., `list[4]`), which starts at `1`.
 methods.get = function(self, index, size)
     local v = proxy[self]
     if v == -4 then log.error("get: List does not exist", 2) end
-    index = unwrap(index)
     size = size or self:size()
     if (index < 0) or (index >= size) then return nil end
     return wrap(gm.ds_list_find_value(v, index))
@@ -100,7 +99,7 @@ You can also use Lua syntax (e.g., `list[4] = 56`), which starts at `1`.
 methods.set = function(self, index, value)
     local v = proxy[self]
     if v == -4 then log.error("set: List does not exist", 2) end
-    gm.ds_list_set(v, unwrap(index), unwrap(value))
+    gm.ds_list_set(v, index, unwrap(value))
 end
 
 --[[
@@ -131,7 +130,7 @@ Inserts a value at the specified index, starting at `0`.
 ---@param index integer The index to insert at.
 ---@param value any The value to insert.
 methods.insert = function(self, index, value)
-    gm.ds_list_insert(proxy[self], unwrap(index), unwrap(value))
+    gm.ds_list_insert(proxy[self], index, unwrap(value))
 end
 
 --[[
@@ -139,7 +138,7 @@ Deletes the value from the specified index, starting at `0`.
 ]]
 ---@param index integer The index to delete at.
 methods.delete = function(self, index)
-    gm.ds_list_delete(proxy[self], unwrap(index))
+    gm.ds_list_delete(proxy[self], index)
 end
 
 --[[

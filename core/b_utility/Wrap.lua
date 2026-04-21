@@ -44,8 +44,8 @@ Wrap.wrap = function(value)
         local sol = getmetatable(value).__name
         if     sol == "sol.RefDynamicArrayOfRValueLuaWrapper" then return array_wrap(value)
         elseif sol == "sol.YYObjectBaseLuaWrapper"            then return struct_wrap(value)
-        elseif sol == "sol.CInstance*"                        then return instance_wrap(value)
-        elseif sol == "sol.CScriptRef*"                       then return script_wrap(value)
+        -- elseif sol == "sol.CInstance*"                        then return instance_wrap(value)
+        -- elseif sol == "sol.CScriptRef*"                       then return script_wrap(value)
         end
     end
     return value

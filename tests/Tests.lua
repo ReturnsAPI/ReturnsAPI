@@ -4,7 +4,9 @@ local assert_filename = ""
 local assert_success = ""
 local assert_err = {}
 local report = {}
+
 local suites = {}
+local suite_names = {}
 
 ---@class Tests
 Tests = {}
@@ -109,10 +111,15 @@ function Tests.add_test_suite(name, dir)
     end
 
     suites[name] = suite
-
-    gui.add_to_menu_bar(function()
-        if ImGui.Button(name) then
-            run_test_suite(name)
-        end
-    end)
+    table.insert(suite_names, name)
 end
+
+gui.add_imgui(function()
+    if ImGui.Begin("ReturnsAPI Tests") then
+        for _, name in pairs(suite_names) do
+            if ImGui.Button(name) then
+                run_test_suite(name)
+            end
+        end
+    end
+end)

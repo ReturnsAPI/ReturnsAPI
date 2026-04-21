@@ -1,12 +1,63 @@
 -- ENVY exports
 
+local handle_optional_namespace = handle_optional_namespace
+
+run_on_initial_load(function()
+    --[[
+    Stores import property tables. <br>
+    Property tables have: `env`, `namespace`, `mp`?, `path`
+
+    Index key can be `guid` or `namespace`
+    ]]
+    P.mod_data = {}
+
+    ---@type table<env, properties>
+    P.auto_imports = {} -- Stores `_ENV`s of mods that call `.auto()`
+end)
+
 --[[
 Returns a table containing the API.
+
+Properties:
+- `env` - The `_ENV` table of your mod. <br>If not provided, automatically fetches your `_ENV`.
+- `namespace` - The namespace by which your mod is identified for custom content, etc. <br>If not provided, defaults to your mod's name.
+- `mp` - Set to `true` to mark your mod as safe to use online.
 ]]
----@param env? The ENV table of your mod. <br>If not provided, automatically fetches your ENV.
+---@param properties? table A table of import properties.
 ---@return table API
-public.setup = function(env)
-    env = env or envy.getfenv(2)
+public.setup = function(properties)
+    properties = properties or {}
+    properties.env  = properties.env or envy.getfenv(2)
+    properties.path = properties.env["!plugins_mod_folder_path"]
+
+    local guid = properties.env["!guid"]
+    local namespace = properties.namespace
+
+    -- Namespace validity check
+    if namespace then
+        namespace = tostring(namespace)
+        if namespace:find("-") then log.error("setup: Namespace cannot contain a hyphen (-)", 2) end
+    else
+        namespace = guid:sub(guid:find("-") + 1, -1)
+        log.warning("setup: No namespace provided by '"..guid.."'; defaulting to '"..namespace.."'")
+    end
+
+    -- Prevent taking a namespace already used internally
+    if namespace == RAPI_NAMESPACE
+    or namespace == "__permanent" then
+        log.error("setup: Namespace '"..namespace.."' is reserved", 2)
+    end
+
+    -- Prevent taking a namespace already used by another mod
+    local data = P.mod_data[namespace]
+    if data then
+        if guid ~= data.env["!guid"] then
+            log.error("setup: Namespace '"..namespace.."' is already in use", 2)
+        end
+    end
+
+    P.mod_data[guid]      = properties
+    P.mod_data[namespace] = properties
 
     local wrapper = {}
 
@@ -43,38 +94,36 @@ public.setup = function(env)
                     end
                     if not pos then goto continue end
 
-                    -- Handled like this to minimize function calls
-                    -- More dev-friendly way would be to use table.pack and unpack
-                    -- TODO
-                    -- if pos == 1 then
-                    --     copy[k] = function(ns)
-                    --         return v(parse_optional_namespace(ns, namespace))
-                    --     end
-                    -- elseif pos == 2 then
-                    --     copy[k] = function(arg1, ns)
-                    --         return v(arg1, parse_optional_namespace(ns, namespace))
-                    --     end
-                    -- elseif pos == 3 then
-                    --     copy[k] = function(arg1, arg2, ns)
-                    --         return v(arg1, arg2, parse_optional_namespace(ns, namespace))
-                    --     end
-                    -- elseif pos == 4 then
-                    --     copy[k] = function(arg1, arg2, arg3, ns)
-                    --         return v(arg1, arg2, arg3, parse_optional_namespace(ns, namespace))
-                    --     end
-                    -- elseif pos == 5 then
-                    --     copy[k] = function(arg1, arg2, arg3, arg4, ns)
-                    --         return v(arg1, arg2, arg3, arg4, parse_optional_namespace(ns, namespace))
-                    --     end
-                    -- elseif pos == 6 then
-                    --     copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns)
-                    --         return v(arg1, arg2, arg3, arg4, arg5, parse_optional_namespace(ns, namespace))
-                    --     end
-                    -- elseif pos == 7 then
-                    --     copy[k] = function(arg1, arg2, arg3, arg4, arg5, arg6, ns)
-                    --         return v(arg1, arg2, arg3, arg4, arg5, arg6, parse_optional_namespace(ns, namespace))
-                    --     end
-                    -- end
+                    -- Handled like this to minimize function calls (i.e., `table.pack/unpack`)
+                    if pos == 1 then
+                        copy[k] = function(ns)
+                            return v(handle_optional_namespace(ns, namespace))
+                        end
+                    elseif pos == 2 then
+                        copy[k] = function(arg1, ns)
+                            return v(arg1, handle_optional_namespace(ns, namespace))
+                        end
+                    elseif pos == 3 then
+                        copy[k] = function(arg1, arg2, ns)
+                            return v(arg1, arg2, handle_optional_namespace(ns, namespace))
+                        end
+                    elseif pos == 4 then
+                        copy[k] = function(arg1, arg2, arg3, ns)
+                            return v(arg1, arg2, arg3, handle_optional_namespace(ns, namespace))
+                        end
+                    elseif pos == 5 then
+                        copy[k] = function(arg1, arg2, arg3, arg4, ns)
+                            return v(arg1, arg2, arg3, arg4, handle_optional_namespace(ns, namespace))
+                        end
+                    elseif pos == 6 then
+                        copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns)
+                            return v(arg1, arg2, arg3, arg4, arg5, handle_optional_namespace(ns, namespace))
+                        end
+                    elseif pos == 7 then
+                        copy[k] = function(arg1, arg2, arg3, arg4, arg5, arg6, ns)
+                            return v(arg1, arg2, arg3, arg4, arg5, arg6, handle_optional_namespace(ns, namespace))
+                        end
+                    end
                 end
 
             -- Tables
@@ -102,9 +151,19 @@ end
 
 --[[
 Imports the API directly into your environment.
+
+Properties:
+- `env` - The `_ENV` table of your mod. <br>If not provided, automatically fetches your `_ENV`.
+- `namespace` - The namespace by which your mod is identified for custom content, etc. <br>If not provided, defaults to your mod's name.
+- `mp` - Set to `true` to mark your mod as safe to use online.
 ]]
-public.auto = function()
-    local env = envy.getfenv(2)
-    local wrapper = public.setup(env)
-    envy.import_all(env, wrapper)
+---@param properties? table A table of import properties.
+public.auto = function(properties)
+    properties = properties or {}
+    properties.env = properties.env or envy.getfenv(2)
+
+    local wrapper = public.setup(properties)
+    envy.import_all(properties.env, wrapper)
+
+    P.auto_imports[properties.env] = properties
 end
