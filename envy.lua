@@ -95,33 +95,35 @@ public.setup = function(properties)
                     if not pos then goto continue end
 
                     -- Handled like this to minimize function calls (i.e., `table.pack/unpack`)
+                    -- `ns or namespace` - Use default namespace if not provided
+                    -- `ns and true`     - `true` if a namespace was provided
                     if pos == 1 then
                         copy[k] = function(ns)
-                            return v(handle_optional_namespace(ns, namespace))
+                            return v(ns or namespace, ns and true)
                         end
                     elseif pos == 2 then
                         copy[k] = function(arg1, ns)
-                            return v(arg1, handle_optional_namespace(ns, namespace))
+                            return v(arg1, ns or namespace, ns and true)
                         end
                     elseif pos == 3 then
                         copy[k] = function(arg1, arg2, ns)
-                            return v(arg1, arg2, handle_optional_namespace(ns, namespace))
+                            return v(arg1, arg2, ns or namespace, ns and true)
                         end
                     elseif pos == 4 then
                         copy[k] = function(arg1, arg2, arg3, ns)
-                            return v(arg1, arg2, arg3, handle_optional_namespace(ns, namespace))
+                            return v(arg1, arg2, arg3, ns or namespace, ns and true)
                         end
                     elseif pos == 5 then
                         copy[k] = function(arg1, arg2, arg3, arg4, ns)
-                            return v(arg1, arg2, arg3, arg4, handle_optional_namespace(ns, namespace))
+                            return v(arg1, arg2, arg3, arg4, ns or namespace, ns and true)
                         end
                     elseif pos == 6 then
                         copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns)
-                            return v(arg1, arg2, arg3, arg4, arg5, handle_optional_namespace(ns, namespace))
+                            return v(arg1, arg2, arg3, arg4, arg5, ns or namespace, ns and true)
                         end
                     elseif pos == 7 then
                         copy[k] = function(arg1, arg2, arg3, arg4, arg5, arg6, ns)
-                            return v(arg1, arg2, arg3, arg4, arg5, arg6, handle_optional_namespace(ns, namespace))
+                            return v(arg1, arg2, arg3, arg4, arg5, arg6, ns or namespace, ns and true)
                         end
                     end
                 end
@@ -134,7 +136,6 @@ public.setup = function(properties)
                     t[k2] = v2
                 end
                 copy[k] = t
-
             end
 
             ::continue::
