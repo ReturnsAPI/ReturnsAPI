@@ -1,5 +1,6 @@
 ### v0.1.55
 - AttackInfo:`use_raw_damage` : Add divide-by-0 check
+- Skill : Fix `on_step` callback not working
 
 ### v0.1.54
 - Item:`create` : Add `hack_double` parameter

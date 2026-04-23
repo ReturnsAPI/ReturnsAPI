@@ -205,3 +205,13 @@ Util.table_append(methods_content_class["Skill"], {
     end
 
 })
+
+
+
+-- ========== Hooks ==========
+
+-- Allow Skill on_step callbacks to run
+gm.post_script_hook(gm.constants.skill_create, function(self, other, result, args)
+    local on_step = Global.class_skill:get(result.value):get(Skill.Property.ON_STEP)
+    Global.class_callback:get(on_step):set(1, true)
+end)
