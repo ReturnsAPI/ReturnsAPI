@@ -1,125 +1,149 @@
 -- Tests
 
-local assert_filename = ""
-local assert_success = ""
-local assert_err = {}
-local report = {}
-
-local suites = {}
-local suite_names = {}
-
 ---@class Tests
 Tests = {}
+TG = {} -- Test globals <br>Table is only rebuilt on RAPI hotload
 
---[[
-Initialize a new assert session for a test file. <br>
-Add prior assert session first if it exists.
-]]
----@param filename string
-local function assert_init(filename)
-    if not filename then log.error("assert_init: Missing filename", 2) end
+local test_fns = {} ---@type table<integer, function>
 
-    if assert_success ~= "" then
-        table.insert(report, {
-            assert_filename,
-            assert_success,
-            assert_err
-        })
+local running = 0   -- The index of the current test function. <br>Non-zero if the test suite is currently running.
+local co            ---@type coroutine Coroutine of the current test function.
+local pause_fn      ---@type function The current function pausing the coroutine; <br>`co` will resume when conditions have met.
+
+local assert_success    ---@type string ✓✗•
+local assert_err        ---@type table<integer, string>
+local msgs              ---@type table<integer, string>
+
+-- This loop allows for pausing in a test file until
+-- conditions are met, and then resuming the test
+gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
+    if running <= 0 then return end
+
+    if pause_fn then
+        pause_fn()
+        return
     end
 
-    assert_filename = filename
-    assert_success = ""
-    assert_err = {}
-end
+    if not co then
+        -- Handle end of test suite
+        if running > #test_fns then
+            running = 0
 
---[[
-Compile the results of a report, <br>
-and initialize a new one.
-]]
----@param name string The name of the report.
----@return string report
-local function compile_report(name)
-    if not name then log.error("compile_report: Missing report name", 2) end
+            -- Go back to title screen
+            -- From `gml_Object_oPauseMenu_Other_10`
+            gm.run_destroy()
+            gm.clean_instances(false)
+            gm.save_save()
+            gm.room_goto_w(gm.constants.rStart)
+            return
+        end
 
-    assert_init("")
+        -- Initialize test session for current function
+        co = coroutine.create(test_fns[running].fn)
+        assert_success = ""
+        assert_err = {}
+        msgs = {}
+    end
 
-    local out = "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-    out = out..name
-    out = out.."\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    coroutine.resume(co)
 
-    for i, assert in ipairs(report) do
-        if i > 1 then out = out.."\n" end
+    if coroutine.status(co) == "dead" then
+        -- Display results for test session
+        local data = test_fns[running]
 
-        out = out..assert[1].."\n"
-        out = out.."["..assert[2].."]\n"
-        for _, err in ipairs(assert[3]) do
-            out = out.."    ✗ "..err.."\n"
+        local out_msgs = ""
+        if data.msgs then
+            for i, msg in ipairs(data.msgs) do
+                out_msgs = out_msgs.."\n|   • "..msg
+            end
+        end
+
+        local out_err = ""
+        for i, err in ipairs(assert_err) do
+            out_err = out_err.."\n".."|   ✗ "..err
+        end
+
+        local out = string.format(
+            "\n| %s%s\n| \n| [%s]%s",
+            data.filename,
+            out_msgs,
+            assert_success,
+            out_err
+        )
+
+        if #assert_err > 0 then
+            log.warning(out)
+            running = 10000 -- Abort further tests
+        else
+            print(out)
+        end
+
+        running = running + 1
+        co = nil
+    end
+end)
+
+-- Big Red Button
+gui.add_to_menu_bar(function()
+    if ImGui.Button("Run test suite") then
+        if running <= 0 then
+            running = 1
         end
     end
+end)
 
-    out = out.."━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-    report = {}
-    return out
-end
-
----@param name string The name of the test suite.
-local function run_test_suite(name)
-    if not name then log.error("run_test_suite: Missing name", 2) end
-    if not suites[name] then log.error("Test suite '"..name.."' does not exist") end
-
-    for _, test in ipairs(suites[name]) do
-        assert_init(test.filename)
-        test.fn()
+-- Collect all test file functions
+local dirs = path.get_directories(path.combine(PATH, "tests"))
+for _, dir in ipairs(dirs) do
+    local files = path.get_files(dir)
+    for _, file in ipairs(files) do
+        local filename = path.filename(file)
+        local ret = {require(file)}
+        local fn = (type(ret[1]) == "function" and ret[1]) or ret[2]
+        if fn then
+            table.insert(test_fns, {
+                filename = filename,
+                fn       = fn,
+                msgs     = type(ret[1]) == "table" and ret[1],
+            })
+        end
     end
-
-    print(compile_report(name))
 end
 
----@param cond? any If this evaluates to `true`, the assert passes.
----@param msg string The error message to display.
----@return boolean success, any ...
-function Tests.assert(cond, msg)
-    if cond then
+
+-- ========== Static Methods ==========
+
+---@param value any The value to assert.
+---@param expected value The expected value for `value`.
+function Tests.assert(value, expected)
+    if value == expected then
         assert_success = assert_success.."✓"
         return
     end
 
     assert_success = assert_success.."."
-    local src = debug.getinfo(2, "l").currentline
-    table.insert(assert_err, "Line "..src..": "..msg)
+    local err = string.format(
+        "Line %d: got %s (expected %s)",
+        debug.getinfo(2, "l").currentline,
+        tostring(value),
+        tostring(expected)
+    )
+    table.insert(assert_err, err)
 end
 
----@param name string The name of the test suite.
----@param dir string The path to the test suite directory.
-function Tests.add_test_suite(name, dir)
-    if not name then log.error("add_test_suite: Missing name", 2) end
-    if not dir then log.error("add_test_suite: Missing dir", 2) end
-
-    local suite = {}
-
-    ---@type table<integer, string>
-    local files = path.get_files(dir)
-    for _, file in ipairs(files) do
-        local filename = path.filename(file)
-        if filename ~= "__init.lua" then
-            table.insert(suite, {
-                filename = filename,
-                fn       = require(file),
-            })
-        end
-    end
-
-    suites[name] = suite
-    table.insert(suite_names, name)
+--[[
+Pause the current test.
+]]
+---@param fn The pause function to run.
+function Tests.pause(fn)
+    if not fn then throw("fn not provided") end
+    pause_fn = fn
+    coroutine.yield(co)
 end
 
-gui.add_imgui(function()
-    if ImGui.Begin("ReturnsAPI Tests") then
-        for _, name in pairs(suite_names) do
-            if ImGui.Button(name) then
-                run_test_suite(name)
-            end
-        end
-    end
-end)
+--[[
+Resume a paused test. <br>Should be called in the pause function when done.
+]]
+function Tests.resume()
+    pause_fn = nil
+end

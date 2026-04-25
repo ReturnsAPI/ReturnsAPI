@@ -35,13 +35,8 @@ end
 require("./envy")
 
 -- Tests
-local tests_dir = path.combine(PATH, "tests")
-if path.exists(tests_dir) then
+if path.exists(path.combine(PATH, "tests")) then
     require("./tests/Tests.lua")
-    local dirs = path.get_directories(tests_dir)
-    for _, dir in ipairs(dirs) do
-        require(path.combine(dir, "__init.lua"))
-    end
 end
 
 P.hotload = true

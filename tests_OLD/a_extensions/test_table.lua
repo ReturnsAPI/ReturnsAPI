@@ -38,6 +38,12 @@ return function()
     r = Table.find(t2, 5)
     Tests.assert(r == "x" or r == "y", "`find(t2, 5)` is "..tostring(r))
 
+    local t100 = {1, 2, 3, 4, 3, 5}
+    Table.remove_value(t100, 3)
+    Tests.assert(#t100 == 5, "`#t100` is "..tostring(#t100))
+    Tests.assert(t100[3] == 4, "`t100[3]` is "..tostring(t100[3]))
+    Tests.assert(t100[4] == 3, "`t100[4]` is "..tostring(t100[4]))
+
     -- ===== Table.merge =====
     local t3 = { a = 1, b = 2 }
     Table.merge(t3, { b = 3, c = 4 })

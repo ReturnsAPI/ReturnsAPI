@@ -10,14 +10,15 @@ Struct wrappers can be get/set to using dot syntax <br>
 Struct = new_class()
 C.Struct = Struct
 
+local proxy = P.proxy
+local metatable
+
 local type         = type
 local table_pack   = table.pack
 local table_unpack = table.unpack
+local new_proxy    = new_proxy
 local wrap         = Wrap.wrap
 local unwrap       = Wrap.unwrap
-
-local proxy = P.proxy
-local metatable
 
 
 -- ========== Static Methods ==========
@@ -80,11 +81,9 @@ Returns a table of keys in use by the struct.
 ]]
 ---@return table
 methods.get_keys = function(self)
-    local arr = Array.wrap(gm.variable_struct_get_names(proxy[self]))
+    local arr = Array.wrap(gm.variable_struct_get_names(self.value))
     local keys = {}
-    for i, v in ipairs(arr) do
-        keys[i] = v
-    end
+    for i, v in ipairs(arr) do keys[i] = v end
     return keys
 end
 
@@ -92,7 +91,17 @@ end
 Prints the struct.
 ]]
 methods.print = function(self)
-    -- TODO
+    local str = ""
+    local keys = self:get_keys()
+    for _, key in ipairs(keys) do
+        str = string.format(
+            "%s\n%s = %s",
+            str,
+            String.pad_right(key, 32),
+            Util.tostring(self[key])
+        )
+    end
+    print(str)
 end
 
 

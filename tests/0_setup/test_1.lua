@@ -1,0 +1,12 @@
+-- return function()
+--     Tests.assert(1, 1)
+--     Tests.assert("foo", "foo")
+
+--     local i = 0
+--     Tests.pause(function()
+--         i = i + 1
+--         if i >= 10 then
+--             Tests.resume()
+--         end
+--     end)
+-- end

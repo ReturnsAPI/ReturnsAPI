@@ -4,14 +4,14 @@
 Wrap = new_class()
 C.Wrap = Wrap
 
-local type = type
-local getmetatable = getmetatable
-
 local proxy = P.proxy
-local array_wrap
-local struct_wrap
-local instance_wrap
-local script_wrap
+
+local type         = type
+local getmetatable = getmetatable
+local array_wrap    ---@type function
+local struct_wrap   ---@type function
+local instance_wrap ---@type function
+local script_wrap   ---@type function
 
 run_after_core(function()
     array_wrap    = Array.wrap

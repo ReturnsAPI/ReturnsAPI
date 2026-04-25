@@ -1,0 +1,7 @@
+-- return {
+--     "There should be a fail for this one",
+--     "This is a second line; this should also be a `log.warning`",
+-- },
+-- function()
+--     Tests.assert(1, 2)
+-- end

@@ -1,8 +1,15 @@
 -- Misc
 
+local debug_getinfo = debug.getinfo
+local log_error     = log.error
+
 ---Functions to run after `core` has loaded.
 ---@type table<integer, function>
 G.run_after_core = {}
+
+---Functions to run during content initialization.
+---@type table<integer, function>
+G.run_on_initialize = {}
 
 --[[
 Returns a table with a subtable called `internal`.
@@ -46,6 +53,14 @@ function run_after_core(fn)
 end
 
 --[[
+Runs a function during the content initialization loop, <br>
+before all other mods' functions.
+]]
+function run_on_initialize(fn)
+    table.insert(G.run_on_initialize, fn)
+end
+
+--[[
 Returns a `__metatable` string for classes.
 ]]
 ---@param name string
@@ -72,4 +87,15 @@ Expands `~` to mod folder path.
 function expand_path(namespace, path)
     local expansion = P.mod_data[namespace].path.."/"
     return path:gsub("~", expansion)
+end
+
+--[[
+Variant of `log.error` for use in methods. <br>
+Automatically prepends the method name and uses correct level of error.
+]]
+function throw(msg)
+    local name = debug_getinfo(2, "n").name
+    log_error(name..": "..msg, 3)
+
+    -- TODO blame might need to go +1 level for ns-binded closures?
 end

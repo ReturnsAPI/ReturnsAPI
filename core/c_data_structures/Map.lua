@@ -10,14 +10,15 @@ they are no longer in use to free up memory.
 Map = new_class()
 C.Map = Map
 
+local proxy = P.proxy
+local metatable
+
 local type         = type
 local table_pack   = table.pack
 local table_unpack = table.unpack
+local new_proxy    = new_proxy
 local wrap         = Wrap.wrap
 local unwrap       = Wrap.unwrap
-
-local proxy = P.proxy
-local metatable
 
 
 -- ========== Static Methods ==========
@@ -85,7 +86,7 @@ You can also use Lua syntax (e.g., `map.my_key`).
 ---@return any
 methods.get = function(self, key)
     local v = proxy[self]
-    if v == -4 then log.error("get: Map does not exist", 2) end
+    if v == -4 then throw("Map does not exist") end
     return wrap(gm.ds_map_find_value(v, unwrap(key)))
 end
 
@@ -98,7 +99,7 @@ You can also use Lua syntax (e.g., `map.my_key = 123`).
 ---@param value any The value to set.
 methods.set = function(self, key, value)
     local v = proxy[self]
-    if v == -4 then log.error("set: Map does not exist", 2) end
+    if v == -4 then throw("Map does not exist") end
     gm.ds_map_set(v, unwrap(key), unwrap(value))
 end
 
@@ -131,7 +132,17 @@ end
 Prints the map.
 ]]
 methods.print = function(self)
-    -- TODO
+    local str = ""
+    local keys = GM.ds_map_keys_to_array(self.value)
+    for _, key in ipairs(keys) do
+        str = string.format(
+            "%s\n%s = %s",
+            str,
+            String.pad_right(key, 32),
+            Util.tostring(self[key])
+        )
+    end
+    print(str)
 end
 
 

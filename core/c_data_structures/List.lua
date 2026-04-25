@@ -10,14 +10,15 @@ they are no longer in use to free up memory.
 List = new_class()
 C.List = List
 
+local proxy = P.proxy
+local metatable
+
 local type         = type
 local table_pack   = table.pack
 local table_unpack = table.unpack
+local new_proxy    = new_proxy
 local wrap         = Wrap.wrap
 local unwrap       = Wrap.unwrap
-
-local proxy = P.proxy
-local metatable
 
 
 -- ========== Static Methods ==========
@@ -83,7 +84,7 @@ You can also use Lua syntax (e.g., `list[4]`), which starts at `1`.
 ---@return any
 methods.get = function(self, index, size)
     local v = proxy[self]
-    if v == -4 then log.error("get: List does not exist", 2) end
+    if v == -4 then throw("List does not exist") end
     size = size or self:size()
     if (index < 0) or (index >= size) then return nil end
     return wrap(gm.ds_list_find_value(v, index))
@@ -98,7 +99,7 @@ You can also use Lua syntax (e.g., `list[4] = 56`), which starts at `1`.
 ---@param value any The value to set.
 methods.set = function(self, index, value)
     local v = proxy[self]
-    if v == -4 then log.error("set: List does not exist", 2) end
+    if v == -4 then throw("List does not exist") end
     gm.ds_list_set(v, index, unwrap(value))
 end
 
@@ -191,7 +192,17 @@ end
 Prints the list.
 ]]
 methods.print = function(self)
-    -- TODO
+    local str = ""
+    local index_padding = #tostring(#self) + 2
+    for i, v in ipairs(self) do
+        str = string.format(
+            "%s\n%s %s",
+            str,
+            String.pad_right(string.format("[%d]", i - 1), index_padding),
+            Util.tostring(v)
+        )
+    end
+    print(str)
 end
 
 

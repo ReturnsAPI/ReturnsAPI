@@ -4,12 +4,17 @@ local handle_optional_namespace = handle_optional_namespace
 
 run_on_initial_load(function()
     --[[
-    Stores import property tables. <br>
-    Property tables have: `env`, `namespace`, `mp`?, `path`
-
-    Index key can be `guid` or `namespace`
+    Stores import property tables (`@class ModData`). <br>
+    Index key can be `guid` or `namespace`.
     ]]
+    ---@type table<string, ModData>
     P.mod_data = {}
+
+    ---@class ModData
+    ---@field env table
+    ---@field namespace string
+    ---@field path string
+    ---@field mp boolean
 
     ---@type table<env, properties>
     P.auto_imports = {} -- Stores `_ENV`s of mods that call `.auto()`
@@ -26,6 +31,7 @@ Properties:
 ---@param properties? table A table of import properties.
 ---@return table API
 public.setup = function(properties)
+    ---@type ModData
     properties = properties or {}
     properties.env  = properties.env or envy.getfenv(2)
     properties.path = properties.env["!plugins_mod_folder_path"]
@@ -56,6 +62,7 @@ public.setup = function(properties)
         end
     end
 
+    properties.namespace  = namespace
     P.mod_data[guid]      = properties
     P.mod_data[namespace] = properties
 
@@ -147,6 +154,9 @@ public.setup = function(properties)
         wrapper[name] = copy
     end
 
+    -- Create own version of `Util.print`
+    wrapper.Util.print = Util.internal.make_print(guid)
+
     return wrapper
 end
 
@@ -160,11 +170,35 @@ Properties:
 ]]
 ---@param properties? table A table of import properties.
 public.auto = function(properties)
+    ---@type ModData
     properties = properties or {}
     properties.env = properties.env or envy.getfenv(2)
+    local env = properties.env
 
     local wrapper = public.setup(properties)
-    envy.import_all(properties.env, wrapper)
+    envy.import_all(env, wrapper)
 
-    P.auto_imports[properties.env] = properties
+    P.auto_imports[env] = properties
+
+    -- Add extensions directly to Lua's tables
+    for k, v in pairs(Math)   do env.math[k]   = v end
+    for k, v in pairs(String) do env.string[k] = v end
+    for k, v in pairs(Table)  do env.table[k]  = v end
+
+    -- Override default `print`, type`, and `tostring`
+    if not env.lua_print then
+        env.lua_print    = env.print
+        env.lua_type     = env.type
+        env.lua_tostring = env.tostring
+    end
+    env.print    = wrapper.Util.print
+    env.type     = wrapper.Util.type
+    env.tostring = wrapper.Util.tostring
 end
+
+-- NOTE: Do service subscriptions for `setup()` too,
+-- but not anything that imports directly into env
+    -- Subscriptions:
+    -- * Language autoregister
+    -- * MP check
+    -- * Remove callback functions on hotload

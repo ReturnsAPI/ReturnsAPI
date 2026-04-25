@@ -7,6 +7,8 @@ C.ReadOnly = ReadOnly
 local proxy = P.proxy
 local metatable
 
+local new_proxy = new_proxy
+
 
 -- ========== Static Methods ==========
 

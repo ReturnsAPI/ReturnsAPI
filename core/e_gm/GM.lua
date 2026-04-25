@@ -24,7 +24,7 @@ local wrap    = Wrap.wrap
 local unwrap  = Wrap.unwrap
 
 
--- ========== Static Methods ==========
+-- ========== Private Methods ==========
 
 -- This is faster than iterative `select(i, ...)`, <br>
 -- and *much* faster than `table.pack/unpack`
@@ -32,6 +32,9 @@ local function unwrap_args(n, arg, ...)
     if n == 1 then return unwrap(arg) end
     return unwrap(arg), unwrap_args(n - 1, ...)
 end
+
+
+-- ========== Static Methods ==========
 
 -- Loop through constants and add all scripts to GM
 for name, _ in pairs(gm.constants) do

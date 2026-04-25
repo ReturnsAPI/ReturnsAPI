@@ -7,14 +7,15 @@ Allows for easier manipulation of GameMaker arrays.
 Array = new_class()
 C.Array = Array
 
+local proxy = P.proxy
+local metatable
+
 local type         = type
 local table_pack   = table.pack
 local table_unpack = table.unpack
+local new_proxy    = new_proxy
 local wrap         = Wrap.wrap
 local unwrap       = Wrap.unwrap
-
-local proxy = P.proxy
-local metatable
 
 
 -- ========== Static Methods ==========
@@ -50,8 +51,7 @@ Returns an Array wrapper containing the provided array.
 ---@param array Array | sol.RefDynamicArrayOfRValue* The array to wrap.
 ---@return Array
 Array.wrap = function(array)
-    array = unwrap(array)
-    return new_proxy(array, metatable)
+    return new_proxy(unwrap(array), metatable)
 end
 
 
@@ -196,7 +196,17 @@ end
 Prints the array.
 ]]
 methods.print = function(self)
-    -- TODO
+    local str = ""
+    local index_padding = #tostring(#self) + 2
+    for i, v in ipairs(self) do
+        str = string.format(
+            "%s\n%s %s",
+            str,
+            String.pad_right(string.format("[%d]", i - 1), index_padding),
+            Util.tostring(v)
+        )
+    end
+    print(str)
 end
 
 
