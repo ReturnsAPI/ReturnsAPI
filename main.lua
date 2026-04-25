@@ -15,7 +15,15 @@ C = {}          -- Public classes for export
 M = M or make() -- Metatables for classes <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows RAPI hotloads to automatically update existing classes
 W = W or make() -- Metatables for wrappers <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows RAPI hotloads to automatically update existing wrappers
 
--- Core
+-- Run import functions for RAPI itself
+-- This needs to be called before loading core
+if P.run_on_import then
+    for _, fn in ipairs(P.run_on_import) do
+        fn(RAPI_NAMESPACE)
+    end
+end
+
+-- core/
 local dirs = path.get_directories(path.combine(PATH, "core"))
 for _, dir in ipairs(dirs) do
     local files = path.get_files(dir)
@@ -34,7 +42,7 @@ end
 -- ENVY exports
 require("./envy")
 
--- Tests
+-- tests/
 if path.exists(path.combine(PATH, "tests")) then
     require("./tests/Tests.lua")
 end

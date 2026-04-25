@@ -8,13 +8,14 @@ local test_fns = {} ---@type table<integer, function>
 
 local running = 0   -- The index of the current test function. <br>Non-zero if the test suite is currently running.
 local co            ---@type coroutine Coroutine of the current test function.
-local pause_fn      ---@type function The current function pausing the coroutine; <br>`co` will resume when conditions have met.
+local pause_fn      ---@type function The current function pausing the coroutine; runs every frame. <br>`co` will resume when conditions have met; call `Tests.resume()`.
 
 local assert_success    ---@type string ✓✗•
 local assert_err        ---@type table<integer, string>
 local msgs              ---@type table<integer, string>
 
--- This loop allows for pausing in a test file until
+-- Test functions are executed in this loop
+-- Allows for pausing in a test file until
 -- conditions are met, and then resuming the test
 gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
     if running <= 0 then return end
@@ -45,7 +46,10 @@ gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, resu
         msgs = {}
     end
 
-    coroutine.resume(co)
+    local success, err = coroutine.resume(co)
+    if not success then
+        table.insert(assert_err, err)
+    end
 
     if coroutine.status(co) == "dead" then
         -- Display results for test session
@@ -150,7 +154,7 @@ function Tests.resume()
 end
 
 --[[
-Shortcut function for going to title screen.
+Shortcut function for going to the title screen.
 ]]
 function Tests.goto_title()
     -- Go to title screen

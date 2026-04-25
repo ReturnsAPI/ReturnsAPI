@@ -15,7 +15,7 @@ local metatable
 --[[
 Returns a new CallbackTable.
 ]]
----@param counter? table<string, integer> A table containing `value = <integer>`. <br>Used to sync unique ID counters between CallbackTables.
+---@param counter? table<string, integer> A table containing `value = <integer>`. <br>Used to sync unique ID counters between CallbackTables. <br>`0` by default.
 ---@return CallbackTable
 CallbackTable.new = function(counter)
     ---@class CallbackTable

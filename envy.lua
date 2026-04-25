@@ -18,6 +18,17 @@ run_on_initial_load(function()
 
     ---@type table<env, properties>
     P.auto_imports = {} -- Stores `_ENV`s of mods that call `.auto()`
+
+    -- Store RAPI's own properties
+    ---@type ModData
+    local p = {
+        env       = _ENV,
+        mp        = true,
+        namespace = RAPI_NAMESPACE,
+        path      = _ENV["!plugins_mod_folder_path"],
+    }
+    P.mod_data[_ENV["!guid"]]  = p
+    P.mod_data[RAPI_NAMESPACE] = p
 end)
 
 --[[
@@ -157,6 +168,13 @@ public.setup = function(properties)
     -- Create own version of `Util.print`
     wrapper.Util.print = Util.internal.make_print(guid)
 
+    -- Run import functions
+    if P.run_on_import then
+        for _, fn in ipairs(P.run_on_import) do
+            fn(namespace)
+        end
+    end
+
     return wrapper
 end
 
@@ -201,4 +219,4 @@ end
     -- Subscriptions:
     -- * Language autoregister
     -- * MP check
-    -- * Remove callback functions on hotload
+    -- ✓ Remove callback functions on hotload

@@ -21,6 +21,8 @@ local banned_scripts = {
     [gm.constants.actor_heal_raw] = true,
 }
 
+local queue_manage = {}
+
 local proxy = P.proxy
 local metatable
 
@@ -68,9 +70,9 @@ local function manage_pre_hook(script)
             local _args_og = {}
 
             for i, arg in ipairs(args) do
-                local wrap = { value = wrap(arg.value) }
-                _args[i]    = wrap
-                _args_og[i] = wrap
+                local wrapped = wrap(arg.value)
+                _args[i]    = { value = wrapped }
+                _args_og[i] = wrapped
             end
 
             -- Call registered functions
@@ -95,13 +97,14 @@ local function manage_pre_hook(script)
             -- Args modification
             for i, arg in ipairs(_args) do
                 local og = _args_og[i]
-                if  arg == og
-                and arg.value ~= og.value then
+                if  type(arg) == "table"
+                and arg.value ~= og then
                     args[i].value = unwrap(arg.value)
                 end
             end
 
-            return hook_return
+            -- return hook_return
+            return false
         end)
 
     -- Object event
@@ -283,6 +286,7 @@ Hook.add_pre = function(NAMESPACE, script, priority, fn)
     end
     P.hook_id_to_table[value] = hook_table
 
+    hook_table.script = script
     manage_pre_hook(script)
 
     return wrapper
@@ -344,6 +348,7 @@ Hook.add_post = function(NAMESPACE, script, priority, fn)
     end
     P.hook_id_to_table[value] = hook_table
 
+    hook_table.script = script
     manage_post_hook(script)
 
     return wrapper
@@ -366,6 +371,7 @@ Hook.remove_all = function(NAMESPACE)
         end
     end
 end
+run_on_import(Hook.remove_all)
 
 --[[
 Returns a Hook wrapper containing the provided array.
@@ -389,6 +395,7 @@ Removes and returns the function.
 methods.remove = function(self)
     local id = proxy[self]
     local t  = P.hook_id_to_table[id]
+    table.insert(queue_manage, t.script)
     return t:remove(id)
 end
 
@@ -410,6 +417,7 @@ Enables/disables the function.
 methods.toggle = function(self, value)
     local id = proxy[self]
     local t  = P.hook_id_to_table[id]
+    table.insert(queue_manage, t.script)
     t:toggle(id, value)
 end
 
@@ -439,3 +447,15 @@ W.Hook = {
     __metatable = mt_wrapper_name(mt_name),
 }
 metatable = W.Hook
+
+
+-- ========== Hooks ==========
+
+Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, function(self, other, result, args)
+    if #queue_manage <= 0 then return end
+    for _, scr in ipairs(queue_manage) do
+        if P.pre_hooks[scr]  then manage_pre_hook(scr) end
+        if P.post_hooks[scr] then manage_post_hook(scr) end
+    end
+    queue_manage = {}
+end)

@@ -11,6 +11,12 @@ G.run_after_core = {}
 ---@type table<integer, function>
 G.run_on_initialize = {}
 
+---Functions to run when RAPI is imported. <br>
+---This is in `P` so that RAPI can <br>
+---run it for itself on hotload.
+---@type table<integer, function>
+P.run_on_import = {}
+
 --[[
 Returns a table with a subtable called `internal`.
 
@@ -58,6 +64,17 @@ before all other mods' functions.
 ]]
 function run_on_initialize(fn)
     table.insert(G.run_on_initialize, fn)
+end
+
+--[[
+Runs a function for a mod when it imports RAPI, <br>
+including when it hotloads.
+
+The function will be passed the mod's namespace.
+]]
+---@param fn function The function to run.
+function run_on_import(fn)
+    table.insert(P.run_on_import, fn)
 end
 
 --[[
