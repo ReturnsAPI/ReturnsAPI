@@ -142,8 +142,61 @@ function Tests.pause(fn)
 end
 
 --[[
-Resume a paused test. <br>Should be called in the pause function when done.
+Resume a paused test. <br>
+Should be called in the pause function when done.
 ]]
 function Tests.resume()
     pause_fn = nil
+end
+
+--[[
+Shortcut function for going to title screen.
+]]
+function Tests.goto_title()
+    -- Go to title screen
+    -- From `gml_Object_oPauseMenu_Other_10`
+    gm.run_destroy()
+    gm.clean_instances(false)
+    gm.save_save()
+    gm.room_goto_w(gm.constants.rStart)
+
+    Tests.pause(function()
+        -- Resume when on title screen
+        if gm.bool(gm.instance_exists(gm.constants.oStartMenu)) then
+            Tests.resume()
+        end
+    end)
+end
+
+--[[
+Shortcut function for starting a new run. <br>
+Always passes through the title screen first.
+]]
+function Tests.start_run()
+    Tests.goto_title()
+
+    -- Go to CSS
+    -- From `gml_Object_oStartMenu_Create_0`
+    gm.variable_global_set("coop", 0)
+    gm.variable_global_set("__gamemode_current", 0)
+    gm.game_lobby_start()
+    gm.room_goto_w(gm.constants.rSelect)
+
+    Tests.pause(function()
+        -- Resume when on CSS
+        if gm.bool(gm.instance_exists(gm.constants.oSelectMenu)) then
+            Tests.resume()
+        end
+    end)
+
+    -- Start a run
+    local s = gm.instance_find(gm.constants.oSelectMenu, 0)
+    s.run_start(s, s)
+
+    Tests.pause(function()
+        -- Resume when player has loaded
+        if gm.bool(gm.instance_exists(gm.constants.oP)) then
+            Tests.resume()
+        end
+    end)
 end
