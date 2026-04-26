@@ -14,11 +14,10 @@ return function()
 
         result.value = 789
     end)
-
     Tests.assert(post_hook.RAPI, "Hook")
     Tests.assert(post_hook:is_enabled(), true)
 
-    Tests.pause(function() Tests.resume() end)  -- Pause for 1 frame
+    Tests.pause_for(1)
 
     local result = gm.function_dummy(123, 456, "wow")
     Tests.assert(counter, 1)
@@ -59,11 +58,10 @@ return function()
         
         args[1].value = 1000
     end)
-
     Tests.assert(pre_hook.RAPI, "Hook")
     Tests.assert(pre_hook:is_enabled(), true)
 
-    Tests.pause(function() Tests.resume() end)  -- Pause for 1 frame
+    Tests.pause_for(1)
 
     local result = gm.function_dummy(123, 456, "wow")
     Tests.assert(counter, 1)
@@ -90,7 +88,7 @@ return function()
     local pre = Hook.add_pre(RAPI_NAMESPACE, gm.constants.instance_create, function(self, other, result, args)
         return false
     end)
-    Tests.pause(function() Tests.resume() end)
+    Tests.pause_for(1)
 
     local n = gm.instance_number(gm.constants.oLizard)
     gm.instance_create(100, 100, gm.constants.oLizard)

@@ -197,8 +197,8 @@ Table.append_new = function(...)
 end
 
 --[[
-Returns a set from a list of keys <br>
-(i.e., table where `k = true` for all `k` in the list).
+Returns a set from a list of keys. <br>
+**set** - table where `k = true` for all `k` in the list
 ]]
 ---@param t table The list of keys.
 ---@return table set
@@ -211,8 +211,8 @@ Table.set = function(t)
 end
 
 --[[
-Returns an enum from a list of keys <br>
-(i.e., table where `k = <number>` for all `k` in the list).
+Returns an enum from a list of keys. <br>
+**enum** - table where `k = <number>` for all `k` in the list
 ]]
 ---@param t table The list of keys.
 ---@param start? float The starting value for the first element. <br>`1` by default.

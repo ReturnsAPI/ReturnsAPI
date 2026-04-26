@@ -108,8 +108,8 @@ end
 -- ========== Metatables ==========
 
 ---@class Struct
----@field value sol.YYObjectBase*
----@field cinstance sol.YYObjectBase*
+---@field value sol.YYObjectBaseLuaWrapper
+---@field cinstance sol.YYObjectBaseLuaWrapper
 ---@field RAPI string
 
 local mt_name = "Struct"

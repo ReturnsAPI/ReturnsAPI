@@ -14,11 +14,11 @@ run_on_initial_load(function()
 end)
 
 -- Scripts that are (potentially) bad for performance
-local banned_scripts = {
-    [gm.constants.step_actor]     = true,
-    [gm.constants.draw_actor]     = true,
-    [gm.constants.step_buff]      = true,
-    [gm.constants.actor_heal_raw] = true,
+local banned_scripts = table.set{
+    gm.constants.step_actor,
+    gm.constants.draw_actor,
+    gm.constants.step_buff,
+    gm.constants.actor_heal_raw,
 }
 
 local queue_manage = {}
@@ -59,6 +59,8 @@ local function manage_pre_hook(script)
         return
     end
 
+    local hook_functions = P.pre_hook_functions[script]
+
     -- Script
     if type(script) == "number" then
         P.pre_hooks[script] = gm.pre_script_hook(script, function(self, other, result, args)
@@ -69,8 +71,8 @@ local function manage_pre_hook(script)
             local _args    = {}
             local _args_og = {}
 
-            for i, arg in ipairs(args) do
-                local wrapped = wrap(arg.value)
+            for i = 1, #args do
+                local wrapped = wrap(args[i].value)
                 _args[i]    = { value = wrapped }
                 _args_og[i] = wrapped
             end
@@ -78,7 +80,8 @@ local function manage_pre_hook(script)
             -- Call registered functions
             local hook_return = true
 
-            for i, data in ipairs(P.pre_hook_functions[script]) do
+            for i = 1, #hook_functions do
+                local data = hook_functions[i]
                 if data.enabled then
                     local status, out = pcall(data.fn, _self, _other, _result, _args)
                     if not status then
@@ -95,7 +98,8 @@ local function manage_pre_hook(script)
             end
 
             -- Args modification
-            for i, arg in ipairs(_args) do
+            for i = 1, #_args do
+                local arg = _args[i]
                 local og = _args_og[i]
                 if  type(arg) == "table"
                 and arg.value ~= og then
@@ -103,8 +107,7 @@ local function manage_pre_hook(script)
                 end
             end
 
-            -- return hook_return
-            return false
+            return hook_return
         end)
 
     -- Object event
@@ -117,7 +120,8 @@ local function manage_pre_hook(script)
             -- Call registered functions
             local hook_return = true
 
-            for i, data in ipairs(P.pre_hook_functions[script]) do
+            for i = 1, #hook_functions do
+                local data = hook_functions[i]
                 if data.enabled then
                     local status, out = pcall(data.fn, _self, _other)
                     if not status then
@@ -154,6 +158,8 @@ local function manage_post_hook(script)
         return
     end
 
+    local hook_functions = P.post_hook_functions[script]
+
     -- Script
     if type(script) == "number" then
         P.post_hooks[script] = gm.post_script_hook(script, function(self, other, result, args)
@@ -164,12 +170,13 @@ local function manage_post_hook(script)
             local _result    = { value = _result_og }
             local _args      = {}
 
-            for i, arg in ipairs(args) do
-                _args[i] = { value = wrap(arg.value) }
+            for i = 1, #args do
+                _args[i] = { value = wrap(args[i].value) }
             end
 
             -- Call registered functions
-            for i, data in ipairs(P.post_hook_functions[script]) do
+            for i = 1, #hook_functions do
+                local data = hook_functions[i]
                 if data.enabled then
                     local status, out = pcall(data.fn, _self, _other, _result, _args)
                     if not status then
@@ -196,7 +203,8 @@ local function manage_post_hook(script)
             local _other = wrap(other)
 
             -- Call registered functions
-            for i, data in ipairs(P.post_hook_functions[script]) do
+            for i = 1, #hook_functions do
+                local data = hook_functions[i]
                 if data.enabled then
                     local status, out = pcall(data.fn, _self, _other)
                     if not status then
@@ -451,7 +459,7 @@ metatable = W.Hook
 
 -- ========== Hooks ==========
 
-Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, function(self, other, result, args)
+gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
     if #queue_manage <= 0 then return end
     for _, scr in ipairs(queue_manage) do
         if P.pre_hooks[scr]  then manage_pre_hook(scr) end

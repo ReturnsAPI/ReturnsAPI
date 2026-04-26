@@ -68,7 +68,7 @@ end
 ---@class GM
 ---@field SO GM.SO
 
-M.GM = {    
+M.GM = {
     __newindex = function(t, k, v)
         log.error("GM has no properties to set", 2)
     end,
@@ -77,7 +77,7 @@ M.GM = {
 }
 setmetatable(GM, M.GM)
 
-M.GM_SO = {   
+M.GM_SO = {
     __newindex = function(t, k, v)
         log.error("GM.SO has no properties to set", 2)
     end,

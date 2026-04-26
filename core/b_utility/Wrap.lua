@@ -30,7 +30,7 @@ or `value` if it is not a wrapper.
 ---@param value any The value to unwrap (if applicable).
 ---@return any
 Wrap.unwrap = function(value)
-    -- TODO For RAPI itself, inline this directly in build script
+    -- TODO For RAPI itself, inline this directly in build script(?)
     return proxy[value] or value
 end
 

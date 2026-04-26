@@ -7,7 +7,7 @@ TG = {} -- Test globals <br>Table is only rebuilt on RAPI hotload
 local test_fns = {} ---@type table<integer, function>
 
 local running = 0   -- The index of the current test function. <br>Non-zero if the test suite is currently running.
-local co            ---@type coroutine Coroutine of the current test function.
+local co            ---@type thread Coroutine of the current test function.
 local pause_fn      ---@type function The current function pausing the coroutine; runs every frame. <br>`co` will resume when conditions have met; call `Tests.resume()`.
 
 local assert_success    ---@type string ✓✗•
@@ -200,6 +200,19 @@ function Tests.start_run()
     Tests.pause(function()
         -- Resume when player has loaded
         if gm.bool(gm.instance_exists(gm.constants.oP)) then
+            Tests.resume()
+        end
+    end)
+end
+
+--[[
+Shortcut function for pausing for `n` frames.
+]]
+---@param n integer The number of frames to pause for.
+function Tests.pause_for(n)
+    Tests.pause(function()
+        n = n - 1
+        if n <= 0 then
             Tests.resume()
         end
     end)

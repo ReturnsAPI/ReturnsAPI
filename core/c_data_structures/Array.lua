@@ -213,7 +213,7 @@ end
 -- ========== Metatables ==========
 
 ---@class Array
----@field value sol.RefDynamicArrayOfRValue*
+---@field value sol.RefDynamicArrayOfRValueLuaWrapper
 ---@field RAPI string
 
 local mt_name = "Array"
