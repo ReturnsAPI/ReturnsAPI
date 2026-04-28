@@ -411,7 +411,17 @@ gm.post_script_hook(gm.constants.item_give_internal, function(self, other, resul
     __actors_holding_item[item_id][actor_id] = true
     __actors_holding_item[actor_id] = __actors_holding_item[actor_id] or {}
     __actors_holding_item[actor_id][item_id] = true
+
+    if gm.event_hook_pre_has(args[1].value, gm.constants.ev_destroy, 0, "__actors_holding_item_destroy") then return end
+
+    gm.event_hook_pre_add(args[1].value, gm.constants.ev_destroy, 0, "__actors_holding_item_destroy", function(inst)
+        for item_id, _ in pairs(__actors_holding_item[actor_id]) do
+            __actors_holding_item[item_id][actor_id] = nil
+        end
+        __actors_holding_item[actor_id] = nil
+    end)
 end)
+
 
 gm.post_script_hook(gm.constants.item_take_internal, function(self, other, result, args)
     local actor     = Instance.wrap(args[1].value)
