@@ -1,5 +1,5 @@
 ### v0.1.56
-- Item:`get_holding_actors` : Fix deleted instances being returned because of not being removed from cache correctly
+- Item:`get_holding_actors`, Buff:`get_holding_actors` : Fix deleted instances being returned because of not being removed from cache correctly
 
 ### v0.1.55
 - AttackInfo:`use_raw_damage` : Add divide-by-0 check

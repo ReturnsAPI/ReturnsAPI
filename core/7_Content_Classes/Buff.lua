@@ -231,6 +231,17 @@ gm.post_script_hook(gm.constants.apply_buff_internal, function(self, other, resu
     __actors_holding_buff[buff_id][actor_id] = true
     __actors_holding_buff[actor_id] = __actors_holding_buff[actor_id] or {}
     __actors_holding_buff[actor_id][buff_id] = true
+
+    if gm.event_hook_pre_has(args[1].value, gm.constants.ev_destroy, 0, "__actors_holding_buff_destroy") then return end
+
+    gm.event_hook_pre_add(args[1].value, gm.constants.ev_destroy, 0, "__actors_holding_buff_destroy", function(inst)
+        local t = __actors_holding_buff[actor_id]
+        if not t then return end
+        for buff_id, _ in pairs(t) do
+            __actors_holding_buff[buff_id][actor_id] = nil
+        end
+        __actors_holding_buff[actor_id] = nil
+    end)
 end)
 
 
