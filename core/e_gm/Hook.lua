@@ -21,7 +21,7 @@ local banned_scripts = table.set{
     gm.constants.actor_heal_raw,
 }
 
-local queue_manage = {}
+local queue_manage = {} ---@type table<script, boolean>
 
 local proxy = P.proxy
 local metatable
@@ -34,6 +34,16 @@ local log_warning = log.warning
 local new_proxy   = new_proxy
 local wrap        = Wrap.wrap
 local unwrap      = Wrap.unwrap
+
+-- Table reuse
+local args_holders = {}
+local args_values  = {}
+local args_holder_rsp = 0   -- Index of most recently used; increment before taking
+local args_value_rsp  = 0   -- Index of most recently used; increment before taking
+for i = 1, 256 do
+    args_holders[i] = {}
+    args_values[i]  = {}
+end
 
 
 -- ========== Private Methods ==========
@@ -67,15 +77,23 @@ local function manage_pre_hook(script)
             -- Wrap args
             local _self    = wrap(self)
             local _other   = wrap(other)
-            local _result  = { value = nil }
-            local _args    = {}
-            local _args_og = {}
+            local _result  = args_values[args_value_rsp + 1]
+            _result.value  = nil
+            local _args    = args_holders[args_holder_rsp + 1]
+            local _args_og = args_holders[args_holder_rsp + 2]
 
-            for i = 1, #args do
+            local n = #args
+            for i = 1, n do
                 local wrapped = wrap(args[i].value)
-                _args[i]    = { value = wrapped }
+                local v     = args_values[args_value_rsp + 1 + i]
+                v.value     = wrapped
+                _args[i]    = v
                 _args_og[i] = wrapped
             end
+            _args[n + 1] = nil
+
+            args_holder_rsp = args_holder_rsp + 2
+            args_value_rsp  = args_value_rsp  + 1 + n
 
             -- Call registered functions
             local hook_return = true
@@ -106,6 +124,9 @@ local function manage_pre_hook(script)
                     args[i].value = unwrap(arg.value)
                 end
             end
+
+            args_holder_rsp = args_holder_rsp - 2
+            args_value_rsp  = args_value_rsp  - 1 - n
 
             return hook_return
         end)
@@ -167,12 +188,20 @@ local function manage_post_hook(script)
             local _self      = wrap(self)
             local _other     = wrap(other)
             local _result_og = wrap(result.value)
-            local _result    = { value = _result_og }
-            local _args      = {}
+            local _result    = args_values[args_value_rsp + 1]
+            _result.value    = _result_og
+            local _args      = args_holders[args_holder_rsp + 1]
 
-            for i = 1, #args do
-                _args[i] = { value = wrap(args[i].value) }
+            local n = #args
+            for i = 1, n do
+                local v = args_values[args_value_rsp + 1 + i]
+                v.value = wrap(args[i].value)
+                _args[i] = v
             end
+            _args[n + 1] = nil
+
+            args_holder_rsp = args_holder_rsp + 1
+            args_value_rsp  = args_value_rsp  + 1 + n
 
             -- Call registered functions
             for i = 1, #hook_functions do
@@ -190,9 +219,13 @@ local function manage_post_hook(script)
             end
 
             -- Result modification
-            if _result.value ~= _result_og then
-                result.value = unwrap(_result.value)
+            local res = _result.value
+            if res ~= _result_og then
+                result.value = unwrap(res)
             end
+
+            args_holder_rsp = args_holder_rsp - 1
+            args_value_rsp  = args_value_rsp  - 1 - n
         end)
 
     -- Object event
@@ -267,12 +300,13 @@ If you need to be more specific than that, try to keep a distance of at least `1
 Hook.add_pre = function(NAMESPACE, script, priority, fn)
     -- Check if script is banned
     if banned_scripts[script] then
-        throw("The function '"..get_script_name(script).."' is not permitted to be hooked")
+        throw("'"..get_script_name(script).."' is not permitted to be hooked")
     end
 
     -- Check if script argument is invalid
-    if  type(script) ~= "number"
-    and type(script) ~= "string" then
+    local _type = type(script)
+    if  _type ~= "number"
+    and _type ~= "string" then
         throw("Script '"..tostring(script).."' is invalid")
     end
 
@@ -283,12 +317,13 @@ Hook.add_pre = function(NAMESPACE, script, priority, fn)
     end
 
     local value, wrapper
-    if type(priority) == "function" then
+    local _type = type(priority)
+    if _type == "function" then
         value   = hook_table:add(priority, NAMESPACE)
         wrapper = Hook.wrap(value)
     else
-        if type(priority) ~= "number"   then throw("Priority should be a number") end
-        if type(fn)       ~= "function" then throw("No function provided") end
+        if _type    ~= "number"   then throw("Priority should be a number") end
+        if type(fn) ~= "function" then throw("No function provided") end
         value   = hook_table:add(fn, NAMESPACE, priority)
         wrapper = Hook.wrap(value)
     end
@@ -329,12 +364,13 @@ If you need to be more specific than that, try to keep a distance of at least `1
 Hook.add_post = function(NAMESPACE, script, priority, fn)
     -- Check if script is banned
     if banned_scripts[script] then
-        throw("The function '"..get_script_name(script).."' is not permitted to be hooked")
+        throw("'"..get_script_name(script).."' is not permitted to be hooked")
     end
 
     -- Check if script argument is invalid
-    if  type(script) ~= "number"
-    and type(script) ~= "string" then
+    local _type = type(script)
+    if  _type ~= "number"
+    and _type ~= "string" then
         throw("Script '"..tostring(script).."' is invalid")
     end
 
@@ -345,12 +381,13 @@ Hook.add_post = function(NAMESPACE, script, priority, fn)
     end
 
     local value, wrapper
-    if type(priority) == "function" then
+    local _type = type(priority)
+    if _type == "function" then
         value   = hook_table:add(priority, NAMESPACE)
         wrapper = Hook.wrap(value)
     else
-        if type(priority) ~= "number"   then throw("Priority should be a number") end
-        if type(fn)       ~= "function" then throw("No function provided") end
+        if _type    ~= "number"   then throw("Priority should be a number") end
+        if type(fn) ~= "function" then throw("No function provided") end
         value   = hook_table:add(fn, NAMESPACE, priority)
         wrapper = Hook.wrap()
     end
@@ -370,12 +407,12 @@ Automatically called when you hotload your mod.
 Hook.remove_all = function(NAMESPACE)
     for script, t in pairs(P.pre_hook_functions) do
         if t:remove_all(NAMESPACE) > 0 then
-            manage_pre_hook(script)
+            queue_manage[script] = true
         end
     end
     for script, t in pairs(P.post_hook_functions) do
         if t:remove_all(NAMESPACE) > 0 then
-            manage_post_hook(script)
+            queue_manage[script] = true
         end
     end
 end
@@ -403,7 +440,7 @@ Removes and returns the function.
 methods.remove = function(self)
     local id = proxy[self]
     local t  = P.hook_id_to_table[id]
-    table.insert(queue_manage, t.script)
+    queue_manage[t.script] = true
     return t:remove(id)
 end
 
@@ -423,9 +460,10 @@ Enables/disables the function.
 ]]
 ---@param value boolean
 methods.toggle = function(self, value)
+    if type(value) ~= "boolean" then throw("value must be a bool") end
     local id = proxy[self]
     local t  = P.hook_id_to_table[id]
-    table.insert(queue_manage, t.script)
+    queue_manage[t.script] = true
     t:toggle(id, value)
 end
 
@@ -460,8 +498,7 @@ metatable = W.Hook
 -- ========== Hooks ==========
 
 gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
-    if #queue_manage <= 0 then return end
-    for _, scr in ipairs(queue_manage) do
+    for scr, _ in pairs(queue_manage) do
         if P.pre_hooks[scr]  then manage_pre_hook(scr) end
         if P.post_hooks[scr] then manage_post_hook(scr) end
     end

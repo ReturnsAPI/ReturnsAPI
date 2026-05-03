@@ -94,4 +94,7 @@ return function()
     gm.instance_create(100, 100, gm.constants.oLizard)
     Tests.assert(gm.instance_number(gm.constants.oLizard), n)
     pre:remove()
+
+
+    -- TODO test object event hooks
 end
