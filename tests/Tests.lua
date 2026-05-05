@@ -48,7 +48,7 @@ gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, resu
 
     local success, err = coroutine.resume(co)
     if not success then
-        table.insert(assert_err, err)
+        table.insert(assert_err, err.."\n      "..debug.traceback(co))
     end
 
     if coroutine.status(co) == "dead" then

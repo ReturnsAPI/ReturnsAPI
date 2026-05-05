@@ -256,12 +256,10 @@ end
 run_on_hotload(function()
     -- Readd hooks
     for script, hook in pairs(P.pre_hooks) do
-        gm.hook_disable(hook)
         P.pre_hooks[script] = nil
         manage_pre_hook(script)
     end
     for script, hook in pairs(P.post_hooks) do
-        gm.hook_disable(hook)
         P.post_hooks[script] = nil
         manage_post_hook(script)
     end

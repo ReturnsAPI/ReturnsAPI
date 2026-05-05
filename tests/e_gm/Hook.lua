@@ -148,4 +148,41 @@ return function()
     gm.instance_destroy(gm.constants.oLizard)
     d1:remove()
     d2:remove()
+
+
+    -- Test if args and result are wrapped
+    local cre, prh, poh
+    cre = Hook.add_post(RAPI_NAMESPACE, gm.constants.array_create, function(self, other, result, args)
+        if ran1 then return end
+        ran1 = true
+        local arr = result.value
+        Tests.assert(type(arr), "table")
+        Tests.assert(arr.RAPI, "Array")
+        cre:remove()
+    end)
+    prh = Hook.add_pre(RAPI_NAMESPACE, gm.constants.array_set, function(self, other, result, args)
+        if ran2 then return end
+        ran2 = true
+        local arr = args[1].value
+        Tests.assert(type(arr), "table")
+        Tests.assert(arr.RAPI, "Array")
+        prh:remove()
+    end)
+    poh = Hook.add_post(RAPI_NAMESPACE, gm.constants.array_set, function(self, other, result, args)
+        if ran3 then return end
+        ran3 = true
+        local arr = args[1].value
+        Tests.assert(type(arr), "table")
+        Tests.assert(arr.RAPI, "Array")
+        poh:remove()
+    end)
+    Tests.pause_for(1)
+
+    -- The test may also be executed by the game doing
+    -- array stuff elsewhere during the 1 frame, which is fine
+    local arr = gm.array_create(0, 0)
+    gm.array_set(arr, 0, 123)
+    cre:remove()
+    prh:remove()
+    poh:remove()
 end

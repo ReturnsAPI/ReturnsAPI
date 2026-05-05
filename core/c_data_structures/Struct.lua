@@ -13,12 +13,15 @@ C.Struct = Struct
 local proxy = P.proxy
 local metatable
 
-local type         = type
-local table_pack   = table.pack
-local table_unpack = table.unpack
-local new_proxy    = new_proxy
-local wrap         = Wrap.wrap
-local unwrap       = Wrap.unwrap
+local type             = type
+local table_pack       = table.pack
+local table_unpack     = table.unpack
+local gm_struct_create = gm.struct_create
+local gm_struct_set    = gm.variable_struct_set
+local gm_struct_get    = gm.variable_struct_get
+local new_proxy        = new_proxy
+local wrap             = Wrap.wrap
+local unwrap           = Wrap.unwrap
 
 
 -- ========== Static Methods ==========
@@ -35,18 +38,18 @@ Struct.new = function(t) end
 Returns a newly created GameMaker struct. <br>
 Can also create one from a constructor.
 ]]
----@param constructor? any A table or constructor.
+---@param constructor? any A constructor.
 ---@param ... any Arguments to pass to the constructor.
 ---@return Struct
 Struct.new = function(constructor, ...)
     -- Blank struct
     if not constructor then
-        return Struct.wrap(gm.struct_create())
+        return Struct.wrap(gm_struct_create())
     end
 
     -- Create from Lua table
     if type(constructor) == "table" then
-        local struct = gm.struct_create()
+        local struct = gm_struct_create()
         for k, v in pairs(constructor) do
             struct[k] = unwrap(v)
         end
@@ -64,7 +67,7 @@ end
 --[[
 Returns a Struct wrapper containing the provided struct.
 ]]
----@param struct Struct | sol.YYObjectBase* The struct to wrap.
+---@param struct Struct | sol.YYObjectBaseLuaWrapper | sol.YYObject* The struct to wrap.
 ---@return Struct
 Struct.wrap = function(struct)
     return new_proxy(unwrap(struct), metatable)
@@ -108,8 +111,8 @@ end
 -- ========== Metatables ==========
 
 ---@class Struct
----@field value sol.YYObjectBaseLuaWrapper
----@field cinstance sol.YYObjectBaseLuaWrapper
+---@field value sol.YYObjectBaseLuaWrapper | sol.YYObject*
+---@field cinstance sol.YYObjectBaseLuaWrapper | sol.YYObject*
 ---@field RAPI string
 
 local mt_name = "Struct"
@@ -123,10 +126,16 @@ W.Struct = {
         -- Methods
         if methods[k] then return methods[k] end
 
-        -- TODO script binding
-        
         -- Getter
-        local ret = wrap(gm.variable_struct_get(proxy[t], k))
+        local ret = wrap(gm_struct_get(proxy[t], k))
+
+        -- If Script, set its `self`/`other`
+        if type(ret) == "table"
+        and ret.RAPI == "Script" then
+            ret.self  = t  -- Will be unwrapped in Script set
+            ret.other = t
+        end
+        
         return ret
     end,
 
@@ -139,7 +148,7 @@ W.Struct = {
         end
 
         -- Setter
-        gm.variable_struct_set(proxy[t], k, unwrap(v))
+        gm_struct_set(proxy[t], k, unwrap(v))
     end,
 
     __len = function(t)
