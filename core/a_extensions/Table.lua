@@ -201,7 +201,7 @@ Returns a set from a list of keys. <br>
 **set** - table where `k = true` for all `k` in the list
 ]]
 ---@param t table The list of keys.
----@return table set
+---@return table<any, true> set
 Table.set = function(t)
     local set = {}
     for _, k in ipairs(t) do
@@ -218,7 +218,7 @@ Returns an enum from a list of keys. <br>
 ---@param start? float The starting value for the first element. <br>`1` by default.
 ---@param add? float Increment for each key. <br>`1` by default.
 ---@param mult? float Multiplier for each key (applied *after* `add`). <br>`1` by default.
----@return table enum
+---@return table<any, float> enum
 Table.enum = function(t, start, add, mult)
     start = start or 1
     add   = add   or 1

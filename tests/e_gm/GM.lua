@@ -31,6 +31,10 @@ return function()
     GM.variable_global_set(var, nil)
     Tests.assert(GM.variable_global_get(var), nil)
 
+
     -- GM.SO
-    -- TODO
+    Tests.start_run()
+    local p = GM.instance_find(gm.constants.oP, 0)
+    local l = GM.instance_create(p.x, p.y, gm.constants.oLizard)
+    GM.SO.actor_death(l, l, true)
 end

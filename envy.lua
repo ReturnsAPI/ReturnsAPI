@@ -203,7 +203,7 @@ public.auto = function(properties)
     for k, v in pairs(String) do env.string[k] = v end
     for k, v in pairs(Table)  do env.table[k]  = v end
 
-    -- Override default `print`, type`, and `tostring`
+    -- Override default `print`, `type`, and `tostring`
     if not env.lua_print then
         env.lua_print    = env.print
         env.lua_type     = env.type

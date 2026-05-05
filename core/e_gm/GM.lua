@@ -15,23 +15,14 @@ Variant of `GM` that accepts `self` and `other`. <br>
 GM.SO = new_class()
 C.GM_SO = GM.SO
 
-local type    = type
-local rawget  = rawget
-local select  = select
-local gm      = gm
-local gm_call = gm.call
-local wrap    = Wrap.wrap
-local unwrap  = Wrap.unwrap
-
-
--- ========== Private Methods ==========
-
--- This is faster than iterative `select(i, ...)`, <br>
--- and *much* faster than `table.pack/unpack`
-local function unwrap_args(n, arg, ...)
-    if n == 1 then return unwrap(arg) end
-    return unwrap(arg), unwrap_args(n - 1, ...)
-end
+local type        = type
+local rawget      = rawget
+local select      = select
+local gm          = gm
+local gm_call     = gm.call
+local wrap        = Wrap.wrap
+local unwrap      = Wrap.unwrap
+local unwrap_args = unwrap_args
 
 
 -- ========== Static Methods ==========

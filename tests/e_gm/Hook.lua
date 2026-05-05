@@ -94,7 +94,58 @@ return function()
     gm.instance_create(100, 100, gm.constants.oLizard)
     Tests.assert(gm.instance_number(gm.constants.oLizard), n)
     pre:remove()
+    gm.instance_destroy(gm.constants.oLizard)
 
 
-    -- TODO test object event hooks
+    -- Object event hooks
+    local counter = 0
+
+    local o1 = Hook.add_pre(RAPI_NAMESPACE, "gml_Object_oLizard_Create_0", function(self, other)
+        Tests.assert(counter, 0)
+        counter = 1
+    end)
+    local o2 = Hook.add_post(RAPI_NAMESPACE, "gml_Object_oLizard_Create_0", function(self, other)
+        Tests.assert(counter, 1)
+        counter = 2
+    end)
+    Tests.pause_for(1)
+
+    gm.instance_create(100, 100, gm.constants.oLizard)
+    Tests.assert(counter, 2)
+    gm.instance_destroy(gm.constants.oLizard)
+
+    local id = P.proxy[o1]
+    local enabled_count = P.hook_id_to_table[id].enabled_count
+    o1:remove()
+    Tests.assert(P.hook_id_to_table[id].enabled_count, enabled_count - 1)
+    o2:remove()
+
+
+    -- Test if table reuse system works
+    local holder
+    local d2_ran = false
+
+    local d1 = Hook.add_post(RAPI_NAMESPACE, gm.constants.function_dummy, function(self, other, result, args)
+        holder = args
+        gm.instance_create(100, 200, gm.constants.oLizard)
+        Tests.assert(d2_ran, true)
+        Tests.assert(args[1].value, 123)
+        Tests.assert(args[2].value, 456)
+        Tests.assert(args[3].value, "abc")
+        Tests.assert(args[4], nil)
+    end)
+    local d2 = Hook.add_post(RAPI_NAMESPACE, gm.constants.instance_create, function(self, other, result, args)
+        if args[3].value ~= gm.constants.oLizard then return end
+        d2_ran = true
+        Tests.assert(args ~= holder, true)
+        Tests.assert(args[1].value, 100)
+        Tests.assert(args[2].value, 200)
+        Tests.assert(args[4], nil)
+    end)
+    Tests.pause_for(1)
+
+    gm.function_dummy(123, 456, "abc")
+    gm.instance_destroy(gm.constants.oLizard)
+    d1:remove()
+    d2:remove()
 end

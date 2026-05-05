@@ -2,6 +2,7 @@
 
 local debug_getinfo = debug.getinfo
 local log_error     = log.error
+local unwrap  -- Set after core load (under `unwrap_args` below)
 
 ---Functions to run after `core` has loaded.
 ---@type table<integer, function>
@@ -110,9 +111,23 @@ end
 Variant of `log.error` for use in methods. <br>
 Automatically prepends the method name and uses correct level of error.
 ]]
-function throw(msg)
-    local name = debug_getinfo(2, "n").name
-    log_error(name..": "..msg, 3)
-
-    -- TODO blame might need to go +1 level for ns-binded closures?
+---@param msg string The message to display.
+---@param name string? The name of the method. <br>Necessary for namespace-binded methods.
+function throw(msg, name)
+    local n = name or debug_getinfo(2, "n").name
+    log_error(tostring(n)..": "..msg, 3)
 end
+
+--[[
+This is faster than iterative `select(i, ...)`, <br>
+and *much* faster than `table.pack/unpack`.
+]]
+---@param n integer The number of args.
+---@param ... any The varargs to unwrap.
+---@return any ...
+function unwrap_args(n, ...) end
+function unwrap_args(n, arg, ...)
+    if n == 1 then return unwrap(arg) end
+    return unwrap(arg), unwrap_args(n - 1, ...)
+end
+run_after_core(function() unwrap = Wrap.unwrap end)

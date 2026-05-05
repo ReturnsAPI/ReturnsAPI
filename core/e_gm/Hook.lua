@@ -5,11 +5,11 @@ Hook = new_class()
 C.Hook = Hook
 
 run_on_initial_load(function()
-    P.pre_hooks           = {}  ---@type table<script, integer> Stores return IDs of `gm.pre_script_hook`s
-    P.post_hooks          = {}  ---@type table<script, integer> Stores return IDs of `gm.post_script_hook`s
+    P.pre_hooks           = {}  ---@type table<script, integer> Stores return IDs of `gm.pre_script_hook`s.
+    P.post_hooks          = {}  ---@type table<script, integer> Stores return IDs of `gm.post_script_hook`s.
     P.pre_hook_functions  = {}  ---@type table<script, CallbackTable>
     P.post_hook_functions = {}  ---@type table<script, CallbackTable>
-    P.hook_counter        = {value = 0} -- Shared counter for all hook `CallbackTable`s
+    P.hook_counter        = {value = 0} -- Shared counter for all hook `CallbackTable`s.
     P.hook_id_to_table    = {}  ---@type table<integer, CallbackTable> Stores which CallbackTable a function is in.
 end)
 
@@ -35,9 +35,8 @@ local new_proxy   = new_proxy
 local wrap        = Wrap.wrap
 local unwrap      = Wrap.unwrap
 
--- Table reuse
-local args_holders = {}
-local args_values  = {}
+local args_holders = {}     -- Reusable tables for arg holders
+local args_values  = {}     -- Reusable tables for arg values
 local args_holder_rsp = 0   -- Index of most recently used; increment before taking
 local args_value_rsp  = 0   -- Index of most recently used; increment before taking
 for i = 1, 256 do
@@ -116,7 +115,7 @@ local function manage_pre_hook(script)
             end
 
             -- Args modification
-            for i = 1, #_args do
+            for i = 1, n do
                 local arg = _args[i]
                 local og = _args_og[i]
                 if  type(arg) == "table"
@@ -300,14 +299,14 @@ If you need to be more specific than that, try to keep a distance of at least `1
 Hook.add_pre = function(NAMESPACE, script, priority, fn)
     -- Check if script is banned
     if banned_scripts[script] then
-        throw("'"..get_script_name(script).."' is not permitted to be hooked")
+        throw("'"..get_script_name(script).."' is not permitted to be hooked", "add_pre")
     end
 
     -- Check if script argument is invalid
     local _type = type(script)
     if  _type ~= "number"
     and _type ~= "string" then
-        throw("Script '"..tostring(script).."' is invalid")
+        throw("Script '"..tostring(script).."' is invalid", "add_pre")
     end
 
     local hook_table = P.pre_hook_functions[script]
@@ -322,8 +321,8 @@ Hook.add_pre = function(NAMESPACE, script, priority, fn)
         value   = hook_table:add(priority, NAMESPACE)
         wrapper = Hook.wrap(value)
     else
-        if _type    ~= "number"   then throw("Priority should be a number") end
-        if type(fn) ~= "function" then throw("No function provided") end
+        if _type    ~= "number"   then throw("Priority should be a number", "add_pre") end
+        if type(fn) ~= "function" then throw("No function provided", "add_pre") end
         value   = hook_table:add(fn, NAMESPACE, priority)
         wrapper = Hook.wrap(value)
     end
@@ -364,14 +363,14 @@ If you need to be more specific than that, try to keep a distance of at least `1
 Hook.add_post = function(NAMESPACE, script, priority, fn)
     -- Check if script is banned
     if banned_scripts[script] then
-        throw("'"..get_script_name(script).."' is not permitted to be hooked")
+        throw("'"..get_script_name(script).."' is not permitted to be hooked", "add_post")
     end
 
     -- Check if script argument is invalid
     local _type = type(script)
     if  _type ~= "number"
     and _type ~= "string" then
-        throw("Script '"..tostring(script).."' is invalid")
+        throw("Script '"..tostring(script).."' is invalid", "add_post")
     end
 
     local hook_table = P.post_hook_functions[script]
@@ -386,8 +385,8 @@ Hook.add_post = function(NAMESPACE, script, priority, fn)
         value   = hook_table:add(priority, NAMESPACE)
         wrapper = Hook.wrap(value)
     else
-        if _type    ~= "number"   then throw("Priority should be a number") end
-        if type(fn) ~= "function" then throw("No function provided") end
+        if _type    ~= "number"   then throw("Priority should be a number", "add_post") end
+        if type(fn) ~= "function" then throw("No function provided", "add_post") end
         value   = hook_table:add(fn, NAMESPACE, priority)
         wrapper = Hook.wrap()
     end
