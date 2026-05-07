@@ -16,7 +16,7 @@ local script_wrap   ---@type function
 run_after_core(function()
     array_wrap    = Array.wrap
     struct_wrap   = Struct.wrap
-    -- instance_wrap = Instance.wrap    -- TODO
+    instance_wrap = Instance.wrap
     script_wrap   = Script.wrap
 end)
 
@@ -43,11 +43,11 @@ Wrap.wrap = function(value)
     if type(value) == "userdata" then
         local sol = getmetatable(value).__name
         if     sol == "sol.RefDynamicArrayOfRValueLuaWrapper"
-            or sol == "sol.RefDynamicArrayOfRValue*"          then return array_wrap(value)
+            or sol == "sol.RefDynamicArrayOfRValue*"          then return array_wrap    and array_wrap(value)    or Array.wrap(value)
         elseif sol == "sol.YYObjectBaseLuaWrapper"
-            or sol == "sol.YYObjectBase*"                     then return struct_wrap(value)
-        -- elseif sol == "sol.CInstance*"                        then return instance_wrap(value)
-        elseif sol == "sol.CScriptRef*"                       then return script_wrap(value)
+            or sol == "sol.YYObjectBase*"                     then return struct_wrap   and struct_wrap(value)   or Struct.wrap(value)
+        elseif sol == "sol.CInstance*"                        then return instance_wrap and instance_wrap(value) or Instance.wrap(value)
+        elseif sol == "sol.CScriptRef*"                       then return script_wrap   and script_wrap(value)   or Script.wrap(value)
         end
     end
     return value

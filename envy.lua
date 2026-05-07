@@ -14,7 +14,9 @@ run_on_initial_load(function()
     ---@field env table
     ---@field namespace string
     ---@field path string
-    ---@field mp boolean
+    ---@field mp boolean Deprecated; is both `mp_local` and `mp_online`
+    ---@field mp_local boolean
+    ---@field mp_online boolean
 
     ---@type table<env, properties>
     P.auto_imports = {} -- Stores `_ENV`s of mods that call `.auto()`
@@ -23,7 +25,8 @@ run_on_initial_load(function()
     ---@type ModData
     local p = {
         env       = _ENV,
-        mp        = true,
+        mp_local  = true,
+        mp_online = true,
         namespace = RAPI_NAMESPACE,
         path      = _ENV["!plugins_mod_folder_path"],
     }
@@ -37,7 +40,9 @@ Returns a table containing the API.
 Properties:
 - `env` - The `_ENV` table of your mod. <br>If not provided, automatically fetches your `_ENV`.
 - `namespace` - The namespace by which your mod is identified for custom content, etc. <br>If not provided, defaults to your mod's name.
-- `mp` - Set to `true` to mark your mod as safe to use online.
+- `mp_local` - Set to `true` to mark your mod as safe to use in local multiplayer.
+- `mp_online` - Set to `true` to mark your mod as safe to use in online multiplayer.
+- `mp` - *Legacy - do not use*; acts as both `mp_local` and `mp_online`.
 ]]
 ---@param properties? table A table of import properties.
 ---@return table API
@@ -184,7 +189,9 @@ Imports the API directly into your environment.
 Properties:
 - `env` - The `_ENV` table of your mod. <br>If not provided, automatically fetches your `_ENV`.
 - `namespace` - The namespace by which your mod is identified for custom content, etc. <br>If not provided, defaults to your mod's name.
-- `mp` - Set to `true` to mark your mod as safe to use online.
+- `mp_local` - Set to `true` to mark your mod as safe to use in local multiplayer.
+- `mp_online` - Set to `true` to mark your mod as safe to use in online multiplayer.
+- `mp` - *Legacy - do not use*; acts as both `mp_local` and `mp_online`.
 ]]
 ---@param properties? table A table of import properties.
 public.auto = function(properties)

@@ -39,10 +39,8 @@ local args_holders = {}     -- Reusable tables for arg holders
 local args_values  = {}     -- Reusable tables for arg values
 local args_holder_rsp = 0   -- Index of most recently used; increment before taking
 local args_value_rsp  = 0   -- Index of most recently used; increment before taking
-for i = 1, 256 do
-    args_holders[i] = {}
-    args_values[i]  = {}
-end
+for i = 1, 128 do args_holders[i] = {} end
+for i = 1, 256 do args_values[i]  = {} end
 
 
 -- ========== Private Methods ==========
@@ -270,7 +268,7 @@ end)
 
 --[[
 Registers a function to run before a GameMaker script or object event. <br>
-Returns a Hook wrapper for the unique ID assigned.
+Returns a Hook wrapper for the unique ID assigned to the function.
 
 *Technical:* Uses `gm.pre_script_hook` (script) or `gm.pre_code_execute` (object event) internally, passing wrapped values.
 ]]
@@ -281,7 +279,7 @@ Hook.add_pre = function(NAMESPACE, script, fn) end
 
 --[[
 Registers a function to run before a GameMaker script or object event. <br>
-Returns a Hook wrapper for the unique ID assigned.
+Returns a Hook wrapper for the unique ID assigned to the function.
 
 **Priority Convention** <br>
 To allow for a decent amount of space between priorities, <br>
@@ -307,6 +305,7 @@ Hook.add_pre = function(NAMESPACE, script, priority, fn)
         throw("Script '"..tostring(script).."' is invalid", "add_pre")
     end
 
+    -- Create new CallbackTable for the script if it does not exist
     local hook_table = P.pre_hook_functions[script]
     if not hook_table then
         hook_table = CallbackTable.new(P.hook_counter)
@@ -334,7 +333,7 @@ end
 
 --[[
 Registers a function to run after a GameMaker script or object event. <br>
-Returns a Hook wrapper for the unique ID assigned.
+Returns a Hook wrapper for the unique ID assigned to the function.
 
 *Technical:* Uses `gm.post_script_hook` (script) or `gm.post_code_execute` (object event) internally, passing wrapped values.
 ]]
@@ -345,7 +344,7 @@ Hook.add_post = function(NAMESPACE, script, fn) end
 
 --[[
 Registers a function to run after a GameMaker script or object event. <br>
-Returns a Hook wrapper for the unique ID assigned.
+Returns a Hook wrapper for the unique ID assigned to the function.
 
 **Priority Convention** <br>
 To allow for a decent amount of space between priorities, <br>
@@ -371,6 +370,7 @@ Hook.add_post = function(NAMESPACE, script, priority, fn)
         throw("Script '"..tostring(script).."' is invalid", "add_post")
     end
 
+    -- Create new CallbackTable for the script if it does not exist
     local hook_table = P.post_hook_functions[script]
     if not hook_table then
         hook_table = CallbackTable.new(P.hook_counter)
@@ -386,7 +386,7 @@ Hook.add_post = function(NAMESPACE, script, priority, fn)
         if _type    ~= "number"   then throw("Priority should be a number", "add_post") end
         if type(fn) ~= "function" then throw("No function provided", "add_post") end
         value   = hook_table:add(fn, NAMESPACE, priority)
-        wrapper = Hook.wrap()
+        wrapper = Hook.wrap(value)
     end
     P.hook_id_to_table[value] = hook_table
 
@@ -416,7 +416,7 @@ end
 run_on_import(Hook.remove_all)
 
 --[[
-Returns a Hook wrapper containing the provided array.
+Returns a Hook wrapper containing the provided hook function ID.
 ]]
 ---@param hook Hook | integer The hook to wrap.
 ---@return Hook

@@ -16,7 +16,7 @@ local script_binded_functions = P.script_binded_functions
 local script_SO = P.script_SO
 
 local select           = select
-local getmetatable     = getmetatable
+local getmetatable     = debug.getmetatable
 local string_sub       = string.sub
 local table_unpack     = table.unpack
 local gm_call          = gm.call
@@ -27,13 +27,8 @@ local unwrap           = Wrap.unwrap
 local unwrap_args      = unwrap_args
 
 local args_holders = {}     -- Reusable tables for arg holders
-local args_values  = {}     -- Reusable tables for arg values
 local args_holder_rsp = 0   -- Index of most recently used; increment before taking
-local args_value_rsp  = 0   -- Index of most recently used; increment before taking
-for i = 1, 256 do
-    args_holders[i] = {}
-    args_values[i]  = {}
-end
+for i = 1, 128 do args_holders[i] = {} end
 
 
 -- ========== Static Methods ==========
@@ -167,17 +162,13 @@ gm.post_script_hook(gm.constants.function_dummy, function(self, other, result, a
     local fn = script_binded_functions[self.__id]
     if fn then
         local _args = args_holders[args_holder_rsp + 1]
+        args_holder_rsp = args_holder_rsp + 1
 
         local n = #args
         for i = 1, n do
-            local v = args_values[args_value_rsp + 1 + i]
-            v.value = wrap(args[i].value)
-            _args[i] = v
+            _args[i] = wrap(args[i].value)
         end
         _args[n + 1] = nil
-
-        args_holder_rsp = args_holder_rsp + 1
-        args_value_rsp  = args_value_rsp  + 1 + n
         
         -- Call function with args
         -- and put return value into `result` (if applicable)
@@ -185,5 +176,7 @@ gm.post_script_hook(gm.constants.function_dummy, function(self, other, result, a
         if ret then
             result.value = unwrap(ret)
         end
+
+        args_holder_rsp = args_holder_rsp - 1
     end
 end)

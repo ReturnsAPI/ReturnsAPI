@@ -1,9 +1,11 @@
 return function()
     -- .bind()
     local counter = 0
+    local sum
 
-    local fn = function()
+    local fn = function(arg1, arg2)
         counter = counter + 1
+        sum = arg1 + arg2
     end
     local scr = Script.bind(fn)
 
@@ -14,9 +16,10 @@ return function()
 
     local n = 10
     for i = 1, n do
-        scr()
+        scr(10, 20)
     end
     Tests.assert(counter, n)
+    Tests.assert(sum, 30)
 
 
     -- Check if wrapped when getting from struct
