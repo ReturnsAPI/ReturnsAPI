@@ -51,7 +51,7 @@ def parse_file(file_path):
         line = line.rstrip()
 
         # if re.search(r"P\..*=", line) or re.search(r"G\..*=", line) or re.search(r"C\..*=", line) or re.search(r"local.*=", line) or re.search(r"= W.", line):
-        if re.search(r"P\..*=", line) or re.search(r"G\..*=", line) or re.search(r"C\..*=", line) or re.search(r"= P.", line) or re.search(r"= G.", line) or re.search(r"= W.", line) or re.search(r"= M.", line):
+        if re.search(r"P\..*=", line) or re.search(r"G\..*=", line) or re.search(r"C\..*=", line) or re.search(r"= P\.", line) or re.search(r"= G\.", line) or re.search(r"= W\.", line) or re.search(r"= M\.", line):
             pass
 
         elif "new_class()" in line:
