@@ -16,6 +16,9 @@ local unwrap = Wrap.unwrap
 
 -- ========== Metatables ==========
 
+---@class Global
+---@field [string] any
+
 M.Global = {
     __index = function(t, k)
         return wrap(g_get(k))

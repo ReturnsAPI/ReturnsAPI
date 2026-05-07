@@ -114,6 +114,7 @@ end
 ---@field value sol.YYObjectBaseLuaWrapper | sol.YYObject*
 ---@field cinstance sol.YYObjectBaseLuaWrapper | sol.YYObject*
 ---@field RAPI string
+---@field [any] any
 
 local mt_name = "Struct"
 

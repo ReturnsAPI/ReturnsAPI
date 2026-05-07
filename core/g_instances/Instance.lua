@@ -5,20 +5,20 @@ Instance = new_class()
 C.Instance = Instance
 
 run_on_initial_load(function()
-    P.instance_data      = {}   ---@type table<integer, table<string, table<string, table>>>
+    P.instance_data = {}    ---@type table<integer, table<string, table<string, table>>>
     
-    P.wrapper_cache      = {}   ---@type table<integer, Instance> ID -> Namespace -> Subtable name -> Data table
-    P.id_cache           = {}   ---@type table<Instance, integer> Cache for `.id`
-    P.object_index_cache = {}   ---@type table<Instance, integer> Cache for `.object_index`/`.__object_index`
-    P.ancestor_cache     = {}   ---@type table<integer, boolean> Stores results for `gm.object_is_ancestor(obj_index, gm.constants.pActor)`
+    P.instance_wrapper_cache      = {}  ---@type table<integer, Instance> ID -> Namespace -> Subtable name -> Data table
+    P.instance_id_cache           = {}  ---@type table<Instance, integer> Cache for `.id`
+    P.instance_object_index_cache = {}  ---@type table<Instance, integer> Cache for `.object_index`/`.__object_index`
+    P.instance_ancestor_cache     = {}  ---@type table<integer, boolean> Stores results for `gm.object_is_ancestor(obj_index, gm.constants.pActor)`
 end)
 
 local instance_data      = P.instance_data
 
-local wrapper_cache      = P.wrapper_cache
-local id_cache           = P.id_cache
-local object_index_cache = P.object_index_cache
-local ancestor_cache     = P.ancestor_cache
+local wrapper_cache      = P.instance_wrapper_cache
+local id_cache           = P.instance_id_cache
+local object_index_cache = P.instance_object_index_cache
+local ancestor_cache     = P.instance_ancestor_cache
 
 local proxy = P.proxy
 local metatable_instance
@@ -343,8 +343,10 @@ metatable_instance = W.Instance
 -- Create invalid instance
 run_on_initial_load(function()
     ---@type Instance
-    P.instance_invalid = new_proxy(nil, metatable_instance)
+    instance_invalid = new_proxy(nil, metatable_instance)
+    P.instance_invalid = instance_invalid
 end)
 -- Instance with value `nil` and id `-4`.
-Instance.INVALID = P.instance_invalid
+---@type Instance
+Instance.INVALID = instance_invalid or P.instance_invalid
 instance_invalid = Instance.INVALID

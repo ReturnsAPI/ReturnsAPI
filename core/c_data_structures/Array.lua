@@ -215,6 +215,7 @@ end
 ---@class Array
 ---@field value sol.RefDynamicArrayOfRValueLuaWrapper
 ---@field RAPI string
+---@field [integer] any
 
 local mt_name = "Array"
 

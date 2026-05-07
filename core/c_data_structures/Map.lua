@@ -151,6 +151,7 @@ end
 ---@class Map
 ---@field value integer
 ---@field RAPI string
+---@field [any] any
 
 local mt_name = "Map"
 

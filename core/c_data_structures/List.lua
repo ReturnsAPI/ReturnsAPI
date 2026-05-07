@@ -211,6 +211,7 @@ end
 ---@class List
 ---@field value integer
 ---@field RAPI string
+---@field [integer] any
 
 local mt_name = "List"
 

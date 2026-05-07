@@ -58,6 +58,7 @@ end
 
 ---@class GM
 ---@field SO GM.SO
+---@field [string] function
 
 M.GM = {
     __newindex = function(t, k, v)
@@ -67,6 +68,9 @@ M.GM = {
     __metatable = mt_class_name("GM"),
 }
 setmetatable(GM, M.GM)
+
+---@class GM.SO
+---@field [string] function
 
 M.GM_SO = {
     __newindex = function(t, k, v)
