@@ -6,7 +6,6 @@ C.Wrap = Wrap
 
 local proxy = P.proxy
 
-local type         = type
 local getmetatable = debug.getmetatable
 local array_wrap    ---@type function
 local struct_wrap   ---@type function
@@ -40,14 +39,15 @@ Wraps the value with the appropriate RAPI wrapper (if applicable).
 ---@param value any The value to wrap.
 ---@return any
 Wrap.wrap = function(value)
-    if type(value) == "userdata" then
-        local sol = getmetatable(value).__name
+    local mt = getmetatable(value)
+    if mt then
+        local sol = mt.__name
         if     sol == "sol.RefDynamicArrayOfRValueLuaWrapper"
-            or sol == "sol.RefDynamicArrayOfRValue*"          then return array_wrap    and array_wrap(value)    or Array.wrap(value)
+            or sol == "sol.RefDynamicArrayOfRValue*"    then return array_wrap    and array_wrap(value)    or Array.wrap(value)
         elseif sol == "sol.YYObjectBaseLuaWrapper"
-            or sol == "sol.YYObjectBase*"                     then return struct_wrap   and struct_wrap(value)   or Struct.wrap(value)
-        elseif sol == "sol.CInstance*"                        then return instance_wrap and instance_wrap(value) or Instance.wrap(value)
-        elseif sol == "sol.CScriptRef*"                       then return script_wrap   and script_wrap(value)   or Script.wrap(value)
+            or sol == "sol.YYObjectBase*"               then return struct_wrap   and struct_wrap(value)   or Struct.wrap(value)
+        elseif sol == "sol.CInstance*"                  then return instance_wrap and instance_wrap(value) or Instance.wrap(value)
+        elseif sol == "sol.CScriptRef*"                 then return script_wrap   and script_wrap(value)   or Script.wrap(value)
         end
     end
     return value
