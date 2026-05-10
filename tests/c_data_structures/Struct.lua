@@ -1,7 +1,7 @@
 return function()
     -- new (empty)
     local s = Struct.new()
-    Tests.assert(type(s), "table")
+    Tests.assert(type(s), "userdata")
 
     -- set / get
     s.a = 1

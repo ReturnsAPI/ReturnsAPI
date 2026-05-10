@@ -8,6 +8,7 @@ Array = new_class()
 C.Array = Array
 
 local type            = type
+local table_pack      = table.pack
 local table_unpack    = table.unpack
 local gm_array_create = gm.array_create ---@type function
 local unwrap          = Wrap.unwrap

@@ -95,7 +95,7 @@ W.Script = {
     __index = function(t, k)
         if k == "RAPI" then return mt_name end
         if k == "name" or k == "script_name" then
-            return string_sub(og_index(t, k), 12, -1)
+            return string_sub(og_index(t, "script_name"), 12, -1)
         end
 
         -- Get `self`/`other`

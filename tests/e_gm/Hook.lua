@@ -156,7 +156,7 @@ return function()
         if ran1 then return end
         ran1 = true
         local arr = result.value
-        Tests.assert(type(arr), "table")
+        Tests.assert(type(arr), "userdata")
         Tests.assert(arr.RAPI, "Array")
         cre:remove()
     end)
@@ -164,7 +164,7 @@ return function()
         if ran2 then return end
         ran2 = true
         local arr = args[1].value
-        Tests.assert(type(arr), "table")
+        Tests.assert(type(arr), "userdata")
         Tests.assert(arr.RAPI, "Array")
         prh:remove()
     end)
@@ -172,7 +172,7 @@ return function()
         if ran3 then return end
         ran3 = true
         local arr = args[1].value
-        Tests.assert(type(arr), "table")
+        Tests.assert(type(arr), "userdata")
         Tests.assert(arr.RAPI, "Array")
         poh:remove()
     end)

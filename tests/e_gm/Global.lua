@@ -7,7 +7,7 @@ return function()
 
     -- wrap behavior
     local arr = Global.class_item
-    Tests.assert(type(arr), "table")
+    Tests.assert(type(arr), "userdata")
     Tests.assert(arr.RAPI, "Array")
 
     -- unwrap behavior

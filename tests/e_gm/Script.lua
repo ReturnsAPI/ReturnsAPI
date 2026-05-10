@@ -9,9 +9,9 @@ return function()
     end
     local scr = Script.bind(fn)
 
-    Tests.assert(type(scr), "table")
+    Tests.assert(type(scr), "userdata")
     Tests.assert(scr.RAPI, "Script")
-    Tests.assert(getmetatable(scr.value).__name, "sol.CScriptRef*")
+    Tests.assert(getmetatable(scr).__name, "sol.CScriptRef*")
     Tests.assert(scr.name, "function_dummy")
 
     local n = 10
@@ -25,6 +25,6 @@ return function()
     -- Check if wrapped when getting from struct
     local str = Global.__input_players[1]
     local scr = str.__profile_create
-    Tests.assert(type(scr), "table")
+    Tests.assert(type(scr), "userdata")
     Tests.assert(scr.RAPI, "Script")
 end

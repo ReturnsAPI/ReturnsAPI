@@ -45,7 +45,7 @@ Struct.new = function(constructor, ...)
     if type(constructor) == "table" then
         local struct = gm_struct_create()
         for k, v in pairs(constructor) do
-            gm_struct_set(t, k, unwrap(v))
+            gm_struct_set(struct, k, unwrap(v))
         end
         return struct
     end
