@@ -398,7 +398,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
 
             -- Result modification from return value
             if out then
-                result.value = unwrap(out)
+                result.value = out
             end
         end
     end

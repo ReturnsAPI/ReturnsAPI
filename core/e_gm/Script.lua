@@ -193,7 +193,7 @@ gm.post_script_hook(gm.constants.function_dummy, function(self, other, result, a
         -- and put return value into `result` (if applicable)
         local ret = fn(table_unpack(_args))
         if ret then
-            result.value = unwrap(ret)
+            result.value = ret
         end
 
         args_holder_rsp = args_holder_rsp - 1

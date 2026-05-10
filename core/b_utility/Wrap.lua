@@ -6,19 +6,6 @@ C.Wrap = Wrap
 
 local proxy = P.proxy
 
-local getmetatable = debug.getmetatable
-local array_wrap    ---@type function
-local struct_wrap   ---@type function
-local instance_wrap ---@type function
-local script_wrap   ---@type function
-
-run_after_core(function()
-    array_wrap    = Array.wrap
-    struct_wrap   = Struct.wrap
-    instance_wrap = Instance.wrap
-    script_wrap   = Script.wrap
-end)
-
 
 -- ========== Static Methods ==========
 
@@ -43,4 +30,43 @@ Wraps the value with the appropriate RAPI wrapper (if applicable).
 ---@return any
 Wrap.wrap = function(value)
     return value
+end
+
+
+-- ========== Hooks ==========
+
+-- Modify `__newindex` of `sol.RValue*` to do unwrapping on `v`
+-- Can only obtain a `sol.RValue*` from a hook
+if not P.ran_rvalue_modify then
+    local hook1, hook2, hook3
+
+    hook1 = gm.pre_script_hook(gm.constants.function_dummy, function(self, other, result, args)
+        if P.ran_rvalue_modify then return end
+        P.ran_rvalue_modify = true
+        
+        -- `sol.RValue*`
+        local mt = getmetatable(args[1])
+        local og_newindex = mt.__newindex
+        mt.__newindex = function(t, k, v)
+            og_newindex(t, k, proxy[v] or v)
+        end
+
+        -- `sol.RValue`
+        local mt = getmetatable(RValue.from_ptr(1))
+        local og_newindex = mt.__newindex
+        mt.__newindex = function(t, k, v)
+            og_newindex(t, k, proxy[v] or v)
+        end
+    end)
+
+    hook2 = gm.pre_code_execute("gml_Object_oInit_Step_0", function(self, other)
+        if P.ran_rvalue_modify then return end
+        gm.function_dummy(1)
+    end)
+
+    hook3 = gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
+        gm.hook_disable(hook1)
+        gm.hook_disable(hook2)
+        gm.hook_disable(hook3)
+    end)
 end

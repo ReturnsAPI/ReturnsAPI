@@ -32,15 +32,7 @@ local pcall       = pcall
 local ipairs      = ipairs
 local log_warning = log.warning
 local new_proxy   = new_proxy
-local wrap        = Wrap.wrap
 local unwrap      = Wrap.unwrap
-
-local args_holders = {}     -- Reusable tables for arg holders
-local args_values  = {}     -- Reusable tables for arg values
-local args_holder_rsp = 0   -- Index of most recently used; increment before taking
-local args_value_rsp  = 0   -- Index of most recently used; increment before taking
-for i = 1, 128 do args_holders[i] = {} end
-for i = 1, 256 do args_values[i]  = {} end
 
 
 -- ========== Private Methods ==========
@@ -71,32 +63,13 @@ local function manage_pre_hook(script)
     -- Script
     if type(script) == "number" then
         P.pre_hooks[script] = gm.pre_script_hook(script, function(self, other, result, args)
-            -- Wrap args
-            local _result  = args_values[args_value_rsp + 1]
-            _result.value  = nil
-            local _args    = args_holders[args_holder_rsp + 1]
-            local _args_og = args_holders[args_holder_rsp + 2]
-
-            local n = #args
-            for i = 1, n do
-                local arg   = args[i].value
-                local v     = args_values[args_value_rsp + 1 + i]
-                v.value     = arg
-                _args[i]    = v
-                _args_og[i] = arg
-            end
-            _args[n + 1] = nil
-
-            args_holder_rsp = args_holder_rsp + 2
-            args_value_rsp  = args_value_rsp  + 1 + n
-
             -- Call registered functions
             local hook_return = true
 
             for i = 1, #hook_functions do
                 local data = hook_functions[i]
                 if data.enabled then
-                    local status, out = pcall(data.fn, self, other, _result, _args)
+                    local status, out = pcall(data.fn, self, other, result, args)
                     if not status then
                         if out == nil
                         or out == "C++ exception" then
@@ -109,19 +82,6 @@ local function manage_pre_hook(script)
                     end
                 end
             end
-
-            -- Args modification
-            for i = 1, n do
-                local arg = _args[i]
-                local og  = _args_og[i]
-                if  type(arg) == "table"
-                and arg.value ~= og then
-                    args[i].value = unwrap(arg.value)
-                end
-            end
-
-            args_holder_rsp = args_holder_rsp - 2
-            args_value_rsp  = args_value_rsp  - 1 - n
 
             return hook_return
         end)
@@ -175,28 +135,11 @@ local function manage_post_hook(script)
     -- Script
     if type(script) == "number" then
         P.post_hooks[script] = gm.post_script_hook(script, function(self, other, result, args)
-            -- Wrap args
-            local _result_og = result.value
-            local _result    = args_values[args_value_rsp + 1]
-            _result.value    = _result_og
-            local _args      = args_holders[args_holder_rsp + 1]
-
-            local n = #args
-            for i = 1, n do
-                local v = args_values[args_value_rsp + 1 + i]
-                v.value = args[i].value
-                _args[i] = v
-            end
-            _args[n + 1] = nil
-
-            args_holder_rsp = args_holder_rsp + 1
-            args_value_rsp  = args_value_rsp  + 1 + n
-
             -- Call registered functions
             for i = 1, #hook_functions do
                 local data = hook_functions[i]
                 if data.enabled then
-                    local status, out = pcall(data.fn, self, other, _result, _args)
+                    local status, out = pcall(data.fn, self, other, result, args)
                     if not status then
                         if out == nil
                         or out == "C++ exception" then
@@ -206,15 +149,6 @@ local function manage_post_hook(script)
                     end
                 end
             end
-
-            -- Result modification
-            local res = _result.value
-            if res ~= _result_og then
-                result.value = unwrap(res)
-            end
-
-            args_holder_rsp = args_holder_rsp - 1
-            args_value_rsp  = args_value_rsp  - 1 - n
         end)
 
     -- Object event
