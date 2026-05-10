@@ -10,17 +10,11 @@ Struct wrappers can be get/set to using dot syntax <br>
 Struct = new_class()
 C.Struct = Struct
 
-local proxy = P.proxy
-local metatable
-
 local type             = type
-local table_pack       = table.pack
-local table_unpack     = table.unpack
-local gm_struct_create = gm.struct_create
-local gm_struct_set    = gm.variable_struct_set
-local gm_struct_get    = gm.variable_struct_get
-local new_proxy        = new_proxy
-local wrap             = Wrap.wrap
+local getmetatable     = debug.getmetatable
+local gm_struct_create = gm.struct_create       ---@type function
+local gm_struct_set    = gm.variable_struct_set ---@type function
+local gm_struct_get    = gm.variable_struct_get ---@type function
 local unwrap           = Wrap.unwrap
 
 
@@ -44,33 +38,32 @@ Can also create one from a constructor.
 Struct.new = function(constructor, ...)
     -- Blank struct
     if not constructor then
-        return Struct.wrap(gm_struct_create())
+        return gm_struct_create()
     end
 
     -- Create from Lua table
     if type(constructor) == "table" then
         local struct = gm_struct_create()
         for k, v in pairs(constructor) do
-            struct[k] = unwrap(v)
+            gm_struct_set(t, k, unwrap(v))
         end
-        return Struct.wrap(struct)
+        return struct
     end
 
     -- From constructor
-    local args = table_pack(...)
-    for i = 1, args.n do
-        args[i] = unwrap(args[i])
-    end
-    return Struct.wrap(gm["@@NewGMLObject@@"](constructor, table_unpack(args)))
+    return gm["@@NewGMLObject@@"](constructor, ...)
 end
 
 --[[
+**[!] DEPRECATED**
+
 Returns a Struct wrapper containing the provided struct.
 ]]
+---@deprecated
 ---@param struct Struct | sol.YYObjectBaseLuaWrapper | sol.YYObject* The struct to wrap.
 ---@return Struct
 Struct.wrap = function(struct)
-    return new_proxy(unwrap(struct), metatable)
+    return struct
 end
 
 
@@ -82,9 +75,9 @@ local methods = {}
 --[[
 Returns a table of keys in use by the struct.
 ]]
----@return table
+---@return table keys
 methods.get_keys = function(self)
-    local arr = Array.wrap(gm.variable_struct_get_names(self.value))
+    local arr = gm.variable_struct_get_names(self)
     local keys = {}
     for i, v in ipairs(arr) do keys[i] = v end
     return keys
@@ -111,8 +104,6 @@ end
 -- ========== Metatables ==========
 
 ---@class Struct
----@field value sol.YYObjectBaseLuaWrapper | sol.YYObject*
----@field cinstance sol.YYObjectBaseLuaWrapper | sol.YYObject*
 ---@field RAPI string
 ---@field [any] any
 
@@ -120,20 +111,18 @@ local mt_name = "Struct"
 
 W.Struct = {
     __index = function(t, k)
-        -- Get wrapped value
-        if k == "value" or k == "cinstance" then return proxy[t] end
         if k == "RAPI" then return mt_name end
 
         -- Methods
         if methods[k] then return methods[k] end
 
         -- Getter
-        local ret = wrap(gm_struct_get(proxy[t], k))
+        local ret = gm_struct_get(t, k)
 
         -- If Script, set its `self`/`other`
-        if type(ret) == "table"
-        and ret.RAPI == "Script" then
-            ret.self  = t  -- Will be unwrapped in Script set
+        local mt = getmetatable(ret)
+        if mt and mt.__name == "sol.CScriptRef*" then
+            ret.self  = t
             ret.other = t
         end
         
@@ -142,14 +131,12 @@ W.Struct = {
 
     __newindex = function(t, k, v)
         -- Throw read-only error
-        if k == "value"
-        or k == "cinstance"
-        or k == "RAPI" then
+        if k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
         -- Setter
-        gm_struct_set(proxy[t], k, unwrap(v))
+        gm_struct_set(t, k, unwrap(v))
     end,
 
     __len = function(t)
@@ -167,7 +154,16 @@ W.Struct = {
             end
         end
     end,
-
-    __metatable = mt_wrapper_name(mt_name),
 }
-metatable = W.Struct
+
+-- YYObjectBaseLuaWrapper
+local s = gm.struct_create()
+local mt = getmetatable(s)
+table.merge(mt, W.Struct)
+
+-- YYObjectBase*
+local s = gm.new_struct()
+local mt = getmetatable(s)
+table.merge(mt, W.Struct)
+
+-- TODO set __metatable(?) (maybe its not necessary actually)

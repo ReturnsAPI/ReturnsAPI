@@ -34,21 +34,13 @@ Wrap.unwrap = function(value)
 end
 
 --[[
+**[!] DEPRECATED**
+
 Wraps the value with the appropriate RAPI wrapper (if applicable).
 ]]
+---@deprecated
 ---@param value any The value to wrap.
 ---@return any
 Wrap.wrap = function(value)
-    local mt = getmetatable(value)
-    if mt then
-        local sol = mt.__name
-        if     sol == "sol.RefDynamicArrayOfRValueLuaWrapper"
-            or sol == "sol.RefDynamicArrayOfRValue*"    then return array_wrap    and array_wrap(value)    or Array.wrap(value)
-        elseif sol == "sol.YYObjectBaseLuaWrapper"
-            or sol == "sol.YYObjectBase*"               then return struct_wrap   and struct_wrap(value)   or Struct.wrap(value)
-        elseif sol == "sol.CInstance*"                  then return instance_wrap and instance_wrap(value) or Instance.wrap(value)
-        elseif sol == "sol.CScriptRef*"                 then return script_wrap   and script_wrap(value)   or Script.wrap(value)
-        end
-    end
     return value
 end

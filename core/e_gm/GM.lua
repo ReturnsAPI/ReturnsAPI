@@ -37,17 +37,17 @@ for name, _ in pairs(gm.constants) do
         local fn = gm[name]
         GM[name] = function(...)
             local n = select("#", ...)
-            if n == 0 then return wrap(fn()) end
-            if n == 1 then return wrap(fn(unwrap(...))) end
-            return wrap(fn(unwrap_args(n, ...)))   -- TODO need to verify if this works the same as before over gm.call
+            if n == 0 then return fn() end
+            if n == 1 then return fn(unwrap(...)) end
+            return fn(unwrap_args(n, ...))  -- TODO need to verify if this works the same as before over gm.call
         end
 
         -- self/other
         GM.SO[name] = function(self, other, ...)
             local n = select("#", ...)
-            if n == 0 then return wrap(gm_call(name, unwrap(self), unwrap(other))) end
-            if n == 1 then return wrap(gm_call(name, unwrap(self), unwrap(other), unwrap(...))) end
-            return wrap(gm_call(name, unwrap(self), unwrap(other), unwrap_args(n, ...)))
+            if n == 0 then return gm_call(name, self, other) end
+            if n == 1 then return gm_call(name, self, other, unwrap(...)) end
+            return gm_call(name, self, other, unwrap_args(n, ...))
         end
 
     end

@@ -72,8 +72,6 @@ local function manage_pre_hook(script)
     if type(script) == "number" then
         P.pre_hooks[script] = gm.pre_script_hook(script, function(self, other, result, args)
             -- Wrap args
-            local _self    = wrap(self)
-            local _other   = wrap(other)
             local _result  = args_values[args_value_rsp + 1]
             _result.value  = nil
             local _args    = args_holders[args_holder_rsp + 1]
@@ -81,11 +79,11 @@ local function manage_pre_hook(script)
 
             local n = #args
             for i = 1, n do
-                local wrapped = wrap(args[i].value)
+                local arg   = args[i].value
                 local v     = args_values[args_value_rsp + 1 + i]
-                v.value     = wrapped
+                v.value     = arg
                 _args[i]    = v
-                _args_og[i] = wrapped
+                _args_og[i] = arg
             end
             _args[n + 1] = nil
 
@@ -98,7 +96,7 @@ local function manage_pre_hook(script)
             for i = 1, #hook_functions do
                 local data = hook_functions[i]
                 if data.enabled then
-                    local status, out = pcall(data.fn, _self, _other, _result, _args)
+                    local status, out = pcall(data.fn, self, other, _result, _args)
                     if not status then
                         if out == nil
                         or out == "C++ exception" then
@@ -115,7 +113,7 @@ local function manage_pre_hook(script)
             -- Args modification
             for i = 1, n do
                 local arg = _args[i]
-                local og = _args_og[i]
+                local og  = _args_og[i]
                 if  type(arg) == "table"
                 and arg.value ~= og then
                     args[i].value = unwrap(arg.value)
@@ -131,17 +129,13 @@ local function manage_pre_hook(script)
     -- Object event
     else
         P.pre_hooks[script] = gm.pre_code_execute(script, function(self, other)
-            -- Wrap args
-            local _self  = wrap(self)
-            local _other = wrap(other)
-
             -- Call registered functions
             local hook_return = true
 
             for i = 1, #hook_functions do
                 local data = hook_functions[i]
                 if data.enabled then
-                    local status, out = pcall(data.fn, _self, _other)
+                    local status, out = pcall(data.fn, self, other)
                     if not status then
                         if out == nil
                         or out == "C++ exception" then
@@ -182,9 +176,7 @@ local function manage_post_hook(script)
     if type(script) == "number" then
         P.post_hooks[script] = gm.post_script_hook(script, function(self, other, result, args)
             -- Wrap args
-            local _self      = wrap(self)
-            local _other     = wrap(other)
-            local _result_og = wrap(result.value)
+            local _result_og = result.value
             local _result    = args_values[args_value_rsp + 1]
             _result.value    = _result_og
             local _args      = args_holders[args_holder_rsp + 1]
@@ -192,7 +184,7 @@ local function manage_post_hook(script)
             local n = #args
             for i = 1, n do
                 local v = args_values[args_value_rsp + 1 + i]
-                v.value = wrap(args[i].value)
+                v.value = args[i].value
                 _args[i] = v
             end
             _args[n + 1] = nil
@@ -204,7 +196,7 @@ local function manage_post_hook(script)
             for i = 1, #hook_functions do
                 local data = hook_functions[i]
                 if data.enabled then
-                    local status, out = pcall(data.fn, _self, _other, _result, _args)
+                    local status, out = pcall(data.fn, self, other, _result, _args)
                     if not status then
                         if out == nil
                         or out == "C++ exception" then
@@ -228,15 +220,11 @@ local function manage_post_hook(script)
     -- Object event
     else
         P.post_hooks[script] = gm.post_code_execute(script, function(self, other)
-            -- Wrap args
-            local _self  = wrap(self)
-            local _other = wrap(other)
-
             -- Call registered functions
             for i = 1, #hook_functions do
                 local data = hook_functions[i]
                 if data.enabled then
-                    local status, out = pcall(data.fn, _self, _other)
+                    local status, out = pcall(data.fn, self, other)
                     if not status then
                         if out == nil
                         or out == "C++ exception" then

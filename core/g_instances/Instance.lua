@@ -6,40 +6,26 @@ C.Instance = Instance
 
 run_on_initial_load(function()
     P.instance_data = {}    ---@type table<integer, table<string, table<string, table>>>
-    
-    P.instance_wrapper_cache      = {}  ---@type table<integer, Instance> ID -> Namespace -> Subtable name -> Data table
-    P.instance_id_cache           = {}  ---@type table<Instance, integer> Cache for `.id`
-    P.instance_object_index_cache = {}  ---@type table<Instance, integer> Cache for `.object_index`/`.__object_index`
-    P.instance_ancestor_cache     = {}  ---@type table<integer, boolean> Stores results for `gm.object_is_ancestor(obj_index, gm.constants.pActor)`
 end)
 
-local instance_data      = P.instance_data
+local instance_data  = P.instance_data
 
-local wrapper_cache      = P.instance_wrapper_cache
-local id_cache           = P.instance_id_cache
-local object_index_cache = P.instance_object_index_cache
-local ancestor_cache     = P.instance_ancestor_cache
+local gm_id_to_cinst = gm.CInstance.instance_id_to_CInstance    ---@type table<integer, sol.CInstance*>
+local constants_oP   = gm.constants.oP
 
-local proxy = P.proxy
-local metatable_instance
-local metatable_actor
-local metatable_player
-local gm_id_to_cinst     = gm.CInstance.instance_id_to_CInstance
-local constants_oP       = gm.constants.oP
+local type               = type
+local getmetatable       = debug.getmetatable
+local gm                 = gm                   ---@type table<string, function>
+local gm_instance_create = gm.instance_create   ---@type function
+local gm_instance_exists = gm.instance_exists   ---@type function
+local unwrap             = Wrap.unwrap
 
-local type                = type
-local gm                  = gm                   ---@type table<string, function>
-local gm_instance_exists  = gm.instance_exists   ---@type function
-local new_proxy           = new_proxy
-local wrap                = Wrap.wrap
-local unwrap              = Wrap.unwrap
-
-local instance_invalid  ---@type Instance
-
-run_after_core(function()
-    metatable_actor  = W.Actor
-    metatable_player = W.Player
-end)
+local ancestor_lookup = {}  ---@type table<integer, boolean> Maps objects to booleans of whether or not they inherit from `pActor`
+for obj_index = 0, 900 do
+    if gm.object_exists(obj_index) then
+        ancestor_lookup[obj_index] = (gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1)
+    end
+end
 
 
 -- ========== Static Methods ==========
@@ -50,7 +36,7 @@ Returns `true` if the instance exists, and `false` otherwise.
 ---@param inst integer | Instance The instance to check.
 ---@return boolean
 Instance.exists = function(inst)
-    return inst and (gm_instance_exists(unwrap(inst)) == 1)
+    return inst and gm_instance_exists(inst) == 1
         or false
 end
 
@@ -62,7 +48,7 @@ Creates and returns an instance of the specified object.
 ---@param object integer | Object The object to spawn.
 ---@return Instance
 Instance.create = function(x, y, object)
-    return Instance.wrap(gm.instance_create(x, y, unwrap(object)))
+    return gm_instance_create(x, y, unwrap(object))
 end
 
 --[[
@@ -71,12 +57,9 @@ Destroys an instance, or all instances of an object.
 ---@param inst integer | Instance | Object The instance to destroy, or object index.
 Instance.destroy = function(inst)
     if not inst then return end
-    inst = unwrap(inst)
+    local id = inst.id
+    instance_data[id] = nil
     gm.instance_destroy(inst)
-
-    -- Clear instance data
-    if type(inst) == "number" and inst < 100000 then return end
-    instance_data[inst.id] = nil
 end
 
 --[[
@@ -98,17 +81,15 @@ Instance.find = function(object, n)
     -- Vanilla object
     if object < Object.CUSTOM_START then
         local inst = gm.instance_find(object, n - 1)
-        if inst ~= -4 then return Instance.wrap(inst) end
+        if inst ~= -4 then return inst end
     
     -- Custom object
     else
         local inst = gm._mod_instance_find(object, n)   -- `_mod_instance_find` is indexed from 1
-        if inst ~= -4 then return Instance.wrap(inst) end
-
+        if inst ~= -4 then return inst end
     end
 
-    -- No instance found
-    return instance_invalid
+    return nil
 end
 
 --[[
@@ -146,8 +127,7 @@ Instance.nearest = function(x, y, object)
     if not x      then throw("x is invalid") end
     if not y      then throw("y is invalid") end
     if not object then throw("object is invalid") end
-
-    return Instance.wrap(gm._mod_instance_nearest(object, x, y))
+    return gm._mod_instance_nearest(object, x, y)
 end
 
 --[[
@@ -174,10 +154,7 @@ It is automatically deleted upon the instance's destruction.
 ---@param namespace? string If specified, returns another mod's table for the instance.
 ---@return table
 Instance.get_data = function(instance, subtable, namespace, namespace_is_specified)
-    instance = unwrap(instance)
-    local id = instance
-    local _type = type(instance)
-    if _type == "userdata" then id = instance.id end
+    local id = instance.id
     if id < 100000 then throw("Instance does not exist") end
     
     subtable  = subtable  or "__main"
@@ -191,72 +168,15 @@ Instance.get_data = function(instance, subtable, namespace, namespace_is_specifi
 end
 
 --[[
+**[!] DEPRECATED**
+
 Returns an Instance wrapper containing the provided instance.
 ]]
+---@deprecated
 ---@param inst Instance | sol.CInstance* | integer The instance to wrap.
 ---@return Instance
 Instance.wrap = function(inst)
-    local _type = type(inst)
-    local id
-
-    if _type == "userdata" then
-        id = inst.id
-        if id < 100000 then return instance_invalid end
-
-        local cached = wrapper_cache[id]
-        if cached then return cached end
-
-    elseif _type == "number" then
-        if inst < 100000 then return instance_invalid end
-
-        local cached = wrapper_cache[inst]
-        if cached then return cached end
-
-        id = inst
-        inst = gm_id_to_cinst[id]
-
-    elseif _type == "table" then return inst
-    else return instance_invalid
-    end
-
-    -- Final check for `inst` being `nil` somehow
-    if not inst then return instance_invalid end
-
-    -- Check `object_index` to determine
-    -- what metatable should be used
-    local obj_index = inst.object_index
-    if not obj_index then return instance_invalid end
-
-    local wrapper
-
-    wrapper = new_proxy(inst, metatable_instance)
-
-    -- TODO
-    -- Player
-    -- if obj_index == constants_oP then
-    --     wrapper = new_proxy(inst, metatable_player or W.Player)
-
-    -- else
-    --     local is_actor = ancestor_cache[obj_index]
-    --     if is_actor == nil then
-    --         is_actor = (gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1)
-    --         ancestor_cache[obj_index] = is_actor
-    --     end
-
-    --     -- Actor
-    --     if is_actor then
-    --         wrapper = new_proxy(inst, metatable_actor or W.Actor)
-
-    --     -- Instance
-    --     else
-    --         wrapper = new_proxy(inst, metatable_instance)
-    --     end
-    -- end
-
-    wrapper_cache[id] = wrapper
-    id_cache[wrapper] = id
-
-    return wrapper
+    return inst
 end
 
 
@@ -265,32 +185,47 @@ end
 ---@class Instance
 local methods = {}
 
--- TODO
+methods.abc = function(self)
+    print("Called abc!", self)
+end
 
 
 -- ========== Metatables ==========
 
 ---@class Instance
----@field value sol.CInstance*
----@field cinstance sol.CInstance*
 ---@field RAPI string
+
+local inst = gm.instance_create(0, 0, gm.constants.oB)
+local mt = getmetatable(inst)
+gm.instance_destroy(inst)
+
+run_on_initial_load(function()
+    P.instance_og_index    = mt.__index
+    P.instance_og_newindex = mt.__newindex
+end)
+local og_index = P.instance_og_index
+local og_newindex = P.instance_og_newindex
 
 local mt_name = "Instance"
 
 W.Instance = {
     __index = function(t, k)
-        -- Get wrapped value
-        if k == "value" or k == "cinstance" then return proxy[t] end
-        if k == "RAPI" then return mt_name end
-        if k == "id" then return id_cache[t] or -4 end
+        if k == "RAPI" then
+            local obj_index = og_index(t, "object_index")
+            if obj_index == constants_oP then
+                return "Player"
+            elseif ancestor_lookup[obj_index] then
+                return "Actor"
+            end
+            return "Instance"
+        end
 
         -- Methods
         if methods[k] then return methods[k] end
 
         -- Getter
-        local value = proxy[t]
-        if not value then return nil end
-        local ret = gm.variable_instance_get(value, k)
+        -- local ret = gm.variable_instance_get(t, k)
+        local ret = og_index(t, k)
 
         -- Return object function callable if key starts with "gml_"
         -- TODO
@@ -304,12 +239,10 @@ W.Instance = {
         --     end
         -- end
 
-        ret = wrap(ret)
-
         -- If Script, set its `self`/`other`
-        if type(ret) == "table"
-        and ret.RAPI == "Script" then
-            ret.self  = t  -- Will be unwrapped in Script set
+        local mt = getmetatable(ret)
+        if mt and mt.__name == "sol.CScriptRef*" then
+            ret.self  = t
             ret.other = t
         end
         
@@ -318,35 +251,18 @@ W.Instance = {
 
     __newindex = function(t, k, v)
         -- Throw read-only error
-        if k == "value"
-        or k == "cinstance"
-        or k == "RAPI"
-        or k == "id" then
+        if k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
         -- Setter
-        local value = proxy[t]
-        if not value then return end
-        gm.variable_instance_set(value, k, unwrap(v))
+        -- gm.variable_instance_set(t, k, unwrap(v))
+        og_newindex(t, k, unwrap(v))
     end,
 
     __eq = function(t, other)
-        return t.id == Instance.wrap(other).id
+        return t.id == other.id
     end,
-
-    __metatable = mt_wrapper_name(mt_name),
 }
-metatable_instance = W.Instance
 
-
--- Create invalid instance
-run_on_initial_load(function()
-    ---@type Instance
-    instance_invalid = new_proxy(nil, metatable_instance)
-    P.instance_invalid = instance_invalid
-end)
--- Instance with value `nil` and id `-4`.
----@type Instance
-Instance.INVALID = instance_invalid or P.instance_invalid
-instance_invalid = Instance.INVALID
+table.merge(mt, W.Instance)

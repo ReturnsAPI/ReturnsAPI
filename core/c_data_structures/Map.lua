@@ -87,7 +87,7 @@ You can also use Lua syntax (e.g., `map.my_key`).
 methods.get = function(self, key)
     local v = proxy[self]
     if v == -4 then throw("Map does not exist") end
-    return wrap(gm.ds_map_find_value(v, unwrap(key)))
+    return gm.ds_map_find_value(v, unwrap(key))
 end
 
 --[[

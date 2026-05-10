@@ -87,7 +87,7 @@ methods.get = function(self, index, size)
     if v == -4 then throw("List does not exist") end
     size = size or self:size()
     if (index < 0) or (index >= size) then return nil end
-    return wrap(gm.ds_list_find_value(v, index))
+    return gm.ds_list_find_value(v, index)
 end
 
 --[[

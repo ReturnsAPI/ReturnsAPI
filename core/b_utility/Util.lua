@@ -4,13 +4,17 @@
 Util = new_class()
 C.Util = Util
 
-local type       = type
-local tostring   = tostring
-local os_clock   = os.clock
-local string_sub = string.sub
-local print_raw  = _rom_print_raw   ---@type function
+local type         = type
+local tostring     = tostring
+local getmetatable = debug.getmetatable
+local os_clock     = os.clock
+local string_sub   = string.sub
+local string_find  = string.find
+local print_raw    = _rom_print_raw   ---@type function
 local util_tostr                    ---@type function
-local str_pad_r  = String.pad_right
+local str_pad_r    = String.pad_right
+
+local sol_types = G.sol_types
 
 
 -- ========== Private Methods ==========
@@ -114,7 +118,18 @@ RAPI wrappers (which are just Lua tables) will have their type returned instead 
 ---@return string
 Util.type = function(value, is_wrapper)
     local _type, arg2 = type(value), false
+    
+    local has_RAPI = false
     if _type == "table" then
+        has_RAPI = true
+    elseif _type == "userdata" then
+        local mt = getmetatable(value)
+        if mt and sol_types[mt.__name] then
+            has_RAPI = true
+        end
+    end
+
+    if has_RAPI then
         local rapi = value.RAPI
         if rapi then _type = rapi end
         arg2 = true
@@ -131,11 +146,25 @@ are replaced with the appropriate RAPI wrapper type (if applicable).
 ---@param value The value to get a string representation of.
 ---@return string
 Util.tostring = function(value)
-    if type(value) == "table" then
+    local _type = type(value)
+
+    local has_RAPI = false
+    if _type == "table" then
+        has_RAPI = true
+    elseif _type == "userdata" then
+        local mt = getmetatable(value)
+        if mt and sol_types[mt.__name] then
+            has_RAPI = true
+        end
+    end
+        
+    if has_RAPI then
         local rapi = value.RAPI
         if  rapi
         and rapi ~= "Vector" then
-            return rapi..string_sub(tostring(value), 6, -1)
+            local s = tostring(value)
+            local index = string_find(s, ":")
+            return rapi..string_sub(tostring(value), index, -1)
         end
     end
     return tostring(value)

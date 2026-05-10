@@ -21,7 +21,7 @@ local unwrap = Wrap.unwrap
 
 M.Global = {
     __index = function(t, k)
-        return wrap(g_get(k))
+        return g_get(k)
     end,
 
     __newindex = function(t, k, v)

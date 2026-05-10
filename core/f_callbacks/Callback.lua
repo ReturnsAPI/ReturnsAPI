@@ -349,7 +349,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
 
         local n = #arg_types
         for i = 1, n do
-            local arg = wrap(args[i + 1].value)
+            local arg = args[i + 1].value
             local arg_type = arg_types[i]
             
             -- Wrap as certain wrappers depending on arg type
@@ -378,7 +378,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
     else
         local n = #args - 1
         for i = 1, n do
-            _args[i] = wrap(args[i + 1].value)
+            _args[i] = args[i + 1].value
         end
         _args[n + 1] = nil
     end

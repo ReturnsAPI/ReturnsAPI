@@ -18,6 +18,16 @@ G.run_on_initialize = {}
 ---@type table<integer, function>
 P.run_on_import = {}
 
+---@type table<string, true>
+G.sol_types = table.set{
+    "sol.RefDynamicArrayOfRValueLuaWrapper",
+    "sol.RefDynamicArrayOfRValue*",
+    "sol.YYObjectBaseLuaWrapper",
+    "sol.YYObjectBase*",
+    "sol.CInstance*",
+    "sol.CScriptRef*",
+}
+
 --[[
 Returns a table with a subtable called `internal`.
 
