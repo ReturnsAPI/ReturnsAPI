@@ -159,6 +159,33 @@ methods_modoptions = {
 
 
     --@instance
+    --@return       ModOptionsSlider
+    --@param        identifier  | string    | The identifier for the element.
+    --@optional     display_type| number    | The display_type of the slider (percentage by default).
+    --@optional     value_min   | number    | The minimum value of the slider (0 by default).
+    --@optional     value_max   | number    | The maximum value of the slider (1 by default).
+    --@optional     value_int   | bool      | Whether the value is limited to integers (false by default).
+    --[[
+    Adds a @link {slider | ModOptionsSlider} to the ModOptions.
+    ]]
+    add_slider = function(self, identifier, display_type, value_min, value_max, value_int)
+        if not identifier           then log.error("add_slider: No identifier provided", 2) end
+        if identifier == "header"
+        or identifier == "ordered"  then log.error("add_slider: identifier '"..identifier.."' is reserved", 2) end
+        if self:find(identifier)    then log.error("add_slider: identifier '"..identifier.."' already in use", 2) end
+
+        local self_table = __proxy[self]
+
+        local element = ModOptionsSlider.new(__proxy[self].namespace, identifier, display_type, value_min, value_max, value_int or false)
+        
+        self_table.elements[identifier] = element
+        table.insert(self_table.elements.ordered, element)
+
+        return element
+    end,
+
+
+    --@instance
     --@return       ModOptionsKeybind
     --@param        identifier      | string    | The identifier for the element.
     --@param        default         | number    | The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind. <br>If not provided, will be unbinded by default.
