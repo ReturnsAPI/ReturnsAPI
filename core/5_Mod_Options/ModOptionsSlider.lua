@@ -9,10 +9,13 @@ ModOptionsSlider = new_class()
 --@section Enums
 
 --@enum
---@name display_type
---[[
-TODO display_type enum
-]]
+ModOptionsSlider.DisplayType = {
+    NONE            = 0,
+    PERCENTAGE      = 1,
+    MULTIPLIER      = 2,
+    RAW             = 3,
+    QUALITY         = 4
+}
 
 -- ========== Properties ==========
 
@@ -166,3 +169,7 @@ make_table_once("metatable_modoptionsslider", {
 
     __metatable = "RAPI.Wrapper."..wrapper_name
 })
+
+
+__class.ModOptionsSlider = ModOptionsSlider
+__class_mt.ModOptionsSlider = metatable_modoptionsslider

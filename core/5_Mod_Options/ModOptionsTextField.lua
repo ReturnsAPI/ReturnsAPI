@@ -14,9 +14,11 @@ ModOptionsTextField = new_class()
 **Wrapper**
 Property | Type | Description
 | - | - | -
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`namespace`     | string    | *Read-only.* The namespace of the ModOptions the element is in.
-`identifier`    | string    | *Read-only.* The identifier of the element.
+`RAPI`          | string | *Read-only.* The wrapper name.
+`namespace`     | string | *Read-only.* The namespace of the ModOptions the element is in.
+`identifier`    | string | *Read-only.* The identifier of the element.
+`max_length`    | number | *Read-only.* The maximum number of characters allowed in the text field (default 250).
+`numeric_only`  | bool   | *Disabled* *Read-only.* Whether the text field only accepts numeric input (false by default).
 ]]
 
 -- ========== Internal ==========
@@ -212,6 +214,7 @@ make_table_once("metatable_modoptionsTextField", {
 
 -- ========== Hooks ==========
 
+-- hook used to draw on top of the ui
 gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, result, args)
     if self.menu_level ~= 2 then return end
 
@@ -237,8 +240,8 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
         option_y = option_y + opt_y
 
         gm.ui_draw_clip_set(opt_x_start + 2, opt_y_start + 8, opt_width - 8, opt_height_total - 16);
-        -- ui_text_field(name,       x,   y,         width, flags, ui_style,                                    max_characters,  gamepad_navigation_id, numeric-only)
-        gm.ui_text_field(field.name, 400, option_y , 200,   0,     gm.variable_global_get("_ui_style_default"), field.max_length, index,                false)
+        -- ui_text_field(name,       x,   y,         width, flags, ui_style,                                    max_characters,   gamepad_navigation_id, numeric-only)
+        gm.ui_text_field(field.name, 400, option_y , 200,   0,     gm.variable_global_get("_ui_style_default"), field.max_length, index,                 false)
         gm.ui_draw_clip_reset()
 
         local state = gm._ui_get_element_state(field.name)

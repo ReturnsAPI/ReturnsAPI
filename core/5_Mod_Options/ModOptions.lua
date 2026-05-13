@@ -214,7 +214,16 @@ methods_modoptions = {
         return element
     end,
 
-    add_field = function(self, identifier, max_length, numeric_only)
+
+    --@instance
+    --@return       ModOptionsTextField
+    --@param        identifier   | string | The identifier for the element.
+    --@optional     max_length   | number | The maximum number of characters allowed in the text field (250 by default).
+    --@optional     numeric_only | bool   | *Disabled* Whether the text field only accepts numeric input (false by default).
+    --[[
+    Adds a @link {textfield | ModOptionsTextField} to the ModOptions.
+    ]]
+    add_textfield = function(self, identifier, max_length, numeric_only)
         if not identifier           then log.error("add_field: No identifier provided", 2) end
         if identifier == "header"
         or identifier == "ordered"  then log.error("add_field: identifier '"..identifier.."' is reserved", 2) end
