@@ -214,6 +214,22 @@ methods_modoptions = {
         return element
     end,
 
+    add_field = function(self, identifier, max_length, numeric_only)
+        if not identifier           then log.error("add_field: No identifier provided", 2) end
+        if identifier == "header"
+        or identifier == "ordered"  then log.error("add_field: identifier '"..identifier.."' is reserved", 2) end
+        if self:find(identifier)    then log.error("add_field: identifier '"..identifier.."' already in use", 2) end
+
+        local self_table = __proxy[self]
+
+        local element = ModOptionsTextField.new(__proxy[self].namespace, identifier, max_length, numeric_only)
+        
+        self_table.elements[identifier] = element
+        table.insert(self_table.elements.ordered, element)
+
+        return element
+    end,
+
 
     --@instance
     --@return       ModOptions<Element> or nil
@@ -347,6 +363,13 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
                 
                 struct.is_odd = is_odd
                 is_odd = not is_odd
+            elseif element.RAPI == "ModOptionsTextField" then 
+                -- Sync the ui_text_field value with the ModOptionsTextField
+                gm.variable_struct_set(
+                    gm.variable_global_get("_ui_shared_state").named_element_value,
+                    struct.name,
+                    struct.value
+                )
             else
                 first_key = nil
                 is_odd = false
