@@ -1,114 +1,82 @@
-if true then return end
 -- GM
 
 --[[
-This class is a version of `gm` that automatically
-wraps/unwraps values with ReturnsAPI wrappers.
-
-E.g.,
-```lua
-GM.instance_create(x, y, Object.find("Lizard"))    --> returns an Actor wrapper
-```
-
-If you need to pass a struct/instance into `self`/`other`, use `GM.SO`.
-
-E.g.,
-```lua
--- The first two arguments are `self, other`
-GM.SO.recalculate_stats(actor, actor)
-```
-
-**Note**
-If you do *not* need automatic wrapping/unwrapping, it may be faster to just use `gm`.
-
-E.g.,
-```lua
-gm.object_get_name(gm.constants.oP)
-
--- is marginally faster than
-
-GM.object_get_name(gm.constants.oP)
-```
+Variant of `gm` that works with RAPI's wrappers.
 ]]
-
+---@class GM
 GM = new_class()
-GM_callso = new_class()
+C.GM = GM
+
+--[[
+Variant of `GM` that accepts `self` and `other`. <br>
+*Technical:* Uses `gm.call` (slower than `gm`).
+]]
+---@class GM.SO
+GM.SO = new_class()
+C.GM_SO = GM.SO
+
+local type        = type
+local rawget      = rawget
+local select      = select
+local gm          = gm
+local gm_call     = gm.call
+local wrap        = Wrap.wrap
+local unwrap      = Wrap.unwrap
+local unwrap_args = unwrap_args
 
 
+-- ========== Static Methods ==========
 
--- ========== Functions ==========
-
--- Loop through constants and
--- add all scripts to GM
-for fn, _ in pairs(gm.constants) do
-    local type_ = gm.constant_types[fn]
-    if type_ == "script" or type_ == "gml_script" then
+-- Loop through constants and add all scripts to GM
+for name, _ in pairs(gm.constants) do
+    local _type = gm.constant_types[name]
+    if _type == "script"
+    or _type == "gml_script" then
 
         -- Normal
-        GM[fn] = function(...)
-            local args = table.pack(...)
-
-            -- Unwrap args
-            for i = 1, args.n do
-                args[i] = Wrap.unwrap(args[i])
-            end
-
-            return Wrap.wrap(gm.call(fn, nil, nil, table.unpack(args)))
+        local fn = gm[name]
+        GM[name] = function(...)
+            local n = select("#", ...)
+            if n == 0 then return fn() end
+            if n == 1 then return fn(unwrap(...)) end
+            return fn(unwrap_args(n, ...))  -- TODO need to verify if this works the same as before over gm.call
         end
 
         -- self/other
-        GM_callso[fn] = function(self, other, ...)
-            local args = table.pack(...)
-
-            -- Unwrap args
-            for i = 1, args.n do
-                args[i] = Wrap.unwrap(args[i])
-            end
-
-            return Wrap.wrap(gm.call(fn, Wrap.unwrap(self, true), Wrap.unwrap(other, true), table.unpack(args)))
+        GM.SO[name] = function(self, other, ...)
+            local n = select("#", ...)
+            if n == 0 then return gm_call(name, self, other) end
+            if n == 1 then return gm_call(name, self, other, unwrap(...)) end
+            return gm_call(name, self, other, unwrap_args(n, ...))
         end
 
     end
 end
 
 
-
 -- ========== Metatables ==========
 
-make_table_once("metatable_GM", {
-    __index = function(t, k)
-        if k == "SO" then return GM_callso end
-        return t[k]
-    end,
+---@class GM
+---@field SO GM.SO
+---@field [string] function
 
-
+M.GM = {
     __newindex = function(t, k, v)
         log.error("GM has no properties to set", 2)
     end,
 
+    __metatable = mt_class_name("GM"),
+}
+setmetatable(GM, M.GM)
 
-    __metatable = "RAPI.Class.GM"
-})
-setmetatable(GM, metatable_GM)
+---@class GM.SO
+---@field [string] function
 
-
-make_table_once("metatable_callso", {
-    __index = function(t, k)
-        return t[k]
-    end,
-
-
+M.GM_SO = {
     __newindex = function(t, k, v)
         log.error("GM.SO has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Class.GM.SO"
-})
-setmetatable(GM_callso, metatable_callso)
-
-
-
--- Public export
-__class.GM = GM
-__class_mt.GM = metatable_GM
+    __metatable = mt_class_name("GM.SO"),
+}
+setmetatable(GM.SO, M.GM_SO)

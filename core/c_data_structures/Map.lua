@@ -1,47 +1,38 @@
-if true then return end
 -- Map
 
 --[[
-This class allows for easier manipulation of GameMaker DS Maps.
+Allows for easier manipulation of GameMaker DS Maps.
 
-DS resources should always be destroyed once
+DS resources should always be destroyed once <br>
 they are no longer in use to free up memory.
 ]]
-
+---@class Map
 Map = new_class()
+C.Map = Map
 
+local proxy = P.proxy
+local metatable
 
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The ID of the Map.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-]]
-
+local type         = type
+local table_pack   = table.pack
+local table_unpack = table.unpack
+local new_proxy    = new_proxy
+local wrap         = Wrap.wrap
+local unwrap       = Wrap.unwrap
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       Map
---@optional     table       | table     | A key-value pair table to convert into a map.
 --[[
 Returns a newly created GameMaker map.
 ]]
+---@param t? table A key-value pair table to convert into a map.
+---@return Map
 Map.new = function(t)
     -- Create map from table
     if type(t) == "table" then
         local map = Map.wrap(gm.ds_map_create())
 
-        -- Add key-value pairs from table to map
         for k, v in pairs(t) do
             map:set(k, v)
         end
@@ -53,179 +44,158 @@ Map.new = function(t)
     return Map.wrap(gm.ds_map_create())
 end
 
-
---@static
---@return       Map
---@param        map         | number    | The ID of the map.
 --[[
 Returns a Map wrapper containing the provided map ID.
 ]]
+---@param map Map | number The ID of the map.
+---@return Map
 Map.wrap = function(map)
-    -- Input:   number or Map wrapper
-    -- Wraps:   number
-    return make_proxy(Wrap.unwrap(map), metatable_map)
+    return new_proxy(unwrap(map), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class Map
+local methods = {}
 
---@section Instance Methods
+--[[
+Returns `true` if the DS Map exists.
+]]
+---@return boolean
+methods.exists = function(self)
+    local ret = Util.bool(gm.ds_exists(proxy[self], 1))
+    if not ret then proxy[self] = -4 end
+    return ret
+end
 
-methods_map = {
+--[[
+Destroys the DS Map.
+]]
+methods.destroy = function(self)
+    gm.ds_map_destroy(proxy[self])
+    proxy[self] = -4
+end
 
-    --@instance
-    --@return       bool
-    --[[
-    Returns `true` if the DS Map exists.
-    ]]
-    exists = function(self)
-        local ret = (gm.ds_exists(self.value, 1) == 1)
-        if not ret then __proxy[self] = -4 end
-        return ret
-    end,
+--[[
+Returns the value of the specified key.
 
+You can also use Lua syntax (e.g., `map.my_key`).
+]]
+---@param key any The key to get from.
+---@return any
+methods.get = function(self, key)
+    local v = proxy[self]
+    if v == -4 then throw("Map does not exist") end
+    return gm.ds_map_find_value(v, unwrap(key))
+end
 
-    --@instance
-    --[[
-    Destroys the DS Map.
-    ]]
-    destroy = function(self)
-        gm.ds_map_destroy(self.value)
-        __proxy[self] = -4
-    end,
+--[[
+Sets the value of the specified key.
 
+You can also use Lua syntax (e.g., `map.my_key = 123`).
+]]
+---@param key any The key to set to.
+---@param value any The value to set.
+methods.set = function(self, key, value)
+    local v = proxy[self]
+    if v == -4 then throw("Map does not exist") end
+    gm.ds_map_set(v, unwrap(key), unwrap(value))
+end
 
-    --@instance
-    --@return       any
-    --@param        key         |           | The key to get from.
-    --[[
-    Returns the value of the specified key.
-    You can also use Lua syntax (e.g., `map.my_key`).
-    ]]
-    get = function(self, key)
-        if self.value == -4 then log.error("get: Map does not exist", 2) end
-        return Wrap.wrap(gm.ds_map_find_value(self.value, Wrap.unwrap(key)))
-    end,
+--[[
+Returns the size (length) of the map.
 
+You can also use Lua syntax (i.e., `#map`).
+]]
+---@return integer size
+methods.size = function(self)
+    return gm.ds_map_size(proxy[self])
+end
 
-    --@instance
-    --@param        key         |           | The key to set to.
-    --@param        value       |           | The value to set.
-    --[[
-    Sets the value of the specified key.
-    You can also use Lua syntax (e.g., `map.my_key = 123`).
-    ]]
-    set = function(self, key, value)
-        if self.value == -4 then log.error("set: Map does not exist", 2) end
-        gm.ds_map_set(self.value, Wrap.unwrap(key), Wrap.unwrap(value, true))
-    end,
+--[[
+Deletes the key-value pair of the specified key.
+]]
+---@param key any The key to delete.
+methods.delete = function(self, key)
+    gm.ds_map_delete(proxy[self], unwrap(key))
+end
 
+--[[
+Deletes all key-value pairs in the map.
+]]
+methods.clear = function(self)
+    gm.ds_map_clear(proxy[self])
+end
 
-    --@instance
-    --@return       number
-    --[[
-    Returns the size (length) of the map.
-    You can also use Lua syntax (i.e., `#map`).
-    ]]
-    size = function(self)
-        return gm.ds_map_size(self.value)
-    end,
-
-
-    --@instance
-    --@param        key         |           | The key to delete.
-    --[[
-    Deletes the key-value pair of the specified key.
-    ]]
-    delete = function(self, key)
-        gm.ds_map_delete(self.value, Wrap.unwrap(key, true))
-    end,
-
-
-    --@instance
-    --[[
-    Deletes all key-value pairs in the map.
-    ]]
-    clear = function(self)
-        gm.ds_map_clear(self.value)
-    end,
-
-
-    --@instance
-    --[[
-    Prints the map.
-    ]]
-    print = function(self)
-        local str = ""
-        local keys = GM.ds_map_keys_to_array(self.value)
-        for _, key in ipairs(keys) do
-            str = str.."\n"..Util.pad_string_right(key, 32).." = "..Util.tostring(self[key])
-        end
-        print(str)
+--[[
+Prints the map.
+]]
+methods.print = function(self)
+    local str = ""
+    local keys = GM.ds_map_keys_to_array(self.value)
+    for _, key in ipairs(keys) do
+        str = string.format(
+            "%s\n%s = %s",
+            str,
+            String.pad_right(key, 32),
+            Util.tostring(self[key])
+        )
     end
-
-}
-
+    print(str)
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Map"
+---@class Map
+---@field value integer
+---@field RAPI string
+---@field [any] any
 
-make_table_once("metatable_map", {
-    __index = function(proxy, k)
+local mt_name = "Map"
+
+W.Map = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
         
         -- Methods
-        if methods_map[k] then
-            return methods_map[k]
-        end
+        if methods[k] then return methods[k] end
 
         -- Getter
-        return proxy:get(k)
+        return t:get(k)
     end,
-    
 
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
+    __newindex = function(t, k, v)
+        -- Throw read-only error
         if k == "value"
         or k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
         -- Setter
-        proxy:set(k, v)
+        t:set(k, v)
     end,
     
-    
-    __len = function(proxy)
-        return proxy:size()
+    __len = function(t)
+        return t:size()
     end,
 
+    __pairs = function(t)
+        local key = gm.ds_map_find_first(proxy[t])
 
-    __pairs = function(proxy)
-        -- Find first key
-        local key = gm.ds_map_find_first(__proxy[proxy])
-
-        return function(proxy)
+        return function()
             if not key then return nil, nil end
-            local ret1, ret2 = key, proxy:get(key)
 
-            -- Find next key
-            key = gm.ds_map_find_next(__proxy[proxy], key)
+            local k, v = key, t:get(key)
+            key = gm.ds_map_find_next(proxy[t], key)
 
-            return ret1, ret2
-        end, proxy, nil
+            return k, v
+        end
     end,
 
-    
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
-
-
--- Public export
-__class.Map = Map
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.Map

@@ -1,24 +1,59 @@
-if true then return end
 -- Proxy
 
-run_once(function()
-    __proxy = setmetatable({}, {__mode = "k"})
+---@class Proxy
+Proxy = new_class()
 
-    local proxy_default_name = "Proxy"
-    local proxy_default_mt  = { __index = function(t, k)
-                                    if k == "RAPI" then return proxy_default_name end
-                                    return __proxy[t][k]
-                                end,
-                                __newindex = function(t, k, v) __proxy[t][k] = v end,
-                                __metatable = "RAPI.Wrapper."..proxy_default_name }
-
-    function make_proxy(t, mt)
-        -- Returns a new proxy table, which is used as
-        -- a "key" to access the real table/data in storage.
-        -- Access using `__proxy[proxy]` for get/set
-        local proxy = {}
-        __proxy[proxy] = t or ((not mt and {}) or nil)
-        setmetatable(proxy, mt or proxy_default_mt)
-        return proxy
-    end
+run_on_initial_load(function()
+    P.proxy = setmetatable({}, {__mode = "k"})
 end)
+
+local proxy = P.proxy
+local metatable
+
+
+-- ========== Static Methods ==========
+
+--[[
+Creates a new proxy table, which is used as <br>
+a "key" to access the real table/data in storage.
+]]
+---@param t any The table/data to make a proxy for.
+---@param mt? table A metatable to assign to the proxy. <br>`proxy_default_mt` by default.
+---@return table proxy
+function new_proxy(t, mt)
+    local p = {}
+    proxy[p] = t
+    setmetatable(p, mt or metatable)
+    return p
+end
+
+
+-- ========== Metatables ==========
+
+---@class Proxy
+---@field RAPI string
+
+local mt_name = "Proxy"
+
+W.Proxy = {
+    __index = function(t, k)
+        if k == "RAPI" then return mt_name end
+        return proxy[t][k]
+    end,
+
+    __newindex = function(t, k, v)
+        -- Throw read-only error
+        if k == "RAPI" then
+            log.error("Key '"..k.."' is read-only", 2)
+        end
+
+        proxy[t][k] = v
+    end,
+
+    __eq = function(p1, p2)
+        return proxy[p1] == proxy[p2]
+    end,
+
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.Proxy

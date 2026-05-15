@@ -1,58 +1,67 @@
-if true then return end
 -- ReadOnly
 
--- This version has no support for read-only on specific keys
--- since that has significantly increased performance cost
+---@class ReadOnly
+ReadOnly = new_class()
+C.ReadOnly = ReadOnly
 
--- Additionally, ReadOnly.new should be called to *finalize* the lock
+local proxy = P.proxy
+local metatable
 
-run_once(function()
-    local wrapper_name = "ReadOnly"
-    local metatable_readonly = {
-        __index = function(proxy, k)
-            if k == "RAPI" then return wrapper_name end
-            return __proxy[proxy][k]
-        end,
-        
-        __newindex = function(proxy, k, v)
-            log.error("Table is read-only", 2)
-        end,
-
-        __call = function(proxy, ...)
-            return __proxy[proxy](...)
-        end,
-
-        __len = function(proxy)
-            return #__proxy[proxy]
-        end,
-
-        __eq = function(p1, p2)
-            return __proxy[p1] == __proxy[p2]
-        end,
-
-        __pairs = function(proxy)
-            return next, __proxy[proxy], nil
-        end,
-
-        __metatable = "RAPI.Wrapper."..wrapper_name
-    }
-
-    ReadOnly = {
-        --@section Static Methods
-
-        --@static
-        --@return       table
-        --@param        t       | table     | The table to make read-only.
-        --[[
-        Returns a read-only version of the provided table.
-        ]]
-        new = function(t)
-            return make_proxy(t, metatable_readonly)
-        end
-    }
-end)
+local new_proxy = new_proxy
 
 
+-- ========== Static Methods ==========
 
--- Public export
-__class.ReadOnly = ReadOnly
+--[[
+Returns a read-only version of the provided table.
+]]
+---@param t table The table to make read-only.
+ReadOnly.new = function(t)
+    return new_proxy(t, metatable)
+end
+
+
+-- ========== Metatables ==========
+
+---@class ReadOnly
+---@field RAPI string
+
+local mt_name = "ReadOnly"
+
+W.ReadOnly = {
+    __index = function(t, k)
+        if k == "RAPI" then return mt_name end
+        return proxy[t][k]
+    end,
+    
+    __newindex = function(t, k, v)
+        log.error("Table is read-only", 2)
+    end,
+
+    __call = function(t, ...)
+        return proxy[t](...)
+    end,
+
+    __len = function(t)
+        return #proxy[t]
+    end,
+
+    __eq = function(p1, p2)
+        return proxy[p1] == proxy[p2]
+    end,
+
+    __pairs = function(t)
+        return next, proxy[t], nil
+    end,
+
+    __ipairs = function(t)
+        local n = #t
+        return function(t, k)
+            k = k + 1
+            if k <= n then return k, proxy[t][k] end
+        end, t, 0
+    end,
+
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.ReadOnly

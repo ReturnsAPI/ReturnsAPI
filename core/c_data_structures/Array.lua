@@ -1,313 +1,272 @@
-if true then return end
 -- Array
 
 --[[
-This class allows for manipulation of GameMaker arrays.
+Allows for easier manipulation of GameMaker arrays.
 ]]
-
+---@class Array
 Array = new_class()
+C.Array = Array
 
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         |           | *Read-only.* The `sol.RefDynamicArrayOfRValue*` being wrapped
-`RAPI`          | string    | *Read-only.* The wrapper name.
-]]
-
+local type            = type
+local table_pack      = table.pack
+local table_unpack    = table.unpack
+local gm_array_create = gm.array_create ---@type function
+local unwrap          = Wrap.unwrap
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       Array
---@optional     size        | number    | The size of the array. <br>`0` by default.
---@optional     value       |           | The value to populate the array with. <br>`0` by default.
---@overload
---@return       Array
---@param        table       | table     | A numerically-indexed Lua table to convert into an array.
 --[[
 Returns a newly created GameMaker array.
 ]]
-Array.new = function(arg1, arg2)
-    -- Overload 1
+---@param t? table A numerically-indexed Lua table to convert into an array.
+---@return Array
+Array.new = function(t) end
+
+--[[
+Returns a newly created GameMaker array.
+]]
+---@param size? integer The size of the array. <br>`0` by default.
+---@param default? any The value to populate the array with. <br>`0` by default.
+---@return Array
+Array.new = function(size, default)
     -- Create array from table
-    if type(arg1) == "table" then
-        local arr = Array.wrap(gm.array_create(0, 0))
-        arr:push(table.unpack(arg1))
+    if type(size) == "table" then
+        local arr = gm_array_create(0, 0)
+        arr:push(table_unpack(size))
         return arr
     end
 
-    -- Overload 2
     -- Create array with optional size and default value
-    return Array.wrap(gm.array_create(arg1 or 0, arg2 or 0))
+    return gm_array_create(size or 0, default or 0)
 end
 
-
---@static
---@return       Array
---@param        array       | `sol.RefDynamicArrayOfRValue*` or Array wrapper   | The array to wrap.
 --[[
+**[!] DEPRECATED**
+
 Returns an Array wrapper containing the provided array.
 ]]
+---@deprecated
+---@param array Array | sol.RefDynamicArrayOfRValue* The array to wrap.
+---@return Array
 Array.wrap = function(array)
-    -- Input:   `sol.RefDynamicArrayOfRValue*` or Array wrapper
-    -- Wraps:   `sol.RefDynamicArrayOfRValue*`
-    array = Wrap.unwrap(array)
-    return make_proxy(array, metatable_array)
+    return array
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class Array
+local methods = {}
 
---@section Instance Methods
+--[[
+Returns the value at the specified index (starting at `0`), <br>
+or `nil` if out-of-bounds.
 
-methods_array = {
+You can also use Lua syntax (e.g., `array[4]`), which starts at `1`.
+]]
+---@param index integer The index to get from.
+---@param size? integer The size of the array, if it already known (this skips a `gm` call).
+---@return any
+methods.get = function(self, index, size)
+    size = size or #self
+    if (index < 0) or (index >= size) then return nil end
+    return gm.array_get(self, index)
+end
 
-    --@instance
-    --@return       any
-    --@param        index       | number    | The index to get from.
-    --@optional     size        | number    | The size of the array, if it already known (this skips a `:size()` call).
-    --[[
-    Returns the value at the specified index (starting at `0`),
-    or `nil` if out-of-bounds.
-    You can also use Lua syntax (e.g., `array[4]`), which starts at `1`.
-    ]]
-    get = function(self, index, size)
-        index = Wrap.unwrap(index)
-        size = size or self:size()
-        if (index < 0) or (index >= size) then return nil end
-        return Wrap.wrap(gm.array_get(self.value, index))
-    end,
+--[[
+Sets the value at the specified index, starting at `0`.
 
+You can also use Lua syntax (e.g., `array[4] = 56`), which starts at `1`.
+]]
+---@param index integer The index to set to.
+---@param value any The value to set.
+methods.set = function(self, index, value)
+    gm.array_set(self, index, unwrap(value))
+end
 
-    --@instance
-    --@param        index       | number    | The index to set to.
-    --@param        value       |           | The value to set.
-    --[[
-    Sets the value at the specified index, starting at `0`.
-    You can also use Lua syntax (e.g., `array[4] = 56`), which starts at `1`.
-    ]]
-    set = function(self, index, value)
-        gm.array_set(self.value, Wrap.unwrap(index), Wrap.unwrap(value, true))
-    end,
+--[[
+Returns the size (length) of the array.
 
+You can also use Lua syntax (i.e., `#array`).
+]]
+---@return integer size
+methods.size = function(self)
+    return gm.array_length(self)
+end
 
-    --@instance
-    --@return       number
-    --[[
-    Returns the size (length) of the array.
-    You can also use Lua syntax (i.e., `#array`).
-    ]]
-    size = function(self)
-        return gm.array_length(self.value)
-    end,
+--[[
+Resizes the array.
+]]
+---@param size integer The new size.
+methods.resize = function(self, size)
+    gm.array_resize(self, size)
+end
 
-
-    --@instance
-    --@param        size        | number    | The new size.
-    --[[
-    Resizes the array.
-    ]]
-    resize = function(self, size)
-        gm.array_resize(self.value, Wrap.unwrap(size))
-    end,
-
-
-    --@instance
-    --@param        ...         |           | A variable amount of values to push.
-    --[[
-    Appends values to the end of the array.
-    ]]
-    push = function(self, ...)
-        local values = table.pack(...)
-
-        for i = 1, values.n do
-            values[i] = Wrap.unwrap(values[i], true)
-        end
-
-        gm.array_push(self.value, table.unpack(values))
-    end,
-
-
-    --@instance
-    --@return       any
-    --[[
-    Removes and returns the last element of the array.
-    ]]
-    pop = function(self)
-        return Wrap.wrap(gm.array_pop(self.value))
-    end,
-
-
-    --@instance
-    --@param        index       | number    | The index to insert at.
-    --@param        value       |           | The value to insert.
-    --[[
-    Inserts a value at the specified index, starting at `0`.
-    ]]
-    insert = function(self, index, value)
-        gm.array_insert(self.value, Wrap.unwrap(index), Wrap.unwrap(value, true))
-    end,
-
-
-    --@instance
-    --@param        index       | number    | The index to delete at.
-    --@optional     number      | number    | The number of values to delete. <br>`1` by default.
-    --[[
-    Deletes value(s) from the specified index, starting at `0`.
-    ]]
-    delete = function(self, index, number)
-        gm.array_delete(self.value, Wrap.unwrap(index), Wrap.unwrap(number) or 1)
-    end,
-
-
-    --@instance
-    --@param        value       |           | The value to delete.
-    --[[
-    Deletes the first occurence of the specified value.
-    ]]
-    delete_value = function(self, value)
-        local index = self:find(Wrap.unwrap(value))
-        if not index then return end
-        gm.array_delete(self.value, Wrap.unwrap(index), 1)
-    end,
-
-
-    --@instance
-    --[[
-    Deletes all elements in the array and resizes it to 0.
-    ]]
-    clear = function(self)
-        gm.array_delete(self.value, 0, self:size())
-    end,
-
-
-    --@instance
-    --@return       bool
-    --@param        value       |           | The value to check.
-    --@optional     offset      | number    | The starting index of a subset to search in (`0`-based). <br>`0` by default.
-    --@optional     length      | number    | The length of the subset. <br>`array:size()` by default.
-    --[[
-    Returns `true` if the array contains the specified value.
-    ]]
-    contains = function(self, value, offset, length)
-        return gm.array_contains(self.value, Wrap.unwrap(value, true), Wrap.unwrap(offset) or 0, Wrap.unwrap(length) or self:size())
-    end,
-
-
-    --@instance
-    --@return       number or nil
-    --@param        value       |           | The value to search for.
-    --[[
-    Returns the index (starting at `0`) of the first occurence of the specified value, or `nil` if not found.
-    ]]
-    find = function(self, value)
-        value = Wrap.unwrap(value, true)
-        for i, v in ipairs(self) do
-            if v == value then return i - 1 end
-        end
-        return nil
-    end,
-
-
-    --@instance
-    --@optional     descending  | bool      | If `true`, will sort in descending order. <br>`false` by default.
-    --[[
-    Sorts the array in ascending or descending order.
-    ]]
-    sort = function(self, descending)
-        gm.array_sort(self.value, not descending)
-    end,
-
-
-    --@instance
-    --[[
-    Prints the array.
-    ]]
-    print = function(self)
-        local str = ""
-        local padding = #tostring(#self) + 2
-        for i, v in ipairs(self) do
-            str = str.."\n"..Util.pad_string_right("["..(i - 1).."]", padding).."  "..Util.tostring(v)
-        end
-        print(str)
+--[[
+Appends values to the end of the array.
+]]
+---@param ... any A variable amount of values to push
+methods.push = function(self, ...)
+    local values = table_pack(...)
+    for i = 1, values.n do
+        values[i] = unwrap(values[i])
     end
-    
-}
+    gm.array_push(self, table_unpack(values))
+end
 
+--[[
+Removes and returns the last element of the array.
+]]
+---@return any
+methods.pop = function(self)
+    return gm.array_pop(self)
+end
+
+--[[
+Inserts a value at the specified index, starting at `0`.
+]]
+---@param index integer The index to insert at.
+---@param value any The value to insert.
+methods.insert = function(self, index, value)
+    gm.array_insert(self, index, unwrap(value))
+end
+
+--[[
+Deletes value(s) from the specified index, starting at `0`.
+]]
+---@param index integer The index to delete at.
+---@param count? integer The number of values to delete. <br>`1` by default.
+methods.delete = function(self, index, count)
+    gm.array_delete(self, index, count or 1)
+end
+
+--[[
+Deletes the first occurence of the specified value.
+]]
+---@param value any The value to delete.
+methods.delete_value = function(self, value)
+    local index = self:find(value)
+    if not index then return end
+    gm.array_delete(self, index, 1)
+end
+
+--[[
+Deletes all elements in the array, resizing it to 0.
+]]
+methods.clear = function(self)
+    gm.array_delete(self, 0, #self)
+end
+
+--[[
+Returns `true` if the array contains the specified value.
+]]
+---@param value any The value to check.
+---@param offset integer The starting index of a subset to search in (`0`-based). <br>`0` by default.
+---@param length integer The length of the subset. <br>`array:size()` by default.
+---@return boolean
+methods.contains = function(self, value, offset, length)
+    return gm.array_contains(self, unwrap(value), offset or 0, length or #self)
+end
+
+--[[
+Returns the index (starting at `0`) of the first occurence <br>
+of the specified value, or `nil` if not found.
+]]
+---@param value any The value to search for.
+---@return integer | nil
+methods.find = function(self, value)
+    for i, v in ipairs(self) do
+        if v == value then return i - 1 end
+    end
+    return nil
+end
+
+--[[
+Sorts the array in ascending or descending order.
+]]
+---@param descending? boolean If `true`, will sort in descending order. <br>`false` by default.
+methods.sort = function(self, descending)
+    gm.array_sort(self, not descending)
+end
+
+--[[
+Prints the array.
+]]
+methods.print = function(self)
+    local str = ""
+    local index_padding = #tostring(#self) + 2
+    for i, v in ipairs(self) do
+        str = string.format(
+            "%s\n%s %s",
+            str,
+            String.pad_right(string.format("[%d]", i - 1), index_padding),
+            Util.tostring(v)
+        )
+    end
+    print(str)
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Array"
+---@class Array
+---@field RAPI string
+---@field [integer] any
 
-make_table_once("metatable_array", {
-    __index = function(proxy, k)
-        -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+local mt_name = "Array"
+
+W.Array = {
+    __index = function(t, k)
+        if k == "RAPI" then return mt_name end
         
         -- Methods
-        if methods_array[k] then
-            return methods_array[k]
-        end
+        if methods[k] then return methods[k] end
 
         -- Getter
-        k = Wrap.unwrap(k)
-        return proxy:get(k - 1)
+        return t:get(k - 1)
     end,
-    
 
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI" then
+    __newindex = function(t, k, v)
+        -- Throw read-only error
+        if k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end
-        
+
         -- Setter
-        k = Wrap.unwrap(k)
-        proxy:set(k - 1, v)
-    end,
-    
-    
-    __len = function(proxy)
-        return proxy:size()
+        t:set(k - 1, v)
     end,
 
+    __len = function(t)
+        return gm.array_length(t)
+    end,
 
-    __pairs = function(proxy)
-        local n = #proxy
-        return function(proxy, k)
+    __pairs = function(t)
+        local n = #t
+        return function(t, k)
             k = k + 1
-            if k <= n then return k, proxy:get(k - 1, n) end
-        end, proxy, 0
+            if k <= n then return k, gm.array_get(t, k - 1) end
+        end, t, 0
     end,
 
-
-    __ipairs = function(proxy)
-        local n = #proxy
-        return function(proxy, k)
+    __ipairs = function(t)
+        local n = #t
+        return function(t, k)
             k = k + 1
-            if k <= n then return k, proxy:get(k - 1, n) end
-        end, proxy, 0
+            if k <= n then return k, gm.array_get(t, k - 1) end
+        end, t, 0
     end,
+}
 
+local arr = gm.array_create(0, 0)
+local mt = getmetatable(arr)
+table.merge(mt, W.Array)
 
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
+-- local state = getmetatable(_ENV).__index
+-- local mt = state.RefDynamicArrayOfRValue
+-- table.merge(mt, W.Array)
 
-
-
--- Public export
-__class.Array = Array
+-- TODO need to run this on initialize loop
+-- mods.on_all_mods_loaded(function()
+--     mt.__metatable = mt_wrapper_name(mt_name)
+-- end)

@@ -1,59 +1,72 @@
-if true then return end
 -- Wrap
 
+---@class Wrap
 Wrap = new_class()
+C.Wrap = Wrap
 
+local proxy = P.proxy
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       any
---@param        value           |       | The value to unwrap (if applicable).
 --[[
-Returns the unwrapped value of a RAPI wrapper,
+Returns the unwrapped value of a RAPI wrapper, <br>
 or `value` if it is not a wrapper.
 ]]
+---@param value any The value to unwrap (if applicable).
+---@return any
 Wrap.unwrap = function(value)
-    return __proxy[value] or value
+    -- TODO For RAPI itself, inline this directly in build script(?)
+    return proxy[value] or value
 end
 
-
---@static
---@return       any
---@param        value       |           | The value to wrap.
 --[[
+**[!] DEPRECATED**
+
 Wraps the value with the appropriate RAPI wrapper (if applicable).
 ]]
+---@deprecated
+---@param value any The value to wrap.
+---@return any
 Wrap.wrap = function(value)
-    if type(value) == "userdata" then
-        local sol = getmetatable(value).__name
-
-        -- Array
-        if sol:find("sol.RefDynamicArrayOfRValue") then
-            return Array.wrap(value)
-
-        -- Struct
-        elseif sol:find("sol.YYObjectBase") then
-            return Struct.wrap(value)
-
-        -- Instance
-        elseif sol == "sol.CInstance*" then
-            return Instance.wrap(value)
-
-        -- Script
-        elseif sol == "sol.CScriptRef*" then
-            return Script.wrap(value)
-            
-        end
-    end
-
     return value
 end
 
 
+-- ========== Hooks ==========
 
--- Public export
-__class.Wrap = Wrap
+-- Modify `__newindex` of `sol.RValue*` to do unwrapping on `v`
+-- Can only obtain a `sol.RValue*` from a hook
+if not P.ran_rvalue_modify then
+    local hook1, hook2, hook3
+
+    hook1 = gm.pre_script_hook(gm.constants.function_dummy, function(self, other, result, args)
+        if P.ran_rvalue_modify then return end
+        P.ran_rvalue_modify = true
+        
+        -- `sol.RValue*`
+        local mt = getmetatable(args[1])
+        local og_newindex = mt.__newindex
+        mt.__newindex = function(t, k, v)
+            og_newindex(t, k, proxy[v] or v)
+        end
+
+        -- `sol.RValue`
+        local mt = getmetatable(RValue.from_ptr(1))
+        local og_newindex = mt.__newindex
+        mt.__newindex = function(t, k, v)
+            og_newindex(t, k, proxy[v] or v)
+        end
+    end)
+
+    hook2 = gm.pre_code_execute("gml_Object_oInit_Step_0", function(self, other)
+        if P.ran_rvalue_modify then return end
+        gm.function_dummy(1)
+    end)
+
+    hook3 = gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
+        gm.hook_disable(hook1)
+        gm.hook_disable(hook2)
+        gm.hook_disable(hook3)
+    end)
+end

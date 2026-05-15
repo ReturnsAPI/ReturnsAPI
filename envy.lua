@@ -1,33 +1,64 @@
--- ENVY
+-- ENVY exports
 
-run_once(function()
-    __auto_setups = {}  -- Store mod ENVs that call `.auto()`; used when hotloading RAPI
+local handle_optional_namespace = handle_optional_namespace
 
-    -- Create storage for some ENV things
-    -- and populate with RAPI's things
-    local guid = _ENV["!guid"]
-    local t = {
+run_on_initial_load(function()
+    --[[
+    Stores import property tables (`@class ModData`). <br>
+    Index key can be `guid` or `namespace`.
+    ]]
+    ---@type table<string, ModData>
+    P.mod_data = {}
+
+    ---@class ModData
+    ---@field env table
+    ---@field namespace string
+    ---@field path string
+    ---@field mp boolean Deprecated; is both `mp_local` and `mp_online`
+    ---@field mp_local boolean
+    ---@field mp_online boolean
+
+    ---@type table<env, properties>
+    P.auto_imports = {} -- Stores `_ENV`s of mods that call `.auto()`
+
+    -- Store RAPI's own properties
+    ---@type ModData
+    local p = {
+        env       = _ENV,
+        mp_local  = true,
+        mp_online = true,
         namespace = RAPI_NAMESPACE,
-        guid      = guid,
-        path      = _ENV["!plugins_mod_folder_path"]
+        path      = _ENV["!plugins_mod_folder_path"],
     }
-    __namespace = {
-        [RAPI_NAMESPACE] = t,
-        [guid]  = t
-    }
+    P.mod_data[_ENV["!guid"]]  = p
+    P.mod_data[RAPI_NAMESPACE] = p
 end)
 
+--[[
+Returns a table containing the API.
 
-function public.setup(env, namespace)
-    if env == nil then
-        env = envy.getfenv(2)
-    end
+Properties:
+- `env` - The `_ENV` table of your mod. <br>If not provided, automatically fetches your `_ENV`.
+- `namespace` - The namespace by which your mod is identified for custom content, etc. <br>If not provided, defaults to your mod's name.
+- `mp_local` - Set to `true` to mark your mod as safe to use in local multiplayer.
+- `mp_online` - Set to `true` to mark your mod as safe to use in online multiplayer.
+- `mp` - *Legacy - do not use*; acts as both `mp_local` and `mp_online`.
+]]
+---@param properties? table A table of import properties.
+---@return table API
+public.setup = function(properties)
+    ---@type ModData
+    properties = properties or {}
+    properties.env  = properties.env or envy.getfenv(2)
+    properties.path = properties.env["!plugins_mod_folder_path"]
 
-    local guid = env["!guid"]
+    local guid = properties.env["!guid"]
+    local namespace = properties.namespace
 
+    -- Namespace validity check
     if namespace then
         namespace = tostring(namespace)
-        if namespace:find("-") then log.error("setup: Namespace cannot contain a hyphen ('-')", 2) end
+        if namespace:find("-") then log.error("setup: Namespace cannot contain a hyphen (-)", 2) end
     else
         namespace = guid:sub(guid:find("-") + 1, -1)
         log.warning("setup: No namespace provided by '"..guid.."'; defaulting to '"..namespace.."'")
@@ -40,165 +71,159 @@ function public.setup(env, namespace)
     end
 
     -- Prevent taking a namespace already used by another mod
-    if __namespace[namespace] then
-        if guid ~= __namespace[namespace].guid then
+    local data = P.mod_data[namespace]
+    if data then
+        if guid ~= data.env["!guid"] then
             log.error("setup: Namespace '"..namespace.."' is already in use", 2)
         end
     end
-    
-    -- Store some ENV things
-    local t = {
-        namespace = namespace,
-        guid      = guid,
-        path      = env["!plugins_mod_folder_path"]
-    }
-    __namespace[namespace] = t
-    __namespace[guid]      = t
 
-    -- Create wrapper by copying all class *function* references
-    -- This allows for namespace binding for certain functions and
-    -- prevents a mod messing with another mod's import without requiring read-only
+    properties.namespace  = namespace
+    P.mod_data[guid]      = properties
+    P.mod_data[namespace] = properties
+
     local wrapper = {}
-    for name, class_ref in pairs(__class) do
 
-        -- Create copy
+    -- For each public class, create a new table
+    -- and copy all key-value pairs to it
+    for name, class in pairs(C) do
         local copy = {}
 
-        -- Copy k, v references from original to copy table
-        for k, v in pairs(class_ref) do
-            if k ~= "internal" then
-                -- Base copy
-                copy[k] = v
+        for k, v in pairs(class) do
+            if k == "internal" then goto continue end
 
-                -- Namespace binding
-                if type(v) == "function" then
-                    local edited = false
+            -- Base copy
+            copy[k] = v
 
-                    -- Immutable namespace
-                    -- (`NAMESPACE` (in caps) argument is first)
-                    if debug.getlocal(v, 1) == "NAMESPACE" then
-                        copy[k] = function(...)
-                            return v(namespace, ...)
-                        end
-                        edited = true
+            -- Namespace binding
+            if type(v) == "function" then
+                -- Immutable/implicit namespace
+                -- (`NAMESPACE` (in caps) argument is first)
+                if debug.getlocal(v, 1) == "NAMESPACE" then
+                    copy[k] = function(...)
+                        return v(namespace, ...)
                     end
 
-                    -- Check for optional namespace
-                    -- (`namespace` (not caps) argument)
-                    if not edited then
-                        local pos = nil
-                        local nparams = debug.getinfo(v).nparams
-                        for i = 1, nparams do
-                            if debug.getlocal(v, i):lower() == "namespace" then
-                                pos = i
-                                break
-                            end
-                        end
-
-                        -- Someone please tell me there is a better way to do this
-                        if pos then
-                            if pos == 1 then
-                                copy[k] = function(ns)
-                                    return v(parse_optional_namespace(ns, namespace))
-                                end
-                            elseif pos == 2 then
-                                copy[k] = function(arg1, ns)
-                                    return v(arg1, parse_optional_namespace(ns, namespace))
-                                end
-                            elseif pos == 3 then
-                                copy[k] = function(arg1, arg2, ns)
-                                    return v(arg1, arg2, parse_optional_namespace(ns, namespace))
-                                end
-                            elseif pos == 4 then
-                                copy[k] = function(arg1, arg2, arg3, ns)
-                                    return v(arg1, arg2, arg3, parse_optional_namespace(ns, namespace))
-                                end
-                            elseif pos == 5 then
-                                copy[k] = function(arg1, arg2, arg3, arg4, ns)
-                                    return v(arg1, arg2, arg3, arg4, parse_optional_namespace(ns, namespace))
-                                end
-                            elseif pos == 6 then
-                                copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns)
-                                    return v(arg1, arg2, arg3, arg4, arg5, parse_optional_namespace(ns, namespace))
-                                end
-                            elseif pos == 7 then
-                                copy[k] = function(arg1, arg2, arg3, arg4, arg5, arg6, ns)
-                                    return v(arg1, arg2, arg3, arg4, arg5, arg6, parse_optional_namespace(ns, namespace))
-                                end
-                            end
+                -- Optional namespace
+                -- (`namespace` (not caps) argument)
+                else
+                    local pos = nil
+                    local nparams = debug.getinfo(v).nparams
+                    for i = 1, nparams do
+                        if debug.getlocal(v, i):lower() == "namespace" then
+                            pos = i
+                            break
                         end
                     end
+                    if not pos then goto continue end
 
-                -- Enums
-                elseif type(v) == "table" and (not v.RAPI) then
-                    -- Copy over enum values to new table
-                    local t = {}
-                    for k2, v2 in pairs(v) do
-                        t[k2] = v2
+                    -- Handled like this to minimize function calls (i.e., `table.pack/unpack`)
+                    -- `ns or namespace` - Use default namespace if not provided
+                    -- `ns and true`     - `true` if a namespace was provided
+                    if pos == 1 then
+                        copy[k] = function(ns)
+                            return v(ns or namespace, ns and true)
+                        end
+                    elseif pos == 2 then
+                        copy[k] = function(arg1, ns)
+                            return v(arg1, ns or namespace, ns and true)
+                        end
+                    elseif pos == 3 then
+                        copy[k] = function(arg1, arg2, ns)
+                            return v(arg1, arg2, ns or namespace, ns and true)
+                        end
+                    elseif pos == 4 then
+                        copy[k] = function(arg1, arg2, arg3, ns)
+                            return v(arg1, arg2, arg3, ns or namespace, ns and true)
+                        end
+                    elseif pos == 5 then
+                        copy[k] = function(arg1, arg2, arg3, arg4, ns)
+                            return v(arg1, arg2, arg3, arg4, ns or namespace, ns and true)
+                        end
+                    elseif pos == 6 then
+                        copy[k] = function(arg1, arg2, arg3, arg4, arg5, ns)
+                            return v(arg1, arg2, arg3, arg4, arg5, ns or namespace, ns and true)
+                        end
+                    elseif pos == 7 then
+                        copy[k] = function(arg1, arg2, arg3, arg4, arg5, arg6, ns)
+                            return v(arg1, arg2, arg3, arg4, arg5, arg6, ns or namespace, ns and true)
+                        end
                     end
-                    copy[k] = t
-
                 end
+
+            -- Tables
+            elseif type(v) == "table" and not v.RAPI then
+                -- Copy pairs to new table
+                local t = {}
+                for k2, v2 in pairs(v) do
+                    t[k2] = v2
+                end
+                copy[k] = t
             end
+
+            ::continue::
         end
 
-        -- Copy metatable over (if applicable)
-        if __class_mt[name] then setmetatable(copy, __class_mt[name]) end
+        -- Copy over class metatable (if applicable)
+        if M[name] then setmetatable(copy, M[name]) end
 
         wrapper[name] = copy
     end
 
-    -- Create unique version of `Util.print` with mod name binded
-    wrapper.Util.print = Util.internal.make_print(env["!guid"])
+    -- Create own version of `Util.print`
+    wrapper.Util.print = Util.internal.make_print(guid)
 
-    return wrapper, namespace
-end
-
-
-function public.auto(properties)
-    properties = properties or {}
-
-    local env = envy.getfenv(2)
-    local wrapper, namespace = public.setup(env, properties.namespace)
-    envy.import_all(env, wrapper)
-
-    -- Save mod ENV and properties for calling again on RAPI hotload
-    __auto_setups[env] = properties
-
-    -- Override default `print`, `type`, and `tostring` with Util's versions
-    if not env.lua_print then
-        env.lua_print     = env.print
-        env.lua_type      = env.type
-        env.lua_tostring  = env.tostring
-    end
-    env.print     = wrapper.Util.print
-    env.type      = wrapper.Util.type
-    env.tostring  = wrapper.Util.tostring
-
-    -- Add Math functions to `math`
-    for k, v in pairs(Math) do
-        if k ~= "internal" then
-            env.math[k] = v
+    -- Run import functions
+    if P.run_on_import then
+        for _, fn in ipairs(P.run_on_import) do
+            fn(namespace)
         end
     end
-    
-    run_clear_namespace_functions(namespace)    -- in Internal.lua
 
-    -- Autoregister to Language
-    if Language then Language.register_autoload(env) end
+    return wrapper
 end
 
+--[[
+Imports the API directly into your environment.
 
--- Reimport class tables to mods
--- that called .auto() on RAPI hotload
-run_on_hotload(function()
-    for env, t in pairs(__auto_setups) do
-        local wrapper = public.setup(env, t.namespace)
-        envy.import_all(env, wrapper)
+Properties:
+- `env` - The `_ENV` table of your mod. <br>If not provided, automatically fetches your `_ENV`.
+- `namespace` - The namespace by which your mod is identified for custom content, etc. <br>If not provided, defaults to your mod's name.
+- `mp_local` - Set to `true` to mark your mod as safe to use in local multiplayer.
+- `mp_online` - Set to `true` to mark your mod as safe to use in online multiplayer.
+- `mp` - *Legacy - do not use*; acts as both `mp_local` and `mp_online`.
+]]
+---@param properties? table A table of import properties.
+public.auto = function(properties)
+    ---@type ModData
+    properties = properties or {}
+    properties.env = properties.env or envy.getfenv(2)
+    local env = properties.env
 
-        -- Override default `print`, `type`, and `tostring` with Util's versions
-        env.print     = wrapper.Util.print
-        env.type      = wrapper.Util.type
-        env.tostring  = wrapper.Util.tostring
+    local wrapper = public.setup(properties)
+    envy.import_all(env, wrapper)
+
+    P.auto_imports[env] = properties
+
+    -- Add extensions directly to Lua's tables
+    for k, v in pairs(Math)   do env.math[k]   = v end
+    for k, v in pairs(String) do env.string[k] = v end
+    for k, v in pairs(Table)  do env.table[k]  = v end
+
+    -- Override default `print`, `type`, and `tostring`
+    if not env.lua_print then
+        env.lua_print    = env.print
+        env.lua_type     = env.type
+        env.lua_tostring = env.tostring
     end
-end)
+    env.print    = wrapper.Util.print
+    env.type     = wrapper.Util.type
+    env.tostring = wrapper.Util.tostring
+end
+
+-- NOTE: Do service subscriptions for `setup()` too,
+-- but not anything that imports directly into env
+    -- Subscriptions:
+    -- * Language autoregister
+    -- * MP check
+    -- ✓ Remove callback functions on hotload

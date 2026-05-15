@@ -1,161 +1,228 @@
-if true then return end
--- Utility
+-- Util
 
+---@class Util
 Util = new_class()
+C.Util = Util
+
+local type         = type
+local tostring     = tostring
+local getmetatable = debug.getmetatable
+local os_clock     = os.clock
+local string_sub   = string.sub
+local string_find  = string.find
+local print_raw    = _rom_print_raw   ---@type function
+local util_tostr                    ---@type function
+local str_pad_r    = String.pad_right
+
+local sol_types = G.sol_types
 
 
+-- ========== Private Methods ==========
 
--- ========== Internal ==========
+-- This is faster than iterative `select(i, ...)`, <br>
+-- and *much* faster than `table.pack/unpack`
+local function tostring_args(n, prefix, arg, ...)
+    local out
+    if prefix then out = prefix..util_tostr(arg)
+    else out = util_tostr(arg)
+    end
 
-Util.internal.make_print = function(mod_name)
+    if n == 1 then return out end
+    return out, tostring_args(n - 1, nil, ...)
+end
+
+--[[
+Returns a version of print prefixed with the given guid.
+]]
+---@param guid string
+---@return function
+Util.internal.make_print = function(guid)
     return function(...)
-        local args = table.pack(...)
-        for i = 1, args.n do
-            args[i] = Util.tostring(args[i])
-        end
-
-        if args.n <= 0 then
-            _rom_print_raw(mod_name..": ")
+        local n = select("#", ...)
+        if n <= 0 then
+            print_raw(guid..": ")
             return
         end
-        _rom_print_raw(mod_name..": "..args[1], select(2, table.unpack(args)))
+        print_raw(tostring_args(n, guid..": ", ...))
     end
 end
 
+local function object_get_name(inst)
+    if inst.object_index then
+        return gm.object_get_name(inst.object_index)
+    end
+    return inst
+end
 
-local indent_amount = 4
+local indent = "    "
 
-Util.internal.stringify = function(t, indent)
+local function log_struct(struct)
+    struct = Struct.wrap(struct)
+
     local str = ""
-    local max_index = 0
-
-    local indent_str = ""
-    for i = 1, indent do indent_str = indent_str.." " end
-
-    -- Indexed values
-    if t[1] then
-        for i, v in ipairs(t) do
-            local tostr = Util.tostring(v)
-            local value = " = "..tostr
-
-            local _type = Util.type(v)
-            if _type == "table" then
-                value = ":\n"..Util.internal.stringify(v, indent + indent_amount)
-            elseif _type == "string" then
-                value = " = \""..tostr.."\""
-            end
-
-            str = str.."\n"..indent_str..i..value
-            max_index = i
-        end
+    local keys = struct:get_keys()
+    for _, key in ipairs(keys) do
+        str = str.."\n| "..indent..str_pad_r(key, 32).." = "..util_tostr(struct[key])
     end
-
-    -- Key-value pairs
-    for k, v in pairs(t) do
-
-        -- Do not print keys that were covered in ipairs
-        if type(k) ~= "number" or k > max_index then
-            local tostr = Util.tostring(v)
-            local value = " = "..tostr
-
-            local _type = Util.type(v)
-            if _type == "table" then
-                value = ":\n"..Util.internal.stringify(v, indent + indent_amount)
-            elseif _type == "string" then
-                value = " = \""..tostr.."\""
-            end
-
-            str = str.."\n"..indent_str..k..value
-        end
-    end
-
-    -- Remove initial "\n" if it exists
-    return (#str > 0 and str:sub(2, -1)) or str
+    return str
 end
 
+local function log_array(array)
+    array = Array.wrap(array)
+
+    local str = ""
+    local padding = #tostring(#array) + 2
+    for i, v in ipairs(array) do
+        str = str.."\n| "..indent..str_pad_r("["..(i - 1).."]", padding).."  "..util_tostr(v)
+    end
+    return str
+end
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       table or nil
---@param        identifier  | string    | The guid or ReturnsAPI namespace of the mod.
 --[[
 Returns a table containing the following keys:
-- `namespace`
 - `guid`
+- `namespace`
 - `path`
 ]]
+---@param identifier string The guid or ReturnsAPI namespace of the mod.
+---@return table | nil
 Util.get_mod_info = function(identifier)
-    return (__namespace[identifier] and Util.table_shallow_copy(__namespace[identifier])) or nil
+    local data = P.mod_data[identifier]
+    if data then
+        return {
+            guid      = data.env["!guid"],
+            namespace = data.namespace,
+            path      = data.path,
+        }
+    end
 end
 
-
---@static
---@param        ...         |           | A variable amount of arguments to print.
 --[[
-Prints a variable number of arguments.
-Works just like regular `print`, but prints wrapper types instead of "table".
-
-Automatically replaces `print()` with this on `.auto()` import;
-the original is saved as `lua_print()`.
+Prints a variable number of arguments. <br>
+Works just like regular `print`, but prints RAPI wrapper types instead of "table".
 ]]
+---@param ... any
+Util.print = function(...) end
 Util.print = Util.internal.make_print(_ENV["!guid"])
--- Each mod gets their own version with their name binded in `envy.lua`
+-- Each mod gets their own version with their guid binded on import.
 
-
---@static
---@return       string, [bool]
---@param        value       |           | The value to check.
---@optional     is_RAPI?    | bool      | If `true`, will return a bool as a second argument. <br>It will be `true` if the type is a RAPI wrapper, and `false` otherwise.
 --[[
-Returns the type of the value as a string.
-Wrappers (which are just tables) will have their type returned instead of "table".
-
-Automatically replaces `type()` with this on `.auto()` import;
-the original is saved as `lua_type()`.
+Returns the type of the value as a string. <br>
+RAPI wrappers (which are just Lua tables) will have their type returned instead of "table".
 ]]
-Util.type = function(value, is_RAPI)
-    local _type = type(value)
-    local arg2  = false -- is_RAPI? bool
+---@param value any The value to get the type of.
+---@param is_wrapper? boolean If `true`, will return a bool as a second argument, <br>which will be `true` if the type is a RAPI wrapper.
+---@return string
+Util.type = function(value, is_wrapper)
+    local _type, arg2 = type(value), false
+    
+    local has_RAPI = false
     if _type == "table" then
-        local RAPI = value.RAPI
-        if RAPI then _type = RAPI end
+        has_RAPI = true
+    elseif _type == "userdata" then
+        local mt = getmetatable(value)
+        if mt and sol_types[mt.__name] then
+            has_RAPI = true
+        end
+    end
+
+    if has_RAPI then
+        local rapi = value.RAPI
+        if rapi then _type = rapi end
         arg2 = true
     end
-    if is_RAPI then return _type, arg2 end
+    if is_wrapper then return _type, args2 end
     return _type
 end
 
-
---@static
---@return       string
---@param        value       |           | The value to make a string representation of.
 --[[
-Returns the string representation of the value.
-Works just like regular `tostring`, but "table" substrings
-are replaced with the appropriate wrapper type (if applicable).
-
-Automatically replaces `tostring()` with this on `.auto()` import;
-the original is saved as `lua_tostring()`.
+Returns the string representation of the value. <br>
+Works just like regular `tostring`, but "table" substrings <br>
+are replaced with the appropriate RAPI wrapper type (if applicable).
 ]]
+---@param value The value to get a string representation of.
+---@return string
 Util.tostring = function(value)
-    if type(value) == "table" and value.RAPI and (value.RAPI ~= "Vector") then
-        return value.RAPI..tostring(value):sub(6, -1)
+    local _type = type(value)
+
+    local has_RAPI = false
+    if _type == "table" then
+        has_RAPI = true
+    elseif _type == "userdata" then
+        local mt = getmetatable(value)
+        if mt and sol_types[mt.__name] then
+            has_RAPI = true
+        end
+    end
+        
+    if has_RAPI then
+        local rapi = value.RAPI
+        if  rapi
+        and rapi ~= "Vector" then
+            local s = tostring(value)
+            local index = string_find(s, ":")
+            return rapi..string_sub(tostring(value), index, -1)
+        end
     end
     return tostring(value)
 end
+util_tostr = Util.tostring
 
-
---@static
---@param        self        |           | The `self` argument of the hook.
---@param        other       |           | The `other` argument of the hook.
---@param        result      |           | The `result` argument of the hook.
---@param        args        |           | The `args` argument of the hook.
 --[[
-Prints the values of a script hook to the console.
+Converts a numerical value into a bool, <br>
+returning `true` if > 0.5, and `false` otherwise.
+
+Other cases: <br>
+- Non-numerical, non-bool values will return `true`.
+- `nil` will return `false`.
+
+Works just like [`GM.bool`](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Variable_Functions/bool.htm).
+]]
+---@param value any The value to convert.
+---@return bool
+Util.bool = function(value)
+    if type(value) == "number" then return value > 0.5 end
+    return (value and true) or false
+end
+
+--[[
+Benchmarks a function and prints the results (in milliseconds, up to 7 decimal places). <br>
+Each frame is 16.66~ ms (although much of that is taken up by the game itself). <br>
+Note: 'total time' will always be a whole number.
+]]
+---@param n integer The number of calls to make.
+---@param fn function The function to benchmark.
+---@param ... any A variable number of arguments to pass.
+Util.benchmark = function(n, fn, ...)
+    if type(n)  ~= "number"   then throw("n is invalid") end
+    if type(fn) ~= "function" then throw("fn is invalid") end
+
+    local total = 0
+    local start
+    for i = 1, n do
+        start = os_clock()
+        fn(...)
+        total = total + (os_clock() - start)
+    end
+
+    local total_ms = total * 1000
+    local avg_ms = total_ms / n
+
+    local out = {
+        "\n| Benchmark results:",
+        string.format("\n|   %d calls", n),
+        string.format("\n|   %.7f ms total time", total_ms),
+        string.format("\n|   %.7f ms average time", avg_ms),
+        string.format("\n|     (%.2f %% of frame time)", avg_ms / (16 + 2/3) * 100),
+    }
+    print(table.concat(out))
+end
+
+--[[
+Prints the values of a hook to the console.
 
 E.g.,
 ```lua
@@ -168,49 +235,19 @@ Hook.add_post(gm.constants.damager_calculate_damage, function(self, other, resul
 end)
 ```
 ]]
+---@param self any The `self` argument of the hook.
+---@param other any The `other` argument of the hook.
+---@param result any The `result` argument of the hook.
+---@param args any The `args` argument of the hook.
 Util.log_hook = function(self, other, result, args)
-    -- Helper functions
-    local function object_get_name(inst)
-        if inst.object_index then
-            return gm.object_get_name(inst.object_index)
-        end
-        return inst
-    end
-
-    local function log_struct(struct, indent)
-        struct = Struct.wrap(struct)
-        indent = "    "
-
-        local str = ""
-        local keys = struct:get_keys()
-        for _, key in ipairs(keys) do
-            str = str.."\n"..indent..Util.pad_string_right(key, 32).." = "..Util.tostring(struct[key])
-        end
-        return str
-    end
-
-    local function log_array(array, indent)
-        array = Array.wrap(array)
-        indent = "    "
-
-        local str = ""
-        local padding = #tostring(#array) + 2
-        for i, v in ipairs(array) do
-            str = str.."\n"..indent..Util.pad_string_right("["..(i - 1).."]", padding).."  "..Util.tostring(v)
-        end
-        return str
-    end
-
     -- Output
     local output = ""
 
-    output = output.."\n================================================================================"
-    
     local info = debug.getinfo(2, "Sl")
-    output = output.."\nFrom '"..info.short_src.."' (line "..info.currentline..")\n"
+    output = output.."\n| From '"..info.short_src.."' (line "..info.currentline..")\n| "
 
     -- self
-    output = output.."\n[self]    "
+    output = output.."\n| [self]    "
     self = Wrap.unwrap(self)
     if gm.is_struct(self) then
         output = output.."struct"..log_struct(self)
@@ -220,7 +257,7 @@ Util.log_hook = function(self, other, result, args)
     end
 
     -- other
-    output = output.."\n[other]   "
+    output = output.."\n| [other]   "
     other = Wrap.unwrap(other)
     if gm.is_struct(other) then
         output = output.."struct"..log_struct(other)
@@ -230,41 +267,42 @@ Util.log_hook = function(self, other, result, args)
     end
 
     -- result
-    output = output.."\n[result]  "
-    result = Wrap.unwrap(result.value)
-    if gm.is_struct(result) then
-        output = output.."struct"..log_struct(result)
-    elseif gm.is_array(result) then
-        output = output.."array"..log_array(result)
-    else
-        local status, ret = pcall(object_get_name, result)
-        output = output..((status and tostring(ret)) or tostring(result))
-    end
-
-    -- args
-    output = output.."\n\n[args]"
-    for i, arg in ipairs(args) do
-        arg = Wrap.unwrap(arg.value)
-        if gm.is_struct(arg) then
-            output = output.."\nstruct"..log_struct(arg)
-        elseif gm.is_array(arg) then
-            output = output.."\narray"..log_array(arg)
+    if result then
+        output = output.."\n| [result]  "
+        result = Wrap.unwrap(result.value)
+        if gm.is_struct(result) then
+            output = output.."struct"..log_struct(result)
+        elseif gm.is_array(result) then
+            output = output.."array"..log_array(result)
         else
-            local status, ret = pcall(object_get_name, arg)
-            output = output.."\n"..((status and tostring(ret)) or tostring(arg))
+            local status, ret = pcall(object_get_name, result)
+            output = output..((status and tostring(ret)) or tostring(result))
         end
     end
 
-    output = output.."\n================================================================================"
+    -- args
+    if args then
+        output = output.."\n| \n| [args]"
+        for i, arg in ipairs(args) do
+            arg = Wrap.unwrap(arg.value)
+            if gm.is_struct(arg) then
+                output = output.."\n| struct"..log_struct(arg)
+            elseif gm.is_array(arg) then
+                output = output.."\n| array"..log_array(arg)
+            else
+                local status, ret = pcall(object_get_name, arg)
+                output = output.."\n| "..((status and tostring(ret)) or tostring(arg))
+            end
+        end
+    end
 
     print(output)
 end
 
-
 --@static
 --[[
-Prints the results of `GM.debug_get_callstack()`.
-The value at the top was the most recent previous call.
+Prints the results of `gm.debug_get_callstack()`, <br>
+in order of most (top) to least (bottom) recent calls.
 ]]
 Util.gm_trace = function()
     local array = Array.wrap(gm.debug_get_callstack())
@@ -272,89 +310,43 @@ Util.gm_trace = function()
 end
 
 
---@static
---@return       bool
---@param        value       |           | The value to convert.
---[[
-Converts a numerical value into a bool,
-returning `true` if > 0.5, and `false` otherwise.
-
-Other cases:
-Non-numerical, non-bool values will return `true`.
-`nil` will return `false`.
-
-Works just like [`GM.bool`](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Variable_Functions/bool.htm).
-]]
-Util.bool = function(value)
-    if type(value) == "number" then return value > 0.5 end
-    return (value and true) or false
-end
-
+-- ========== Deprecated Methods ==========
 
 --@static
 --@return       bool
 --@param        n           | number    | The chance to succeed, between `0` and `1`.
 --[[
-Rolls for a binary outcome.
+**[!] DEPRECATED; recommended to call and check `math.random` instead.**
+
+Rolls for a binary outcome. <br>
 Returns `true` on success, and `false` otherwise.
 ]]
+---@deprecated
+---@param n number The chance to succeed, between `0` and `1`.
 Util.chance = function(n)
     return math.random() <= n
 end
 
-
---@static
---@param        t           | table     | The table to print.
 --[[
-Prints a table recursively.
+**[!] DEPRECATED; use `Table.print` instead.**
 
-E.g.,
-```lua
-Util.table_print{
-    [1] = "abc",
-    [2] = 123,
-    [3] = {
-        [1] = "def",
-        [2] = "what",
-        bruh = {
-            baz = "qux"
-        }
-    },
-    foo = "bar",
-    vec = Vector.ZERO,
-    quux = {
-        okay = Instance.wrap(-4)
-    }
-}
-```
-```
-From '...<file.lua>' (line <line>)
-1 = "abc"
-2 = 123
-3:
-    1 = "def"
-    2 = "what"
-    bruh:
-        baz = "qux"
-vec = <0, 0>
-quux:
-    okay = Instance: 00000242806A2388
-foo = "bar"
-```
+Prints the contents of a table recursively.
 ]]
+---@deprecated
+---@param t table The table to print.
 Util.table_print = function(t)
-    local info = debug.getinfo(2, "Sl")
-    print("\nFrom '"..info.short_src.."' (line "..info.currentline..")\n"..Util.internal.stringify(t, 0))
+    log.warning("`Util.table_print` is deprecated; use `Table.print` instead.")
 end
 
-
---@static
---@return       bool
---@param        table       | table     | The table to search through.
---@param        value       |           | The value to search for.
 --[[
+**[!] DEPRECATED; use `Table.find` instead.**
+
 Returns `true` if the table contains the value, and `false` otherwise.
 ]]
+---@deprecated
+---@param t table
+---@param value any
+---@return boolean
 Util.table_has = function(t, value)
     if not t then return log.error("Util.table_has: t is nil", 2) end
     for k, v in pairs(t) do
@@ -363,18 +355,19 @@ Util.table_has = function(t, value)
     return false
 end
 
-
---@static
---@return       string or nil
---@param        table       | table     | The table to search through.
---@param        value       |           | The value to search for.
 --[[
-Returns the key of the value to search for,
+**[!] DEPRECATED; use `Table.find` instead.**
+
+Returns the key of the value to search for, <br>
 or `nil` if it does not exist.
 
-If multiple of the specified value exists,
+If multiple of the specified value exists, <br>
 the first key found will be returned.
 ]]
+---@deprecated
+---@param t table
+---@param value any
+---@return any
 Util.table_find = function(t, value)
     if not t then return log.error("Util.table_find: t is nil", 2) end
     for k, v in pairs(t) do
@@ -383,14 +376,15 @@ Util.table_find = function(t, value)
     return nil
 end
 
-
---@static
---@param        table       | table     | The table to search through.
---@param        value       |           | The value to remove.
 --[[
-Removes the first occurence of the specified
+**[!] DEPRECATED; use `Table.remove_value` instead.**
+
+Removes the first occurence of the specified <br>
 value from a numerically-indexed table.
 ]]
+---@deprecated
+---@param t table
+---@param value any
 Util.table_remove_value = function(t, value)
     if not t then return log.error("Util.table_remove_value: t is nil", 2) end
     for i, v in ipairs(t) do
@@ -401,13 +395,14 @@ Util.table_remove_value = function(t, value)
     end
 end
 
-
---@static
---@return       table
---@param        table       | table     | The table to get the keys of.
 --[[
+**[!] DEPRECATED; recommended to iterate with `pairs/ipairs` instead.**
+
 Returns a table of keys of the specified table.
 ]]
+---@deprecated
+---@param t table
+---@return table keys
 Util.table_get_keys = function(t)
     if not t then return log.error("Util.table_get_keys: t is nil", 2) end
     local keys = {}
@@ -417,18 +412,19 @@ Util.table_get_keys = function(t)
     return keys
 end
 
-
---@static
---@return       table
---@param        ...         |           | A variable amount of tables to combine.
 --[[
-Returns a new table containing the values from input tables.
+**[!] DEPRECATED; use `Table.merge_new` and `Table.append_new` instead.**
+
+Returns a new table containing the values from input tables. <br>
 The tables are merged in order.
 
-Combining two number indexed tables will order them in the order that they were inputted.
-When mixing number indexed and string keys, the indexed values will come first in order, while string keys will come after unordered.
+Combining two number indexed tables will order them in the order that they were inputted. <br>
+When mixing number indexed and string keys, the indexed values will come first in order, while string keys will come after unordered. <br>
 Multiple tables with the same string key will take the value of the last table in argument order.
 ]]
+---@deprecated
+---@param ... table
+---@return table
 Util.table_merge = function(...)
     local new = {}
     for _, t in ipairs{...} do
@@ -442,14 +438,15 @@ Util.table_merge = function(...)
     return new
 end
 
-
---@static
---@param        dest        | table     | The original table to append to.
---@param        src         | table     | The table to append.
 --[[
-Appends keys from `src` to `dest`.
+**[!] DEPRECATED; use `Table.merge` instead.**
+
+Appends keys from `src` to `dest`. <br>
 Existing keys will be overwritten.
 ]]
+---@deprecated
+---@param dest table
+---@param src table
 Util.table_append = function(dest, src)
     if not dest then return log.error("Util.table_append: dest is nil", 2) end
     if not src  then return log.error("Util.table_append: src is nil",  2) end
@@ -458,14 +455,15 @@ Util.table_append = function(dest, src)
     end
 end
 
-
---@static
---@param        dest        | table     | The original table to insert to.
---@param        src         | table     | The table to insert.
 --[[
-Inserts a table of values (`src`) to `dest`.
+**[!] DEPRECATED; use `Table.append` instead.**
+
+Inserts a table of values (`src`) to `dest`. <br>
 Both should be *numerically-indexed* tables.
 ]]
+---@deprecated
+---@param dest table
+---@param src table
 Util.table_insert = function(dest, src)
     if not dest then return log.error("Util.table_insert: dest is nil", 2) end
     if not src  then return log.error("Util.table_insert: src is nil",  2) end
@@ -474,12 +472,14 @@ Util.table_insert = function(dest, src)
     end
 end
 
-
---@static
---@param        src         | table     | The table to copy.
 --[[
+**[!] DEPRECATED; use `Table.shallow_copy` instead.**
+
 Returns a shallow copy of the table.
 ]]
+---@deprecated
+---@param t table
+---@return table
 Util.table_shallow_copy = function(src)
     if not src then return log.error("Util.table_shallow_copy: src is nil", 2) end
     local t = {}
@@ -489,15 +489,16 @@ Util.table_shallow_copy = function(src)
     return t
 end
 
-
---@static
---@return       string
---@param        table       | table     | The table to encode.
 --[[
-Returns a string encoding of a *numerically-indexed* table.
+**[!] DEPRECATED**
+
+Returns a string encoding of a *numerically-indexed* table. <br>
 The table should contain only basic Lua types (`bool`, `number`, `string`, `table`, `nil`).
 ]]
-Util.table_to_string = function(table_)
+---@deprecated
+---@param t table
+---@return string encoding
+Util.table_to_string = function(t)
     local str = ""
     for i = 1, #table_ do
         local v = table_[i]
@@ -508,15 +509,16 @@ Util.table_to_string = function(table_)
     return string.sub(str, 1, -3)
 end
 
-
---@static
---@return       table
---@param        string      | string     | The string to decode.
 --[[
-Returns the table from a @link {string encoding | Util#table_to_string}.
+**[!] DEPRECATED**
+
+Returns the table from a string encoding.
 ]]
-Util.string_to_table = function(string_)
-    local raw = gm.string_split(string_, "||")
+---@deprecated
+---@param encoding string
+---@return table
+Util.string_to_table = function(encoding)
+    local raw = gm.string_split(encoding, "||")
     local parsed = {}
     local i = 0
     while i < #raw do
@@ -548,14 +550,15 @@ Util.string_to_table = function(string_)
     return parsed
 end
 
-
---@static
---@return       table
---@param        table       | table     | 
---@param        metatable   | table     | The metatable to assign to the table.
 --[[
+**[!] DEPRECATED**
+
 A version of `setmetatable()` that allows for Lua 5.2's `__gc` metamethod.
 ]]
+---@deprecated
+---@param t table
+---@param mt table
+---@return table t
 Util.setmetatable_gc = function(t, mt)
     -- `setmetatable` but with `__gc` metamethod enabled
     if mt.__gc then
@@ -570,92 +573,47 @@ Util.setmetatable_gc = function(t, mt)
     return setmetatable(t, mt)
 end
 
-
---@static
---@return       table
---@param        list        | table     | The list of keys.
 --[[
-Returns a set from a list of keys (i.e., table where `k = true` for all `k` in the list)
+**[!] DEPRECATED; use `Table.set` instead.**
+
+Returns a set from a list of keys <br>
+(i.e., table where `k = true` for all `k` in the list).
 ]]
-Util.set = function(list)
+---@deprecated
+---@param t table
+---@return table set
+Util.set = function(t)
     local set = {}
-    for _, k in ipairs(list) do
+    for _, k in ipairs(t) do
         set[k] = true
     end
     return set
 end
 
-
---@static
---@return       table
---@param        list        | table     | The list of keys.
---@optional     start       | number    | The starting value for the first element. <br>`1` by default.
---@optional     add         | number    | Increment for each key. <br>`1` by default.
---@optional     mult        | number    | Multiplier for each key (applied *after* `add`). <br>`1` by default.
 --[[
-Returns an enum from a list of keys (i.e., table where `k = <number>` for all `k` in the list)
+**[!] DEPRECATED; use `Table.enum` instead.**
+
+Returns an enum from a list of keys <br>
+(i.e., table where `k = <number>` for all `k` in the list).
 ]]
-Util.enum = function(list, start, add, mult)
+---@deprecated
+---@param t table
+---@param start? float
+---@param add? float
+---@param mult? float
+---@return table enum
+Util.enum = function(t, start, add, mult)
     start = start or 1
     add   = add   or 1
     mult  = mult  or 1
 
     local enum = {}
-    for _, k in ipairs(list) do
+    for _, k in ipairs(t) do
         enum[k] = start
         start = (start + add) * mult
     end
     return enum
 end
-
-
---@static
---@return       number
---@param        stack_count | number    | The stack count.
---@param        chance      | number    | The proc chance/scaling/etc. *per stack*, between `0` and `1`.
---@optional     base_chance | number    | A base value (between `0` and `1`), should the additional <br>stack value be different from the first stack.
---[[
-Returns the % chance (between `0` and `1`) of the stack count using a variant of hyperbolic scaling.
-The first stack will always equal the stack %, and not slightly under (which happens with the normal hyperbolic formula used).
-]]
-Util.mixed_hyperbolic = function(stack_count, chance, base_chance)
-    -- Allows for calculating hyperbolic scaling with a different 1st-stack chance
-    -- Also makes the 1st-stack equal the provided chance instead of being slightly under
-    --      E.g., Tougher Times 1st-stack in RoR2 gives around 13% block chance (not 15%)
-    local base_chance = base_chance or chance
-    local diff = base_chance - chance
-    local stacks_chance = chance * stack_count
-    return math.max(stacks_chance / (stacks_chance + 1), chance) + diff
-end
-
-
---@static
---@param        n       | number    | The number of calls to make.
---@param        fn      | function  | The function to call.
---@optional     ...     |           | A variable number of arguments to pass.
---[[
-Benchmarks a function and prints the results (in milliseconds, up to 7 decimal places).
-The amount of milliseconds per frame is 16.66~ ms.
-
-"Leeway" here is a measure of how many times the function can be called
-per frame *in a vacuum* before stuttering starts to occur.
-(The actual value in practice will be much lower when accounting for the rest of the game.)
-]]
-Util.benchmark = function(n, fn, ...)
-    -- Adapted from here:
-    -- https://docs.otland.net/lua-guide/auxiliary/benchmarking
-    local unit = 'milliseconds'
-    local multiplier = 1000
-    local decPlaces = 7
-    local elapsed = 0
-    for i = 1, n do
-        local now = os.clock()
-        fn(...)
-        elapsed = elapsed + (os.clock() - now)
-    end
-    print(string.format('\n  Benchmark results:\n  - %d function calls\n  - %.'..decPlaces..'f %s elapsed\n  - %.'..decPlaces..'f %s avg execution time.\n  - Leeway: '..(16.667 / ((elapsed / n) * multiplier)), n, elapsed * multiplier, unit, (elapsed / n) * multiplier, unit))
-end
-
 
 --@static
 --@return       string
@@ -663,9 +621,16 @@ end
 --@param        length      | number    | The desired string length.
 --@optional     char        | string    | The character to use. <br>`" "` (space) by default.
 --[[
+**[!] DEPRECATED; use `String.pad_left` instead.**
+
 Returns a string with character padding on the
 left side to match the desired string length.
 ]]
+---@deprecated
+---@param s string The table to pad.
+---@param length integer The desired string length.
+---@param char string The character to use. <br>`" "` (space) by default.
+---@return string
 Util.pad_string_left = function(str, length, char)
     str = tostring(str)
     char = char or " "
@@ -683,9 +648,16 @@ end
 --@param        length      | number    | The desired string length.
 --@optional     char        | string    | The character to use. <br>`" "` (space) by default.
 --[[
+**[!] DEPRECATED; use `String.pad_right` instead.**
+
 Returns a string with character padding on the
 right side to match the desired string length.
 ]]
+---@deprecated
+---@param s string The table to pad.
+---@param length integer The desired string length.
+---@param char string The character to use. <br>`" "` (space) by default.
+---@return string
 Util.pad_string_right = function(str, length, char)
     str = tostring(str)
     char = char or " "
@@ -697,16 +669,18 @@ Util.pad_string_right = function(str, length, char)
 end
 
 
---@static
---@return       string
---@param        str         | string    | The string to pad.
---@param        width       | number    | The desired pixel width.
---@optional     char        | string    | The character to use. <br>`" "` (space) by default.
 --[[
-Returns a string with character padding on the
-left side to match the desired pixel width.
+**[!] DEPRECATED; use `String.pad_left_to_width` instead.**
+
+Returns a string with character padding on the <br>
+left side to match the desired pixel width. <br>
 Width information is based on the current font.
 ]]
+---@deprecated
+---@param str string The table to pad.
+---@param width float The desired pixel width.
+---@param char string The character to use. <br>`" "` (space) by default.
+---@return string
 Util.pad_string_left_to_width = function(str, width, char)
     str = tostring(str)
     char = char or " "
@@ -722,17 +696,18 @@ Util.pad_string_left_to_width = function(str, width, char)
     return str
 end
 
-
---@static
---@return       string
---@param        str         | string    | The string to pad.
---@param        width       | number    | The desired pixel width.
---@optional     char        | string    | The character to use. <br>`" "` (space) by default.
 --[[
-Returns a string with character padding on the
-right side to match the desired pixel width.
+**[!] DEPRECATED; use `String.pad_right_to_width` instead.**
+
+Returns a string with character padding on the <br>
+right side to match the desired pixel width. <br>
 Width information is based on the current font.
 ]]
+---@deprecated
+---@param str string The table to pad.
+---@param width float The desired pixel width.
+---@param char string The character to use. <br>`" "` (space) by default.
+---@return string
 Util.pad_string_right_to_width = function(str, width, char)
     str = tostring(str)
     char = char or " "
@@ -747,8 +722,3 @@ Util.pad_string_right_to_width = function(str, width, char)
 
     return str
 end
-
-
-
--- Public export
-__class.Util = Util

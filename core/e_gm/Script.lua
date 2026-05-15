@@ -1,188 +1,164 @@
-if true then return end
 -- Script
 
---[[
-This class provides functionality for calling GameMaker script functions.
-
-Calling one directly will use the `self` and `other` binded to the wrapper.
-If you need to directly pass a struct/instance into `self`/`other`, use `script.SO`.
-
-E.g.,
-```lua
--- `script` is some Script wrapper
--- The first two arguments are `self, other`
-script.SO(instance, instance, arg1, arg2)
-```
-
-Getting a script function from a Struct or
-Instance will automatically bind it as `self`/`other`.
-
-E.g.,
-```lua
--- Automatically binds `self_struct` as self/other when calling
--- `skill_start_cooldown` since it was gotten from `self_struct`
-self_struct.skill_start_cooldown()
-```
-]]
-
+---@class Script
 Script = {}
+C.Script = Script
 
-run_once(function()
-    __bind_id_count = 0
-    __bind_id_to_func = {}
-    __self_other_cache = setmetatable({}, {__mode = "k"})   -- Stores binded self/other
+run_on_initial_load(function()
+    P.script_binded_functions = {}  ---@type table<integer, function> Maps bind IDs to functions.
+    P.script_binded_counter   = 0   -- Take before incrementing
+    P.script_SO               = {}  ---@type table<Script, table> Stores `self`/`other` of Scripts. <br>`[1]` - `self` <br>`[2]` - `other`
 end)
 
+local script_binded_functions = P.script_binded_functions
+local script_SO = P.script_SO
 
+local select           = select
+local getmetatable     = debug.getmetatable
+local string_sub       = string.sub
+local table_unpack     = table.unpack
+local gm_call          = gm.call            ---@type function
+local gm_method        = gm.method          ---@type function
+local gm_struct_create = gm.struct_create   ---@type function
+local unwrap           = Wrap.unwrap
+local unwrap_args      = unwrap_args
 
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`/`cscriptref`| CScriptRef            | *Read-only.* The `sol.CScriptRef*` being wrapped
-`RAPI`              | string                | *Read-only.* The wrapper name.
-`name`/`script_name`| string                | *Read-only.* The script name.
-`self`              | Struct or Instance    | The struct/instance binded as `self`; used when calling.
-`other`             | Struct or Instance    | The struct/instance binded as `other`; used when calling.
-]]
-
+local args_holders = {}     -- Reusable tables for arg holders
+local args_holder_rsp = 0   -- Index of most recently used; increment before taking
+for i = 1, 128 do args_holders[i] = {} end
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       Script
---@param        func        | function  | The function to bind.
 --[[
-Binds a Lua function to a GML script function and returns it.
+Binds a Lua function to a GameMaker script and returns it.
 ]]
-Script.bind = function(func)
-    -- Create a new struct
-    local struct = Struct.new{
-        __id = __bind_id_count
-    }
+---@param fn function The function to bind.
+---@return Script
+Script.bind = function(fn)
+    local id = P.script_binded_counter
+    local struct = gm_struct_create()
+    struct.__id = id
 
-    -- Bind "dummy" function to struct
-    local cscriptref = gm.method(struct.value, gm.constants.function_dummy)
-    local method = Script.wrap(cscriptref)
+    -- Bind `function_dummy` to the struct
+    local scr = gm_method(struct, gm.constants.function_dummy)
 
     -- When called, the struct will be the `self` parameter
-    method.self, method.other = struct, struct  -- Allows for the user to
-                                                -- call the returned method
+    -- Allows for the user to call the returned script
+    scr.self  = struct
+    scr.other = struct
 
-    -- Store `func`, which will be called
-    -- when the binded dummy function is called
-    __bind_id_to_func[__bind_id_count] = func
-    __bind_id_count = __bind_id_count + 1
+    -- Store `fn`, which will be called
+    -- when the binded `function_dummy` is called
+    script_binded_functions[id] = fn
+    P.script_binded_counter = id + 1
 
-    -- Add to `__ref_map` to prevent GC
-    -- * Doesn't seem needed anymore
-    -- __ref_map:set(cscriptref, true)
-
-    return method
+    return scr
 end
 
-
---@static
---@return       Script
---@param        script      | `sol.CScriptRef*` or Script wrapper  | The script to wrap.
 --[[
+**[!] DEPRECATED**
+
 Returns a Script wrapper containing the provided script.
 ]]
+---@deprecated
+---@param script Script | sol.CScriptRef* The script to wrap.
+---@return Script
 Script.wrap = function(script)
-    -- Input:   `sol.CScriptRef*` Script wrapper
-    -- Wraps:   `sol.CScriptRef*`
-    local proxy = make_proxy(Wrap.unwrap(script), metatable_script)
-    __self_other_cache[proxy] = {nil, nil}    -- self, other (sol.CInstance*)
-    return proxy
+    return script
 end
-
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Script"
+---@class Script
+---@field RAPI string
+---@field name string
+---@field script_name string
+---@field self sol.YYObjectBaseLuaWrapper | sol.CInstance* | nil
+---@field other sol.YYObjectBaseLuaWrapper | sol.CInstance* | nil
 
-make_table_once("metatable_script", {
-    __index = function(proxy, k)
-        -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI"  then return wrapper_name end
+local s = gm.struct_create()
+local scr = gm.method(s, gm.constants.function_dummy)
+local mt = getmetatable(scr)
+
+run_on_initial_load(function()
+    P.script_og_index = mt.__index
+    P.script_og_call  = mt.__call
+end)
+local og_index = P.script_og_index
+local og_call  = P.script_og_call
+
+local mt_name = "Script"
+
+W.Script = {
+    __index = function(t, k)
+        if k == "RAPI" then return mt_name end
         if k == "name" or k == "script_name" then
-            return __proxy[proxy].script_name:sub(12, -1)
+            return string_sub(og_index(t, "script_name"), 12, -1)
         end
 
-        -- Get stored self/other
-        if k == "self"  then return __self_other_cache[proxy][1] end
-        if k == "other" then return __self_other_cache[proxy][2] end
+        -- Get `self`/`other`
+        if k == "self"
+        or k == "other" then
+            local so = script_SO[t]
+            if not so then
+                so = {}
+                script_SO[t] = so
+            end
+            local index = (k == "self" and 1) or 2
+            return so[index]
+        end
 
-        -- Call with manual self/other
+        -- Call with manual `self`/`other`
         if k == "SO" then
             return function(self, other, ...)
-                local args = table.pack(...)
-
-                -- Unwrap args
-                for i = 1, args.n do
-                    args[i] = Wrap.unwrap(args[i])
-                end
-
-                return Wrap.wrap(__proxy[proxy](Wrap.unwrap(self), Wrap.unwrap(other), table.unpack(args)))
+                local n = select("#", ...)
+                if n == 0 then return og_call(t, self, other) end
+                if n == 1 then return og_call(t, self, other, unwrap(...)) end
+                return og_call(t, self, other, unwrap_args(n, ...))
             end
         end
     end,
-    
 
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI"
+    __newindex = function(t, k, v)
+        -- Throw read-only error
+        if k == "RAPI"
         or k == "name"
-        or k == "script_name"
-        or k == "SO" then
+        or k == "script_name" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
-        -- Store self/other
+        -- Set `self`/`other`
         if k == "self"
         or k == "other" then
-            local index = ((k == "self") and 1) or 2
-
-            -- Convert v into `sol.CInstance*` to store
-            local cinstance = Wrap.unwrap(v)
-            __self_other_cache[proxy][index] = cinstance
+            local index = (k == "self" and 1) or 2
+            local cinstance = v -- May also be a Struct
+            local so = script_SO[t]
+            if not so then
+                so = {}
+                script_SO[t] = so
+            end
+            so[index] = cinstance
             return
         end
 
-        log.error("Non-existent Script property '"..k.."'", 2)
+        log.error("Non-existent "..mt_name.." property '"..k.."'", 2)
     end,
 
+    __call = function(t, ...)
+        local store = script_SO[t]
+        local self  = store[1]
+        local other = store[2]
 
-    __call = function(proxy, ...)
-        -- Get stored self/other
-        local cached = __self_other_cache[proxy]
-        local self   = cached[1]
-        local other  = cached[2]
-
-        local args = table.pack(...)
-
-        -- Unwrap args
-        for i = 1, args.n do
-            args[i] = Wrap.unwrap(args[i])
-        end
-
-        return Wrap.wrap(__proxy[proxy](self, other, table.unpack(args)))
+        local n = select("#", ...)
+        if n == 0 then return og_call(t, self, other) end
+        if n == 1 then return og_call(t, self, other, unwrap(...)) end
+        return og_call(t, self, other, unwrap_args(n, ...))
     end,
+}
 
-    
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
+table.merge(mt, W.Script)
 
 
 -- ========== Hooks ==========
@@ -192,26 +168,34 @@ make_table_once("metatable_script", {
 -- * If the given function call relies on accessing `self` to be useful, then it likely won't be useful from this context
 
 gm.post_script_hook(gm.constants.function_dummy, function(self, other, result, args)
-	if gm.is_struct(self) then
+    -- Much faster than `gm.is_struct`
+    -- local mt = getmetatable(self)
+    -- if not mt then return end
+    -- local name = mt.__name
+    -- if  name ~= "sol.YYObjectBaseLuaWrapper"
+    -- and name ~= "sol.YYObjectBase*"
+    -- and name ~= "sol.CInstance*" then return end
 
-        -- Get function binded to __id
-		local fn = __bind_id_to_func[self.__id]
+    if not self then return end
 
-		if fn then
-			local arg_table = {}
-			for i = 1, #args do
-				table.insert(arg_table, Wrap.wrap(args[i].value))
-			end
-            
-            -- Call function with args
-            -- and put return value into result (if applicable)
-			local ret = fn(table.unpack(arg_table))
-			if ret then result.value = Wrap.unwrap(ret) end
-		end
-	end
+    local fn = script_binded_functions[self.__id]
+    if fn then
+        local _args = args_holders[args_holder_rsp + 1]
+        args_holder_rsp = args_holder_rsp + 1
+
+        local n = #args
+        for i = 1, n do
+            _args[i] = args[i].value
+        end
+        _args[n + 1] = nil
+
+        -- Call function with args
+        -- and put return value into `result` (if applicable)
+        local ret = fn(table_unpack(_args))
+        if ret then
+            result.value = ret
+        end
+
+        args_holder_rsp = args_holder_rsp - 1
+    end
 end)
-
-
-
--- Public export
-__class.Script = Script

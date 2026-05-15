@@ -1,46 +1,38 @@
-if true then return end
 -- List
 
 --[[
-This class allows for easier manipulation of GameMaker DS Lists.
+Allows for easier manipulation of GameMaker DS Lists.
 
-DS resources should always be destroyed once
+DS resources should always be destroyed once <br>
 they are no longer in use to free up memory.
 ]]
-
+---@class List
 List = new_class()
+C.List = List
 
+local proxy = P.proxy
+local metatable
 
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The ID of the List.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-]]
-
+local type         = type
+local table_pack   = table.pack
+local table_unpack = table.unpack
+local new_proxy    = new_proxy
+local wrap         = Wrap.wrap
+local unwrap       = Wrap.unwrap
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       List
---@optional     table       | table     | A numerically-indexed Lua table to convert into a list.
 --[[
 Returns a newly created GameMaker list.
 ]]
+---@param t? table A numerically-indexed Lua table to convert into a list.
+---@return List
 List.new = function(t)
     -- Create list from table
     if type(t) == "table" then
         local list = List.wrap(gm.ds_list_create())
-        list:add(table.unpack(t))
+        list:add(table_unpack(t))
         return list
     end
 
@@ -48,260 +40,227 @@ List.new = function(t)
     return List.wrap(gm.ds_list_create())
 end
 
-
---@static
---@return       List
---@param        list        | number    | The ID of the list.
 --[[
 Returns a List wrapper containing the provided list ID.
 ]]
+---@param list List | number The ID of the list.
+---@return List
 List.wrap = function(list)
-    -- Input:   number or List wrapper
-    -- Wraps:   number
-    return make_proxy(Wrap.unwrap(list), metatable_list)
+    return new_proxy(unwrap(list), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class List
+local methods = {}
 
---@section Instance Methods
+--[[
+Returns `true` if the DS List exists.
+]]
+---@return boolean
+methods.exists = function(self)
+    local ret = Util.bool(gm.ds_exists(proxy[self], 2))
+    if not ret then proxy[self] = -4 end
+    return ret
+end
 
-methods_list = {
+--[[
+Destroys the DS List.
+]]
+methods.destroy = function(self)
+    gm.ds_list_destroy(proxy[self])
+    proxy[self] = -4
+end
 
-    --@instance
-    --@return       bool
-    --[[
-    Returns `true` if the DS List exists.
-    ]]
-    exists = function(self)
-        local ret = (gm.ds_exists(self.value, 2) == 1)
-        if not ret then __proxy[self] = -4 end
-        return ret
-    end,
+--[[
+Returns the value at the specified index (starting at `0`), <br>
+or `nil` if out-of-bounds.
 
+You can also use Lua syntax (e.g., `list[4]`), which starts at `1`.
+]]
+---@param index integer The index to get from.
+---@param size? integer The size of the list, if already known.
+---@return any
+methods.get = function(self, index, size)
+    local v = proxy[self]
+    if v == -4 then throw("List does not exist") end
+    size = size or self:size()
+    if (index < 0) or (index >= size) then return nil end
+    return gm.ds_list_find_value(v, index)
+end
 
-    --@instance
-    --[[
-    Destroys the DS List.
-    ]]
-    destroy = function(self)
-        gm.ds_list_destroy(self.value)
-        __proxy[self] = -4
-    end,
+--[[
+Sets the value at the specified index, starting at `0`.
 
+You can also use Lua syntax (e.g., `list[4] = 56`), which starts at `1`.
+]]
+---@param index integer The index to set to.
+---@param value any The value to set.
+methods.set = function(self, index, value)
+    local v = proxy[self]
+    if v == -4 then throw("List does not exist") end
+    gm.ds_list_set(v, index, unwrap(value))
+end
 
-    --@instance
-    --@return       any
-    --@param        index       | number    | The index to get from.
-    --[[
-    Returns the value at the specified index (starting at `0`),
-    or `nil` if out-of-bounds.
-    You can also use Lua syntax (e.g., `list[4]`), which starts at `1`.
-    ]]
-    get = function(self, index, size)
-        if self.value == -4 then log.error("get: List does not exist", 2) end
-        index = Wrap.unwrap(index)
-        size = size or self:size()
-        if (index < 0) or (index >= size) then return nil end
-        return Wrap.wrap(gm.ds_list_find_value(self.value, index))
-    end,
+--[[
+Returns the size (length) of the list.
 
+You can also use Lua syntax (i.e., `#list`).
+]]
+---@return integer size
+methods.size = function(self)
+    return gm.ds_list_size(proxy[self])
+end
 
-    --@instance
-    --@param        index       | number    | The index to set to.
-    --@param        value       |           | The value to set.
-    --[[
-    Sets the value at the specified index, starting at `0`.
-    You can also use Lua syntax (e.g., `list[4] = 56`), which starts at `1`.
-    ]]
-    set = function(self, index, value)
-        if self.value == -4 then log.error("set: List does not exist", 2) end
-        gm.ds_list_set(self.value, Wrap.unwrap(index), Wrap.unwrap(value, true))
-    end,
-
-
-    --@instance
-    --@return       number
-    --[[
-    Returns the size (length) of the list.
-    You can also use Lua syntax (i.e., `#list`).
-    ]]
-    size = function(self)
-        return gm.ds_list_size(self.value)
-    end,
-
-
-    --@instance
-    --@param        ...         |           | A variable amount of values to add.
-    --[[
-    Appends values to the end of the array.
-    ]]
-    add = function(self, ...)
-        local values = table.pack(...)
-
-        for i = 1, values.n do
-            values[i] = Wrap.unwrap(values[i], true)
-        end
-
-        gm.ds_list_add(self.value, table.unpack(values))
-    end,
-
-
-    --@instance
-    --@param        index       | number    | The index to insert at.
-    --@param        value       |           | The value to insert.
-    --[[
-    Inserts a value at the specified index, starting at `0`.
-    ]]
-    insert = function(self, index, value)
-        gm.ds_list_insert(self.value, Wrap.unwrap(index), Wrap.unwrap(value, true))
-    end,
-
-
-    --@instance
-    --@param        index       | number    | The index to delete at.
-    --[[
-    Deletes the value from the specified index, starting at `0`.
-    ]]
-    delete = function(self, index)
-        gm.ds_list_delete(self.value, Wrap.unwrap(index))
-    end,
-
-
-    --@instance
-    --@param        value       |           | The value to delete.
-    --[[
-    Deletes the first occurence of the specified value.
-    ]]
-    delete_value = function(self, value)
-        local index = self:find(value)
-        if not index then return end
-        gm.ds_list_delete(self.value, index)
-    end,
-
-
-    --@instance
-    --[[
-    Deletes all elements in the list.
-    ]]
-    clear = function(self)
-        gm.ds_list_clear(self.value)
-    end,
-
-
-    --@instance
-    --@return       bool
-    --@param        value       |           | The value to check.
-    --[[
-    Returns `true` if the list contains the specified value.
-    ]]
-    contains = function(self, value)
-        return (gm.ds_list_find_index(self.value, Wrap.unwrap(value, true)) >= 0)
-    end,
-
-
-    --@instance
-    --@return       number or nil
-    --@param        value       |           | The value to search for.
-    --[[
-    Returns the index (starting at `0`) of the first occurence of the specified value, or `nil` if not found.
-    ]]
-    find = function(self, value)
-        local ret = gm.ds_list_find_index(self.value, Wrap.unwrap(value, true))
-        if ret < 0 then return nil end
-        return ret
-    end,
-
-
-    --@instance
-    --@optional     descending  | bool      | If `true`, will sort in descending order. <br>`false` by default.
-    --[[
-    Sorts the list in ascending or descending order.
-    ]]
-    sort = function(self, descending)
-        gm.ds_list_sort(self.value, not descending)
-    end,
-
-    
-    --@instance
-    --[[
-    Prints the list.
-    ]]
-    print = function(self)
-        local str = ""
-        local padding = #tostring(#self) + 2
-        for i, v in ipairs(self) do
-            str = str.."\n"..Util.pad_string_right("["..(i - 1).."]", padding).."  "..Util.tostring(v)
-        end
-        print(str)
+--[[
+Appends values to the end of the list.
+]]
+---@param ... any A variable amount of values to add.
+methods.add = function(self, ...)
+    local values = table_pack(...)
+    for i = 1, values.n do
+        values[i] = unwrap(values[i])
     end
+    gm.ds_list_add(proxy[self], table_unpack(values))
+end
 
-}
+--[[
+Inserts a value at the specified index, starting at `0`.
+]]
+---@param index integer The index to insert at.
+---@param value any The value to insert.
+methods.insert = function(self, index, value)
+    gm.ds_list_insert(proxy[self], index, unwrap(value))
+end
 
+--[[
+Deletes the value from the specified index, starting at `0`.
+]]
+---@param index integer The index to delete at.
+methods.delete = function(self, index)
+    gm.ds_list_delete(proxy[self], index)
+end
+
+--[[
+Deletes the first occurence of the specified value.
+]]
+---@param value any The value to delete.
+methods.delete_value = function(self, value)
+    local index = self:find(value)
+    if not index then return end
+    gm.ds_list_delete(proxy[self], index)
+end
+
+--[[
+Deletes all elements in the list.
+]]
+methods.clear = function(self)
+    gm.ds_list_clear(proxy[self])
+end
+
+--[[
+Returns `true` if the list contains the specified value.
+]]
+---@param value any The value to check.
+---@return boolean
+methods.contains = function(self, value)
+    return (gm.ds_list_find_index(proxy[self], unwrap(value)) >= 0)
+end
+
+--[[
+Returns the index (starting at `0`) of the first occurence <br>
+of the specified value, or `nil` if not found.
+]]
+---@param value any The value to search for.
+---@return integer | nil
+methods.find = function(self, value)
+    local ret = gm.ds_list_find_index(proxy[self], unwrap(value))
+    if ret < 0 then return nil end
+    return ret
+end
+
+--[[
+Sorts the list in ascending or descending order.
+]]
+---@param descending? boolean If `true`, will sort in descending order. <br>`false` by default.
+methods.sort = function(self, descending)
+    gm.ds_list_sort(proxy[self], not descending)
+end
+
+--[[
+Prints the list.
+]]
+methods.print = function(self)
+    local str = ""
+    local index_padding = #tostring(#self) + 2
+    for i, v in ipairs(self) do
+        str = string.format(
+            "%s\n%s %s",
+            str,
+            String.pad_right(string.format("[%d]", i - 1), index_padding),
+            Util.tostring(v)
+        )
+    end
+    print(str)
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "List"
+---@class List
+---@field value integer
+---@field RAPI string
+---@field [integer] any
 
-make_table_once("metatable_list", {
-    __index = function(proxy, k)
+local mt_name = "List"
+
+W.List = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
         
         -- Methods
-        if methods_list[k] then
-            return methods_list[k]
-        end
+        if methods[k] then return methods[k] end
 
         -- Getter
-        k = Wrap.unwrap(k)
-        return proxy:get(k - 1)
+        k = unwrap(k)
+        return t:get(k - 1)
     end,
-    
 
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
+    __newindex = function(t, k, v)
+        -- Throw read-only error
         if k == "value"
         or k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
         -- Setter
-        k = Wrap.unwrap(k)
-        proxy:set(k - 1, v)
+        k = unwrap(k)
+        t:set(k - 1, v)
     end,
     
-    
-    __len = function(proxy)
-        return proxy:size()
+    __len = function(t)
+        return t:size()
     end,
 
-
-    __pairs = function(proxy)
-        local n = #proxy
-        return function(proxy, k)
+    __pairs = function(t)
+        local n = #t
+        return function(t, k)
             k = k + 1
-            if k <= n then return k, proxy:get(k - 1, n) end
-        end, proxy, 0
+            if k <= n then return k, t:get(k - 1, n) end
+        end, t, 0
     end,
 
-
-    __ipairs = function(proxy)
-        local n = #proxy
-        return function(proxy, k)
+    __ipairs = function(t)
+        local n = #t
+        return function(t, k)
             k = k + 1
-            if k <= n then return k, proxy:get(k - 1, n) end
-        end, proxy, 0
+            if k <= n then return k, t:get(k - 1, n) end
+        end, t, 0
     end,
 
-    
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
-
-
--- Public export
-__class.List = List
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.List

@@ -1,45 +1,50 @@
 -- ReturnsAPI
 
-PATH           = _ENV["!plugins_mod_folder_path"].."/"
-RAPI_NAMESPACE = "rapi"  -- Namespace for ReturnsAPI that is used internally
+PATH           = _ENV["!plugins_mod_folder_path"]
+RAPI_NAMESPACE = "rapi" -- Namespace for ReturnsAPI that is used internally
 
--- ENVY initial setup
 mods["LuaENVY-ENVY"].auto()
 envy = mods["LuaENVY-ENVY"]
 
--- require(".core/unused/profiler2")
+-- Global tables
+local function make() local _t = {} return setmetatable({}, {__index = function(t, k) return _t[k] end, __newindex = function(t, k, v) if _t[k] and table.merge then table.merge(_t[k], v) return end _t[k] = v end}) end
 
--- Remove internal RAPI hooks on hotload
+G = {}          -- Globals
+P = P or {}     -- Persistent globals that are not reinitialized on hotload
+C = {}          -- Public classes for export
+M = M or make() -- Metatables for classes <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows RAPI hotloads to automatically update existing classes
+W = W or make() -- Metatables for wrappers <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows RAPI hotloads to automatically update existing wrappers
+
+-- Run import functions for RAPI itself
 -- This needs to be called before loading core
-if run_on_hotload then
-    run_on_hotload(function()
-        run_clear_namespace_functions(RAPI_NAMESPACE)  -- in Internal.lua
-    end)
-end
-
--- Load core
-local ignore = {
-    ["data"]    = true,
-    ["sprites"] = true,
-    ["unused"]  = true,
-}
-local dirs = path.get_directories(PATH.."core")
-for _, dir in ipairs(dirs) do
-    if not ignore[path.filename(dir)] then
-        local files = path.get_files(dir)
-        for _, file in ipairs(files) do
-            require(file)
-        end
+if P.run_on_import then
+    for _, fn in ipairs(P.run_on_import) do
+        fn(RAPI_NAMESPACE)
     end
 end
 
--- Run some functions after core load
-for _, fn in ipairs(_run_after_core) do
-    fn()
+-- core/
+local dirs = path.get_directories(path.combine(PATH, "core"))
+for _, dir in ipairs(dirs) do
+    local files = path.get_files(dir)
+    for _, file in ipairs(files) do
+        require(file)
+    end
 end
 
--- ENVY public setup
+-- run_after_core
+if G.run_after_core then
+    for _, fn in ipairs(G.run_after_core) do
+        fn()
+    end
+end
+
+-- ENVY exports
 require("./envy")
 
--- Prevent anything in run_once() from running again
-hotloaded = true
+-- tests/
+if path.exists(path.combine(PATH, "tests")) then
+    require("./tests/Tests.lua")
+end
+
+P.hotload = true

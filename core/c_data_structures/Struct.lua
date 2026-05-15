@@ -1,198 +1,169 @@
-if true then return end
 -- Struct
 
 --[[
-This class allows for manipulation of GameMaker structs.
-Struct wrappers can be get/set to using dot syntax (e.g., `struct.my_key = 123`).
-]]
+Allows for manipulation of GameMaker structs.
 
+Struct wrappers can be get/set to using dot syntax <br>
+(e.g., `struct.my_key = 123`).
+]]
+---@class Struct
 Struct = new_class()
+C.Struct = Struct
 
-local cinstance_cache = setmetatable({}, {__mode = "k"})    -- Cache for struct.cinstance
-
-
--- Wrapper types that are Structs
-struct_wrappers = {
-    Struct      = true,
-    AttackInfo  = true,
-    HitInfo     = true
-}
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`/`cinstance` |           | *Read-only.* The `sol.YYObjectBase*` being wrapped.
-`RAPI`              | string    | *Read-only.* The wrapper name.
-]]
-
+local type             = type
+local getmetatable     = debug.getmetatable
+local gm_struct_create = gm.struct_create       ---@type function
+local gm_struct_set    = gm.variable_struct_set ---@type function
+local gm_struct_get    = gm.variable_struct_get ---@type function
+local unwrap           = Wrap.unwrap
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       Struct
---@optional     table       | table     | A Lua table to create the struct from.
---@overload
---@return       Struct
---@param        constructor | number    | The constructor to use.
---@optional     ...         |           | Arguments to pass to the constructor. <br>Alternatively, a table may be provided.
 --[[
-Returns a newly created GameMaker struct.
+Returns a newly created GameMaker struct. <br>
 Can also create one from a constructor.
 ]]
+---@param t? table A key-value pair table to convert into a struct.
+---@return Struct
+Struct.new = function(t) end
+
+--[[
+Returns a newly created GameMaker struct. <br>
+Can also create one from a constructor.
+]]
+---@param constructor? any A constructor.
+---@param ... any Arguments to pass to the constructor.
+---@return Struct
 Struct.new = function(constructor, ...)
     -- Blank struct
     if not constructor then
-        return Struct.wrap(gm.struct_create())
+        return gm_struct_create()
     end
 
     -- Create from Lua table
     if type(constructor) == "table" then
-        local struct = gm.struct_create()
+        local struct = gm_struct_create()
         for k, v in pairs(constructor) do
-            struct[k] = Wrap.unwrap(v, true)
+            gm_struct_set(struct, k, unwrap(v))
         end
-        return Struct.wrap(struct)
+        return struct
     end
 
     -- From constructor
-    local args = table.pack(...)
-    if type(args[1]) == "table" and (not args[1].RAPI) then args = args[1] end
-
-    -- Unwrap args
-    for i = 1, args.n do
-        args[i] = Wrap.unwrap(args[i], true)
-    end
-
-    return Struct.wrap(gm["@@NewGMLObject@@"](constructor, table.unpack(args)))
+    return gm["@@NewGMLObject@@"](constructor, ...)
 end
 
-
---@static
---@return       Struct
---@param        struct      | `sol.YYObjectBase*` or Struct wrapper  | The struct to wrap.
 --[[
+**[!] DEPRECATED**
+
 Returns a Struct wrapper containing the provided struct.
 ]]
+---@deprecated
+---@param struct Struct | sol.YYObjectBaseLuaWrapper | sol.YYObject* The struct to wrap.
+---@return Struct
 Struct.wrap = function(struct)
-    -- Input:   `sol.YYObjectBase*` or Struct wrapper
-    -- Wraps:   `sol.YYObjectBase*`
-    struct = Wrap.unwrap(struct)
-    return make_proxy(struct, metatable_struct)
+    return struct
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class Struct
+local methods = {}
 
---@section Instance Methods
+--[[
+Returns a table of keys in use by the struct.
+]]
+---@return table keys
+methods.get_keys = function(self)
+    local arr = gm.variable_struct_get_names(self)
+    local keys = {}
+    for i, v in ipairs(arr) do keys[i] = v end
+    return keys
+end
 
-methods_struct = {
-
-    --@instance
-    --@return       table
-    --[[
-    Returns a table of keys in use by the struct.
-    ]]
-    get_keys = function(self)
-        local arr = Array.wrap(gm.variable_struct_get_names(self.value))
-        local keys = {}
-        for i, v in ipairs(arr) do keys[i] = v end
-        return keys
-    end,
-
-
-    --@instance
-    --[[
-    Prints the struct.
-    ]]
-    print = function(self)
-        local str = ""
-        local keys = self:get_keys()
-        for _, key in ipairs(keys) do
-            str = str.."\n"..Util.pad_string_right(key, 32).." = "..Util.tostring(self[key])
-        end
-        print(str)
+--[[
+Prints the struct.
+]]
+methods.print = function(self)
+    local str = ""
+    local keys = self:get_keys()
+    for _, key in ipairs(keys) do
+        str = string.format(
+            "%s\n%s = %s",
+            str,
+            String.pad_right(key, 32),
+            Util.tostring(self[key])
+        )
     end
-
-}
-
+    print(str)
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Struct"
+---@class Struct
+---@field RAPI string
+---@field [any] any
 
-make_table_once("metatable_struct", {
-    __index = function(proxy, k)
-        -- Get wrapped value
-        if k == "value" or k == "cinstance" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+local mt_name = "Struct"
+
+W.Struct = {
+    __index = function(t, k)
+        if k == "RAPI" then return mt_name end
 
         -- Methods
-        if methods_struct[k] then
-            return methods_struct[k]
+        if methods[k] then return methods[k] end
+
+        -- Getter
+        local ret = gm_struct_get(t, k)
+
+        -- If Script, set its `self`/`other`
+        local mt = getmetatable(ret)
+        if mt and mt.__name == "sol.CScriptRef*" then
+            ret.self  = t
+            ret.other = t
         end
         
-        -- Getter
-        local ret = Wrap.wrap(gm.variable_struct_get(__proxy[proxy], k))
-
-        -- If Script, automatically "bind"
-        -- to script as self/other
-        if type(ret) == "table"
-        and ret.RAPI == "Script" then
-            ret.self = proxy
-            ret.other = proxy
-        end
-
         return ret
     end,
 
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "cinstance"
-        or k == "RAPI" then
+    __newindex = function(t, k, v)
+        -- Throw read-only error
+        if k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
         -- Setter
-        gm.variable_struct_set(__proxy[proxy], k, Wrap.unwrap(v, true))
+        gm_struct_set(t, k, unwrap(v))
     end,
 
-
-    __len = function(proxy)
-        return #proxy:get_keys()
+    __len = function(t)
+        return #t:get_keys()
     end,
 
-
-    __pairs = function(proxy)
-        local keys = proxy:get_keys()
+    __pairs = function(t)
+        local keys = t:get_keys()
         local i = 0
-        return function(proxy)
+        return function()
             i = i + 1
             if i <= #keys then
                 local k = keys[i]
-                return k, proxy[k]
+                return k, t[k]
             end
-        end, proxy, nil
+        end
     end,
+}
 
+-- YYObjectBaseLuaWrapper
+local s = gm.struct_create()
+local mt = getmetatable(s)
+table.merge(mt, W.Struct)
 
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
+-- YYObjectBase*
+local s = gm.new_struct()
+local mt = getmetatable(s)
+table.merge(mt, W.Struct)
 
-
-
--- Public export
-__class.Struct = Struct
+-- TODO set __metatable(?) (maybe its not necessary actually)
