@@ -335,37 +335,6 @@ make_table_once("metatable_modoptions", {
 
 -- ========== Hooks ==========
 
-gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
-    -- Get "MODS" tab added by RoM
-    local tab = gm.array_get(other.menu_pages, 2).options
-
-    -- Sort headers alphabetically
-    local ordered = {}
-    for namespace, data_table in pairs(__mod_options_headers) do
-        if namespace ~= RAPI_NAMESPACE then
-            table.insert(ordered, data_table)
-        end
-    end
-    table.sort(ordered, function(a, b)
-        return gm.translate(a.namespace..".header") < gm.translate(b.namespace..".header")
-    end)
-    
-
-    -- Insert ReturnsAPI header at the front
-    table.insert(ordered, 1, __mod_options_headers[RAPI_NAMESPACE])
-    local index = 2
-
-    -- Loop through sorted headers and add elements
-    for _, data_table in ipairs(ordered) do
-        -- Header
-        local header = Struct.new(gm.constants.UIOptionsGroupHeader, data_table.namespace..".header").value
-        gm.array_push(tab, header)
-        index = index + 1
-
-        index = header_insert_options(tab, data_table.elements.ordered, index)
-    end
-end)
-
 local function header_insert_options(tab, options, index)
     -- ModOptionsKeybind styling
     local first_key
@@ -398,7 +367,36 @@ local function header_insert_options(tab, options, index)
     return index
 end
 
+gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
+    -- Get "MODS" tab added by RoM
+    local tab = gm.array_get(other.menu_pages, 2).options
 
+    -- Sort headers alphabetically
+    local ordered = {}
+    for namespace, data_table in pairs(__mod_options_headers) do
+        if namespace ~= RAPI_NAMESPACE then
+            table.insert(ordered, data_table)
+        end
+    end
+    table.sort(ordered, function(a, b)
+        return gm.translate(a.namespace..".header") < gm.translate(b.namespace..".header")
+    end)
+    
+
+    -- Insert ReturnsAPI header at the front
+    table.insert(ordered, 1, __mod_options_headers[RAPI_NAMESPACE])
+    local index = 2
+
+    -- Loop through sorted headers and add elements
+    for _, data_table in ipairs(ordered) do
+        -- Header
+        local header = Struct.new(gm.constants.UIOptionsGroupHeader, data_table.namespace..".header").value
+        gm.array_push(tab, header)
+        index = index + 1
+
+        index = header_insert_options(tab, data_table.elements.ordered, index)
+    end
+end)
 
 local function toggle_header_options(options, i, to_delete, header_name)
     if header_name == "mods_rom_group_header" then return end
@@ -420,6 +418,8 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
     if self.menu_level ~= 2 then return end
 
     local scroll = gm.ui_get_element_value("options_scroll")
+    local style = gm.variable_global_get("_ui_style_default")
+    local shared_state = gm.variable_global_get("_ui_shared_state")
 
     local header_height = 114
     local middle_sep = 12
@@ -451,10 +451,10 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
             -- draw header button here
             if deleting then 
                 toggle_header_options(options, i - 1, to_delete, header_to_delete)
-                 deleting = false
+                deleting = false
             end
                 
-            local value = gm.ui_button_sprite(80, option_y, gm.constants.sUISubheader, 0, 0, gm.variable_global_get("_ui_style_default"))
+            local value = gm.ui_button_sprite(80, option_y, gm.constants.sUISubheader, 0, 0, style)
             
             if value ~= opt.title_trimmed then
                 opt.title_trimmed = value
@@ -470,13 +470,12 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
         local field = field_containers[opt.name]
         if field then
             local option_y = y + opt_y
-            gm.ui_text_field(opt.name, 400, option_y, 200, 0, gm.variable_global_get("_ui_style_default"), field.max_length, i - 1, false)
-            
 
+            gm.ui_text_field(opt.name, 400, option_y, 200, 0, style, field.max_length, i - 1, false)
             local state = gm._ui_get_element_state(opt.name)
             state.text_field_typing = (self.hover_last_index == i - 1)
 
-            local value = gm.variable_struct_get(gm.variable_global_get("_ui_shared_state").named_element_value, opt.name)
+            local value = gm.variable_struct_get(shared_state.named_element_value, opt.name)
             if field.last_value ~= value then
                 field.last_value = value
                 field.set(value)

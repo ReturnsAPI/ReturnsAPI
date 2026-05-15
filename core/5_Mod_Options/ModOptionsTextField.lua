@@ -21,39 +21,6 @@ Property | Type | Description
 `numeric_only`  | bool   | *Disabled* *Read-only.* Whether the text field only accepts numeric input (false by default).
 ]]
 
--- ========== Internal ==========
-
-local function get_option_y_offset(target_id, options)
-    local y = 0
-
-    for i = 1, #options do
-        local opt = options[i]
-
-        if opt.type == 3 then
-            print("Header found:", opt.title)
-
-
-
-        end
-
-        if opt.name == target_id then
-            return y, i-1
-        end
-
-        local t = opt.type
-        if t == 4 or t == 8 then -- control-style row
-            y = y + 38
-            local next_opt = options[i + 1]
-            if next_opt and not ( next_opt.type == 4 or next_opt.type == 8) then
-                y = y + 8
-            end
-        else -- header or normal option
-            y = y + 48
-        end
-    end
-    return nil -- not found
-end
-
 -- ========== Static Methods ==========
 
 ModOptionsTextField.new = function(namespace, identifier, max_length, numeric_only)
