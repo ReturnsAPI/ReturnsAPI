@@ -5,10 +5,18 @@ Instance = new_class()
 C.Instance = Instance
 
 run_on_initial_load(function()
-    P.instance_data = {}    ---@type table<integer, table<string, table<string, table>>>
+    P.instance_data                 = {}   ---@type table<integer, table<string, table<string, table>>>
+    P.instance_id_cache             = setmetatable({}, {__mode = "k"})  ---@type table<Instance, integer> Cache for `id`
+    P.instance_obj_ind_cache        = setmetatable({}, {__mode = "k"})  ---@type table<Instance, integer> Cache for `object_index`
+    P.instance_custom_obj_ind_cache = setmetatable({}, {__mode = "k"})  ---@type table<Instance, integer> Cache for `__object_index`
+    P.instance_wrapper_type         = setmetatable({}, {__mode = "k"})  ---@type table<Instance, integer> Cache for wrapper type (`1` to `3`)
 end)
 
-local instance_data  = P.instance_data
+local instance_data        = P.instance_data
+local id_cache             = P.instance_id_cache
+local obj_ind_cache        = P.instance_obj_ind_cache
+local custom_obj_ind_cache = P.instance_custom_obj_ind_cache
+local wrapper_type         = P.instance_wrapper_type
 
 local gm_id_to_cinst = gm.CInstance.instance_id_to_CInstance    ---@type table<integer, sol.CInstance*>
 local constants_oP   = gm.constants.oP  ---@type integer
@@ -205,48 +213,98 @@ Returns the object that the instance is a type of, accounting for custom objects
 ]]
 ---@return Object
 methods.get_object = function(self)
-    return Object.wrap(self:get_object_index_self())
+    local obj_index = custom_obj_ind_cache[self]
+    if not obj_index then
+        obj_index = self:get_object_index_self() ---@type integer
+        custom_obj_ind_cache[self] = obj_index
+    end
+    return Object.wrap(obj_index)
 end
 
 --[[
 Returns the instance's correct object index, accounting for custom objects.
 ]]
 ---@return integer object_index
-methods.get_object_index = function(self) 
-    return self:get_object_index_self()
+methods.get_object_index = function(self)
+    local obj_index = custom_obj_ind_cache[self]
+    if not obj_index then
+        obj_index = self:get_object_index_self() ---@type integer
+        custom_obj_ind_cache[self] = obj_index
+    end
+    return obj_index
 end
+
+-- TODO rest of methods
 
 
 -- ========== Metatables ==========
 
 ---@class Instance
 ---@field RAPI string
+---@field id integer
+---@field [string] any
 
 local inst = gm.instance_create(0, 0, gm.constants.oB)
 local mt = getmetatable(inst)
 gm.instance_destroy(inst)
 
 run_on_initial_load(function()
-    P.instance_og_index    = mt.__index
-    P.instance_og_newindex = mt.__newindex
+    P.instance_og_index    = mt.__index     ---@type function
+    P.instance_og_newindex = mt.__newindex  ---@type function
 end)
-local og_index = P.instance_og_index
+local og_index    = P.instance_og_index
 local og_newindex = P.instance_og_newindex
+
+local methods_actor  ---@type table<string, function>
+local methods_player ---@type table<string, function>
+run_after_core(function()
+    methods_actor  = G.methods_actor  or {}
+    methods_player = G.methods_player or {}
+end)
+
+local mt_names = {"Instance", "Actor", "Player"}
 
 W.Instance = {
     __index = function(t, k)
-        if k == "RAPI" then
-            local obj_index = og_index(t, "object_index")
-            if obj_index == constants_oP then
-                return "Player"
-            elseif ancestor_lookup[obj_index] then
-                return "Actor"
+        if k == "id" then
+            local id = id_cache[t]
+            if not id then
+                id = og_index(t, "id")
+                id_cache[t] = id
             end
-            return "Instance"
+            return id
         end
 
+        -- Since `sol.CInstance*` can only have 1 metatable,
+        -- Instance, Actor, and Player mts have been combined
+        -- Need to tell which type this is via `object_index`
+        local _type = wrapper_type[t]
+        if not _type then
+            local obj_index = obj_ind_cache[t]
+            if not obj_index then
+                obj_index = og_index(t, "object_index") ---@type integer
+                obj_ind_cache[t] = obj_index
+            end
+            _type = 1
+            if     obj_index == constants_oP  then _type = 3
+            elseif ancestor_lookup[obj_index] then _type = 2
+            end
+            wrapper_type[t] = _type
+        end
+
+        if k == "RAPI" then return mt_names[_type] end
+
         -- Methods
-        if methods[k] then return methods[k] end
+        if _type == 3 then
+            local method = methods_player[k]
+            if method then return method end
+        end
+        if _type >= 2 then
+            local method = methods_actor[k]
+            if method then return method end
+        end
+        local method = methods[k]
+        if method then return method end
 
         -- Getter
         -- local ret = gm.variable_instance_get(t, k)
@@ -276,7 +334,8 @@ W.Instance = {
 
     __newindex = function(t, k, v)
         -- Throw read-only error
-        if k == "RAPI" then
+        if k == "RAPI"
+        or k == "id" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
