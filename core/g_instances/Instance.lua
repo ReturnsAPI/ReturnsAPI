@@ -11,7 +11,7 @@ end)
 local instance_data  = P.instance_data
 
 local gm_id_to_cinst = gm.CInstance.instance_id_to_CInstance    ---@type table<integer, sol.CInstance*>
-local constants_oP   = gm.constants.oP
+local constants_oP   = gm.constants.oP  ---@type integer
 
 local type               = type
 local getmetatable       = debug.getmetatable
@@ -185,8 +185,35 @@ end
 ---@class Instance
 local methods = {}
 
-methods.abc = function(self)
-    print("Called abc!", self)
+-- Add GM scripts
+for script_name, fn in pairs(GM.SO) do
+    methods[script_name] = function(self, ...)
+        return fn(self, self, ...)
+    end
+end
+
+--[[
+Destroys the instance.
+]]
+methods.destroy = function(self)
+    instance_data[self.id] = nil
+    gm.instance_destroy(self)
+end
+
+--[[
+Returns the object that the instance is a type of, accounting for custom objects.
+]]
+---@return Object
+methods.get_object = function(self)
+    return Object.wrap(self:get_object_index_self())
+end
+
+--[[
+Returns the instance's correct object index, accounting for custom objects.
+]]
+---@return integer object_index
+methods.get_object_index = function(self) 
+    return self:get_object_index_self()
 end
 
 
