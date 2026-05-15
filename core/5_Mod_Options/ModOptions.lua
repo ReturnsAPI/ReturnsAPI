@@ -334,6 +334,38 @@ make_table_once("metatable_modoptions", {
 
 -- ========== Hooks ==========
 
+
+function header_insert_options(tab, options, index)
+    -- ModOptionsKeybind styling
+    local first_key
+    local is_odd = false
+
+    for _, element in ipairs(options) do
+        local struct = __proxy[element].constructor()
+
+        if element.RAPI == "ModOptionsKeybind" then
+            if not first_key then first_key = struct end
+            first_key.background_height = first_key.background_height + 38
+            
+            struct.is_odd = is_odd
+            is_odd = not is_odd
+        elseif element.RAPI == "ModOptionsTextField" then 
+            -- Sync the ui_text_field value with the ModOptionsTextField
+            gm.variable_struct_set(
+                gm.variable_global_get("_ui_shared_state").named_element_value,
+                struct.name,
+                struct.value
+            )
+        else
+            first_key = nil
+            is_odd = false
+        end
+        gm.array_insert(tab, index, struct)
+        index = index + 1
+    end
+    return index
+end
+
 gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
     -- Get "MODS" tab added by RoM
     local tab = gm.array_get(other.menu_pages, 2).options
@@ -348,46 +380,23 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
     table.sort(ordered, function(a, b)
         return gm.translate(a.namespace..".header") < gm.translate(b.namespace..".header")
     end)
+    
 
     -- Insert ReturnsAPI header at the front
     table.insert(ordered, 1, __mod_options_headers[RAPI_NAMESPACE])
+    local index = 2
 
     -- Loop through sorted headers and add elements
     for _, data_table in ipairs(ordered) do
         -- Header
         local header = Struct.new(gm.constants.UIOptionsGroupHeader, data_table.namespace..".header").value
         gm.array_push(tab, header)
+        index = index + 1
 
-        -- ModOptionsKeybind styling
-        local first_key
-        local is_odd = false
-
-        -- Elements
-        for _, element in ipairs(data_table.elements.ordered) do
-            local struct = __proxy[element].constructor()
-
-            if element.RAPI == "ModOptionsKeybind" then
-                if not first_key then first_key = struct end
-                first_key.background_height = first_key.background_height + 38
-                
-                struct.is_odd = is_odd
-                is_odd = not is_odd
-            elseif element.RAPI == "ModOptionsTextField" then 
-                -- Sync the ui_text_field value with the ModOptionsTextField
-                gm.variable_struct_set(
-                    gm.variable_global_get("_ui_shared_state").named_element_value,
-                    struct.name,
-                    struct.value
-                )
-            else
-                first_key = nil
-                is_odd = false
-            end
-
-            gm.array_push(tab, struct)
-        end
+        index = header_insert_options(tab, data_table.elements.ordered, index)
     end
 end)
+
 
 
 
