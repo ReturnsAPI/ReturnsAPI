@@ -1,4 +1,4 @@
-if true then return end
+if __DEACTIVATE_OLD then return end
 -- Vector
 
 -- This is a simple implementation for 2D vectors.

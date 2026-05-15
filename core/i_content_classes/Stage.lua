@@ -1,4 +1,4 @@
-if true then return end
+if __DEACTIVATE_OLD then return end
 -- Stage
 
 run_once(function()

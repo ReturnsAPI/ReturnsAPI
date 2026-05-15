@@ -1,4 +1,4 @@
-if true then return end
+if __DEACTIVATE_OLD then return end
 -- ModOptionsDropdown
 
 -- The class table is private, but the wrappers are publicly accessible

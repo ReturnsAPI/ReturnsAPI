@@ -1,4 +1,4 @@
-if true then return end
+if __DEACTIVATE_OLD then return end
 -- Packet
 
 -- TODO: Don't pass tables in `make_proxy` since they will be user-accessible via Wrap.unwrap

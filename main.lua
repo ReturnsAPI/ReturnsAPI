@@ -1,5 +1,7 @@
 -- ReturnsAPI
 
+__DEACTIVATE_OLD = true -- DEBUG
+
 PATH           = _ENV["!plugins_mod_folder_path"]
 RAPI_NAMESPACE = "rapi" -- Namespace for ReturnsAPI that is used internally
 
