@@ -75,7 +75,7 @@ RAPI wrappers (which are just Lua tables) will have their type returned instead 
 ]]
 ---@param value any The value to get the type of.
 ---@param is_wrapper? boolean If `true`, will return a bool as a second argument, <br>which will be `true` if the type is a RAPI wrapper.
----@return string
+---@return string, boolean?
 Util.type = function(value, is_wrapper)
     local _type, arg2 = type(value), false
     

@@ -1,147 +1,180 @@
-if __DEACTIVATE_OLD then return end
 -- Alarm
 
 --[[
 Custom alarm system separate from GameMaker's alarms.
 ]]
-
+---@class Alarm
 Alarm = new_class()
+C.Alarm = Alarm
 
-run_once(function()
-    __alarm_current_id = 0
-
-    __alarm_bank                    = CallbackCache.new()
-    __alarm_bank_args               = {}
-    __alarm_current_frame           = 0
-
-    __alarm_bank_nopause            = CallbackCache.new()
-    __alarm_bank_args_nopause       = {}
-    __alarm_current_frame_nopause   = 0
+run_on_initial_load(function()
+    P.alarm_functions             = {}  ---@type table<integer, CallbackTable>
+    P.alarm_functions_nopause     = {}  ---@type table<integer, CallbackTable>
+    P.alarm_function_args         = {}  ---@type table<integer, table>
+    P.alarm_id_to_table           = {}  ---@type table<integer, CallbackTable> Stores which CallbackTable a function is in.
+    P.alarm_counter               = {value = 0} -- Shared counter for all alarm `CallbackTable`s.
+    P.alarm_current_frame         = 0
+    P.alarm_current_frame_nopause = 0
 end)
 
+local alarm_functions         = P.alarm_functions
+local alarm_functions_nopause = P.alarm_functions_nopause
+local alarm_function_args     = P.alarm_function_args
+local alarm_id_to_table       = P.alarm_id_to_table
+local alarm_counter           = P.alarm_counter
+
+local type          = type
+local table_pack    = table.pack
+local table_unpack  = table.unpack
+local math_max      = math.max
+local math_round    = math.round
+local gm_global_get = gm.variable_global_get    ---@type function
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       number
---@param        time        | number    | The number of frames before the function is called. <br>Fractional values are rounded to the nearest integer. <br>Minimum `1`.
---@param        fn          | function  | The function to call.
---@optional     ...         |           | A variable number of arguments to pass to the function.
 --[[
-Adds a new alarm which calls the provided function
-with passed args after the specified amount of time.
+Registers a function under an alarm, which calls it <br>
+with passed args after the specified amount of time. <br>
 Returns the unique ID of the alarm.
 
 The alarms will automatically pause if the game is paused while in a run.
 ]]
+---@param time integer The number of frames before the function is called. <br>Fractional values are rounded to the nearest integer. <br>Minimum `1`.
+---@param fn function The function to register.
+---@param ... any A variable amount of arguments to pass to the function.
+---@return number
 Alarm.add = function(NAMESPACE, time, fn, ...)
     -- Check arguments
-    if type(time) ~= "number" then log.error("Alarm.add: time must be a number (you passed in '"..tostring(time).."')", 2) end
-    if type(fn) ~= "function" then log.error("Alarm.add: fn must be a function (you passed in '"..tostring(fn).."')", 2) end
+    if type(time) ~= "number" then throw("time must be a number (got '"..tostring(time).."')", "add") end
+    if type(fn) ~= "function" then throw("fn must be a function (got '"..tostring(fn).."')", "add") end
 
-    -- Create new subtable at that frame if existn't
-    local frame = __alarm_current_frame + math.max(math.round(time), 1) + 1  -- +1 for proper time I think
-    local id = __alarm_current_id
-    
-    __alarm_bank:add(fn, NAMESPACE, 0, frame, id)
-    __alarm_bank_args[id] = table.pack(...)
+    -- Create new CallbackTable for the frame if it does not exist
+    local frame = P.alarm_current_frame + math_max(math_round(time), 1) + 1  -- +1 for proper time I think
+    local alarm_table = alarm_functions[frame]
+    if not alarm_table then
+        alarm_table = CallbackTable.new(alarm_counter)
+        alarm_functions[frame] = alarm_table
+    end
 
-    __alarm_current_id = __alarm_current_id + 1
+    local id = alarm_table:add(fn, NAMESPACE)
+    alarm_function_args[id] = table_pack(...)
+    alarm_id_to_table[id]   = alarm_table
 
     return id
 end
 
-
---@static
---@return       number
---@param        time        | number    | The number of frames before the function is called. <br>Fractional values are rounded to the nearest integer. <br>Minimum `1`.
---@param        fn          | function  | The function to call.
---@optional     ...         |           | A variable number of arguments to pass to the function.
 --[[
-Adds a new alarm which calls the provided function
-with passed args after the specified amount of time.
+Registers a function under an alarm, which calls it <br>
+with passed args after the specified amount of time. <br>
 Returns the unique ID of the alarm.
 
 The alarms will *not* pause at any point.
 ]]
+---@param time integer The number of frames before the function is called. <br>Fractional values are rounded to the nearest integer. <br>Minimum `1`.
+---@param fn function The function to register.
+---@param ... any A variable amount of arguments to pass to the function.
+---@return number
 Alarm.add_nopause = function(NAMESPACE, time, fn, ...)
     -- Check arguments
-    if type(time) ~= "number" then log.error("Alarm.add_nopause: time must be a number (you passed in '"..tostring(time).."')", 2) end
-    if type(fn) ~= "function" then log.error("Alarm.add_nopause: fn must be a function (you passed in '"..tostring(fn).."')", 2) end
+    if type(time) ~= "number" then throw("time must be a number (got '"..tostring(time).."')", "add_nopause") end
+    if type(fn) ~= "function" then throw("fn must be a function (got '"..tostring(fn).."')", "add_nopause") end
 
-    -- Create new subtable at that frame if existn't
-    local frame = __alarm_current_frame_nopause + math.max(math.round(time), 1) + 1  -- +1 for proper time I think
-    local id = __alarm_current_id
-    
-    __alarm_bank_nopause:add(fn, NAMESPACE, 0, frame, id)
-    __alarm_bank_args_nopause[id] = table.pack(...)
+    -- Create new CallbackTable for the frame if it does not exist
+    local frame = P.alarm_current_frame_nopause + math_max(math_round(time), 1) + 1  -- +1 for proper time I think
+    local alarm_table = alarm_functions_nopause[frame]
+    if not alarm_table then
+        alarm_table = CallbackTable.new(alarm_counter)
+        alarm_functions_nopause[frame] = alarm_table
+    end
 
-    __alarm_current_id = __alarm_current_id + 1
+    local id = alarm_table:add(fn, NAMESPACE)
+    alarm_function_args[id] = table_pack(...)
+    alarm_id_to_table[id]   = alarm_table
 
     return id
 end
 
-
---@static
---@return       function
---@param        id          | number    | The unique ID of the alarm to remove.
 --[[
-Removes and returns an existing alarm.
+Removes and returns a registered function.
 The ID is the one from @link {`Alarm.add` | Alarm#add}/ @link {`Alarm.add_nopause` | Alarm#add_nopause}.
 ]]
+---@param id integer The ID of the function to remove.
+---@return function | nil
 Alarm.remove = function(id)
-    return __alarm_bank:remove(id) or __alarm_bank_nopause:remove(id)
+    local alarm_table = alarm_id_to_table[id]
+    if not alarm_table then return end
+    return alarm_table:remove(id)
 end
 
-
---@static
 --[[
-Removes all alarms from your namespace.
+Removes all registered functions in your namespace.
 
 Automatically called when you hotload your mod.
 ]]
 Alarm.remove_all = function(NAMESPACE)
-    __alarm_bank:remove_all(NAMESPACE)
-    __alarm_bank_nopause:remove_all(NAMESPACE)
+    for _, t in pairs(alarm_functions) do
+        t:remove_all(NAMESPACE)
+    end
+    for _, t in pairs(alarm_functions_nopause) do
+        t:remove_all(NAMESPACE)
+    end
 end
-table.insert(_clear_namespace_functions, Alarm.remove_all)
-
+run_on_import(Alarm.remove_all)
 
 
 -- ========== Hooks ==========
 
-Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, Callback.internal.FIRST, function(self, other, result, args)
-    -- Increment frame counter while unpaused
-    if not Global.pause then __alarm_current_frame = __alarm_current_frame + 1 end
-    __alarm_current_frame_nopause = __alarm_current_frame_nopause + 1
+gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
+    local frame         = P.alarm_current_frame
+    local frame_nopause = P.alarm_current_frame_nopause
+    
+    -- Increment frame counters
+    if not gm_global_get("pause") then
+        frame = frame + 1
+    end
+    frame_nopause = frame_nopause + 1
 
-    -- Call functions
-    __alarm_bank:loop_and_call_functions(function(fn_table)
-        local status, err = pcall(fn_table.fn, table.unpack(__alarm_bank_args[fn_table.id]))
-        if not status then
-            if (err == nil)
-            or (err == "C++ exception") then err = "GameMaker error (see above)" end
-            log.warning("\n"..fn_table.namespace..": Alarm (ID '"..fn_table.id.."') failed to execute fully.\n"..err)
+    -- Call registered functions
+    local alarm_table = alarm_functions[frame]
+    if alarm_table then
+        for i = 1, #alarm_table do
+            local data = alarm_table[i]
+            local id   = data.id
+            local args = alarm_function_args[id]
+            local status, out = pcall(data.fn, table_unpack(args))
+            if not status then
+                if out == nil
+                or out == "C++ exception" then
+                    out = "GameMaker error (see above)"
+                end
+                log.warning("\n| "..data.namespace..": Error in alarm function (ID "..math.floor(id)..")\n| "..out)
+            end
+            alarm_function_args[id] = nil
         end
-    end, __alarm_current_frame)
+        alarm_functions[frame] = nil
+    end
 
-    -- Call functions (nopause)
-    __alarm_bank_nopause:loop_and_call_functions(function(fn_table)
-        local status, err = pcall(fn_table.fn, table.unpack(__alarm_bank_args_nopause[fn_table.id]))
-        if not status then
-            if (err == nil)
-            or (err == "C++ exception") then err = "GameMaker error (see above)" end
-            log.warning("\n"..fn_table.namespace..": Alarm (ID '"..fn_table.id.."') failed to execute fully.\n"..err)
+    -- Call registered functions (nopause)
+    local alarm_table = alarm_functions_nopause[frame_nopause]
+    if alarm_table then
+        for i = 1, #alarm_table do
+            local data = alarm_table[i]
+            local id   = data.id
+            local args = alarm_function_args[id]
+            local status, out = pcall(data.fn, table_unpack(args))
+            if not status then
+                if out == nil
+                or out == "C++ exception" then
+                    out = "GameMaker error (see above)"
+                end
+                log.warning("\n| "..data.namespace..": Error in alarm function (ID "..math.floor(id)..")\n| "..out)
+            end
+            alarm_function_args[id] = nil
         end
-    end, __alarm_current_frame_nopause)
-
-    __alarm_bank:delete_section(__alarm_current_frame)
-    __alarm_bank:delete_section(__alarm_current_frame_nopause)
+        alarm_functions_nopause[frame_nopause] = nil
+    end
+    
+    P.alarm_current_frame         = frame
+    P.alarm_current_frame_nopause = frame_nopause
 end)
-
-
-
-__class.Alarm = Alarm

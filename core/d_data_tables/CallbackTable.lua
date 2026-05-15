@@ -36,12 +36,12 @@ local methods = {}
 
 --[[
 Registers a callback function. <br>
-Returns the unique ID assigned.
+Returns the unique ID assigned and the stored data table.
 ]]
 ---@param fn function The function to register.
 ---@param namespace string The namespace of the function.
 ---@param priority? integer The priority of the function. <br>`0` by default.
----@return integer id
+---@return integer id, data table
 methods.add = function(self, fn, namespace, priority)
     priority = priority or 0
 
@@ -76,7 +76,7 @@ methods.add = function(self, fn, namespace, priority)
     
     self.enabled_count = self.enabled_count + 1
 
-    return id
+    return id, data
 end
 
 --[[
