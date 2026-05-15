@@ -30,7 +30,7 @@ ModOptions.internal.wrap = function(modoptions)
     return make_proxy(modoptions, metatable_modoptions)
 end
 
-
+local field_containers = {}
 
 -- ========== Static Methods ==========
 
@@ -231,10 +231,11 @@ methods_modoptions = {
 
         local self_table = __proxy[self]
 
-        local element = ModOptionsTextField.new(__proxy[self].namespace, identifier, max_length, numeric_only)
+        local element, textfield = ModOptionsTextField.new(__proxy[self].namespace, identifier, max_length, numeric_only)
         
         self_table.elements[identifier] = element
         table.insert(self_table.elements.ordered, element)
+        field_containers[__proxy[self].namespace.."."..identifier] =  textfield
 
         return element
     end,
@@ -334,38 +335,6 @@ make_table_once("metatable_modoptions", {
 
 -- ========== Hooks ==========
 
-
-function header_insert_options(tab, options, index)
-    -- ModOptionsKeybind styling
-    local first_key
-    local is_odd = false
-
-    for _, element in ipairs(options) do
-        local struct = __proxy[element].constructor()
-
-        if element.RAPI == "ModOptionsKeybind" then
-            if not first_key then first_key = struct end
-            first_key.background_height = first_key.background_height + 38
-            
-            struct.is_odd = is_odd
-            is_odd = not is_odd
-        elseif element.RAPI == "ModOptionsTextField" then 
-            -- Sync the ui_text_field value with the ModOptionsTextField
-            gm.variable_struct_set(
-                gm.variable_global_get("_ui_shared_state").named_element_value,
-                struct.name,
-                struct.value
-            )
-        else
-            first_key = nil
-            is_odd = false
-        end
-        gm.array_insert(tab, index, struct)
-        index = index + 1
-    end
-    return index
-end
-
 gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
     -- Get "MODS" tab added by RoM
     local tab = gm.array_get(other.menu_pages, 2).options
@@ -394,6 +363,131 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
         index = index + 1
 
         index = header_insert_options(tab, data_table.elements.ordered, index)
+    end
+end)
+
+local function header_insert_options(tab, options, index)
+    -- ModOptionsKeybind styling
+    local first_key
+    local is_odd = false
+
+    for _, element in ipairs(options) do
+        local struct = __proxy[element].constructor()
+
+        if element.RAPI == "ModOptionsKeybind" then
+            if not first_key then first_key = struct end
+            first_key.background_height = first_key.background_height + 38
+            
+            struct.is_odd = is_odd
+            is_odd = not is_odd
+        elseif element.RAPI == "ModOptionsTextField" then 
+            -- Sync the ui_text_field value with the ModOptionsTextField
+            gm.variable_struct_set(
+                gm.variable_global_get("_ui_shared_state").named_element_value,
+                struct.name,
+                struct.value
+            )
+        else
+            first_key = nil
+            is_odd = false
+        end
+        gm.array_insert(tab, index, struct)
+        index = index + 1
+        if tab[index].refresh then tab[index]:refresh(nil, nil) end
+    end
+    return index
+end
+
+
+
+local function toggle_header_options(options, i, to_delete, header_name)
+    if header_name == "mods_rom_group_header" then return end
+    if to_delete > 0 then
+        Alarm.add("options_delete", 1, function() 
+            gm.array_delete(options, i - to_delete, to_delete) 
+        end)
+    else
+        local ns = header_name:match("^[^.]+")
+        if not ns then return end
+        Alarm.add("options_restore", 1, function()
+            header_insert_options(options, __mod_options_headers[ns].elements.ordered, i)
+        end)
+    end
+end
+
+-- hook used to draw on top of the ui
+gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, result, args)
+    if self.menu_level ~= 2 then return end
+
+    local scroll = gm.ui_get_element_value("options_scroll")
+
+    local header_height = 114
+    local middle_sep = 12
+    local opt_margin = 10
+
+    local opt_x_start = gm.ui_margin_left()
+    local opt_y_start = gm.ui_margin_top() + header_height
+
+    local opt_height_total = gm.ui_content_height() - header_height - 24
+    local opt_width = (gm.ui_content_width() // 2) - middle_sep
+
+    local opt_x = opt_x_start + opt_margin
+    local opt_y = opt_y_start + opt_margin - scroll
+    local opt_width_margin = opt_width - (opt_margin * 2)
+
+    local y = 0
+    local options = self.menu_pages[3].options
+    local deleting = false
+    local to_delete = 0
+    local header_to_delete = ""
+
+    gm.ui_draw_clip_set(opt_x_start + 2, opt_y_start + 8, opt_width - 8, opt_height_total - 16)
+    for i = 1, #options do
+        local option_y = y + opt_y
+        local opt = options[i]
+        local t = gm.struct_get(opt, "type")
+        
+        if t == 3 then
+            -- draw header button here
+            if deleting then 
+                toggle_header_options(options, i - 1, to_delete, header_to_delete)
+                 deleting = false
+            end
+                
+            local value = gm.ui_button_sprite(80, option_y, gm.constants.sUISubheader, 0, 0, gm.variable_global_get("_ui_style_default"))
+            
+            if value ~= opt.title_trimmed then
+                opt.title_trimmed = value
+                if value == 1 then -- click release
+                    deleting = true
+                    header_to_delete = opt.name
+                end
+            end
+        else
+            if deleting then to_delete = to_delete + 1 end 
+        end
+
+        local field = field_containers[opt.name]
+        if field then
+            local option_y = y + opt_y
+            gm.ui_text_field(opt.name, 400, option_y, 200, 0, gm.variable_global_get("_ui_style_default"), field.max_length, i - 1, false)
+            
+
+            local state = gm._ui_get_element_state(opt.name)
+            state.text_field_typing = (self.hover_last_index == i - 1)
+
+            local value = gm.variable_struct_get(gm.variable_global_get("_ui_shared_state").named_element_value, opt.name)
+            if field.last_value ~= value then
+                field.last_value = value
+                field.set(value)
+            end
+        end
+        y = y + 48
+    end
+    
+    gm.ui_draw_clip_reset()
+    if deleting then 
+        toggle_header_options(options, #options, to_delete, header_to_delete) 
     end
 end)
 
