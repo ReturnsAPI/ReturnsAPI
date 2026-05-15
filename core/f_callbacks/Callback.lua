@@ -164,6 +164,11 @@ Callback.add = function(NAMESPACE, callback, fn) end
 --[[
 Registers a function under a callback type. <br>
 Returns a CallbackFunction wrapper for the unique ID assigned to the function.
+
+**Priority Convention** <br>
+To allow for a decent amount of space between priorities, <br>
+use the enum values in @link {`Callback.Priority` | Callback#Priority}. <br>
+If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 ---@param callback number | CallbackType The callback type to register under.
 ---@param priority integer The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.

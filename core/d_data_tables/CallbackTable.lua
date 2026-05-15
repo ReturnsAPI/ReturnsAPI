@@ -65,7 +65,7 @@ methods.add = function(self, fn, namespace, priority)
     -- last function of the previous priority
     local index = 1
     for p, count in pairs(priority_count) do
-        if p <= priority then
+        if p >= priority then
             index = index + count
         end
     end

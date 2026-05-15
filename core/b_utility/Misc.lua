@@ -141,9 +141,11 @@ Automatically prepends the method name and uses correct level of error.
 ]]
 ---@param msg string The message to display.
 ---@param name string? The name of the method. <br>Necessary for namespace-binded methods.
-function throw(msg, name)
-    local n = name or debug.getinfo(2, "n").name
-    log.error(tostring(n)..": "..msg, 3)
+---@param level? integer The error level. <br>`3` by default.
+function throw(msg, name, level)
+    level = level or 3
+    local n = name or debug.getinfo(level - 1, "n").name
+    log.error(tostring(n)..": "..msg, level)
 end
 
 --[[

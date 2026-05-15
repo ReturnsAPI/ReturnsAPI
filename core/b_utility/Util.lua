@@ -39,8 +39,6 @@ local function log_struct(struct)
 end
 
 local function log_array(array)
-    array = Array.wrap(array)
-
     local str = ""
     local padding = #tostring(#array) + 2
     for i, v in ipairs(array) do
@@ -72,18 +70,6 @@ Util.get_mod_info = function(identifier)
 end
 
 --[[
-**[!] DEPRECATED**
-
-Prints a variable number of arguments. <br>
-Works just like regular `print`, but prints RAPI wrapper types instead of "table".
-]]
----@deprecated
----@param ... any
-Util.print = function(...)
-    print(...)
-end
-
---[[
 Returns the type of the value as a string. <br>
 RAPI wrappers (which are just Lua tables) will have their type returned instead of "table".
 ]]
@@ -110,41 +96,6 @@ Util.type = function(value, is_wrapper)
     end
     if is_wrapper then return _type, args2 end
     return _type
-end
-
---[[
-**[!] DEPRECATED**
-
-Returns the string representation of the value. <br>
-Works just like regular `tostring`, but "table" substrings <br>
-are replaced with the appropriate RAPI wrapper type (if applicable).
-]]
----@deprecated
----@param value The value to get a string representation of.
----@return string
-Util.tostring = function(value)
-    -- local _type = type(value)
-
-    -- local has_RAPI = false
-    -- if _type == "table" then
-    --     has_RAPI = true
-    -- elseif _type == "userdata" then
-    --     local mt = getmetatable(value)
-    --     if mt and sol_types[mt.__name] then
-    --         has_RAPI = true
-    --     end
-    -- end
-        
-    -- if has_RAPI then
-    --     local rapi = value.RAPI
-    --     if  rapi
-    --     and rapi ~= "Vector" then
-    --         local s = tostring(value)
-    --         local index = string_find(s, ":")
-    --         return rapi..string_sub(tostring(value), index, -1)
-    --     end
-    -- end
-    return tostring(value)
 end
 
 --[[
@@ -281,16 +232,39 @@ Prints the results of `gm.debug_get_callstack()`, <br>
 in order of most (top) to least (bottom) recent calls.
 ]]
 Util.gm_trace = function()
-    local array = Array.wrap(gm.debug_get_callstack())
+    local array = gm.debug_get_callstack()
     array:print()
 end
 
 
 -- ========== Deprecated Methods ==========
 
---@static
---@return       bool
---@param        n           | number    | The chance to succeed, between `0` and `1`.
+--[[
+**[!] DEPRECATED**
+
+Prints a variable number of arguments. <br>
+Works just like regular `print`, but prints RAPI wrapper types instead of "table".
+]]
+---@deprecated
+---@param ... any
+Util.print = function(...)
+    print(...)
+end
+
+--[[
+**[!] DEPRECATED**
+
+Returns the string representation of the value. <br>
+Works just like regular `tostring`, but "table" substrings <br>
+are replaced with the appropriate RAPI wrapper type (if applicable).
+]]
+---@deprecated
+---@param value The value to get a string representation of.
+---@return string
+Util.tostring = function(value)
+    return tostring(value)
+end
+
 --[[
 **[!] DEPRECATED; recommended to call and check `math.random` instead.**
 

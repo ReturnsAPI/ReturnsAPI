@@ -162,7 +162,8 @@ W.Map = {
         if k == "RAPI" then return mt_name end
         
         -- Methods
-        if methods[k] then return methods[k] end
+        local method = methods[k]
+        if method then return method end
 
         -- Getter
         return t:get(k)

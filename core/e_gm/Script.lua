@@ -83,8 +83,8 @@ local scr = gm.method(s, gm.constants.function_dummy)
 local mt = getmetatable(scr)
 
 run_on_initial_load(function()
-    P.script_og_index = mt.__index
-    P.script_og_call  = mt.__call
+    P.script_og_index = mt.__index  ---@type function
+    P.script_og_call  = mt.__call   ---@type function
 end)
 local og_index = P.script_og_index
 local og_call  = P.script_og_call
