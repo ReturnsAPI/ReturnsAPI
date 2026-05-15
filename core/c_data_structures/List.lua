@@ -199,7 +199,7 @@ methods.print = function(self)
             "%s\n%s %s",
             str,
             String.pad_right(string.format("[%d]", i - 1), index_padding),
-            Util.tostring(v)
+            tostring(v)
         )
     end
     print(str)
@@ -259,6 +259,10 @@ W.List = {
             k = k + 1
             if k <= n then return k, t:get(k - 1, n) end
         end, t, 0
+    end,
+
+    __tostring = function(t)
+        return mt_name..": "..get_table_pointer(t)
     end,
 
     __metatable = mt_wrapper_name(mt_name),

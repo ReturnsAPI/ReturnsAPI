@@ -7,9 +7,9 @@ Extensions to Lua's `table`.
 Table = {}
 C.Table = Table
 
+local tostring      = tostring
 local debug_getinfo = debug.getinfo
 local string_sub    = string.sub
-local util_tostr    ---@type function
 local util_type     ---@type function
 
 
@@ -28,7 +28,7 @@ local function stringify(t, indent)
     -- Indexed values
     if t[1] then
         for i, v in ipairs(t) do
-            local tostr = util_tostr(v)
+            local tostr = tostring(v)
             local value = " = "..tostr
 
             local _type = util_type(v)
@@ -48,7 +48,7 @@ local function stringify(t, indent)
 
         -- Do not print keys that were covered in ipairs
         if type(k) ~= "number" or k > max_index then
-            local tostr = util_tostr(v)
+            local tostr = tostring(v)
             local value = " = "..tostr
 
             local _type = util_type(v)
@@ -74,8 +74,7 @@ Prints the contents of a table recursively.
 ]]
 ---@param t table The table to print.
 Table.print = function(t)
-    if not util_tostr then util_tostr = Util.tostring end
-    if not util_type  then util_type  = Util.type end
+    if not util_type then util_type = Util.type end
 
     local info = debug_getinfo(2, "Sl")
     print(string.format(

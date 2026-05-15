@@ -11,41 +11,12 @@ local os_clock     = os.clock
 local string_sub   = string.sub
 local string_find  = string.find
 local print_raw    = _rom_print_raw   ---@type function
-local util_tostr                    ---@type function
 local str_pad_r    = String.pad_right
 
 local sol_types = G.sol_types
 
 
 -- ========== Private Methods ==========
-
--- This is faster than iterative `select(i, ...)`, <br>
--- and *much* faster than `table.pack/unpack`
-local function tostring_args(n, prefix, arg, ...)
-    local out
-    if prefix then out = prefix..util_tostr(arg)
-    else out = util_tostr(arg)
-    end
-
-    if n == 1 then return out end
-    return out, tostring_args(n - 1, nil, ...)
-end
-
---[[
-Returns a version of print prefixed with the given guid.
-]]
----@param guid string
----@return function
-Util.internal.make_print = function(guid)
-    return function(...)
-        local n = select("#", ...)
-        if n <= 0 then
-            print_raw(guid..": ")
-            return
-        end
-        print_raw(tostring_args(n, guid..": ", ...))
-    end
-end
 
 local function object_get_name(inst)
     if inst.object_index then
@@ -62,7 +33,7 @@ local function log_struct(struct)
     local str = ""
     local keys = struct:get_keys()
     for _, key in ipairs(keys) do
-        str = str.."\n| "..indent..str_pad_r(key, 32).." = "..util_tostr(struct[key])
+        str = str.."\n| "..indent..str_pad_r(key, 32).." = "..tostring(struct[key])
     end
     return str
 end
@@ -73,7 +44,7 @@ local function log_array(array)
     local str = ""
     local padding = #tostring(#array) + 2
     for i, v in ipairs(array) do
-        str = str.."\n| "..indent..str_pad_r("["..(i - 1).."]", padding).."  "..util_tostr(v)
+        str = str.."\n| "..indent..str_pad_r("["..(i - 1).."]", padding).."  "..tostring(v)
     end
     return str
 end
@@ -101,13 +72,16 @@ Util.get_mod_info = function(identifier)
 end
 
 --[[
+**[!] DEPRECATED**
+
 Prints a variable number of arguments. <br>
 Works just like regular `print`, but prints RAPI wrapper types instead of "table".
 ]]
+---@deprecated
 ---@param ... any
-Util.print = function(...) end
-Util.print = Util.internal.make_print(_ENV["!guid"])
--- Each mod gets their own version with their guid binded on import.
+Util.print = function(...)
+    print(...)
+end
 
 --[[
 Returns the type of the value as a string. <br>
@@ -139,37 +113,39 @@ Util.type = function(value, is_wrapper)
 end
 
 --[[
+**[!] DEPRECATED**
+
 Returns the string representation of the value. <br>
 Works just like regular `tostring`, but "table" substrings <br>
 are replaced with the appropriate RAPI wrapper type (if applicable).
 ]]
+---@deprecated
 ---@param value The value to get a string representation of.
 ---@return string
 Util.tostring = function(value)
-    local _type = type(value)
+    -- local _type = type(value)
 
-    local has_RAPI = false
-    if _type == "table" then
-        has_RAPI = true
-    elseif _type == "userdata" then
-        local mt = getmetatable(value)
-        if mt and sol_types[mt.__name] then
-            has_RAPI = true
-        end
-    end
+    -- local has_RAPI = false
+    -- if _type == "table" then
+    --     has_RAPI = true
+    -- elseif _type == "userdata" then
+    --     local mt = getmetatable(value)
+    --     if mt and sol_types[mt.__name] then
+    --         has_RAPI = true
+    --     end
+    -- end
         
-    if has_RAPI then
-        local rapi = value.RAPI
-        if  rapi
-        and rapi ~= "Vector" then
-            local s = tostring(value)
-            local index = string_find(s, ":")
-            return rapi..string_sub(tostring(value), index, -1)
-        end
-    end
+    -- if has_RAPI then
+    --     local rapi = value.RAPI
+    --     if  rapi
+    --     and rapi ~= "Vector" then
+    --         local s = tostring(value)
+    --         local index = string_find(s, ":")
+    --         return rapi..string_sub(tostring(value), index, -1)
+    --     end
+    -- end
     return tostring(value)
 end
-util_tostr = Util.tostring
 
 --[[
 Converts a numerical value into a bool, <br>

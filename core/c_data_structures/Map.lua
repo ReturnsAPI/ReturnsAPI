@@ -139,7 +139,7 @@ methods.print = function(self)
             "%s\n%s = %s",
             str,
             String.pad_right(key, 32),
-            Util.tostring(self[key])
+            tostring(self[key])
         )
     end
     print(str)
@@ -194,6 +194,10 @@ W.Map = {
 
             return k, v
         end
+    end,
+
+    __tostring = function(t)
+        return mt_name..": "..get_table_pointer(t)
     end,
 
     __metatable = mt_wrapper_name(mt_name),

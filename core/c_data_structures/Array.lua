@@ -201,7 +201,7 @@ methods.print = function(self)
             "%s\n%s %s",
             str,
             String.pad_right(string.format("[%d]", i - 1), index_padding),
-            Util.tostring(v)
+            tostring(v)
         )
     end
     print(str)
@@ -256,17 +256,12 @@ W.Array = {
             if k <= n then return k, gm.array_get(t, k - 1) end
         end, t, 0
     end,
+
+    __tostring = function(t)
+        return mt_name..": "..get_usertype_pointer(t)
+    end,
 }
 
 local arr = gm.array_create(0, 0)
 local mt = getmetatable(arr)
 table.merge(mt, W.Array)
-
--- local state = getmetatable(_ENV).__index
--- local mt = state.RefDynamicArrayOfRValue
--- table.merge(mt, W.Array)
-
--- TODO need to run this on initialize loop
--- mods.on_all_mods_loaded(function()
---     mt.__metatable = mt_wrapper_name(mt_name)
--- end)

@@ -156,6 +156,10 @@ W.Script = {
         if n == 1 then return og_call(t, self, other, unwrap(...)) end
         return og_call(t, self, other, unwrap_args(n, ...))
     end,
+
+    __tostring = function(t)
+        return mt_name..": "..get_usertype_pointer(t)
+    end,
 }
 
 table.merge(mt, W.Script)

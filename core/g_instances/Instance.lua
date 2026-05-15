@@ -233,8 +233,6 @@ end)
 local og_index = P.instance_og_index
 local og_newindex = P.instance_og_newindex
 
-local mt_name = "Instance"
-
 W.Instance = {
     __index = function(t, k)
         if k == "RAPI" then
@@ -289,6 +287,10 @@ W.Instance = {
 
     __eq = function(t, other)
         return t.id == other.id
+    end,
+
+    __tostring = function(t)
+        return t.RAPI..": "..get_usertype_pointer(t)
     end,
 }
 

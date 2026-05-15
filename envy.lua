@@ -170,9 +170,6 @@ public.setup = function(properties)
         wrapper[name] = copy
     end
 
-    -- Create own version of `Util.print`
-    wrapper.Util.print = Util.internal.make_print(guid)
-
     -- Run import functions
     if P.run_on_import then
         for _, fn in ipairs(P.run_on_import) do
@@ -210,15 +207,11 @@ public.auto = function(properties)
     for k, v in pairs(String) do env.string[k] = v end
     for k, v in pairs(Table)  do env.table[k]  = v end
 
-    -- Override default `print`, `type`, and `tostring`
+    -- Override default `type`
     if not env.lua_print then
-        env.lua_print    = env.print
-        env.lua_type     = env.type
-        env.lua_tostring = env.tostring
+        env.lua_type = env.type
     end
-    env.print    = wrapper.Util.print
-    env.type     = wrapper.Util.type
-    env.tostring = wrapper.Util.tostring
+    env.type = wrapper.Util.type
 end
 
 -- NOTE: Do service subscriptions for `setup()` too,

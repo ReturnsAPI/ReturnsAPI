@@ -1,7 +1,8 @@
 -- Misc
 
-local debug_getinfo = debug.getinfo
-local log_error     = log.error
+local string_format          = string.format
+local m_get_table_pointer    = memory.get_table_pointer     ---@type function
+local m_get_usertype_pointer = memory.get_usertype_pointer  ---@type function
 local unwrap  -- Set after core load (under `unwrap_args` below)
 
 ---Functions to run after `core` has loaded.
@@ -18,6 +19,7 @@ G.run_on_initialize = {}
 ---@type table<integer, function>
 P.run_on_import = {}
 
+---Table of `sol.` types that RAPI modifies.
 ---@type table<string, true>
 G.sol_types = table.set{
     "sol.RefDynamicArrayOfRValueLuaWrapper",
@@ -118,14 +120,30 @@ function expand_path(namespace, path)
 end
 
 --[[
+Returns the debug pointer of a table used in `tostring`.
+]]
+---@param t table
+function get_table_pointer(t)
+    return string_format("%.16x", m_get_table_pointer(t)):upper()
+end
+
+--[[
+Returns the debug pointer of a usertype used in `tostring`.
+]]
+---@param t table
+function get_usertype_pointer(t)
+    return string_format("%.16x", m_get_usertype_pointer(t)):upper()
+end
+
+--[[
 Variant of `log.error` for use in methods. <br>
 Automatically prepends the method name and uses correct level of error.
 ]]
 ---@param msg string The message to display.
 ---@param name string? The name of the method. <br>Necessary for namespace-binded methods.
 function throw(msg, name)
-    local n = name or debug_getinfo(2, "n").name
-    log_error(tostring(n)..": "..msg, 3)
+    local n = name or debug.getinfo(2, "n").name
+    log.error(tostring(n)..": "..msg, 3)
 end
 
 --[[

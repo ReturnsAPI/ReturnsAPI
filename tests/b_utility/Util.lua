@@ -10,10 +10,6 @@ return function()
     Tests.assert(Util.type({}), "table")
     Tests.assert(Util.type(p), "Proxy")
 
-    -- tostring
-    Tests.assert(Util.tostring({}):find("table") ~= nil, true)
-    Tests.assert(Util.tostring(p):find("Proxy") ~= nil, true)
-
     -- bool
     Tests.assert(Util.bool(false), false)
     Tests.assert(Util.bool(nil), false)
@@ -26,4 +22,6 @@ return function()
     Tests.assert(Util.bool("abc"), true)
     Tests.assert(Util.bool({}), true)
     Tests.assert(Util.bool(true), true)
+
+    -- TODO rest of Util
 end

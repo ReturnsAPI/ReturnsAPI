@@ -94,7 +94,7 @@ methods.print = function(self)
             "%s\n%s = %s",
             str,
             String.pad_right(key, 32),
-            Util.tostring(self[key])
+            tostring(self[key])
         )
     end
     print(str)
@@ -154,6 +154,10 @@ W.Struct = {
             end
         end
     end,
+
+    __tostring = function(t)
+        return mt_name..": "..get_usertype_pointer(t)
+    end,
 }
 
 -- YYObjectBaseLuaWrapper
@@ -165,5 +169,3 @@ table.merge(mt, W.Struct)
 local s = gm.new_struct()
 local mt = getmetatable(s)
 table.merge(mt, W.Struct)
-
--- TODO set __metatable(?) (maybe its not necessary actually)
