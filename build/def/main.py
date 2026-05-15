@@ -45,6 +45,7 @@ def parse_file(file_path):
     in_metatable = False
     in_local_function_body = False
     in_function_body = False
+    in_hook_body = False
 
     parsed = []
     for line in lines:
@@ -86,6 +87,14 @@ def parse_file(file_path):
 
             if " end" not in line:
                 in_function_body = True
+
+        elif re.search(r"gm\..*_script_hook\(", line):
+            if " end)" not in line:
+                in_hook_body = True
+
+        elif in_hook_body:
+            if line[:4] == "end)":
+                in_hook_body = False
 
         else:
             parsed.append(line + "\n")
