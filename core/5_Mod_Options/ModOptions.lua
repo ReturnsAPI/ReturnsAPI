@@ -31,6 +31,11 @@ ModOptions.internal.wrap = function(modoptions)
 end
 
 local field_containers = {}
+ModOptions.internal.initialize = function()
+    local filepath = path.combine(PATH, "core/sprites/ui/sUIModOptionsButtonHeader.png")
+    sUIModOptionsButtonHeader = Sprite.new(RAPI_NAMESPACE, "sUIModOptionsButtonHeader", filepath, 2)
+end
+table.insert(_rapi_initialize, ModOptions.internal.initialize)
 
 -- ========== Static Methods ==========
 
@@ -359,12 +364,13 @@ local function header_insert_options(tab, options, arr_i, first, last, header_na
         local struct = __proxy[element].constructor()
 
         -- add subheaders
-        local _, count = string.gsub(struct.name, "%.", "")
-        if count > 1 then
+        local _, depth = string.gsub(struct.name, "%.", "")
+        if depth > 1 then
             local before = string.match(struct.name, "^(.*)%.")
             if not subheaders[before] then
-                local subheader = Struct.new(gm.constants.UIOptionsGroupHeader, before..".header").value
-                gm.array_insert(tab, arr_i, subheader)
+                local subheader = Struct.new(gm.constants.UIOptionsGroupHeader, before..".header")
+                subheader.title = string.rep("   ", depth -1)..subheader.title
+                gm.array_insert(tab, arr_i, subheader.value)
                 arr_i = arr_i + 1
                 subheaders[before] = true
             end
@@ -428,6 +434,7 @@ local function toggle_header_options(options, i, header_name)
     end 
 end
 
+
 gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
     -- Get "MODS" tab added by RoM
     local tab = gm.array_get(other.menu_pages, 2).options
@@ -484,15 +491,16 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
     local y = 0
     local options = self.menu_pages[3].options
 
-    gm.ui_draw_clip_set(opt_x_start + 2, opt_y_start + 8, opt_width - 8, opt_height_total - 16)
+    gm.ui_draw_clip_set(opt_x_start + 2, opt_y_start + 8, opt_width_margin + 2, opt_height_total - 16)
     for i = 1, #options do
         local option_y = y + opt_y
         local opt = options[i]
         local t = gm.struct_get(opt, "type")
         
+        -- draw header button
         if t == 3 then
-            -- draw header button here
-            local value = gm.ui_button_sprite(80, option_y, gm.constants.sUISubheader, 0, 0, style)
+            
+            local value = gm.ui_button_sprite(opt_x_start + 60, option_y + 2, sUIModOptionsButtonHeader.value, 0, 0, style)
             
             if value ~= opt.title_trimmed then
                 opt.title_trimmed = value
@@ -501,12 +509,12 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
                 end
             end
         end
-
+        -- draw text field
         local field = field_containers[opt.name]
         if field then
             local option_y = y + opt_y
 
-            gm.ui_text_field(opt.name, 400, option_y, 200, 0, style, field.max_length, i - 1, false)
+            gm.ui_text_field(opt.name, opt_width_margin-160, option_y, 200, 0, style, field.max_length, i - 1, false)
             local state = gm._ui_get_element_state(opt.name)
             state.text_field_typing = (self.hover_last_index == i - 1)
 
