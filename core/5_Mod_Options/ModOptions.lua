@@ -335,14 +335,41 @@ make_table_once("metatable_modoptions", {
 
 -- ========== Hooks ==========
 
-local function header_insert_options(tab, options, index)
+local function header_insert_options(tab, options, arr_i, first, last, header_name)
     -- ModOptionsKeybind styling
     local first_key
     local is_odd = false
 
-    for _, element in ipairs(options) do
+    local subheaders = {}
+    
+    if header_name then
+        local before = string.match(header_name, "^(.*)%.")
+        subheaders[before] = true
+    end
+
+    first = first or 1
+    last = last or #options
+
+    local slice = {}
+    for i = first, last do
+        table.insert(slice, options[i])
+    end
+
+    for _, element in ipairs(slice) do
         local struct = __proxy[element].constructor()
 
+        -- add subheaders
+        local _, count = string.gsub(struct.name, "%.", "")
+        if count > 1 then
+            local before = string.match(struct.name, "^(.*)%.")
+            if not subheaders[before] then
+                local subheader = Struct.new(gm.constants.UIOptionsGroupHeader, before..".header").value
+                gm.array_insert(tab, arr_i, subheader)
+                arr_i = arr_i + 1
+                subheaders[before] = true
+            end
+        end
+        
         if element.RAPI == "ModOptionsKeybind" then
             if not first_key then first_key = struct end
             first_key.background_height = first_key.background_height + 38
@@ -360,11 +387,45 @@ local function header_insert_options(tab, options, index)
             first_key = nil
             is_odd = false
         end
-        gm.array_insert(tab, index, struct)
-        index = index + 1
-        if tab[index].refresh then tab[index]:refresh(nil, nil) end
+        gm.array_insert(tab, arr_i, struct)
+        arr_i = arr_i + 1
+        if tab[arr_i].refresh then tab[arr_i]:refresh(nil, nil) end
     end
-    return index
+    return arr_i
+end
+
+local function toggle_header_options(options, i, header_name)
+    if header_name == "mods_rom_group_header" then return end
+
+    local prefix = string.match(header_name,"^(.-)%.header$")
+
+    if i == #options or (options[i+1].name):sub(1, #prefix) ~= prefix then 
+        -- unfold
+        local ns = header_name:match("^[^.]+")
+        local o = __mod_options_headers[ns].elements.ordered
+        local k = 1
+        local _, count = string.gsub(header_name, "%.", "")
+        if count > 1 then
+            repeat k = k + 1
+            until k > #o or (__proxy[o[k]].constructor().name):sub(1, #prefix) == prefix
+        end
+        local j = k
+        repeat j = j + 1
+        until j > #o or (__proxy[o[j]].constructor().name):sub(1, #prefix) ~= prefix
+
+        Alarm.add("options_restore", 1, function()
+            header_insert_options(options, o, i, k, j-1, header_name)
+        end)
+    else 
+        -- fold
+        local j = 1
+        repeat j = j + 1
+        until i+j > #options or (options[i+ j].name):sub(1, #prefix) ~= prefix
+
+        Alarm.add("options_delete", 1, function()
+            gm.array_delete(options, i, j - 1)
+        end)
+    end 
 end
 
 gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
@@ -398,21 +459,6 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
     end
 end)
 
-local function toggle_header_options(options, i, to_delete, header_name)
-    if header_name == "mods_rom_group_header" then return end
-    if to_delete > 0 then
-        Alarm.add("options_delete", 1, function() 
-            gm.array_delete(options, i - to_delete, to_delete) 
-        end)
-    else
-        local ns = header_name:match("^[^.]+")
-        if not ns then return end
-        Alarm.add("options_restore", 1, function()
-            header_insert_options(options, __mod_options_headers[ns].elements.ordered, i)
-        end)
-    end
-end
-
 -- hook used to draw on top of the ui
 gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, result, args)
     if self.menu_level ~= 2 then return end
@@ -437,9 +483,6 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
 
     local y = 0
     local options = self.menu_pages[3].options
-    local deleting = false
-    local to_delete = 0
-    local header_to_delete = ""
 
     gm.ui_draw_clip_set(opt_x_start + 2, opt_y_start + 8, opt_width - 8, opt_height_total - 16)
     for i = 1, #options do
@@ -449,22 +492,14 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
         
         if t == 3 then
             -- draw header button here
-            if deleting then 
-                toggle_header_options(options, i - 1, to_delete, header_to_delete)
-                deleting = false
-            end
-                
             local value = gm.ui_button_sprite(80, option_y, gm.constants.sUISubheader, 0, 0, style)
             
             if value ~= opt.title_trimmed then
                 opt.title_trimmed = value
                 if value == 1 then -- click release
-                    deleting = true
-                    header_to_delete = opt.name
+                    toggle_header_options(options, i, opt.name)
                 end
             end
-        else
-            if deleting then to_delete = to_delete + 1 end 
         end
 
         local field = field_containers[opt.name]
@@ -485,11 +520,7 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
     end
     
     gm.ui_draw_clip_reset()
-    if deleting then 
-        toggle_header_options(options, #options, to_delete, header_to_delete) 
-    end
 end)
-
 
 
 

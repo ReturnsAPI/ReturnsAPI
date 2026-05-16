@@ -61,15 +61,15 @@ ModOptionsTextField.new = function(namespace, identifier, max_length, numeric_on
     }
 
     local tf = {
-                max_length   = max_length or 250,
-                numeric_only = numeric_only or false,
-                set          = function(value)
-                    for _, fn in ipairs(callbacks_set) do
-                        fn(value)
-                    end
-                end,
-                last_value = nil
-            }
+        max_length   = max_length or 250,
+        numeric_only = numeric_only or false,
+        set          = function(value)
+            for _, fn in ipairs(callbacks_set) do
+                fn(value)
+            end
+        end,
+        last_value = nil
+    }
     return ModOptionsTextField.wrap(element_data_table), tf
 end
 
