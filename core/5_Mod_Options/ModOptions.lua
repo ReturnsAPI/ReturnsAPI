@@ -37,6 +37,30 @@ ModOptions.internal.initialize = function()
 end
 table.insert(_rapi_initialize, ModOptions.internal.initialize)
 
+local function get_insert_index(ordered, identifier)
+    local parent = identifier:match("^(.*)%.[^%.]+$")
+
+    -- Default: append to end
+    local insert_index = #ordered + 1
+
+    if not parent then
+        return insert_index
+    end
+
+    -- Insert after the last item in the same subtree
+    for i = #ordered, 1, -1 do
+        local id = ordered[i].identifier
+
+        if id == parent
+        or id:sub(1, #parent + 1) == parent .. "." then
+            insert_index = i + 1
+            break
+        end
+    end
+
+    return insert_index
+end
+
 -- ========== Static Methods ==========
 
 --@section Static Methods
@@ -111,7 +135,9 @@ methods_modoptions = {
         local element = ModOptionsButton.new(__proxy[self].namespace, identifier)
         
         self_table.elements[identifier] = element
-        table.insert(self_table.elements.ordered, element)
+        
+        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        table.insert(self_table.elements.ordered, insert_index, element)
 
         return element
     end,
@@ -134,7 +160,9 @@ methods_modoptions = {
         local element = ModOptionsCheckbox.new(__proxy[self].namespace, identifier)
         
         self_table.elements[identifier] = element
-        table.insert(self_table.elements.ordered, element)
+        
+        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        table.insert(self_table.elements.ordered, insert_index, element)
 
         return element
     end,
@@ -157,7 +185,9 @@ methods_modoptions = {
         local element = ModOptionsDropdown.new(__proxy[self].namespace, identifier)
         
         self_table.elements[identifier] = element
-        table.insert(self_table.elements.ordered, element)
+        
+        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        table.insert(self_table.elements.ordered, insert_index, element)
 
         return element
     end,
@@ -184,7 +214,9 @@ methods_modoptions = {
         local element = ModOptionsSlider.new(__proxy[self].namespace, identifier, display_type, value_min, value_max, value_int or false)
         
         self_table.elements[identifier] = element
-        table.insert(self_table.elements.ordered, element)
+        
+        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        table.insert(self_table.elements.ordered, insert_index, element)
 
         return element
     end,
@@ -214,7 +246,9 @@ methods_modoptions = {
         local element = ModOptionsKeybind.new(__proxy[self].namespace, identifier, default, default_gamepad)
         
         self_table.elements[identifier] = element
-        table.insert(self_table.elements.ordered, element)
+        
+        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        table.insert(self_table.elements.ordered, insert_index, element)
 
         return element
     end,
@@ -239,7 +273,9 @@ methods_modoptions = {
         local element, textfield = ModOptionsTextField.new(__proxy[self].namespace, identifier, max_length, numeric_only)
         
         self_table.elements[identifier] = element
-        table.insert(self_table.elements.ordered, element)
+        
+        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        table.insert(self_table.elements.ordered, insert_index, element)
         field_containers[__proxy[self].namespace.."."..identifier] =  textfield
 
         return element
