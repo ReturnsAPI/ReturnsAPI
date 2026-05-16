@@ -407,7 +407,7 @@ local function toggle_header_options(options, i, header_name)
         local _, count = string.gsub(header_name, "%.", "")
         if count > 1 then
             repeat k = k + 1
-            until k > #o or (__proxy[o[k]].constructor().name):sub(1, #prefix) == prefix
+            until k >= #o or (__proxy[o[k]].constructor().name):sub(1, #prefix) == prefix
         end
         local j = k
         repeat j = j + 1
