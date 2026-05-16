@@ -30,24 +30,32 @@ ModOptions.internal.wrap = function(modoptions)
     return make_proxy(modoptions, metatable_modoptions)
 end
 
-local field_containers = {}
+
 ModOptions.internal.initialize = function()
     local filepath = path.combine(PATH, "core/sprites/ui/sUIModOptionsButtonHeader.png")
     sUIModOptionsButtonHeader = Sprite.new(RAPI_NAMESPACE, "sUIModOptionsButtonHeader", filepath, 2)
 end
 table.insert(_rapi_initialize, ModOptions.internal.initialize)
 
-local function get_insert_index(ordered, identifier)
+ModOptions.internal.validate_identifier = function(self, identifier, fn_name)
+    if not identifier then
+        log.error(fn_name..": No identifier provided", 2)
+    end
+    if identifier == "header" or identifier == "ordered"
+    or identifier:sub(-7) == ".header" then
+        log.error(fn_name..": identifier '"..identifier.."' is reserved", 2)
+    end
+    if self:find(identifier) then
+        log.error(fn_name..": identifier '"..identifier.."' already in use", 2)
+    end
+end
+
+ModOptions.internal.get_insert_index = function(ordered, identifier)
     local parent = identifier:match("^(.*)%.[^%.]+$")
-
-    -- Default: append to end
     local insert_index = #ordered + 1
-
     if not parent then
         return insert_index
     end
-
-    -- Insert after the last item in the same subtree
     for i = #ordered, 1, -1 do
         local id = ordered[i].identifier
 
@@ -57,9 +65,106 @@ local function get_insert_index(ordered, identifier)
             break
         end
     end
-
     return insert_index
 end
+
+ModOptions.internal.header_insert_options = function(tab, options, arr_i, first, last, header_name)
+    -- ModOptionsKeybind styling
+    local first_key
+    local is_odd = false
+
+    local subheaders = {}
+    
+    if header_name then
+        local before = string.match(header_name, "^(.*)%.")
+        subheaders[before] = true
+    end
+
+    first = first or 1
+    last = last or #options
+
+    local slice = {}
+    for i = first, last do
+        table.insert(slice, options[i])
+    end
+
+    for _, element in ipairs(slice) do
+        local struct = __proxy[element].constructor()
+
+        -- add subheaders
+        local _, depth = string.gsub(struct.name, "%.", "")
+        if depth > 1 then
+            local before = string.match(struct.name, "^(.*)%.")
+            if not subheaders[before] then
+                local subheader = Struct.new(gm.constants.UIOptionsGroupHeader, before..".header")
+                subheader.title = string.rep("   ", depth -1)..subheader.title
+                gm.array_insert(tab, arr_i, subheader.value)
+                arr_i = arr_i + 1
+                subheaders[before] = true
+            end
+        end
+        
+        if element.RAPI == "ModOptionsKeybind" then
+            if not first_key then first_key = struct end
+            first_key.background_height = first_key.background_height + 38
+            
+            struct.is_odd = is_odd
+            is_odd = not is_odd
+        elseif element.RAPI == "ModOptionsTextField" then 
+            -- Sync the ui_text_field value with the ModOptionsTextField
+            gm.variable_struct_set(
+                gm.variable_global_get("_ui_shared_state").named_element_value,
+                struct.name,
+                struct.value
+            )
+        else
+            first_key = nil
+            is_odd = false
+        end
+        gm.array_insert(tab, arr_i, struct)
+        arr_i = arr_i + 1
+        if tab[arr_i].refresh then tab[arr_i]:refresh(nil, nil) end
+    end
+    return arr_i
+end
+
+ModOptions.internal.toggle_header_options = function(options, i, header_name)
+    if header_name == "mods_rom_group_header" then return end
+
+    local prefix = string.match(header_name,"^(.-)%.header$")
+
+    if i == #options or (options[i+1].name):sub(1, #prefix) ~= prefix then 
+        -- unfold
+        local ns = header_name:match("^[^.]+")
+        local o = __mod_options_headers[ns].elements.ordered
+        local k = 1
+        local _, count = string.gsub(header_name, "%.", "")
+        if count > 1 then
+            repeat k = k + 1
+            until k >= #o or (__proxy[o[k]].constructor().name):sub(1, #prefix) == prefix
+        end
+        local j = k
+        repeat j = j + 1
+        until j > #o or (__proxy[o[j]].constructor().name):sub(1, #prefix) ~= prefix
+
+        Alarm.add("options_restore", 1, function()
+            ModOptions.internal.header_insert_options(options, o, i, k, j-1, header_name)
+        end)
+    else 
+        -- fold
+        local j = 1
+        repeat j = j + 1
+        until i+j > #options or (options[i+ j].name):sub(1, #prefix) ~= prefix
+
+        Alarm.add("options_delete", 1, function()
+            gm.array_delete(options, i, j - 1)
+        end)
+    end 
+end
+
+run_once(function()
+    __textfields = {}
+end)
 
 -- ========== Static Methods ==========
 
@@ -125,10 +230,7 @@ methods_modoptions = {
     Adds a @link {button | ModOptionsButton} to the ModOptions.
     ]]
     add_button = function(self, identifier)
-        if not identifier           then log.error("add_button: No identifier provided", 2) end
-        if identifier == "header"
-        or identifier == "ordered"  then log.error("add_button: identifier '"..identifier.."' is reserved", 2) end
-        if self:find(identifier)    then log.error("add_button: identifier '"..identifier.."' already in use", 2) end
+        ModOptions.internal.validate_identifier(self, identifier, "add_button")
 
         local self_table = __proxy[self]
 
@@ -136,7 +238,7 @@ methods_modoptions = {
         
         self_table.elements[identifier] = element
         
-        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
         table.insert(self_table.elements.ordered, insert_index, element)
 
         return element
@@ -150,10 +252,7 @@ methods_modoptions = {
     Adds a @link {checkbox | ModOptionsCheckbox} to the ModOptions.
     ]]
     add_checkbox = function(self, identifier)
-        if not identifier           then log.error("add_checkbox: No identifier provided", 2) end
-        if identifier == "header"
-        or identifier == "ordered"  then log.error("add_checkbox: identifier '"..identifier.."' is reserved", 2) end
-        if self:find(identifier)    then log.error("add_checkbox: identifier '"..identifier.."' already in use", 2) end
+        ModOptions.internal.validate_identifier(self, identifier, "add_checkbox")
 
         local self_table = __proxy[self]
 
@@ -161,7 +260,7 @@ methods_modoptions = {
         
         self_table.elements[identifier] = element
         
-        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
         table.insert(self_table.elements.ordered, insert_index, element)
 
         return element
@@ -175,10 +274,7 @@ methods_modoptions = {
     Adds a @link {dropdown | ModOptionsDropdown} to the ModOptions.
     ]]
     add_dropdown = function(self, identifier)
-        if not identifier           then log.error("add_dropdown: No identifier provided", 2) end
-        if identifier == "header"
-        or identifier == "ordered"  then log.error("add_dropdown: identifier '"..identifier.."' is reserved", 2) end
-        if self:find(identifier)    then log.error("add_dropdown: identifier '"..identifier.."' already in use", 2) end
+        ModOptions.internal.validate_identifier(self, identifier, "add_dropdown")
 
         local self_table = __proxy[self]
 
@@ -186,7 +282,7 @@ methods_modoptions = {
         
         self_table.elements[identifier] = element
         
-        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
         table.insert(self_table.elements.ordered, insert_index, element)
 
         return element
@@ -204,10 +300,7 @@ methods_modoptions = {
     Adds a @link {slider | ModOptionsSlider} to the ModOptions.
     ]]
     add_slider = function(self, identifier, display_type, value_min, value_max, value_int)
-        if not identifier           then log.error("add_slider: No identifier provided", 2) end
-        if identifier == "header"
-        or identifier == "ordered"  then log.error("add_slider: identifier '"..identifier.."' is reserved", 2) end
-        if self:find(identifier)    then log.error("add_slider: identifier '"..identifier.."' already in use", 2) end
+        ModOptions.internal.validate_identifier(self, identifier, "add_slider")
 
         local self_table = __proxy[self]
 
@@ -215,7 +308,7 @@ methods_modoptions = {
         
         self_table.elements[identifier] = element
         
-        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
         table.insert(self_table.elements.ordered, insert_index, element)
 
         return element
@@ -231,10 +324,7 @@ methods_modoptions = {
     Adds a @link {keybind | ModOptionsKeybind} to the ModOptions.
     ]]
     add_keybind = function(self, identifier, default, default_gamepad)
-        if not identifier           then log.error("add_keybind: No identifier provided", 2) end
-        if identifier == "header"
-        or identifier == "ordered"  then log.error("add_keybind: identifier '"..identifier.."' is reserved", 2) end
-        if self:find(identifier)    then log.error("add_keybind: identifier '"..identifier.."' already in use", 2) end
+        ModOptions.internal.validate_identifier(self, identifier, "add_keybind")
 
         local _type = type(default)
         if _type ~= "number" then log.error("add_keybind: default is invalid", 2) end
@@ -247,7 +337,7 @@ methods_modoptions = {
         
         self_table.elements[identifier] = element
         
-        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
         table.insert(self_table.elements.ordered, insert_index, element)
 
         return element
@@ -263,10 +353,7 @@ methods_modoptions = {
     Adds a @link {textfield | ModOptionsTextField} to the ModOptions.
     ]]
     add_textfield = function(self, identifier, max_length, numeric_only)
-        if not identifier           then log.error("add_field: No identifier provided", 2) end
-        if identifier == "header"
-        or identifier == "ordered"  then log.error("add_field: identifier '"..identifier.."' is reserved", 2) end
-        if self:find(identifier)    then log.error("add_field: identifier '"..identifier.."' already in use", 2) end
+        ModOptions.internal.validate_identifier(self, identifier, "add_textfield")
 
         local self_table = __proxy[self]
 
@@ -274,9 +361,9 @@ methods_modoptions = {
         
         self_table.elements[identifier] = element
         
-        local insert_index = get_insert_index(self_table.elements.ordered, identifier)
+        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
         table.insert(self_table.elements.ordered, insert_index, element)
-        field_containers[__proxy[self].namespace.."."..identifier] =  textfield
+        __textfields[__proxy[self].namespace.."."..identifier] =  textfield
 
         return element
     end,
@@ -376,101 +463,6 @@ make_table_once("metatable_modoptions", {
 
 -- ========== Hooks ==========
 
-local function header_insert_options(tab, options, arr_i, first, last, header_name)
-    -- ModOptionsKeybind styling
-    local first_key
-    local is_odd = false
-
-    local subheaders = {}
-    
-    if header_name then
-        local before = string.match(header_name, "^(.*)%.")
-        subheaders[before] = true
-    end
-
-    first = first or 1
-    last = last or #options
-
-    local slice = {}
-    for i = first, last do
-        table.insert(slice, options[i])
-    end
-
-    for _, element in ipairs(slice) do
-        local struct = __proxy[element].constructor()
-
-        -- add subheaders
-        local _, depth = string.gsub(struct.name, "%.", "")
-        if depth > 1 then
-            local before = string.match(struct.name, "^(.*)%.")
-            if not subheaders[before] then
-                local subheader = Struct.new(gm.constants.UIOptionsGroupHeader, before..".header")
-                subheader.title = string.rep("   ", depth -1)..subheader.title
-                gm.array_insert(tab, arr_i, subheader.value)
-                arr_i = arr_i + 1
-                subheaders[before] = true
-            end
-        end
-        
-        if element.RAPI == "ModOptionsKeybind" then
-            if not first_key then first_key = struct end
-            first_key.background_height = first_key.background_height + 38
-            
-            struct.is_odd = is_odd
-            is_odd = not is_odd
-        elseif element.RAPI == "ModOptionsTextField" then 
-            -- Sync the ui_text_field value with the ModOptionsTextField
-            gm.variable_struct_set(
-                gm.variable_global_get("_ui_shared_state").named_element_value,
-                struct.name,
-                struct.value
-            )
-        else
-            first_key = nil
-            is_odd = false
-        end
-        gm.array_insert(tab, arr_i, struct)
-        arr_i = arr_i + 1
-        if tab[arr_i].refresh then tab[arr_i]:refresh(nil, nil) end
-    end
-    return arr_i
-end
-
-local function toggle_header_options(options, i, header_name)
-    if header_name == "mods_rom_group_header" then return end
-
-    local prefix = string.match(header_name,"^(.-)%.header$")
-
-    if i == #options or (options[i+1].name):sub(1, #prefix) ~= prefix then 
-        -- unfold
-        local ns = header_name:match("^[^.]+")
-        local o = __mod_options_headers[ns].elements.ordered
-        local k = 1
-        local _, count = string.gsub(header_name, "%.", "")
-        if count > 1 then
-            repeat k = k + 1
-            until k >= #o or (__proxy[o[k]].constructor().name):sub(1, #prefix) == prefix
-        end
-        local j = k
-        repeat j = j + 1
-        until j > #o or (__proxy[o[j]].constructor().name):sub(1, #prefix) ~= prefix
-
-        Alarm.add("options_restore", 1, function()
-            header_insert_options(options, o, i, k, j-1, header_name)
-        end)
-    else 
-        -- fold
-        local j = 1
-        repeat j = j + 1
-        until i+j > #options or (options[i+ j].name):sub(1, #prefix) ~= prefix
-
-        Alarm.add("options_delete", 1, function()
-            gm.array_delete(options, i, j - 1)
-        end)
-    end 
-end
-
-
 gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
     -- Get "MODS" tab added by RoM
     local tab = gm.array_get(other.menu_pages, 2).options
@@ -498,7 +490,7 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
         gm.array_push(tab, header)
         index = index + 1
 
-        index = header_insert_options(tab, data_table.elements.ordered, index)
+        index = ModOptions.internal.header_insert_options(tab, data_table.elements.ordered, index)
     end
 end)
 
@@ -536,21 +528,22 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
         -- draw header button
         if t == 3 then
             
-            local value = gm.ui_button_sprite(opt_x_start + 60, option_y + 2, sUIModOptionsButtonHeader.value, 0, 0, style)
+            --                                                                                                    gamepad selection
+            local value = gm.ui_button_sprite(opt_x_start + 60, option_y + 2, sUIModOptionsButtonHeader.value, 0, nil, style)
             
             if value ~= opt.title_trimmed then
                 opt.title_trimmed = value
                 if value == 1 then -- click release
-                    toggle_header_options(options, i, opt.name)
+                    ModOptions.internal.toggle_header_options(options, i, opt.name)
                 end
             end
         end
         -- draw text field
-        local field = field_containers[opt.name]
+        local field = __textfields[opt.name]
         if field then
             local option_y = y + opt_y
 
-            gm.ui_text_field(opt.name, opt_width_margin-160, option_y, 200, 0, style, field.max_length, i - 1, false)
+            gm.ui_text_field(opt.name, opt_width_margin-160, option_y, 200, 0, style, field.max_length, nil, false)
             local state = gm._ui_get_element_state(opt.name)
             state.text_field_typing = (self.hover_last_index == i - 1)
 
@@ -562,7 +555,6 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
         end
         y = y + 48
     end
-    
     gm.ui_draw_clip_reset()
 end)
 
