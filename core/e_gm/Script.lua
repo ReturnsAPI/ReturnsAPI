@@ -21,7 +21,7 @@ local gm_call          = gm.call            ---@type function
 local gm_method        = gm.method          ---@type function
 local gm_struct_create = gm.struct_create   ---@type function
 local unwrap           = Wrap.unwrap
-local unwrap_args      = unwrap_args
+local unwrap_args      = Wrap.internal.unwrap_args
 
 local args_holders = {}     -- Reusable tables for arg holders
 local args_holder_rsp = 0   -- Index of most recently used; increment before taking

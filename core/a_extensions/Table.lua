@@ -13,7 +13,7 @@ local string_sub    = string.sub
 local util_type     ---@type function
 
 
--- ========== Private Methods ==========
+-- ========== Internal ==========
 
 local indent_amount = 4
 local prefix = "| "

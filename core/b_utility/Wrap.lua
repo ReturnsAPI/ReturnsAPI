@@ -7,6 +7,25 @@ C.Wrap = Wrap
 local proxy = P.proxy
 
 
+-- ========== Internal ==========
+
+--[[
+This is faster than iterative `select(i, ...)`, <br>
+and *much* faster than `table.pack/unpack`.
+]]
+---@param n integer The number of args.
+---@param ... any The varargs to unwrap.
+---@return any ...
+Wrap.internal.unwrap_args = function(n, ...) end
+
+---@type function
+local function unwrap_args(n, arg, ...)
+    if n == 1 then return proxy[arg] or arg end
+    return proxy[arg] or arg, unwrap_args(n - 1, ...)
+end
+Wrap.internal.unwrap_args = unwrap_args
+
+
 -- ========== Static Methods ==========
 
 --[[

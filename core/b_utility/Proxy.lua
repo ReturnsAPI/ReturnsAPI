@@ -4,7 +4,7 @@
 Proxy = new_class()
 
 run_on_initial_load(function()
-    P.proxy = setmetatable({}, {__mode = "k"})
+    P.proxy = setmetatable({}, {__mode = "k"})  ---@type table<table, any> Maps proxy table "keys" to stored values.
 end)
 
 local proxy = P.proxy

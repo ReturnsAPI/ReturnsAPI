@@ -35,7 +35,7 @@ local new_proxy   = new_proxy
 local unwrap      = Wrap.unwrap
 
 
--- ========== Private Methods ==========
+-- ========== Internal ==========
 
 local function get_script_name(script)
     return gm.constants_type_sorted["script"][script]

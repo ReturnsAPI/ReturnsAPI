@@ -22,7 +22,7 @@ local gm          = gm
 local gm_call     = gm.call
 local wrap        = Wrap.wrap
 local unwrap      = Wrap.unwrap
-local unwrap_args = unwrap_args
+local unwrap_args = Wrap.internal.unwrap_args
 
 
 -- ========== Static Methods ==========

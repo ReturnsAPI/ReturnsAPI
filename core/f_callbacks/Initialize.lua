@@ -11,7 +11,7 @@ run_on_initial_load(function()
 end)
 
 
--- ========== Private Methods ==========
+-- ========== Internal ==========
 
 ---@param name string The name of the method. <br>Necessary for namespace-binded methods.
 Initialize.internal.check_if_started = function(name)

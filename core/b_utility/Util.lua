@@ -16,7 +16,7 @@ local str_pad_r    = String.pad_right
 local sol_types = G.sol_types
 
 
--- ========== Private Methods ==========
+-- ========== Internal ==========
 
 local function object_get_name(inst)
     if inst.object_index then

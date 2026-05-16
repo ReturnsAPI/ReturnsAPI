@@ -16,7 +16,8 @@ end)
 local callback_functions = P.callback_functions
 local callback_custom    = P.callback_custom
 
-local callback_arg_types = {}   ---@type table<integer, table<integer, string>> Contains argument types for callbacks `0` to `42`.
+local callback_arg_types = {}  ---@type table<integer, table<integer, string>> Contains argument types for callbacks `0` to `42`.
+local callback_constants = {}  ---@type table<integer, string> Array table of callback types `0` to `42` (indexed from `1`).
 
 local proxy = P.proxy
 local metatable_type
@@ -35,69 +36,60 @@ for i = 1, 128 do args_holders[i] = {} end
 
 -- ========== Constants and Enums ==========
 
----@class Callback
----@field ON_LOAD                            0
----@field POST_LOAD                          1
----@field ON_STEP                            2
----@field PRE_STEP                           3
----@field POST_STEP                          4
----@field ON_DRAW                            5
----@field PRE_HUD_DRAW                       6
----@field ON_HUD_DRAW                        7
----@field POST_HUD_DRAW                      8
----@field CAMERA_ON_VIEW_CAMERA_UPDATE       9
----@field ON_SCREEN_REFRESH                  10
----@field ON_GAME_START                      11
----@field ON_GAME_END                        12
----@field ON_DIRECTOR_POPULATE_SPAWN_ARRAYS  13
----@field ON_STAGE_START                     14
----@field ON_SECOND                          15
----@field ON_MINUTE                          16
----@field ON_ATTACK_CREATE                   17
----@field ON_ATTACK_HIT                      18
----@field ON_ATTACK_HANDLE_START             19
----@field ON_ATTACK_HANDLE_END               20
----@field ON_DAMAGE_BLOCKED                  21
----@field ON_ENEMY_INIT                      22
----@field ON_ELITE_INIT                      23
----@field ON_DEATH                           24
----@field ON_PLAYER_INIT                     25
----@field ON_PLAYER_STEP                     26
----@field PRE_PLAYER_HUD_DRAW                27
----@field ON_PLAYER_HUD_DRAW                 28
----@field ON_PLAYER_INVENTORY_UPDATE         29
----@field ON_PLAYER_DEATH                    30
----@field ON_CHECKPOINT_RESPAWN              31
----@field ON_INPUT_PLAYER_DEVICE_UPDATE      32
----@field ON_PICKUP_COLLECTED                33
----@field ON_PICKUP_ROLL                     34
----@field ON_EQUIPMENT_USE                   35
----@field POST_EQUIPMENT_USE                 36
----@field ON_INTERACTABLE_ACTIVATE           37
----@field ON_HIT_PROC                        38
----@field ON_DAMAGED_PROC                    39
----@field ON_KILL_PROC                       40
----@field NET_MESSAGE_ON_RECEIVED            41
----@field CONSOLE_ON_COMMAND                 42
+Callback.ON_LOAD                            = 0
+Callback.POST_LOAD                          = 1
+Callback.ON_STEP                            = 2
+Callback.PRE_STEP                           = 3
+Callback.POST_STEP                          = 4
+Callback.ON_DRAW                            = 5
+Callback.PRE_HUD_DRAW                       = 6
+Callback.ON_HUD_DRAW                        = 7
+Callback.POST_HUD_DRAW                      = 8
+Callback.CAMERA_ON_VIEW_CAMERA_UPDATE       = 9
+Callback.ON_SCREEN_REFRESH                  = 10
+Callback.ON_GAME_START                      = 11
+Callback.ON_GAME_END                        = 12
+Callback.ON_DIRECTOR_POPULATE_SPAWN_ARRAYS  = 13
+Callback.ON_STAGE_START                     = 14
+Callback.ON_SECOND                          = 15
+Callback.ON_MINUTE                          = 16
+Callback.ON_ATTACK_CREATE                   = 17
+Callback.ON_ATTACK_HIT                      = 18
+Callback.ON_ATTACK_HANDLE_START             = 19
+Callback.ON_ATTACK_HANDLE_END               = 20
+Callback.ON_DAMAGE_BLOCKED                  = 21
+Callback.ON_ENEMY_INIT                      = 22
+Callback.ON_ELITE_INIT                      = 23
+Callback.ON_DEATH                           = 24
+Callback.ON_PLAYER_INIT                     = 25
+Callback.ON_PLAYER_STEP                     = 26
+Callback.PRE_PLAYER_HUD_DRAW                = 27
+Callback.ON_PLAYER_HUD_DRAW                 = 28
+Callback.ON_PLAYER_INVENTORY_UPDATE         = 29
+Callback.ON_PLAYER_DEATH                    = 30
+Callback.ON_CHECKPOINT_RESPAWN              = 31
+Callback.ON_INPUT_PLAYER_DEVICE_UPDATE      = 32
+Callback.ON_PICKUP_COLLECTED                = 33
+Callback.ON_PICKUP_ROLL                     = 34
+Callback.ON_EQUIPMENT_USE                   = 35
+Callback.POST_EQUIPMENT_USE                 = 36
+Callback.ON_INTERACTABLE_ACTIVATE           = 37
+Callback.ON_HIT_PROC                        = 38
+Callback.ON_DAMAGED_PROC                    = 39
+Callback.ON_KILL_PROC                       = 40
+Callback.NET_MESSAGE_ON_RECEIVED            = 41
+Callback.CONSOLE_ON_COMMAND                 = 42
 
-local callback_constants = {
-    "ON_LOAD", "POST_LOAD", "ON_STEP", "PRE_STEP", "POST_STEP",
-    "ON_DRAW", "PRE_HUD_DRAW", "ON_HUD_DRAW", "POST_HUD_DRAW", "CAMERA_ON_VIEW_CAMERA_UPDATE",
-    "ON_SCREEN_REFRESH", "ON_GAME_START", "ON_GAME_END", "ON_DIRECTOR_POPULATE_SPAWN_ARRAYS",
-    "ON_STAGE_START", "ON_SECOND", "ON_MINUTE", "ON_ATTACK_CREATE", "ON_ATTACK_HIT", "ON_ATTACK_HANDLE_START",
-    "ON_ATTACK_HANDLE_END", "ON_DAMAGE_BLOCKED", "ON_ENEMY_INIT", "ON_ELITE_INIT", "ON_DEATH", "ON_PLAYER_INIT", "ON_PLAYER_STEP",
-    "PRE_PLAYER_HUD_DRAW", "ON_PLAYER_HUD_DRAW", "ON_PLAYER_INVENTORY_UPDATE", "ON_PLAYER_DEATH",
-    "ON_CHECKPOINT_RESPAWN", "ON_INPUT_PLAYER_DEVICE_UPDATE", "ON_PICKUP_COLLECTED", "ON_PICKUP_ROLL", "ON_EQUIPMENT_USE", "POST_EQUIPMENT_USE", "ON_INTERACTABLE_ACTIVATE",
-    "ON_HIT_PROC", "ON_DAMAGED_PROC", "ON_KILL_PROC",
-    "NET_MESSAGE_ON_RECEIVED", "CONSOLE_ON_COMMAND"
-}
-for type_id, name in ipairs(callback_constants) do
-    Callback[name] = type_id - 1
+-- Populate `callback_constants`
+for name, type_id in pairs(Callback) do
+    if type(type_id) == "number" then
+        callback_constants[type_id + 1] = name
+    end
 end
 
 -- Custom callbacks
 
-Callback.CUSTOM_START = 10000
+Callback.CUSTOM_START      = 10000
 
 Callback.ON_HEAL           = 10000
 Callback.ON_SHIELD_BREAK   = 10001
@@ -114,7 +106,7 @@ Callback.Priority = {
 Callback.internal.FIRST = math.huge
 
 
--- ========== Private Methods ==========
+-- ========== Internal ==========
 
 -- Called at the bottom of this file since it does wrapping
 local function populate_arg_types()

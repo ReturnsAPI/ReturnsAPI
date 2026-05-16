@@ -3,7 +3,6 @@
 local string_format          = string.format
 local m_get_table_pointer    = memory.get_table_pointer     ---@type function
 local m_get_usertype_pointer = memory.get_usertype_pointer  ---@type function
-local unwrap  -- Set after core load (under `unwrap_args` below)
 
 ---Functions to run after `core` has loaded.
 ---@type table<integer, function>
@@ -147,17 +146,3 @@ function throw(msg, name, level)
     local n = name or debug.getinfo(level - 1, "n").name
     log.error(tostring(n)..": "..msg, level)
 end
-
---[[
-This is faster than iterative `select(i, ...)`, <br>
-and *much* faster than `table.pack/unpack`.
-]]
----@param n integer The number of args.
----@param ... any The varargs to unwrap.
----@return any ...
-function unwrap_args(n, ...) end
-function unwrap_args(n, arg, ...)
-    if n == 1 then return unwrap(arg) end
-    return unwrap(arg), unwrap_args(n - 1, ...)
-end
-run_after_core(function() unwrap = Wrap.unwrap end)
