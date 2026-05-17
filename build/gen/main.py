@@ -3,6 +3,7 @@
 import os
 import shutil
 from pprint import pprint
+from typing import Any
 
 def main():
     # cwd  = os.path.dirname(__file__)
@@ -50,34 +51,48 @@ def main():
             r"words in 'multiline'",
             r"]]",
             r"def = 456",
+            r"---@class Class2",
+            r"local methods = {}",
+            r"methods.foo = function(self)",
+            r"    print(self)",
+            r"end",
+            r"---@class A: B",
+            r"---@class B: C, D",
+            r"---@class C: D",
+            r"---@class C: E",
+            r"",
+            r"MyClass.Enum = {",
+            r"    A = 0",
+            r"    B = 1",
+            r"    C = 2",
+            r"}",
         ])
     )
 
 
 class Token:
-    WORD        = 0
-    TAG         = 1
-    SYMBOL      = 2
-    COMMENT     = 3
-    MULTI_BEGIN = 4
-    MULTI_END   = 5
-    TEXT        = 6  # Words in a string
-    NEW_LINE    = 7
-    EOF         = 8
+    WORD     = 0
+    TAG      = 1
+    SYMBOL   = 2
+    TEXT     = 3  # Words in a string
+    NEW_LINE = 4
+    EOF      = 5
 
-    Symbols = list(r""" =.,'"{}()[]<>:\|""")
-    TypeName = ["WORD", "TAG", "SYMBOL", "COMMENT",
-                "MULTI_BEGIN", "MULTI_END", "TEXT",
-                "NEW_LINE", "EOF"]
+    TypeName = ["WORD", "TAG", "SYMBOL",
+                "TEXT", "NEW_LINE", "EOF"]
+
+    Symbols     = list(r""" =.,'"{}()[]<>:\|""")
+    TextSymbols = list(r"""'"\]""")
 
     def __init__(self, type: int, text=""):
         self.type = type
         self.text = text
 
 class TextType:
-    SINGLE = 0  # Text was opened with '
-    DOUBLE = 1  # Text was opened with "
-    MULTI  = 2  # Text was opened with [[
+    SINGLE  = 0  # Text was opened with '
+    DOUBLE  = 1  # Text was opened with "
+    MULTI   = 2  # Text was opened with [[
+    COMMENT = 3  # Text was opened with --
 
 def tokenize(lines: list[str]) -> list[str]:
     out = []
@@ -97,12 +112,17 @@ def tokenize(lines: list[str]) -> list[str]:
 
                 # Comparison
                 if line[i:i+2] == "==":
-                    tokens.append(Token(Token.SYMBOL))
+                    tokens.append(Token(Token.SYMBOL, line[i:i+2]))
                     i += 2
 
-                # Multiline begin
+                # Multiline begin (comment)
+                elif line[i:i+4] == "--[[":
+                    in_text   = True
+                    text_type = TextType.MULTI
+                    i += 4
+
+                # Multiline begin (string)
                 elif line[i:i+2] == "[[":
-                    tokens.append(Token(Token.MULTI_BEGIN))
                     in_text   = True
                     text_type = TextType.MULTI
                     i += 2
@@ -119,12 +139,10 @@ def tokenize(lines: list[str]) -> list[str]:
 
                 # Comment
                 elif line[i:i+2] == "--":
-                    j = i
-                    while j < n and line[j] == "-":
-                        j += 1
-                    hyphens = line[i:j]
-                    i = j
-                    tokens.append(Token(Token.COMMENT))
+                    while i < n and line[i] == "-":
+                        i += 1
+                    in_text   = True
+                    text_type = TextType.COMMENT
 
                 # ' string begin
                 elif line[i] == "'":
@@ -157,7 +175,6 @@ def tokenize(lines: list[str]) -> list[str]:
                 # Multiline end
                 if line[i:i+2] == "]]":
                     if text_type == TextType.MULTI:
-                        tokens.append(Token(Token.MULTI_END))
                         in_text = False
                     else:
                         tokens.append(Token(Token.TEXT, line[i:i+2]))
@@ -192,11 +209,15 @@ def tokenize(lines: list[str]) -> list[str]:
                 # Words
                 else:
                     j = i
-                    while j < n and line[j] not in Token.Symbols:
+                    while j < n and line[j] not in Token.TextSymbols:
                         j += 1
                     word = line[i:j]
                     i = j
                     tokens.append(Token(Token.TEXT, word))
+
+        # End single-line comment text mode
+        if in_text and text_type == TextType.COMMENT:
+            in_text = False
 
         tokens.append(Token(Token.NEW_LINE))
         out += tokens
@@ -210,6 +231,23 @@ class Field:
         self.name = name
         self.type = type
 
+class Method:
+    def __init__(self):
+        self.params:  list[Param]  = []
+        self.returns: list[Return] = []
+        self.desc = ""
+        self.deprecated = False
+
+class Param:
+    def __init__(self, name, type="unknown", desc=""):
+        self.name = name
+        self.type = type
+        self.desc = desc
+
+class Return(Field):
+    def __init__(self, name: str, type=""):
+        super(name, type)
+
 def parse(tokens: list[Token]) -> dict[str, dict]:
     # debug
     print("Tokens: " + str(len(tokens)))
@@ -218,22 +256,47 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
         print(typename, "".join(" " for i in range(10 - len(typename))), t.text)
     print()
 
+    var_name_to_class: dict[str, dict] = {} # Mapping of ["variables"] to out[<class>]
+
     out, i, n = {}, 0, len(tokens)
     while i < n:
         token = tokens[i]
         
         # Annotation tag `@class`
-        if token.type == Token.TAG and token.text == "class":
+        if peek(tokens, i, Token.TAG, "class"):
             
             # Class name
             name = tokens[i + 1].text
             if not out.get(name):
                 out[name] = {
-                    "variables": [],
-                    "fields": {},
+                    "inherits": [],
+                    "variables": [],  # Class tables
+                    "fields": {},     # Wrapper properties
+                    "constants": {},
+                    "enums": {},
+                    "static_methods": {},
+                    "wrapper_methods": {},
                 }
             d = out[name]
             i += 2
+
+            # Inheritance
+            if peek(tokens, i, Token.SYMBOL, ":"):
+                i += 1
+
+                while True:
+                    # Parent
+                    d_inherits = d["inherits"]
+                    parent = tokens[i].text
+                    if parent not in d_inherits:
+                        d_inherits.append(parent)
+                    i += 1
+
+                    # If comma, consume and continue loop
+                    if peek(tokens, i, Token.SYMBOL, ","):
+                        i += 1
+                    else:
+                        break
 
             i = consume_line(tokens, i)
             if i >= n:
@@ -259,12 +322,56 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                 else:
                     break
 
-            # Assign the `@class` tag to the variable below
+            # Assign the `@class` tag to the variable
+            # on the line below (if applicable)
             d_vars = d["variables"]
             token = tokens[i]
             if token.type == Token.WORD:
+
+                # Skip `local` keyword
+                if token.text == "local":
+                    token = tokens[i + 1]
+                    
                 d_vars.append(token.text)
-            i = consume_line(tokens, i)
+                var_name_to_class[token.text] = name
+                i = consume_line(tokens, i)
+
+        # Add to class dict
+        elif token.type == Token.WORD and var_name_to_class.get(token.text):
+            class_name = var_name_to_class[token.text]
+            i += 1
+
+            # Parse indexed field (e.g., `MyClass.foo`)
+            index = None
+            if peek(tokens, i, Token.SYMBOL, "."):
+                i += 1
+                index = tokens[i].text
+            if not index or index == "internal":
+                continue
+            i += 1
+
+            i, status = consume_if(tokens, i, Token.SYMBOL, "=")
+            if not status:
+                continue
+
+            token = tokens[i]
+
+            # Enum
+            if peek(tokens, i, Token.SYMBOL, "{"):
+                i = consume_line(tokens, i)
+                enum, i = parse_enum(tokens, i)
+
+                enums = out[class_name]["enums"]
+                enums[index] = enum
+
+            # Function
+            # if token.type == Token.WORD and token.text == "function":
+
+            else:
+                constants = out[class_name]["constants"]
+                constants[index] = token.text
+
+            # TODO static and wrapper methods
 
         else:
             i += 1
@@ -272,6 +379,42 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
     pprint(out)
 
     return out
+
+def peek(tokens: list[Token], i: int, type: int, text=None) -> bool:
+    """
+    Look at token position `i` (without moving), and return `True` if it matches the expected token.
+    """
+    token = tokens[i]
+    if token.type == type and (text == None or token.text == text):
+        return True
+    return False
+
+def consume(tokens: list[Token], i: int, type: int, text=None) -> tuple[int, bool]:
+    """
+    Progress token position by 1, and return `True` if the expected token was consumed.
+    """
+    status = peek(tokens, i, type, text)
+    i += 1
+    return i, status
+
+def consume_if(tokens: list[Token], i: int, type: int, text=None) -> tuple[int, bool]:
+    """
+    Progress token position by 1 *only if* the expected <br>
+    token is to be consumed, and return `True` if so.
+    """
+    status = peek(tokens, i, type, text)
+    if status:
+        i += 1
+    return i, status
+
+def consume_line(tokens: list[Token], i: int) -> int:
+    """
+    Progress token position until after the next `NEW_LINE`.
+    """
+    while tokens[i].type != Token.NEW_LINE:
+        i += 1
+    i += 1
+    return i
 
 def parse_type(tokens: list[Token], i: int) -> tuple[str, int]:
     """
@@ -306,13 +449,36 @@ def parse_type(tokens: list[Token], i: int) -> tuple[str, int]:
 
     return out, i
 
-def consume_line(tokens: list[Token], i: int) -> int:
+def parse_enum(tokens: list[Token], i: int) -> tuple[dict[str, Any], int]:
     """
-    Progress token position until after the next `NEW_LINE`.
+    Parse enum; assumes `{` line has been consumed already.
     """
-    while tokens[i].type != Token.NEW_LINE:
+    out, n = {}, len(tokens)
+    while i < n:
+        # Check for end `}`
+        i, status = consume_if(tokens, i, Token.SYMBOL, "}")
+        if status:
+            break
+
+        # Constant
+        if not peek(tokens, i, Token.WORD):
+            break
+        constant = tokens[i].text
         i += 1
-    i += 1
-    return i
+
+        i, status = consume_if(tokens, i, Token.SYMBOL, "=")
+        if not status:
+            break
+
+        # Value
+        if not peek(tokens, i, Token.WORD):
+            break
+        value = tokens[i].text
+        i += 1
+
+        out[constant] = value
+        i = consume_line(tokens, i)
+
+    return out, i
 
 main()
