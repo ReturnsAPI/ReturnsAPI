@@ -125,23 +125,6 @@ methods_modoptionsTextField = {
         end
     end,
 
-
-    --@instance
-    --@param        ...         | string        | A variable amount of localization tokens for each choice. <br>Alternatively, a table may be provided.
-    --[[
-    Add a choice(s) to the Field.
-    ]]
-    add_choice = function(self, ...)
-        local choices = {...}
-        if type(choices[1]) == "table" then choices = choices[1] end
-
-        for _, token in ipairs(choices) do
-            if type(token) == "string" then
-                table.insert(__proxy[self].choices, token)
-            end
-        end
-    end
-
 }
 
 
