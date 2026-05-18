@@ -21,7 +21,7 @@ mysubheader = {
 }
 ```
 
---]]
+]]
 
 ModOptions = new_class()
 
