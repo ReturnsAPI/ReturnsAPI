@@ -1,3 +1,10 @@
+### v0.1.57
+- ModOptions:
+    - Add `add_textfield` 
+    - Add `add_slider`
+    - ModOptions can now have subheaders using a `subheader.option` identifier
+    - Made subheaders foldable
+
 ### v0.1.56
 - Item:`get_holding_actors`, Buff:`get_holding_actors` : Fix deleted instances being returned because of not being removed from cache correctly
 
