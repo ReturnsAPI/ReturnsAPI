@@ -1,5 +1,28 @@
 -- ModOptions
 
+
+--[[
+Each ModOptions has it's own header, but you can create subheaders by naming your field `mysubheader.option`.
+This will automatically create a `mysubheader.header` element and put the option under it.
+Using more dots lets you create subsubheaders.
+
+Here is an example of what this looks like in the language file
+
+```lua
+test = {
+header = "TEST",
+mysubheader = {
+    header = "SUBHEADER",
+    ["header.desc"] = "sub description",
+    mysubsubheader = {
+        header = "SUBSUBHEADER",
+        ["header.desc"] = "sub sub description"
+    }
+}
+```
+
+--]]
+
 ModOptions = new_class()
 
 run_once(function()
@@ -495,9 +518,10 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
 end)
 
 -- hook used to draw on top of the ui
+
 gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, result, args)
     if self.menu_level ~= 2 then return end
-
+    
     local scroll = gm.ui_get_element_value("options_scroll")
     local style = gm.variable_global_get("_ui_style_default")
     local shared_state = gm.variable_global_get("_ui_shared_state")
@@ -517,6 +541,7 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
     local opt_width_margin = opt_width - (opt_margin * 2)
 
     local y = 0
+    local ii = 0
     local options = self.menu_pages[3].options
 
     gm.ui_draw_clip_set(opt_x_start + 2, opt_y_start + 8, opt_width_margin + 2, opt_height_total - 16)
@@ -527,8 +552,6 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
         
         -- draw header button
         if t == 3 then
-            
-            --                                                                                                    gamepad selection
             local value = gm.ui_button_sprite(opt_x_start + 60, option_y + 2, sUIModOptionsButtonHeader.value, 0, nil, style)
             
             if value ~= opt.title_trimmed then
@@ -537,16 +560,35 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
                     ModOptions.internal.toggle_header_options(options, i, opt.name)
                 end
             end
+        else
+            ii = ii + 1
         end
         -- draw text field
         local field = __textfields[opt.name]
         if field then
+            --opt.pressed = false
             local option_y = y + opt_y
-
-            gm.ui_text_field(opt.name, opt_width_margin-160, option_y, 200, 0, style, field.max_length, nil, false)
+            --gm.ui_gp_pos(0, ii-1, nil, nil)
+            local tf_state = gm.ui_text_field(opt.name, opt_width_margin-160, option_y, 200, 0, style, field.max_length, nil, false)
             local state = gm._ui_get_element_state(opt.name)
-            state.text_field_typing = (self.hover_last_index == i - 1)
 
+            -- figure out exactly how to make it work for keyboard/gamepad
+
+            -- if tf_state > -2 then
+            --     if  __last_scroll ~= opt.name then
+            --         gm.ui_set_element_value("options_scroll", option_y + 100)
+            --         __last_scroll = opt.name
+            --     end
+            --     if gm.input_check_pressed("confirm") or __last_textfield == opt.name then
+            --         state.text_field_typing = true
+            --         __last_textfield = opt.name
+            --     elseif gm.keyboard_check_pressed(27) > 0 then --vk_escape
+            --         state.text_field_typing = false
+            --         __last_textfield = nil
+            --     end
+            -- elseif __last_scroll == opt.name then
+            --     __last_scroll = nil
+            -- end
             local value = gm.variable_struct_get(shared_state.named_element_value, opt.name)
             if field.last_value ~= value then
                 field.last_value = value
