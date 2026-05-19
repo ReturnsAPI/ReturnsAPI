@@ -761,12 +761,8 @@ gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
         end
     end
 
-    -- Also remove non-existent cached Instance wrappers
-    for id, _ in pairs(wrapper_cache) do
-        if not Instance.exists(id) then
-            wrapper_cache[id] = nil
-        end
-    end
+    -- Also clear the current wrapper cache
+    wrapper_cache = setmetatable({}, {__mode = "v"})
 end)
 
 
@@ -778,7 +774,7 @@ gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, 
 
     -- Move data
     if __instance_data[actor_id] then
-        __instance_data[new_id] = __instance_data[actor_id]
+        __instance_data[new_id]   = __instance_data[actor_id]
         __instance_data[actor_id] = nil
         wrapper_cache[actor_id]   = nil
     end

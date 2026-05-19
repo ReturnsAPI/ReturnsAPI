@@ -1,3 +1,6 @@
+### v0.1.58
+- Instance : Clear wrapper cache on room change
+
 ### v0.1.57
 - ModOptions:
     - Add `add_textfield` 
