@@ -6,32 +6,33 @@ import json
 from typing import Any
 
 def main():
-    cwd = os.path.dirname(__file__)
-    # out = os.path.join(cwd, "out")
-
-    # if not os.path.exists(out):
-    #     os.mkdir(out)
-
-    # # testing
-    # core = os.path.join(cwd, "../../core")
-    # src  = os.path.join(core, "f_callbacks/Callback.lua")
-    # dest = os.path.join(out, "Callback.lua")
-    # shutil.copy(
-    #     src,
-    #     dest,
-    # )
-
+    cwd  = os.path.dirname(__file__)
     core = os.path.join(cwd, "../../core")
-    src  = os.path.join(core, "f_callbacks/Callback.lua")
-    with open(src, "r") as f:
-        lines = f.readlines()
+    out  = os.path.join(cwd, "out")
 
-    tokens = tokenize(lines)
-    log_tokens(os.path.join(cwd, "tokens.txt"), tokens)
+    if not os.path.exists(out):
+        os.mkdir(out)
 
-    out = parse(tokens)
-    with open(os.path.join(cwd, "out.txt"), "w") as f:
-        json.dump(out, f, indent=4)
+    # Parse every Lua file
+    for dir in os.listdir(core):
+        dir_path = os.path.join(core, dir)
+        if os.path.isdir(dir_path):
+
+            # Create dest directory in `out/`
+            out_path = os.path.join(out, dir)
+            if not os.path.exists(out_path):
+                os.mkdir(out_path)
+            
+            # Loop through every Lua file in src directory
+            for filename in os.listdir(dir_path):
+                if filename.endswith(".lua"):
+                    src = os.path.join(dir_path, filename)
+                    with open(src, "r") as f:
+                        lines = f.readlines()
+                    tokens = tokenize(lines)
+                    ast    = parse(tokens)
+                    with open(os.path.join(out_path, filename.split(".")[0]) + ".txt", "w") as f:
+                        json.dump(ast, f, indent=4)
 
     return
 
@@ -127,8 +128,9 @@ class Token:
     TypeName = ["WORD", "TAG", "SYMBOL", "TEXT", "NEW_LINE",
                 "EMPTY_LINE", "MULTI_BEGIN", "MULTI_END", "EOF"]
 
-    Symbols     = list(r""" =.,'"{}()[]<>:\|?""")
-    TextSymbols = list(r"""'"\]""")
+    Symbols       = list(r""" =.,'"{}()[]<>:\|?""")
+    TextSymbols   = list(r"""'"\]""")
+    DoubleSymbols = ["==", ".."]
 
     def __init__(self, type: int, text=""):
         self.type = type
@@ -145,9 +147,15 @@ def tokenize(lines: list[str]) -> list[str]:
     in_text, text_type = False, 0
 
     for line in lines:
+        # print(line)
+
         line = line.rstrip()
         tokens, i, n = [], 0, len(line)
         while i < n:
+            # print(i)
+
+            # if r"""<br>E.g., `[[0, 11], [120, 11], [240, 11]\]`""" in line and i == 0:
+            #     a = 1
 
             # Whitespace
             if line[i] == " ":
@@ -157,8 +165,8 @@ def tokenize(lines: list[str]) -> list[str]:
             # Regular
             if not in_text:
 
-                # Comparison
-                if line[i:i+2] == "==":
+                # Double symbols (`==`, `..`)
+                if line[i:i+2] in Token.DoubleSymbols:
                     tokens.append(Token(Token.SYMBOL, line[i:i+2]))
                     i += 2
 
@@ -233,6 +241,11 @@ def tokenize(lines: list[str]) -> list[str]:
                         else:
                             text_line += line[i:i+2]
                         i += 2
+                    
+                    # Single `]`
+                    elif line[i] == "]":
+                        text_line += line[i]
+                        i += 1
 
                     # Escaped ' characters
                     elif line[i:i+2] == r"\'" and text_type == TextType.SINGLE:
@@ -243,6 +256,16 @@ def tokenize(lines: list[str]) -> list[str]:
                     elif line[i:i+2] == r'\"' and text_type == TextType.DOUBLE:
                         text_line += line[i+1]
                         i += 2
+
+                    # Newline
+                    elif line[i:i+2] == r"\n":
+                        text_line += line[i:i+2]
+                        i += 2
+
+                    # Single `\`
+                    elif line[i] == "\\":
+                        text_line += line[i]
+                        i += 1
 
                     # ' string end
                     elif line[i] == "'":
@@ -259,11 +282,6 @@ def tokenize(lines: list[str]) -> list[str]:
                         else:
                             text_line += line[i]
                         i += 1
-
-                    # Newline
-                    elif line[i:i+2] == r"\n":
-                        text_line += line[i:i+2]
-                        i += 2
 
                     # Words
                     else:
@@ -602,8 +620,6 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
             i, status = consume_if(tokens, i, Token.SYMBOL, "=")
             if not status:
                 continue
-
-            token = tokens[i]
             
             # Function
             if peek(tokens, i, Token.WORD, "function"):
@@ -671,7 +687,29 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
             # Constant
             else:
                 constants = out[class_name]["constants"]
-                constants[index] = token.text
+                value, desc = "", ""
+
+                # Value
+                while not peek(tokens, i, Token.NEW_LINE) and not peek(tokens, i, Token.TEXT):
+                    value += tokens[i].text
+                    i += 1
+                    if not peek(tokens, i - 1, Token.SYMBOL) and not peek(tokens, i, Token.SYMBOL):
+                        value += " "
+                value = value.rstrip()
+
+                # Description
+                while not peek(tokens, i, Token.NEW_LINE):
+                    desc += tokens[i].text
+                    i += 1
+                    if not peek(tokens, i, Token.SYMBOL):
+                        desc += " "
+                desc = desc.rstrip()
+
+                if value or desc:
+                    constants[index] = {
+                        "value": value,
+                        "desc":  desc,
+                    }
 
             i = consume_line(tokens, i)
 
@@ -802,13 +840,36 @@ def parse_enum(tokens: list[Token], i: int) -> tuple[dict[str, Any], int]:
         if not status:
             break
 
-        # Value
-        if not peek(tokens, i, Token.WORD):
-            break
-        value = tokens[i].text
-        i += 1
+        value, desc = "", ""
 
-        out[constant] = value
+        # Value
+        # if not peek(tokens, i, Token.WORD):
+        #     break
+        # value = tokens[i].text
+        # i += 1
+
+        # Value
+        while not peek(tokens, i, Token.NEW_LINE) and not peek(tokens, i, Token.TEXT):
+            value += tokens[i].text
+            i += 1
+            if not peek(tokens, i - 1, Token.SYMBOL) and not peek(tokens, i, Token.SYMBOL):
+                value += " "
+        value = value.rstrip().rstrip(",")
+
+        # Description
+        while not peek(tokens, i, Token.NEW_LINE):
+            desc += tokens[i].text
+            i += 1
+            if not peek(tokens, i, Token.SYMBOL):
+                desc += " "
+        desc = desc.rstrip()
+
+        if value or desc:
+            out[constant] = {
+                "value": value,
+                "desc":  desc,
+            }
+
         i = consume_line(tokens, i)
 
     return out, i
