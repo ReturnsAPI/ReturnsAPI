@@ -3,6 +3,7 @@
 import os
 import shutil
 import json
+import re
 from typing import Any
 
 def main():
@@ -29,9 +30,20 @@ def main():
                     src = os.path.join(dir_path, filename)
                     with open(src, "r") as f:
                         lines = f.readlines()
+
+                    # Check if any public classes exist
+                    # (e.g., `C.<class_name> = <class_table>`)
+                    public = False
+                    for line in lines:
+                        if re.search(r"C\..*=", line):
+                            public = True
+                            break
+                    if not public:
+                        continue
+
                     tokens = tokenize(lines)
                     ast    = parse(tokens)
-                    with open(os.path.join(out_path, filename.split(".")[0]) + ".txt", "w") as f:
+                    with open(os.path.join(out_path, filename.split(".")[0]) + ".json", "w") as f:
                         json.dump(ast, f, indent=4)
 
     return
@@ -155,15 +167,9 @@ def tokenize(lines: list[str]) -> list[str]:
     in_text, text_type = False, 0
 
     for line in lines:
-        # print(line)
-
         line = line.rstrip()
         tokens, i, n = [], 0, len(line)
         while i < n:
-            # print(i)
-
-            # if r"""<br>E.g., `[[0, 11], [120, 11], [240, 11]\]`""" in line and i == 0:
-            #     a = 1
 
             # Whitespace
             if line[i] == " ":
@@ -429,8 +435,7 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
             # add them to the class dict
             while i < n:
                 d_fields = d["fields"]
-                token = tokens[i]
-                if token.type == Token.TAG and token.text == "field":
+                if peek(tokens, i, Token.TAG, "field"):
                     i = consume_whitespace(tokens, i + 1)
 
                     # Field name (index)
@@ -780,7 +785,7 @@ def parse_type(tokens: list[Token], i: int) -> tuple[str, int]:
     Parse param and field types as a single string. <br>
     Covers things such as `[string]`, `table<integer, string>`, etc.
     """
-    out, open_brackets, n = "", 0, len(tokens)
+    out, open_brackets, n, dot = "", 0, len(tokens), 0
 
     if peek(tokens, i, Token.WORD):
         out += tokens[i].text
@@ -800,26 +805,27 @@ def parse_type(tokens: list[Token], i: int) -> tuple[str, int]:
                 elif text == "]" or text == ">":
                     open_brackets -= 1
 
-                # Comma (add a space)
-                elif text == ",":
-                    text += " "
+                # Dot (continue as part of type)
+                elif text == ".":
+                    dot = 2
 
-            if open_brackets <= 0:
-                # Messy but I'm tired
+            # Messy but I'm tired
+            if open_brackets <= 0 and dot <= 0:
                 if token.type == Token.SYMBOL and (token.text == "]" or token.text == ">"):
                     out += text
                     i += 1
                 break
+            dot -= 1
 
             out += text
-            i = consume_whitespace(tokens, i + 1)
+            i += 1
     
     elif peek(tokens, i, Token.SYMBOL, "[") or peek(tokens, i, Token.SYMBOL, "<"):
         while i < n:
             token = tokens[i]
             text = token.text
             out += text
-            i = consume_whitespace(tokens, i + 1)
+            i += 1
 
             # Symbols
             if token.type == Token.SYMBOL:
@@ -831,12 +837,13 @@ def parse_type(tokens: list[Token], i: int) -> tuple[str, int]:
                 elif text == "]" or text == ">":
                     open_brackets -= 1
 
-                # Comma (add a space)
-                elif text == ",":
-                    text += " "
+                # Dot (continue as part of type)
+                elif text == ".":
+                    dot = 2
 
-            if open_brackets <= 0:
+            if open_brackets <= 0 and dot <= 0:
                 break
+            dot -= 1
 
     return out, i
 

@@ -12,7 +12,7 @@ Actor.KnockbackKind = {
     STANDARD    = 1,    -- Applies stun; actor cannot move horizontally or act, but can jump
     FREEZE      = 2,    -- Frozen color shader vfx; actor cannot move horizontally, but can jump and attack; actor also slides with less friction
     DEEPFREEZE  = 3,    -- Ice cube vfx; actor cannot move horizontally, but can jump and attack; actor also slides with less friction
-    PULL        = 4,    -- STANDARD, but in the opposite direction
+    PULL        = 4,    -- `STANDARD`, but in the opposite direction
 }
 
 
