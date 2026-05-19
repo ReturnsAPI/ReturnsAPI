@@ -3,7 +3,6 @@
 import os
 import shutil
 import json
-from pprint import pprint
 from typing import Any
 
 def main():
@@ -26,8 +25,6 @@ def main():
     src  = os.path.join(core, "f_callbacks/Callback.lua")
     with open(src, "r") as f:
         lines = f.readlines()
-    for i in range(len(lines)):
-        lines[i] = lines[i].rstrip()
 
     tokens = tokenize(lines)
     log_tokens(os.path.join(cwd, "tokens.txt"), tokens)
@@ -148,6 +145,7 @@ def tokenize(lines: list[str]) -> list[str]:
     in_text, text_type = False, 0
 
     for line in lines:
+        line = line.rstrip()
         tokens, i, n = [], 0, len(line)
         while i < n:
 
@@ -223,54 +221,63 @@ def tokenize(lines: list[str]) -> list[str]:
 
             # Text
             else:
-                # Multiline end
-                if line[i:i+2] == "]]":
-                    if text_type == TextType.MULTI:
-                        tokens.append(Token(Token.MULTI_END))
-                        in_text = False
+                text_line = ""
+                add_multi_end = False
+                while i < n and in_text:
+
+                    # Multiline end
+                    if line[i:i+2] == "]]":
+                        if text_type == TextType.MULTI:
+                            in_text = False
+                            add_multi_end = True
+                        else:
+                            text_line += line[i:i+2]
+                        i += 2
+
+                    # Escaped ' characters
+                    elif line[i:i+2] == r"\'" and text_type == TextType.SINGLE:
+                        text_line += line[i+1]
+                        i += 2
+
+                    # Escaped " characters
+                    elif line[i:i+2] == r'\"' and text_type == TextType.DOUBLE:
+                        text_line += line[i+1]
+                        i += 2
+
+                    # ' string end
+                    elif line[i] == "'":
+                        if text_type == TextType.SINGLE:
+                            in_text = False
+                        else:
+                            text_line += line[i]
+                        i += 1
+
+                    # " string end
+                    elif line[i] == '"':
+                        if text_type == TextType.DOUBLE:
+                            in_text = False
+                        else:
+                            text_line += line[i]
+                        i += 1
+
+                    # Newline
+                    elif line[i:i+2] == r"\n":
+                        text_line += line[i:i+2]
+                        i += 2
+
+                    # Words
                     else:
-                        tokens.append(Token(Token.TEXT, line[i:i+2]))
-                    i += 2
+                        j = i
+                        while j < n and line[j] not in Token.TextSymbols:
+                            j += 1
+                        word = line[i:j]
+                        i = j
+                        text_line += word
 
-                # Escaped ' characters
-                elif line[i:i+2] == r"\'" and text_type == TextType.SINGLE:
-                    tokens.append(Token(Token.TEXT, line[i+1]))
-                    i += 2
-
-                # Escaped " characters
-                elif line[i:i+2] == r'\"' and text_type == TextType.DOUBLE:
-                    tokens.append(Token(Token.TEXT, line[i+1]))
-                    i += 2
-
-                # ' string end
-                elif line[i] == "'":
-                    if text_type == TextType.SINGLE:
-                        in_text = False
-                    else:
-                        tokens.append(Token(Token.TEXT, line[i]))
-                    i += 1
-
-                # " string end
-                elif line[i] == '"':
-                    if text_type == TextType.DOUBLE:
-                        in_text = False
-                    else:
-                        tokens.append(Token(Token.TEXT, line[i]))
-                    i += 1
-
-                # Newline
-                elif line[i:i+2] == r"\n":
-                    tokens.append(Token(Token.TEXT, line[i:i+2]))
-                    i += 2
-
-                # Words
-                else:
-                    j = i
-                    while j < n and line[j] not in Token.TextSymbols:
-                        j += 1
-                    word = line[i:j]
-                    i = j
-                    tokens.append(Token(Token.TEXT, word))
+                if text_line:
+                    tokens.append(Token(Token.TEXT, text_line))
+                if add_multi_end:
+                    tokens.append(Token(Token.MULTI_END))
 
         # End single-line comment text mode
         if in_text and text_type == TextType.COMMENT:
@@ -314,20 +321,12 @@ def new_method_def() -> dict:
 def parse(tokens: list[Token]) -> dict[str, dict]:
     out, i, n = {}, 0, len(tokens)
 
-    var_name_to_class: dict[str, dict] = {} # Mapping of ["variables"] to out[<class>]
-    method_def = new_method_def()           # def property collection for method signature in a subsequent line
+    var_name_to_class: dict[str, dict] = {}  # Mapping of ["variables"] to out[<class>]
+    method_def = new_method_def()            # def property collection for method signature in a subsequent line
     in_multi = False
 
     while i < n:
         token = tokens[i]
-
-        # debug
-        # print(token.type, " | ", token.text, " | ", i)
-        # if i == 72:
-        #     a = 1
-        #     print(tokens[i - 1].text)
-        #     print(tokens[i].text)
-        #     print(tokens[i + 1].text)
 
         if peek(tokens, i, Token.NEW_LINE):
             i += 1
@@ -363,12 +362,12 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
             name = tokens[i].text
             if not out.get(name):
                 out[name] = {
-                    "inherits": [],
-                    "variables": [],  # Class tables
-                    "fields": {},     # Wrapper properties
-                    "constants": {},
-                    "enums": {},
-                    "static_methods": {},
+                    "inherits":        [],
+                    "variables":       [],  # Class tables
+                    "fields":          {},  # Wrapper properties
+                    "constants":       {},
+                    "enums":           {},
+                    "static_methods":  {},
                     "wrapper_methods": {},
                 }
             d = out[name]
@@ -616,8 +615,20 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
 
                     # Parameters
                     params: list[dict] = []
+                    open_brackets = 0
                     while not peek(tokens, i, Token.NEW_LINE):
+
+                        # Exit signature at closing `)`
+                        if peek(tokens, i, Token.SYMBOL, "("):
+                            open_brackets += 1
+                        elif peek(tokens, i, Token.SYMBOL, ")"):
+                            open_brackets -= 1
+                            if open_brackets <= 0:
+                                break
+
                         param = tokens[i]
+                        i += 1
+
                         if param.type == Token.WORD:
                             param_name = param.text
                             param_def = method_def["params"].get(param_name)
@@ -630,7 +641,6 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                                     "desc":     [],
                                     "optional": False,
                                 })
-                        i += 1
 
                     # Wrapper method if first parameter is `self`
                     _type = "static_methods"
