@@ -37,81 +37,88 @@ def main():
     return
 
     # testing
-    out = parse(
-        tokenize([
-            r"---@class MyClass",
-            r"MyClass = {}",
-            r"MyClass.ABC = 123",
-            r"MyClass.DEF = 1 == 2",
-            r"--[[ Wow ]]",
-            r"",
-            r"------Long comment prefix",
-            r"---@class Actor: Instance",
-            r"---@field value integer Some description <br>Line 2",
-            r"---@field [string] any Some description <br><br>Line 2",
-            r"---@field abc table<integer, table<integer, string>>",
-            r"---@field var_field integer | string",
-            r"Actor = {}",
-            r"---@field RAPI2 string",
-            r"",
-            r"---@field RAPI string",
-            r'"This is a test string"',
-            r"abc = 123",
-            r'"String 2 with \"escaped quotes\""',
-            r"abc = 123",
-            r"[[",
-            r"words in 'multiline'",
-            r"]]",
-            r"def = 456",
-            r"---@class Class2",
-            r"local methods = {}",
-            r"methods.foo = function(self)",
-            r"    print(self)",
-            r"end",
-            r"---@class A: B",
-            r"---@class B: C, D",
-            r"---@class C: D",
-            r"---@class C: E",
-            r"",
-            r"MyClass.Enum = {",
-            r"    A = 0",
-            r"    B = 1",
-            r"    C = 2",
-            r"}",
-            r"",
-            r"--[[",
-            r"This function does a thing. <br>",
-            r"Line 2 of the description.",
-            r"",
-            r"Line 4 (skipping a line)",
-            r"]]",
-            r"---@deprecated",
-            r"---@param a integer An integer param.",
-            r"---@param b? string | float A string param. <br>`balls` by default.",
-            r"---@return integer | string",
-            r"---@return integer | string foo Some description. <br>Line 2",
-            r"---@return integer bar, integer | string baz",
-            r"---@return table qux, table quux Some description.",
-            r"MyClass.bar = function(a, b)",
-            r"    print(a, b)",
-            r"end",
-            r"",
-            r"--[[",
-            r"This is an overload",
-            r"]]",
-            r"---@param c table Some table.",
-            r"---@return table",
-            r"MyClass.bar = function(c)",
-            r"    print(c)",
-            r"end",
-            r"",
-            r"MyClass.bar = function(d, e)",
-            r"end",
-            r"",
-            r"---@param a integer",
-            r"W.MyClass.bar = function(a, b, c) end",
-        ])
-    )
+    tokens = tokenize([
+        r"---@class MyClass",
+        r"MyClass = {}",
+        r"MyClass.ABC = 123   -- Description for ABC!",
+        r"MyClass.DEF = 1 == 2",
+        r"--[[ Wow ]]",
+        r"",
+        r"------Long comment prefix",
+        r"---@class Actor: Instance",
+        r"---@field value integer Some description <br>Line 2",
+        r"---@field [string] any Some description <br><br>Line 2",
+        r"---@field abc table<integer, table<integer, string>>",
+        r"---@field var_field integer | string",
+        r"Actor = {}",
+        r"---@field RAPI2 string",
+        r"",
+        r"---@field RAPI string",
+        r'"This is a test string"',
+        r"abc = 123",
+        r'"String 2 with \"escaped quotes\""',
+        r"abc = 123",
+        r"[[",
+        r"words in 'multiline'",
+        r"]]",
+        r"",
+        r"def = 456",
+        r"---@class Class2",
+        r"local methods = {}",
+        r"--[[",
+        r"Hoo hah!",
+        r"]]",
+        r"methods.foo = function(self)",
+        r"    print(self)",
+        r"end",
+        r"---@class A: B",
+        r"---@class B: C, D",
+        r"---@class C: D",
+        r"---@class C: E",
+        r"",
+        r"MyClass.Enum = {",
+        r"    A = 0",
+        r"    B = 1  -- Description for   Enum.B!",
+        r"    C = 2",
+        r"}",
+        r"",
+        r"--[[",
+        r"This function does a thing. <br>",
+        r"Line 2 of the description.",
+        r"",
+        r"Line 4 (skipping a line)",
+        r"]]",
+        r"---@deprecated",
+        r"---@param a integer An integer param.",
+        r"---@param b? string | float A string param. <br>`balls` by default.",
+        r"---@return integer | string",
+        r"---@return integer | string foo Some description. <br>Line 2",
+        r"---@return integer bar, integer | string baz",
+        r"---@return table qux, table quux Some description.",
+        r"MyClass.bar = function(a, b)",
+        r"    print(a, b)",
+        r"end",
+        r"",
+        r"--[[",
+        r"This is an overload",
+        r"]]",
+        r"---@param c table Some table.",
+        r"---@return table",
+        r"MyClass.bar = function(c)",
+        r"    print(c)",
+        r"end",
+        r"",
+        r"MyClass.bar = function(d, e)",
+        r"end",
+        r"",
+        r"---@param a integer",
+        r"W.MyClass.bar = function(a, b, c) end",
+    ])
+    log_tokens(os.path.join(cwd, "tokens.txt"), tokens)
+
+    out = parse(tokens)
+    with open(os.path.join(cwd, "out.json"), "w") as f:
+        json.dump(out, f, indent=4)
 
 
 class Token:
@@ -123,10 +130,11 @@ class Token:
     EMPTY_LINE  = 5
     MULTI_BEGIN = 6
     MULTI_END   = 7
-    EOF         = 8
+    WHITESPACE  = 8
+    EOF         = 9
 
-    TypeName = ["WORD", "TAG", "SYMBOL", "TEXT", "NEW_LINE",
-                "EMPTY_LINE", "MULTI_BEGIN", "MULTI_END", "EOF"]
+    TypeName = ["WORD", "TAG", "SYMBOL", "TEXT", "NEW_LINE", "EMPTY_LINE",
+                "MULTI_BEGIN", "MULTI_END", "WHITESPACE", "EOF"]
 
     Symbols       = list(r""" =.,'"{}()[]<>:\|?""")
     TextSymbols   = list(r"""'"\]""")
@@ -159,8 +167,11 @@ def tokenize(lines: list[str]) -> list[str]:
 
             # Whitespace
             if line[i] == " ":
+                ws = ""
                 while i < n and line[i] == " ":
+                    ws += " "
                     i += 1
+                tokens.append(Token(Token.WHITESPACE, ws))
 
             # Regular
             if not in_text:
@@ -374,7 +385,7 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
         
         # Annotation tag `@class`
         elif peek(tokens, i, Token.TAG, "class"):
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
             
             # Class name
             name = tokens[i].text
@@ -389,11 +400,11 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                     "wrapper_methods": {},
                 }
             d = out[name]
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
 
             # Inheritance
             if peek(tokens, i, Token.SYMBOL, ":"):
-                i += 1
+                i = consume_whitespace(tokens, i + 1)
 
                 while True:
                     # Parent
@@ -401,11 +412,11 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                     parent = tokens[i].text
                     if parent not in d_inherits:
                         d_inherits.append(parent)
-                    i += 1
+                    i = consume_whitespace(tokens, i + 1)
 
                     # If comma, consume and continue loop
                     if peek(tokens, i, Token.SYMBOL, ","):
-                        i += 1
+                        i = consume_whitespace(tokens, i + 1)
                     else:
                         break
 
@@ -420,7 +431,7 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                 d_fields = d["fields"]
                 token = tokens[i]
                 if token.type == Token.TAG and token.text == "field":
-                    i += 1
+                    i = consume_whitespace(tokens, i + 1)
 
                     # Field name (index)
                     f_index, i = parse_type(tokens, i)
@@ -434,12 +445,14 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                     # Field types
                     type_list = d_fields[f_index]["types"]
                     while i < n:
+                        i = consume_whitespace(tokens, i)
                         f_type, i = parse_type(tokens, i)
 
                         if f_type not in type_list:
                             type_list.append(f_type)
 
                         # Check for more types if `|`
+                        i = consume_whitespace(tokens, i)
                         i, status = consume_if(tokens, i, Token.SYMBOL, "|")
                         if not status:
                             break
@@ -454,8 +467,6 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                         else:
                             line += tokens[i].text
                             i += 1
-                            if not peek(tokens, i, Token.SYMBOL):
-                                line += " "
                     if line:
                         desc.append(line.rstrip())
                     
@@ -472,7 +483,8 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
 
                 # Skip `local` keyword
                 if token.text == "local":
-                    token = tokens[i + 1]
+                    i = consume_whitespace(tokens, i + 1)
+                    token = tokens[i]
                     
                 d_vars.append(token.text)
                 var_name_to_class[token.text] = name
@@ -480,7 +492,7 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
 
         # Annotation tag `@param`
         elif peek(tokens, i, Token.TAG, "param"):
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
             
             # Param name
             params: dict = method_def["params"]
@@ -493,22 +505,24 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                     "optional": False,
                 }
             param: dict = params[name]
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
 
             # Optional?
             if peek(tokens, i, Token.SYMBOL, "?"):
                 param["optional"] = True
-                i += 1
+                i = consume_whitespace(tokens, i + 1)
 
             # Param types
             types: list = param["types"]
             while i < n:
+                i = consume_whitespace(tokens, i)
                 p_type, i = parse_type(tokens, i)
 
                 if p_type not in types:
                     types.append(p_type)
 
                 # Check for more types if `|`
+                i = consume_whitespace(tokens, i)
                 i, status = consume_if(tokens, i, Token.SYMBOL, "|")
                 if not status:
                     break
@@ -523,8 +537,6 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                 else:
                     line += tokens[i].text
                     i += 1
-                    if not peek(tokens, i, Token.SYMBOL):
-                        line += " "
             if line:
                 desc.append(line.rstrip())
             
@@ -532,7 +544,7 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
 
         # Annotation tag `@return`
         elif peek(tokens, i, Token.TAG, "return"):
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
             returns: list = method_def["returns"]
             
             ret_added_this_tag = []  # Description applies to all return values in the same `@return`
@@ -547,12 +559,14 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                 # Return types
                 types: list = ret["types"]
                 while i < n:
+                    i = consume_whitespace(tokens, i)
                     r_type, i = parse_type(tokens, i)
 
                     if r_type not in types:
                         types.append(r_type)
 
                     # Check for more types if `|`
+                    i = consume_whitespace(tokens, i)
                     i, status = consume_if(tokens, i, Token.SYMBOL, "|")
                     if not status:
                         break
@@ -560,12 +574,13 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                 # Return name (optional)
                 if peek(tokens, i, Token.WORD):
                     ret["name"] = tokens[i].text
-                    i += 1
+                    i = consume_whitespace(tokens, i + 1)
 
                 returns.append(ret)
                 ret_added_this_tag.append(ret)
 
                 # Check for more return values if `,`
+                i = consume_whitespace(tokens, i)
                 i, status = consume_if(tokens, i, Token.SYMBOL, ",")
                 if not status:
                     break
@@ -580,8 +595,6 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                 else:
                     line += tokens[i].text
                     i += 1
-                    if not peek(tokens, i, Token.SYMBOL):
-                        line += " "
             if line:
                 desc.append(line.rstrip())
             if desc:
@@ -592,7 +605,7 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
 
         # Annotation tag `@deprecated`
         elif peek(tokens, i, Token.TAG, "deprecated"):
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
             method_def["deprecated"] = True
 
         # Consume `.` indexes (e.g., `.b` in `a.b`)
@@ -600,30 +613,32 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
         # as indices from triggering the event below
         #   (e.g., `W.MyClass`)
         elif peek(tokens, i, Token.SYMBOL, "."):
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
             i, status = consume_if(tokens, i + 1, Token.WORD)
 
         # Add to class dict
         elif token.type == Token.WORD and var_name_to_class.get(token.text):
             class_name = var_name_to_class[token.text]
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
 
             # Parse indexed field (e.g., `MyClass.foo`)
             index = None
             if peek(tokens, i, Token.SYMBOL, "."):
-                i += 1
+                i = consume_whitespace(tokens, i + 1)
                 index = tokens[i].text
             if not index or index == "internal":
                 continue
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
 
             i, status = consume_if(tokens, i, Token.SYMBOL, "=")
             if not status:
                 continue
             
+            i = consume_whitespace(tokens, i)
+            
             # Function
             if peek(tokens, i, Token.WORD, "function"):
-                i += 1
+                i = consume_whitespace(tokens, i + 1)
 
                 # Check if there are any annotations
                 # Do not add if there aren't
@@ -643,7 +658,7 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                                 break
 
                         param = tokens[i]
-                        i += 1
+                        i = consume_whitespace(tokens, i + 1)
 
                         if param.type == Token.WORD:
                             param_name = param.text
@@ -690,19 +705,17 @@ def parse(tokens: list[Token]) -> dict[str, dict]:
                 value, desc = "", ""
 
                 # Value
+                i = consume_whitespace(tokens, i)
                 while not peek(tokens, i, Token.NEW_LINE) and not peek(tokens, i, Token.TEXT):
                     value += tokens[i].text
                     i += 1
-                    if not peek(tokens, i - 1, Token.SYMBOL) and not peek(tokens, i, Token.SYMBOL):
-                        value += " "
                 value = value.rstrip()
 
                 # Description
+                i = consume_whitespace(tokens, i)
                 while not peek(tokens, i, Token.NEW_LINE):
                     desc += tokens[i].text
                     i += 1
-                    if not peek(tokens, i, Token.SYMBOL):
-                        desc += " "
                 desc = desc.rstrip()
 
                 if value or desc:
@@ -754,6 +767,14 @@ def consume_line(tokens: list[Token], i: int) -> int:
     i += 1
     return i
 
+def consume_whitespace(tokens: list[Token], i: int) -> int:
+    """
+    Progress token position until the next non-`WHITESPACE`.
+    """
+    while tokens[i].type == Token.WHITESPACE:
+        i += 1
+    return i
+
 def parse_type(tokens: list[Token], i: int) -> tuple[str, int]:
     """
     Parse param and field types as a single string. <br>
@@ -763,7 +784,7 @@ def parse_type(tokens: list[Token], i: int) -> tuple[str, int]:
 
     if peek(tokens, i, Token.WORD):
         out += tokens[i].text
-        i += 1
+        i = consume_whitespace(tokens, i + 1)
 
         while i < n:
             token = tokens[i]
@@ -791,14 +812,14 @@ def parse_type(tokens: list[Token], i: int) -> tuple[str, int]:
                 break
 
             out += text
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
     
     elif peek(tokens, i, Token.SYMBOL, "[") or peek(tokens, i, Token.SYMBOL, "<"):
         while i < n:
             token = tokens[i]
             text = token.text
             out += text
-            i += 1
+            i = consume_whitespace(tokens, i + 1)
 
             # Symbols
             if token.type == Token.SYMBOL:
@@ -825,16 +846,19 @@ def parse_enum(tokens: list[Token], i: int) -> tuple[dict[str, Any], int]:
     """
     out, n = {}, len(tokens)
     while i < n:
+        i = consume_whitespace(tokens, i)
+
         # Check for end `}`
         i, status = consume_if(tokens, i, Token.SYMBOL, "}")
         if status:
             break
 
         # Constant
+        i = consume_whitespace(tokens, i)
         if not peek(tokens, i, Token.WORD):
             break
         constant = tokens[i].text
-        i += 1
+        i = consume_whitespace(tokens, i + 1)
 
         i, status = consume_if(tokens, i, Token.SYMBOL, "=")
         if not status:
@@ -843,25 +867,17 @@ def parse_enum(tokens: list[Token], i: int) -> tuple[dict[str, Any], int]:
         value, desc = "", ""
 
         # Value
-        # if not peek(tokens, i, Token.WORD):
-        #     break
-        # value = tokens[i].text
-        # i += 1
-
-        # Value
+        i = consume_whitespace(tokens, i)
         while not peek(tokens, i, Token.NEW_LINE) and not peek(tokens, i, Token.TEXT):
             value += tokens[i].text
             i += 1
-            if not peek(tokens, i - 1, Token.SYMBOL) and not peek(tokens, i, Token.SYMBOL):
-                value += " "
         value = value.rstrip().rstrip(",")
 
         # Description
+        i = consume_whitespace(tokens, i)
         while not peek(tokens, i, Token.NEW_LINE):
             desc += tokens[i].text
             i += 1
-            if not peek(tokens, i, Token.SYMBOL):
-                desc += " "
         desc = desc.rstrip()
 
         if value or desc:
