@@ -62,16 +62,17 @@ methods.get = function(self, identifier, namespace, namespace_is_specified)
     -- Namespace find
     local ns_table = self[namespace]
     if ns_table then
-        local value = ns_table[identifier]
-        if value then return value end
+        local data = ns_table[identifier]
+        if data then return data.value end
     end
 
     -- Global find (if namespace not provided)
     if not namespace_is_specified then
         for ns, ns_table in pairs(self) do
             if ns ~= namespace then
-                local value = ns_table[identifier]
-                if value then return value end
+                ---@type FindTableData
+                local data = ns_table[identifier]
+                if data then return data.value end
             end
         end
     end
@@ -92,8 +93,8 @@ methods.get_all = function(self, namespace, namespace_is_specified)
     -- Namespace find
     local ns_table = self[namespace]
     if ns_table then
-        for identifier, value in pairs(ns_table) do
-            table.insert(t, value)
+        for identifier, data in pairs(ns_table) do
+            table.insert(t, data.value)
         end
     end
 
@@ -101,8 +102,8 @@ methods.get_all = function(self, namespace, namespace_is_specified)
     if not namespace_is_specified then
         for ns, ns_table in pairs(self) do
             if ns ~= namespace then
-                for identifier, value in pairs(ns_table) do
-                    table.insert(t, value)
+                for identifier, data in pairs(ns_table) do
+                    table.insert(t, data.value)
                 end
             end
         end
@@ -118,9 +119,9 @@ The function should accept `value` as the argument, and return the value to set.
 ---@param fn function The function to apply.
 methods.map = function(self, fn)
     for ns, ns_table in pairs(self) do
-        for identifier, value in pairs(ns_table) do
-            local new_value = fn(value)
-            if new_value then ns_table[identifier] = new_value end
+        for identifier, data in pairs(ns_table) do
+            local new_value = fn(data.value)
+            if new_value then ns_table[identifier].value = new_value end
         end
     end
 end
@@ -129,7 +130,7 @@ end
 -- ========== Metatables ==========
 
 ---@class FindTable
----@field [string] table
+---@field [string] table<string, FindTableData>
 
 W.FindTable = {
     __index = methods,

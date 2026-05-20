@@ -22,6 +22,4 @@ return function()
     Tests.assert(Util.bool("abc"), true)
     Tests.assert(Util.bool({}), true)
     Tests.assert(Util.bool(true), true)
-
-    -- TODO rest of Util
 end

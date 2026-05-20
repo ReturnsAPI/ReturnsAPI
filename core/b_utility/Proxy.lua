@@ -31,7 +31,7 @@ end
 -- ========== Metatables ==========
 
 ---@class Proxy
----@field RAPI string
+---@field RAPI string The name of this wrapper.
 
 local mt_name = "Proxy"
 

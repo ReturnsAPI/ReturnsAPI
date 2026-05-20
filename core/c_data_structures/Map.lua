@@ -149,8 +149,8 @@ end
 -- ========== Metatables ==========
 
 ---@class Map
----@field value integer
----@field RAPI string
+---@field value integer The value being wrapped.
+---@field RAPI string The name of this wrapper.
 ---@field [any] any
 
 local mt_name = "Map"

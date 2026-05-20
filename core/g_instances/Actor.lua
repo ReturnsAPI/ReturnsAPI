@@ -28,5 +28,5 @@ Kills the actor (synced).
 **Must be called offline or as host.**
 ]]
 methods.kill = function(self)
-    self:actor_kill(self)
+    self:actor_kill()
 end

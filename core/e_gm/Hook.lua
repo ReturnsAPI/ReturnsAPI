@@ -340,7 +340,7 @@ run_on_import(Hook.remove_all)
 --[[
 Returns a Hook wrapper containing the provided hook function ID.
 ]]
----@param hook Hook | integer The hook to wrap.
+---@param hook integer | Hook The hook to wrap.
 ---@return Hook
 Hook.wrap = function(hook)
     return new_proxy(unwrap(hook), metatable)
@@ -390,8 +390,8 @@ end
 -- ========== Metatables ==========
 
 ---@class Hook
----@field value integer
----@field RAPI string
+---@field value integer The value being wrapped.
+---@field RAPI string The name of this wrapper.
 
 local mt_name = "Hook"
 

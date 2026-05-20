@@ -5,7 +5,6 @@ return function()
     Global.abcde = nil
     Tests.assert(Global.abcde, nil)
 
-    -- wrap behavior
     local arr = Global.class_item
     Tests.assert(type(arr), "userdata")
     Tests.assert(arr.RAPI, "Array")
@@ -14,5 +13,12 @@ return function()
     Global.abcde = Array.new()
     local arr = gm.variable_global_get("abcde")
     Tests.assert(getmetatable(arr).__name, "sol.RefDynamicArrayOfRValueLuaWrapper")
+
+    local list = List.new()
+    Global.abcde = list
+    local l = gm.variable_global_get("abcde")
+    Tests.assert(l, list.value)
+    list:destroy()
+
     Global.abcde = nil
 end

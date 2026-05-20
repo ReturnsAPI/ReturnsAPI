@@ -72,11 +72,11 @@ end
 -- ========== Metatables ==========
 
 ---@class Script
----@field RAPI string
----@field name string
----@field script_name string
----@field self sol.YYObjectBaseLuaWrapper | sol.CInstance* | nil
----@field other sol.YYObjectBaseLuaWrapper | sol.CInstance* | nil
+---@field RAPI string The name of this wrapper.
+---@field name string The name of the script.
+---@field script_name string Alias for `.name`.
+---@field self sol.YYObjectBaseLuaWrapper | sol.CInstance* | nil The binded `self` that is passed in when called.
+---@field other sol.YYObjectBaseLuaWrapper | sol.CInstance* | nil The binded `other` that is passed in when called.
 
 local s = gm.struct_create()
 local scr = gm.method(s, gm.constants.function_dummy)

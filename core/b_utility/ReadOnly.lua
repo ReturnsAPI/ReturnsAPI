@@ -24,7 +24,7 @@ end
 -- ========== Metatables ==========
 
 ---@class ReadOnly
----@field RAPI string
+---@field RAPI string The name of this wrapper.
 
 local mt_name = "ReadOnly"
 

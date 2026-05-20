@@ -1,5 +1,4 @@
 return function()
-    -- unwrap
     Tests.assert(Wrap.unwrap("abc"), "abc")
 
     local t = {}

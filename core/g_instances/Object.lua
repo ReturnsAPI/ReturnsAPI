@@ -1,30 +1,36 @@
-if __DEACTIVATE_OLD then return end
 -- Object
 
---[[
-This class provides some functionality for manipulating GameMaker objects.
-]]
-
+---@class Object
 Object = new_class()
+C.Object = Object
 
-run_once(function()
-    __object_find_cache = FindCache.new()
-    __object_tags = {}
+run_on_initial_load(function()
+    P.object_find_table = FindTable.new()
+    P.object_tags       = {}    ---@type table<string, table<integer, Object>> Maps tags -> hash tables of object indices that have the tag.
 
-    __object_array_cache = {}
-    __object_vanilla_properties = {}    -- Object.Property table but for vanilla objects
+    -- __object_vanilla_properties = {}    -- Object.Property table but for vanilla objects
 
-    __object_serializers = {}
-    __object_deserializers = {}
+    -- __object_serializers = {}
+    -- __object_deserializers = {}
 end)
 
+local object_find_table = P.object_find_table
+local object_tags       = P.object_tags
+local properties_cache  = {}    ---@type table<integer, Array> Cache for `.properties`/`.array`
+
+local proxy = P.proxy
+local metatable
+
+local type               = type
+local gm                 = gm                   ---@type table<string, function>
+local gm_instance_create = gm.instance_create   ---@type function
+local gm_instance_exists = gm.instance_exists   ---@type function
+local unwrap             = Wrap.unwrap
+local check_init_started = Initialize.internal.check_if_started
 
 
 -- ========== Constants and Enums ==========
 
---@section Enums
-
---@enum
 Object.Property = {
     BASE        = 0,
     OBJ_DEPTH   = 1,
@@ -34,11 +40,9 @@ Object.Property = {
     ON_CREATE   = 5,
     ON_DESTROY  = 6,
     ON_STEP     = 7,
-    ON_DRAW     = 8
+    ON_DRAW     = 8,
 }
 
-
---@enum
 Object.Parent = {
     ACTOR               = gm.constants.pActor,
     ENEMY_CLASSIC       = gm.constants.pEnemyClassic,
@@ -52,80 +56,37 @@ Object.Parent = {
     INTERACTABLE        = gm.constants.pInteractable,
     INTERACTABLE_CHEST  = gm.constants.pInteractableChest,
     INTERACTABLE_CRATE  = gm.constants.pInteractableCrate,
-    INTERACTABLE_DRONE  = gm.constants.pInteractableDrone
+    INTERACTABLE_DRONE  = gm.constants.pInteractableDrone,
 }
 
-
---@constants
---[[
-CUSTOM_START    900
-]]
 Object.CUSTOM_START = 900
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The `object_index` of the object.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`array`         | Array     | *Read-only.* The object property array.
-
-<br>
-
-Property | Type | Description
-| - | - | -
-`base`          | number    | The `object_index` of the "base" object used to create this one. <br>Only exists for custom objects.
-`obj_depth`     | number    | The object depth.
-`obj_sprite`    | sprite    | The object sprite ID.
-`identifier`    | string    | The identifier for the object within the namespace.
-`namespace`     | string    | The namespace the object is in.
-`on_create`     | number    | The ID of the callback that runs when an instance of the object is created. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
-`on_destroy`    | number    | The ID of the callback that runs when an instance of the object is destroyed. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
-`on_step`       | number    | The ID of the callback that runs every step for an instance of the object. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
-`on_draw`       | number    | The ID of the callback that runs every step for an instance of the object (for drawing). <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
-]]
-
 
 
 -- ========== Internal ==========
 
-Object.internal.initialize = function()
-    -- Populate cache with vanilla objects
+local populate_find_table = function()
+    -- Populate with vanilla objects
     local resource_manager = Map.wrap(Global.ResourceManager_object.__namespacedAssetLookup)
     
     for identifier, object in pairs(Map.wrap(resource_manager["ror"])) do
-        __object_find_cache:set(
-            Object.wrap(object),
-            identifier,
-            "ror",
-            object
-        )
+        object_find_table:set(Object.wrap(object), identifier, "ror")
     end
 end
-table.insert(_rapi_initialize, Object.internal.initialize)
-
+run_on_initialize(populate_find_table)
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return   Object
---@param    identifier      | string    | The identifier for the object.
 --[[
-Creates a new object with the given identifier if it does not already exist,
+Creates a new object with the given identifier if it does not already exist, <br>
 or returns the existing one if it does.
 ]]
+---@param identifier string The identifier for the object.
+---@param parent? integer | Object The parent object to use as a base.
+---@return Object
 Object.new = function(NAMESPACE, identifier, parent)
-    Initialize.internal.check_if_started("Object.new")
-    if not identifier then log.error("Object.new: No identifier provided", 2) end
+    check_init_started("new")
+    if not identifier then throw("No identifier provided", "new") end
 
     -- Return existing object if found
     local obj = Object.find(identifier, NAMESPACE, true)
@@ -135,53 +96,51 @@ Object.new = function(NAMESPACE, identifier, parent)
     obj = gm.object_add_w(
         NAMESPACE,
         identifier,
-        Wrap.unwrap(parent)
+        unwrap(parent)
     )
 
     -- Add to Cognition artifact blacklist
-    Global.artifact_cognation_enemy_blacklist:set(obj, true)
+    ---@type Map
+    local blacklist = Global.artifact_cognation_enemy_blacklist
+    blacklist:set(obj, true)
 
     -- Add to deserialization map for online syncing
-    Global.__mtd_deserialize:set(obj, gm.constants.__lf_init_multiplayer_globals_customobject_deserialize)
+    ---@type Map
+    local deserialize = Global.__mtd_deserialize
+    deserialize:set(obj, gm.constants.__lf_init_multiplayer_globals_customobject_deserialize)
 
     -- Adding to find table is done in the hook at the bottom
 
     return Object.wrap(obj)
 end
 
-
---@static
---@return       Object or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified object and returns it.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+* Guaranteed to check in your mod's namespace first.
 ]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return Object | nil
 Object.find = function(identifier, namespace, namespace_is_specified)
-    return __object_find_cache:get(identifier, namespace, namespace_is_specified)
+    return object_find_table:get(identifier, namespace, namespace_is_specified)
 end
 
-
---@static
---@return       table
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Returns a table of all objects in the specified namespace.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+* Guaranteed to check in your mod's namespace first.
 ]]
+---@param namespace? string The namespace to search in.
+---@return table<integer, Object>
 Object.find_all = function(namespace, namespace_is_specified)
-    return __object_find_cache:get_all(namespace, namespace_is_specified)
+    return object_find_table:get_all(namespace, namespace_is_specified)
 end
 
-
---@static
---@return       table, number
---@param        tag         | string    | The tag to search by.
 --[[
-Returns a *key-value pair* table of all objects with the specified tag,
+Returns a hash table of all objects with the specified tag, <br>
 and the number of objects in the table.
 
 Each key-value pair is `<object_index> = <Object wrapper>`.
@@ -189,21 +148,19 @@ Each key-value pair is `<object_index> = <Object wrapper>`.
 ReturnsAPI-added tags:
 - `"enemy_projectile"`
 ]]
+---@param tag string The tag to search by.
+---@return table<integer, Object>, integer
 Object.find_all_by_tag = function(tag)
-    if type(tag) ~= "string" then log.error("Object.find_all_by_tag: tag must be a string", 2) end
-
-    -- Check if tag subtable exists
-    local subtable = __object_tags[tag]
-    if not subtable then return {}, 0 end
+    local t = object_tags[tag]
+    if not t then return {}, 0 end
 
     -- Return copy of tag subtable
     local copy = {}
-    for k, v in pairs(subtable) do
+    for k, v in pairs(t) do
         if k ~= "count" then copy[k] = v end
     end
-    return copy, subtable.count
+    return copy, t.count
 end
-
 
 --@static
 --@param        object          | Object    | The object to set for.
@@ -224,26 +181,26 @@ Relevant functions (callable by host only):
 **NOTE:** You *must* read all data you send in `serializer`,
 as all object serializations share the same packet.
 ]]
-Object.add_serializers = function(NAMESPACE, object, serializer, deserializer)
-    if not object                       then log.error("Object.add_serializers: Missing object argument", 2) end
-    if type(serializer)   ~= "function" then log.error("Object.add_serializers: serializer should be a function", 2) end
-    if type(deserializer) ~= "function" then log.error("Object.add_serializers: deserializer should be a function", 2) end
+-- TODO
+-- Object.add_serializers = function(NAMESPACE, object, serializer, deserializer)
+--     if not object                       then log.error("Object.add_serializers: Missing object argument", 2) end
+--     if type(serializer)   ~= "function" then log.error("Object.add_serializers: serializer should be a function", 2) end
+--     if type(deserializer) ~= "function" then log.error("Object.add_serializers: deserializer should be a function", 2) end
 
-    object = Wrap.unwrap(object)
+--     object = Wrap.unwrap(object)
 
-    if not __object_serializers[object] then __object_serializers[object] = {} end
-    table.insert(__object_serializers[object], {
-        namespace   = NAMESPACE,
-        fn          = serializer
-    })
+--     if not __object_serializers[object] then __object_serializers[object] = {} end
+--     table.insert(__object_serializers[object], {
+--         namespace   = NAMESPACE,
+--         fn          = serializer
+--     })
 
-    if not __object_deserializers[object] then __object_deserializers[object] = {} end
-    table.insert(__object_deserializers[object], {
-        namespace   = NAMESPACE,
-        fn          = deserializer
-    })
-end
-
+--     if not __object_deserializers[object] then __object_deserializers[object] = {} end
+--     table.insert(__object_deserializers[object], {
+--         namespace   = NAMESPACE,
+--         fn          = deserializer
+--     })
+-- end
 
 --@static
 --[[
@@ -251,307 +208,323 @@ Removes all registered serializers from your namespace.
 
 Automatically called when you hotload your mod.
 ]]
-Object.remove_all_serializers = function(NAMESPACE)
-    for object, subtable in pairs(__object_serializers) do
-        for i = #subtable, 1, -1 do
-            local fn_table = subtable[i]
-            if fn_table.namespace == NAMESPACE then
-                table.remove(subtable, i)
-            end
-        end
-        if #subtable <= 0 then __object_serializers[object] = nil end
-    end
+-- TODO
+-- Object.remove_all_serializers = function(NAMESPACE)
+--     for object, subtable in pairs(__object_serializers) do
+--         for i = #subtable, 1, -1 do
+--             local fn_table = subtable[i]
+--             if fn_table.namespace == NAMESPACE then
+--                 table.remove(subtable, i)
+--             end
+--         end
+--         if #subtable <= 0 then __object_serializers[object] = nil end
+--     end
 
-    for object, subtable in pairs(__object_deserializers) do
-        for i = #subtable, 1, -1 do
-            local fn_table = subtable[i]
-            if fn_table.namespace == NAMESPACE then
-                table.remove(subtable, i)
-            end
-        end
-        if #subtable <= 0 then __object_deserializers[object] = nil end
-    end
-end
-table.insert(_clear_namespace_functions, Object.remove_all_serializers)
+--     for object, subtable in pairs(__object_deserializers) do
+--         for i = #subtable, 1, -1 do
+--             local fn_table = subtable[i]
+--             if fn_table.namespace == NAMESPACE then
+--                 table.remove(subtable, i)
+--             end
+--         end
+--         if #subtable <= 0 then __object_deserializers[object] = nil end
+--     end
+-- end
+-- table.insert(_clear_namespace_functions, Object.remove_all_serializers)
 
-
---@static
---@return       Object
---@param        object      | number    | The object index to wrap.
 --[[
 Returns an Object wrapper containing the provided object index.
 ]]
+---@param object integer | Object The object index to wrap.
+---@return Object
 Object.wrap = function(object)
-    -- Input:   number or Object wrapper
-    -- Wraps:   number
-    return make_proxy(Wrap.unwrap(object), metatable_object)
+    return new_proxy(unwrap(object), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class Object
+local methods = {}
 
---@section Instance Methods
+--[[
+Creates and returns an instance of the object.
+]]
+---@param x? float The x spawn coordinate. <br>`0` by default.
+---@param y? float The y spawn coordinate. <br>`0` by default.
+---@return Instance
+methods.create = function(self, x, y)
+    return gm_instance_create(x or 0, y or 0, proxy[self])
+end
 
-methods_object = {
+--[[
+Sets the sprite of the object.
+]]
+---@param sprite integer | Sprite The sprite to set.
+methods.set_sprite = function(self, sprite)
+    if not sprite then throw("sprite not provided") end
+    gm.object_set_sprite_w(proxy[self], unwrap(sprite))
+end
 
-    --@instance
-    --@return       Instance
-    --@optional     x           | number    | The x spawn coordinate. <br>`0` by default.
-    --@optional     y           | number    | The y spawn coordinate. <br>`0` by default.
-    --[[
-    Creates and returns an instance of the specified object.
+--[[
+Sets the initial depth for created instances of the object. <br>
+Does not apply retroactively to existing instances.
+]]
+---@param depth integer The depth to set.
+methods.set_depth = function(self, depth)
+    if type(depth) ~= "number" then throw("depth must be a number") end
+    gm.object_set_depth(proxy[self], depth)
+end
 
-    Also exists as a @link {method of Instance | Instance#create}.
-    ]]
-    create = function(self, x, y)
-        return Instance.wrap(gm.instance_create(Wrap.unwrap(x) or 0, Wrap.unwrap(y) or 0, self.value))
-    end,
+--[[
+Adds a tag to this object. <br>
+The purpose of this is to allow for easier lookup <br>
+for groups of objects (see @link {`Object.find_all_by_tag` | Object#find_all_by_tag}).
+]]
+---@param tag string The tag to add.
+methods.add_tag = function(self, tag)
+    if tag == "count" then throw("'count' is reserved") end
 
-
-    --@instance
-    --@param        sprite      | sprite    | The sprite to set.
-    --[[
-    Sets the sprite of the object.
-    ]]
-    set_sprite = function(self, sprite)
-        if not sprite then log.error("set_sprite: sprite not provided", 2) end
-        gm.object_set_sprite_w(self.value, Wrap.unwrap(sprite))
-    end,
-
-
-    --@instance
-    --@param        depth       | number    | The depth to set.
-    --[[
-    Sets the initial depth for created instances of the object.
-    Does not apply retroactively to existing instances.
-    ]]
-    set_depth = function(self, depth)
-        if type(depth) ~= "number" then log.error("set_depth: depth must be a number", 2) end
-        gm.object_set_depth(self.value, depth)
-    end,
-
-
-    --@instance
-    --@param        tag         | string    | The tag to add.
-    --[[
-    Adds a tag to this object.
-    The purpose of this is to allow for easier lookup
-    for groups of objects (see @link {`Object.find_all_by_tag` | Object#find_all_by_tag}).
-    ]]
-    add_tag = function(self, tag)
-        if type(tag) ~= "string" then log.error("add_tag: tag must be a string", 2) end
-
-        -- Create subtable if existn't
-        if not __object_tags[tag] then __object_tags[tag] = { count = 0 } end
-
-        -- Add to subtable
-        __object_tags[tag][self.value] = self
-        __object_tags[tag].count = __object_tags[tag].count + 1
-    end,
-
-
-    --@instance
-    --@param        tag         | string    | The tag to remove.
-    --[[
-    Removes a tag from this object.
-    ]]
-    remove_tag = function(self, tag)
-        if type(tag) ~= "string" then log.error("remove_tag: tag must be a string", 2) end
-        if not __object_tags[tag] then return end
-
-        -- Remove from subtable
-        __object_tags[tag][self.value] = nil
-        __object_tags[tag].count = __object_tags[tag].count - 1
-
-        -- Delete subtable if there are no more objects
-        if __object_tags[tag].count <= 0 then __object_tags[tag] = nil end
-    end,
-
-
-    --@instance
-    --@return       bool
-    --@param        tag         | string    | The tag to check.
-    --[[
-    Returns `true` if this object has the specified tag.
-    ]]
-    has_tag = function(self, tag)
-        if type(tag) ~= "string" then log.error("has_tag: tag must be a string", 2) end
-
-        if not __object_tags[tag] then return false end
-        if __object_tags[tag][self.value] then return true end
-        return false
-    end,
-
-
-    --@instance
-    --@return       table
-    --[[
-    Returns a table of this object's tags.
-    ]]
-    get_tags = function(self)
-        local tags = {}
-        for tag, subtable in pairs(__object_tags) do
-            if subtable[self.value] then table.insert(tags, tag) end
-        end
-        return tags
+    -- Create subtable if it does not exist
+    local t = object_tags[tag]
+    if not t then
+        t = {count = 0}
+        object_tags[tag] = t
     end
 
-}
+    -- Add to subtable
+    local value = proxy[self]
+    if t[value] then return end
+    t[value] = self
+    t.count = t.count + 1
+end
 
+--[[
+Removes a tag from this object.
+]]
+---@param tag string The tag to remove.
+methods.remove_tag = function(self, tag)
+    if tag == "count" then throw("'count' is reserved") end
+
+    local t = object_tags[tag]
+    if not t then return end
+
+    -- Remove from subtable
+    local value = proxy[self]
+    if not t[value] then return end
+    t[value] = nil
+    t.count = t.count - 1
+
+    -- Delete subtable if there are no more objects
+    if t.count <= 0 then object_tags[tag] = nil end
+end
+
+--[[
+Returns `true` if this object has the specified tag.
+]]
+---@param tag string The tag to check.
+---@return boolean
+methods.has_tag = function(self, tag)
+    if tag == "count" then throw("'count' is reserved") end
+
+    local t = object_tags[tag]
+    if not t then return false end
+
+    if t[proxy[self]] then return true end
+    return false
+end
+
+--[[
+Returns a table of this object's tags.
+]]
+---@return table<integer, string>
+methods.get_tags = function(self)
+    local value = proxy[self]
+    local tags, i = {}, 1
+    for tag, subtable in pairs(object_tags) do
+        if subtable[value] then
+            tags[i] = tag
+            i = i + 1
+        end
+    end
+    return tags
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Object"
+---@class Object
+---@field value integer The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field properties Array The array storing this content's properties.
+---@field array Array Alias for `.properties`.
 
-make_table_once("metatable_object", {
-    __index = function(proxy, k)
+---@class Object
+---@field base integer The `object_index` of the "base" (parent) object used to create this one. <br>**Only exists for custom objects.**
+---@field obj_depth integer The object depth.
+---@field obj_sprite integer The object sprite ID.
+---@field identifier string The identifier for the object within the namespace.
+---@field namespace string The namespace the object is in.
+---@field on_create integer The ID of the callback that runs when an instance of the object is created. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+---@field on_destroy integer The ID of the callback that runs when an instance of the object is destroyed. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+---@field on_step integer The ID of the callback that runs every step for an instance of the object. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+---@field on_draw integer The ID of the callback that runs every step for an instance of the object (for drawing). <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+
+local mt_name = "Object"
+
+W.Object = {
+    ---@param t Object
+    __index = function(t, k)
         -- Get wrapped value
-        local value = __proxy[proxy]
+        local value = proxy[t]
         if k == "value" then return value end
-        if k == "RAPI" then return wrapper_name end
-        if k == "array" then
-            if value < Object.CUSTOM_START then
-                -- Custom object property table for vanilla objects
-                if not __object_vanilla_properties[value] then
-                    local name = gm.object_get_name(value)
-                    name = name:sub(2, -1)  -- e.g., oLizard -> Lizard
+        if k == "RAPI" then return mt_name end
+        if k == "properties"
+        or k == "array" then
+            -- TODO
+            -- if value < Object.CUSTOM_START then
+            --     -- Custom object property table for vanilla objects
+            --     if not __object_vanilla_properties[value] then
+            --         local name = gm.object_get_name(value)
+            --         name = name:sub(2, -1)  -- e.g., oLizard -> Lizard
 
-                    __object_vanilla_properties[value] = {
-                        nil,    -- base
-                        nil,    -- obj_depth    This is subject to change and should be fetched on demand
-                        nil,    -- obj_sprite   This is subject to change and should be fetched on demand
-                        name,   -- identifier
-                        "ror",  -- namespace
-                        nil,    -- on_create
-                        nil,    -- on_destroy
-                        nil,    -- on_step
-                        nil     -- on_draw
-                    }
-                end
+            --         __object_vanilla_properties[value] = {
+            --             nil,    -- base
+            --             nil,    -- obj_depth    This is subject to change and should be fetched on demand
+            --             nil,    -- obj_sprite   This is subject to change and should be fetched on demand
+            --             name,   -- identifier
+            --             "ror",  -- namespace
+            --             nil,    -- on_create
+            --             nil,    -- on_destroy
+            --             nil,    -- on_step
+            --             nil     -- on_draw
+            --         }
+            --     end
 
-                return __object_vanilla_properties[value]
-            end
+            --     return __object_vanilla_properties[value]
+            -- end
             
             -- Check cache
-            local array = __object_array_cache[value]
+            local array = properties_cache[value]
             if not array then
+                ---@type Array
                 array = Global.custom_object:get(value - Object.CUSTOM_START)
-                __object_array_cache[value] = array
+                properties_cache[value] = array
             end
-
             return array
         end
 
         -- Methods
-        if methods_object[k] then
-            return methods_object[k]
-        end
+        local method = methods[k]
+        if method then return method end
 
         -- Getter
         local index = Object.Property[k:upper()]
         if index then
             if value < Object.CUSTOM_START then
-                if (index == Object.Property.OBJ_DEPTH)  then return gm.object_get_depth(value) end
-                if (index == Object.Property.OBJ_SPRITE) then return gm.object_get_sprite(value) end
-                return proxy.array[index + 1]
+                if index == Object.Property.OBJ_DEPTH  then return gm.object_get_depth(value) end
+                if index == Object.Property.OBJ_SPRITE then return gm.object_get_sprite(value) end
+                return t.properties[index + 1]
             end
-            return proxy.array:get(index)
+            return t.properties:get(index)
         end
         log.error("Non-existent Object property '"..k.."'", 2)
     end,
 
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
+    ---@param t Object
+    __newindex = function(t, k, v)
+        -- Throw read-only error
         if k == "value"
-        or k == "RAPI" then
+        or k == "RAPI"
+        or k == "properties"
+        or k == "array" then
             log.error("Key '"..k.."' is read-only", 2)
         end
         
         -- Setter
-        local value = __proxy[proxy]
+        local value = proxy[t]
         local index = Object.Property[k:upper()]
         if index then
             if value < Object.CUSTOM_START then
-                if     (index == Object.Property.OBJ_DEPTH)  then gm.object_set_depth(value, Wrap.unwrap(v))
-                elseif (index == Object.Property.OBJ_SPRITE) then gm.object_set_sprite(value, Wrap.unwrap(v))
-                else proxy.array[index + 1] = v
+                if     index == Object.Property.OBJ_DEPTH  then gm.object_set_depth(value, unwrap(v))
+                elseif index == Object.Property.OBJ_SPRITE then gm.object_set_sprite(value, unwrap(v))
+                else t.properties[index + 1] = v
                 end
                 return
             end
-            proxy.array:set(index, v)
+            t.properties:set(index, v)
             return
         end
         log.error("Non-existent Object property '"..k.."'", 2)
     end,
 
+    ---@param t Object
+    __tostring = function(t)
+        return mt_name..": "..get_table_pointer(t)
+    end,
     
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.Object
 
 
 -- ========== Hooks ==========
 
 -- Add new objects to find table
-Hook.add_post(RAPI_NAMESPACE, gm.constants.object_add_w, Callback.internal.FIRST, function(self, other, result, args)
+gm.post_script_hook(gm.constants.object_add_w, function(self, other, result, args)
     local id = result.value
     if id == -1 then return end
 
-    __object_find_cache:set(
+    object_find_table:set(
         Object.wrap(id),
-        args[2].value,
-        args[1].value,
-        id
+        args[2].value,  -- identifier
+        args[1].value   -- namespace
     )
 end)
 
+-- TODO
+-- gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_serialize, function(self, other, result, args)
+--     local index = self.__object_index
+--     local subtable = __object_serializers[index]
+-- 	if subtable then
+--         local inst = Instance.wrap(self)
+--         local buffer = Buffer.wrap(Global.multiplayer_buffer)
+--         for _, fn_table in ipairs(subtable) do
+--             local status, err = pcall(fn_table.fn, inst, buffer)
+--             if not status then
+--                 if (err == nil)
+--                 or (err == "C++ exception") then err = "GameMaker error (see above)" end
+--                 log.warning("\n"..fn_table.namespace..": Object serialization for object '"..index.."' failed to execute fully.\n"..err)
+--             end
+--         end
+-- 	end
+-- end)
 
-gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_serialize, function(self, other, result, args)
-    local index = self.__object_index
-    local subtable = __object_serializers[index]
-	if subtable then
-        local inst = Instance.wrap(self)
-        local buffer = Buffer.wrap(Global.multiplayer_buffer)
-        for _, fn_table in ipairs(subtable) do
-            local status, err = pcall(fn_table.fn, inst, buffer)
-            if not status then
-                if (err == nil)
-                or (err == "C++ exception") then err = "GameMaker error (see above)" end
-                log.warning("\n"..fn_table.namespace..": Object serialization for object '"..index.."' failed to execute fully.\n"..err)
-            end
-        end
-	end
-end)
-
-
-gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_deserialize, function(self, other, result, args)
-    local index = self.__object_index
-    local subtable = __object_deserializers[index]
-	if subtable then
-        local inst = Instance.wrap(self)
-        local buffer = Buffer.wrap(Global.multiplayer_buffer)
-        for _, fn_table in ipairs(subtable) do
-            local status, err = pcall(fn_table.fn, inst, buffer)
-            if not status then
-                if (err == nil)
-                or (err == "C++ exception") then err = "GameMaker error (see above)" end
-                log.warning("\n"..fn_table.namespace..": Object deserialization for object '"..index.."' failed to execute fully.\n"..err)
-            end
-        end
-	end
-end)
-
+-- TODO
+-- gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_deserialize, function(self, other, result, args)
+--     local index = self.__object_index
+--     local subtable = __object_deserializers[index]
+-- 	if subtable then
+--         local inst = Instance.wrap(self)
+--         local buffer = Buffer.wrap(Global.multiplayer_buffer)
+--         for _, fn_table in ipairs(subtable) do
+--             local status, err = pcall(fn_table.fn, inst, buffer)
+--             if not status then
+--                 if (err == nil)
+--                 or (err == "C++ exception") then err = "GameMaker error (see above)" end
+--                 log.warning("\n"..fn_table.namespace..": Object deserialization for object '"..index.."' failed to execute fully.\n"..err)
+--             end
+--         end
+-- 	end
+-- end)
 
 
 -- ========== Assign some object tags ==========
 
-run_once(function()
-
+run_on_initial_load(function()
+    
     -- enemy_projectile
-    local t = {
+    for _, index in ipairs{
         gm.constants.oJellyMissile,
         gm.constants.oWurmMissile,
         gm.constants.oShamBMissile,
@@ -563,14 +536,7 @@ run_once(function()
         gm.constants.oGuardBulletNoSync,        gm.constants.oGuardBullet,
         gm.constants.oBugBulletNoSync,          gm.constants.oBugBullet,
         gm.constants.oScavengerBulletNoSync,    gm.constants.oScavengerBullet,
-    }
-    for _, obj_id in ipairs(t) do
-        Object.wrap(obj_id):add_tag("enemy_projectile")
+    } do
+        Object.wrap(index):add_tag("enemy_projectile")
     end
-    
 end)
-
-
-
--- Public export
-__class.Object = Object

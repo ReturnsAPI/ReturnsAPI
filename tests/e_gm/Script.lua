@@ -27,4 +27,14 @@ return function()
     local scr = str.__profile_create
     Tests.assert(type(scr), "userdata")
     Tests.assert(scr.RAPI, "Script")
+
+
+    -- Test instance script
+    local p = gm.instance_find(gm.constants.oP, 0)
+    local d = gm.instance_find(gm.constants.oDirectorControl, 0)
+    Tests.assert(gm.instance_exists(p), 1)
+    Tests.assert(gm.instance_exists(d), 1)
+
+    d.player_level_up()
+    Tests.assert(d.player_level, 2)
 end

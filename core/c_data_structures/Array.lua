@@ -211,7 +211,7 @@ end
 -- ========== Metatables ==========
 
 ---@class Array
----@field RAPI string
+---@field RAPI string The name of this wrapper.
 ---@field [integer] any
 
 local mt_name = "Array"

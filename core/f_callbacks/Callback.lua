@@ -262,7 +262,7 @@ run_on_import(Callback.remove_all)
 --[[
 Returns a CallbackFunction wrapper containing the provided callback function ID.
 ]]
----@param id CallbackFunction | integer The callback function to wrap.
+---@param id integer | CallbackFunction The callback function to wrap.
 ---@return CallbackFunction
 Callback.wrap_function = function(id)
     return new_proxy(unwrap(id), metatable_function)
@@ -321,7 +321,7 @@ end
 --[[
 Returns a CallbackType wrapper containing the provided callback type.
 ]]
----@param id CallbackType | integer The callback type to wrap.
+---@param id integer | CallbackType The callback type to wrap.
 ---@return CallbackType
 Callback.wrap_type = function(id)
     return new_proxy(unwrap(id), metatable_type)
@@ -423,8 +423,8 @@ end
 -- ========== Metatables ==========
 
 ---@class CallbackFunction
----@field value integer
----@field RAPI string
+---@field value integer The value being wrapped.
+---@field RAPI string The name of this wrapper.
 
 local mt_name = "CallbackFunction"
 
@@ -452,8 +452,8 @@ W.CallbackFunction = {
 metatable_function = W.CallbackFunction
 
 ---@class CallbackType
----@field value integer
----@field RAPI string
+---@field value integer The value being wrapped.
+---@field RAPI string The name of this wrapper.
 
 local mt_name = "CallbackType"
 

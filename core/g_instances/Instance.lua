@@ -21,7 +21,10 @@ local wrapper_type         = P.instance_wrapper_type
 local gm_id_to_cinst = gm.CInstance.instance_id_to_CInstance    ---@type table<integer, sol.CInstance*>
 local constants_oP   = gm.constants.oP  ---@type integer
 
+local proxy = P.proxy
+
 local type               = type
+local tostring           = tostring
 local getmetatable       = debug.getmetatable
 local gm                 = gm                   ---@type table<string, function>
 local gm_instance_create = gm.instance_create   ---@type function
@@ -181,7 +184,7 @@ end
 Returns an Instance wrapper containing the provided instance.
 ]]
 ---@deprecated
----@param inst Instance | sol.CInstance* | integer The instance to wrap.
+---@param inst integer | sol.CInstance* | Instance The instance to wrap.
 ---@return Instance
 Instance.wrap = function(inst)
     return inst
@@ -234,13 +237,263 @@ methods.get_object_index = function(self)
     return obj_index
 end
 
--- TODO rest of methods
+--[[
+Returns `true` if this instance is colliding with a specified instance, <br>
+or *any* instance of a specified object.
+
+**NOTE:** Checking for custom objects is slower than vanilla objects.
+]]
+---@param object Object | Instance
+---@param x? number The x coordinate to check at. <br>Uses this instance's current x position by default.
+---@param y? number The y coordinate to check at. <br>Uses this instance's current y position by default.
+---@return boolean
+methods.is_colliding = function(self, object, x, y)
+    object = unwrap(object)
+    x = x or self.x
+    y = y or self.y
+
+    -- Instance or vanilla object
+    if type(object) == "userdata"
+    or object < Object.CUSTOM_START then
+        return gm.call("place_meeting", self, nil, x, y, object) == 1
+    end
+
+    -- Custom object
+    local obj_array = Object.wrap(object).properties
+    local object_to_check = obj_array:get(Object.Property.BASE)
+
+    local list = List.new()
+    local count = gm.call(
+        "instance_place_list",
+        self,
+        nil,
+        x,
+        y,
+        object_to_check,
+        proxy[list],
+        false
+    )
+    if count > 0 then
+        for _, inst in ipairs(list) do
+            if inst:get_object_index() == object then
+                list:destroy()
+                return true
+            end
+        end
+    end
+    list:destroy()
+    return false
+end
+
+--[[
+Returns a table of all instances of the specified object <br>
+that this instance is colliding with.
+
+**NOTE:** Performance cost scales with the number of instances found.
+]]
+---@param object Object
+---@param x? number Uses this instance's current x position by default.
+---@param y? number Uses this instance's current y position by default.
+---@return table<integer, Instance>
+methods.get_collisions = function(self, object, x, y)
+    object = unwrap(object)
+    x = x or self.x
+    y = y or self.y
+
+    local object_to_check = object
+    if object >= Object.CUSTOM_START then
+        local obj_array = Object.wrap(object).properties
+        object_to_check = obj_array:get(Object.Property.BASE)
+    end
+
+    local insts, i = {}, 1
+    local list = List.new()
+    local count = gm.call(
+        "instance_place_list",
+        self,
+        nil,
+        x,
+        y,
+        object_to_check,
+        proxy[list],
+        false
+    )
+    if count > 0 then
+        -- Vanilla object
+        if object < Object.CUSTOM_START then
+            for _, inst in ipairs(list) do
+                insts[i] = inst
+                i = i + 1
+            end
+
+        -- Custom object
+        else
+            for _, inst in ipairs(list) do
+                if inst:get_object_index() == object then
+                    insts[i] = inst
+                    i = i + 1
+                end
+            end
+        end
+    end
+    list:destroy()
+    return insts
+end
+
+--[[
+Returns a table of all instances of the specified object <br>
+that this instance can collide with in the given rectangular area.
+
+*Technical:* Calls `gm.collision_rectangle_list`. <br>
+**NOTE:** Performance cost scales with the number of instances found.
+]]
+---@param object Object
+---@param x1 number
+---@param y1 number
+---@param x2 number
+---@param y2 number
+---@return table<integer, Instance>
+methods.get_collisions_rectangle = function(self, object, x1, y1, x2, y2)
+    object = unwrap(object)
+
+    local object_to_check = object
+    if object >= Object.CUSTOM_START then
+        local obj_array = Object.wrap(object).properties
+        object_to_check = obj_array:get(Object.Property.BASE)
+    end
+
+    local insts, i = {}, 1
+    local list = List.new()
+    local count = gm.call(
+        "collision_rectangle_list",
+        self,
+        nil,
+        x1,
+        y1,
+        x2,
+        y2,
+        object_to_check,
+        false,
+        true,
+        proxy[list],
+        false
+    )
+    if count > 0 then
+        -- Vanilla object
+        if object < Object.CUSTOM_START then
+            for _, inst in ipairs(list) do
+                insts[i] = inst
+                i = i + 1
+            end
+
+        -- Custom object
+        else
+            for _, inst in ipairs(list) do
+                if inst:get_object_index() == object then
+                    insts[i] = inst
+                    i = i + 1
+                end
+            end
+        end
+    end
+    list:destroy()
+    return insts
+end
+
+--[[
+Returns a table of all instances of the specified object <br>
+that this instance can collide with in the given circular area.
+
+*Technical:* Calls `gm.collision_circle_list`.
+]]
+---@param object Object
+---@param radius number
+---@param x? number Uses this instance's current x position by default.
+---@param y? number Uses this instance's current y position by default.
+---@return table
+methods.get_collisions_circle = function(self, object, radius, x, y)
+    object = unwrap(object)
+    x = x or self.x
+    y = y or self.y
+
+    local object_to_check = object
+    if object >= Object.CUSTOM_START then
+        local obj_array = Object.wrap(object).properties
+        object_to_check = obj_array:get(Object.Property.BASE)
+    end
+
+    local insts, i = {}, 1
+    local list = List.new()
+    local count = gm.call(
+        "collision_circle_list",
+        self,
+        nil,
+        x,
+        y,
+        radius,
+        object_to_check,
+        false,
+        true,
+        list.value,
+        false
+    )
+    if count > 0 then
+        -- Vanilla object
+        if object < Object.CUSTOM_START then
+            for _, inst in ipairs(list) do
+                insts[i] = inst
+                i = i + 1
+            end
+
+        -- Custom object
+        else
+            for _, inst in ipairs(list) do
+                if inst:get_object_index() == object then
+                    insts[i] = inst
+                    i = i + 1
+                end
+            end
+        end
+    end
+    list:destroy()
+    return insts
+end
+
+--[[
+Returns `true` if this instance is of an object with the specified tag.
+]]
+---@param tag string
+---@return boolean
+methods.has_tag = function(self, tag)
+    if tag == "count" then throw("'count' is reserved") end
+
+    local t = P.object_tags[tag]
+    if not t then return false end
+    return t[self:get_object_index()] ~= nil
+end
+
+--[[
+Prints the instance's variables.
+]]
+methods.print_variables = function(self)
+    local names = gm.variable_instance_get_names(self)
+    local str = ""
+    for _, name in ipairs(names) do
+        str = string.format(
+            "%s\n%s = %s",
+            str,
+            String.pad_right(name, 32),
+            tostring(self[name])
+        )
+    end
+    print(str)
+end
 
 
 -- ========== Metatables ==========
 
 ---@class Instance
----@field RAPI string
+---@field RAPI string The name of this wrapper.
 ---@field id integer
 ---@field [string] any
 

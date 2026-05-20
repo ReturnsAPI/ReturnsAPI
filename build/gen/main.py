@@ -1,5 +1,10 @@
 # gen
 
+"""
+TODO
+- Descriptions for `@class`
+"""
+
 import os
 import shutil
 import json

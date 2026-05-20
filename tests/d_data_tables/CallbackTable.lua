@@ -5,7 +5,6 @@ return function()
     local id1 = ct:add(function() return 1 end, "A", 0)
     local id2 = ct:add(function() return 2 end, "A", 1)
     local id3 = ct:add(function() return 3 end, "B", 0)
-
     Tests.assert(type(id1), "number")
     Tests.assert(type(id2), "number")
     Tests.assert(type(id3), "number")
@@ -60,6 +59,17 @@ return function()
 
     local a = ct1:add(function() end, "X")
     local b = ct2:add(function() end, "Y")
-
     Tests.assert(b, a + 1)
+
+    -- Calling in priority order
+    local ct, n = CallbackTable.new(), 0
+    ct:add(function() Tests.assert(n, 1) n = n + 1 end, "guh", 100)
+    ct:add(function() Tests.assert(n, 3) n = n + 1 end, "guh", -100)
+    ct:add(function() Tests.assert(n, 2) n = n + 1 end, "guh")
+    ct:add(function() Tests.assert(n, 0) n = n + 1 end, "guh", 200)
+    
+    for _, data in ipairs(ct) do
+        data.fn()
+    end
+    Tests.assert(n, 4)
 end
