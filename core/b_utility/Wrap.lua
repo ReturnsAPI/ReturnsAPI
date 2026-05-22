@@ -13,7 +13,7 @@ local proxy = P.proxy
 This is faster than iterative `select(i, ...)`, <br>
 and *much* faster than `table.pack/unpack`.
 ]]
----@param n integer The number of args.
+---@param n number The number of args.
 ---@param ... any The varargs to unwrap.
 ---@return any ...
 Wrap.internal.unwrap_args = function(n, ...) end

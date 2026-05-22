@@ -19,7 +19,7 @@ Returns a string with character padding on the <br>
 *left* side to match the desired string length.
 ]]
 ---@param s string The string to pad.
----@param length integer The desired string length.
+---@param length number The desired string length.
 ---@param char string The character to use. <br>`" "` (space) by default.
 ---@return string
 String.pad_left = function(s, length, char)
@@ -34,7 +34,7 @@ Returns a string with character padding on the <br>
 *right* side to match the desired string length.
 ]]
 ---@param s string The string to pad.
----@param length integer The desired string length.
+---@param length number The desired string length.
 ---@param char string The character to use. <br>`" "` (space) by default.
 ---@return string
 String.pad_right = function(s, length, char)
@@ -50,7 +50,7 @@ Returns a string with character padding on the <br>
 Width information is based on the current font.
 ]]
 ---@param s string The string to pad.
----@param width float The desired pixel width.
+---@param width number The desired pixel width.
 ---@param char string The character to use. <br>`" "` (space) by default.
 ---@return string
 String.pad_left_to_width = function(s, width, char)
@@ -74,7 +74,7 @@ Returns a string with character padding on the <br>
 Width information is based on the current font.
 ]]
 ---@param s string The string to pad.
----@param width float The desired pixel width.
+---@param width number The desired pixel width.
 ---@param char string The character to use. <br>`" "` (space) by default.
 ---@return string
 String.pad_right_to_width = function(s, width, char)

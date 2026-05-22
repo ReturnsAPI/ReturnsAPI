@@ -5,7 +5,7 @@ Script = {}
 C.Script = Script
 
 run_on_initial_load(function()
-    P.script_binded_functions = {}  ---@type table<integer, function> Maps bind IDs to functions.
+    P.script_binded_functions = {}  ---@type table<number, function> Maps bind IDs to functions.
     P.script_binded_counter   = 0   -- Take before incrementing
     P.script_SO               = {}  ---@type table<Script, table> Stores `self`/`other` of Scripts. <br>`[1]` - `self` <br>`[2]` - `other`
 end)

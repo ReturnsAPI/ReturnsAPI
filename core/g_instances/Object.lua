@@ -5,18 +5,18 @@ Object = new_class()
 C.Object = Object
 
 run_on_initial_load(function()
-    P.object_find_table = FindTable.new()
-    P.object_tags       = {}    ---@type table<string, table<integer, Object>> Maps tags -> hash tables of object indices that have the tag.
-
-    -- __object_vanilla_properties = {}    -- Object.Property table but for vanilla objects
+    P.object_find_table         = FindTable.new()
+    P.object_tags               = {}    ---@type table<string, table<number, Object>> Maps tags -> hash tables of object indices that have the tag.
+    P.object_vanilla_properties = {}    -- `.properties` but for vanilla objects
 
     -- __object_serializers = {}
     -- __object_deserializers = {}
 end)
 
-local object_find_table = P.object_find_table
-local object_tags       = P.object_tags
-local properties_cache  = {}    ---@type table<integer, Array> Cache for `.properties`/`.array`
+local object_find_table  = P.object_find_table
+local object_tags        = P.object_tags
+local vanilla_properties = P.object_vanilla_properties
+local properties_cache   = {}   ---@type table<number, Array> Cache for `.properties`/`.array`
 
 local proxy = P.proxy
 local metatable
@@ -66,10 +66,28 @@ Object.CUSTOM_START = 900
 
 local populate_find_table = function()
     -- Populate with vanilla objects
+    -- (This iteration does include some custom objects
+    -- added by the game, such as player scrap)
     local resource_manager = Map.wrap(Global.ResourceManager_object.__namespacedAssetLookup)
     
     for identifier, object in pairs(Map.wrap(resource_manager["ror"])) do
         object_find_table:set(Object.wrap(object), identifier, "ror")
+
+        -- Create mock `.properties` tables for vanilla (non-custom) objects
+        if object < Object.CUSTOM_START
+        and not vanilla_properties[object] then
+            vanilla_properties[object] = ReadOnly.new{
+                nil,        -- base
+                nil,        -- obj_depth    This is subject to change and should be fetched on demand
+                nil,        -- obj_sprite   This is subject to change and should be fetched on demand
+                identifier, -- identifier
+                "ror",      -- namespace
+                nil,        -- on_create
+                nil,        -- on_destroy
+                nil,        -- on_step
+                nil,        -- on_draw
+            }
+        end
     end
 end
 run_on_initialize(populate_find_table)
@@ -82,7 +100,7 @@ Creates a new object with the given identifier if it does not already exist, <br
 or returns the existing one if it does.
 ]]
 ---@param identifier string The identifier for the object.
----@param parent? integer | Object The parent object to use as a base.
+---@param parent? number | Object The parent object to use as a base.
 ---@return Object
 Object.new = function(NAMESPACE, identifier, parent)
     check_init_started("new")
@@ -134,7 +152,7 @@ If no namespace is provided, searches globally in a non-deterministic* order. <b
 * Guaranteed to check in your mod's namespace first.
 ]]
 ---@param namespace? string The namespace to search in.
----@return table<integer, Object>
+---@return table<number, Object>
 Object.find_all = function(namespace, namespace_is_specified)
     return object_find_table:get_all(namespace, namespace_is_specified)
 end
@@ -149,7 +167,7 @@ ReturnsAPI-added tags:
 - `"enemy_projectile"`
 ]]
 ---@param tag string The tag to search by.
----@return table<integer, Object>, integer
+---@return table<number, Object>, number
 Object.find_all_by_tag = function(tag)
     local t = object_tags[tag]
     if not t then return {}, 0 end
@@ -235,7 +253,7 @@ Automatically called when you hotload your mod.
 --[[
 Returns an Object wrapper containing the provided object index.
 ]]
----@param object integer | Object The object index to wrap.
+---@param object number | Object The object index to wrap.
 ---@return Object
 Object.wrap = function(object)
     return new_proxy(unwrap(object), metatable)
@@ -250,8 +268,8 @@ local methods = {}
 --[[
 Creates and returns an instance of the object.
 ]]
----@param x? float The x spawn coordinate. <br>`0` by default.
----@param y? float The y spawn coordinate. <br>`0` by default.
+---@param x? number The x spawn coordinate. <br>`0` by default.
+---@param y? number The y spawn coordinate. <br>`0` by default.
 ---@return Instance
 methods.create = function(self, x, y)
     return gm_instance_create(x or 0, y or 0, proxy[self])
@@ -260,7 +278,7 @@ end
 --[[
 Sets the sprite of the object.
 ]]
----@param sprite integer | Sprite The sprite to set.
+---@param sprite number | Sprite The sprite to set.
 methods.set_sprite = function(self, sprite)
     if not sprite then throw("sprite not provided") end
     gm.object_set_sprite_w(proxy[self], unwrap(sprite))
@@ -270,7 +288,7 @@ end
 Sets the initial depth for created instances of the object. <br>
 Does not apply retroactively to existing instances.
 ]]
----@param depth integer The depth to set.
+---@param depth number The depth to set.
 methods.set_depth = function(self, depth)
     if type(depth) ~= "number" then throw("depth must be a number") end
     gm.object_set_depth(proxy[self], depth)
@@ -337,7 +355,7 @@ end
 --[[
 Returns a table of this object's tags.
 ]]
----@return table<integer, string>
+---@return table<number, string>
 methods.get_tags = function(self)
     local value = proxy[self]
     local tags, i = {}, 1
@@ -354,21 +372,21 @@ end
 -- ========== Metatables ==========
 
 ---@class Object
----@field value integer The value being wrapped.
+---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
----@field properties Array The array storing this content's properties.
----@field array Array Alias for `.properties`.
+---@field properties Array | table The array storing this content's properties. <br>For vanilla objects, this is a Lua table.
+---@field array Array | table Alias for `.properties`.
 
 ---@class Object
----@field base integer The `object_index` of the "base" (parent) object used to create this one. <br>**Only exists for custom objects.**
----@field obj_depth integer The object depth.
----@field obj_sprite integer The object sprite ID.
+---@field base number The `object_index` of the "base" (parent) object used to create this one. <br>**Only exists for custom objects.**
+---@field obj_depth number The object depth.
+---@field obj_sprite number The object sprite ID.
 ---@field identifier string The identifier for the object within the namespace.
 ---@field namespace string The namespace the object is in.
----@field on_create integer The ID of the callback that runs when an instance of the object is created. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
----@field on_destroy integer The ID of the callback that runs when an instance of the object is destroyed. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
----@field on_step integer The ID of the callback that runs every step for an instance of the object. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
----@field on_draw integer The ID of the callback that runs every step for an instance of the object (for drawing). <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+---@field on_create number The ID of the callback that runs when an instance of the object is created. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+---@field on_destroy number The ID of the callback that runs when an instance of the object is destroyed. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+---@field on_step number The ID of the callback that runs every step for an instance of the object. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+---@field on_draw number The ID of the callback that runs every step for an instance of the object (for drawing). <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
 
 local mt_name = "Object"
 
@@ -381,28 +399,10 @@ W.Object = {
         if k == "RAPI" then return mt_name end
         if k == "properties"
         or k == "array" then
-            -- TODO
-            -- if value < Object.CUSTOM_START then
-            --     -- Custom object property table for vanilla objects
-            --     if not __object_vanilla_properties[value] then
-            --         local name = gm.object_get_name(value)
-            --         name = name:sub(2, -1)  -- e.g., oLizard -> Lizard
-
-            --         __object_vanilla_properties[value] = {
-            --             nil,    -- base
-            --             nil,    -- obj_depth    This is subject to change and should be fetched on demand
-            --             nil,    -- obj_sprite   This is subject to change and should be fetched on demand
-            --             name,   -- identifier
-            --             "ror",  -- namespace
-            --             nil,    -- on_create
-            --             nil,    -- on_destroy
-            --             nil,    -- on_step
-            --             nil     -- on_draw
-            --         }
-            --     end
-
-            --     return __object_vanilla_properties[value]
-            -- end
+            -- Property table for vanilla objects
+            if value < Object.CUSTOM_START then
+                return vanilla_properties[value]
+            end
             
             -- Check cache
             local array = properties_cache[value]
@@ -424,7 +424,7 @@ W.Object = {
             if value < Object.CUSTOM_START then
                 if index == Object.Property.OBJ_DEPTH  then return gm.object_get_depth(value) end
                 if index == Object.Property.OBJ_SPRITE then return gm.object_get_sprite(value) end
-                return t.properties[index + 1]
+                return vanilla_properties[value][index + 1]
             end
             return t.properties:get(index)
         end

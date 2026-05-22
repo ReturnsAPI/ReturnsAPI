@@ -8,10 +8,10 @@ Alarm = new_class()
 C.Alarm = Alarm
 
 run_on_initial_load(function()
-    P.alarm_functions             = {}  ---@type table<integer, CallbackTable>
-    P.alarm_functions_nopause     = {}  ---@type table<integer, CallbackTable>
-    P.alarm_function_args         = {}  ---@type table<integer, table>
-    P.alarm_id_to_table           = {}  ---@type table<integer, CallbackTable> Stores which CallbackTable a function is in.
+    P.alarm_functions             = {}  ---@type table<number, CallbackTable>
+    P.alarm_functions_nopause     = {}  ---@type table<number, CallbackTable>
+    P.alarm_function_args         = {}  ---@type table<number, table>
+    P.alarm_id_to_table           = {}  ---@type table<number, CallbackTable> Stores which CallbackTable a function is in.
     P.alarm_counter               = {value = 0} -- Shared counter for all alarm `CallbackTable`s.
     P.alarm_current_frame         = 0
     P.alarm_current_frame_nopause = 0
@@ -40,7 +40,7 @@ Returns the unique ID of the alarm.
 
 The alarms will automatically pause if the game is paused while in a run.
 ]]
----@param time integer The number of frames before the function is called. <br>Fractional values are rounded to the nearest integer. <br>Minimum `1`.
+---@param time number The number of frames before the function is called. <br>Fractional values are rounded to the nearest integer. <br>Minimum `1`.
 ---@param fn function The function to register.
 ---@param ... any A variable amount of arguments to pass to the function.
 ---@return number
@@ -71,7 +71,7 @@ Returns the unique ID of the alarm.
 
 The alarms will *not* pause at any point.
 ]]
----@param time integer The number of frames before the function is called. <br>Fractional values are rounded to the nearest integer. <br>Minimum `1`.
+---@param time number The number of frames before the function is called. <br>Fractional values are rounded to the nearest integer. <br>Minimum `1`.
 ---@param fn function The function to register.
 ---@param ... any A variable amount of arguments to pass to the function.
 ---@return number
@@ -99,7 +99,7 @@ end
 Removes and returns a registered function.
 The ID is the one from @link {`Alarm.add` | Alarm#add}/ @link {`Alarm.add_nopause` | Alarm#add_nopause}.
 ]]
----@param id integer The ID of the function to remove.
+---@param id number The ID of the function to remove.
 ---@return function | nil
 Alarm.remove = function(id)
     local alarm_table = alarm_id_to_table[id]

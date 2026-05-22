@@ -26,7 +26,7 @@ Array.new = function(t) end
 --[[
 Returns a newly created GameMaker array.
 ]]
----@param size? integer The size of the array. <br>`0` by default.
+---@param size? number The size of the array. <br>`0` by default.
 ---@param default? any The value to populate the array with. <br>`0` by default.
 ---@return Array
 Array.new = function(size, default)
@@ -65,8 +65,8 @@ or `nil` if out-of-bounds.
 
 You can also use Lua syntax (e.g., `array[4]`), which starts at `1`.
 ]]
----@param index integer The index to get from.
----@param size? integer The size of the array, if it already known (this skips a `gm` call).
+---@param index number The index to get from.
+---@param size? number The size of the array, if it already known (this skips a `gm` call).
 ---@return any
 methods.get = function(self, index, size)
     size = size or #self
@@ -79,7 +79,7 @@ Sets the value at the specified index, starting at `0`.
 
 You can also use Lua syntax (e.g., `array[4] = 56`), which starts at `1`.
 ]]
----@param index integer The index to set to.
+---@param index number The index to set to.
 ---@param value any The value to set.
 methods.set = function(self, index, value)
     gm.array_set(self, index, unwrap(value))
@@ -90,7 +90,7 @@ Returns the size (length) of the array.
 
 You can also use Lua syntax (i.e., `#array`).
 ]]
----@return integer size
+---@return number size
 methods.size = function(self)
     return gm.array_length(self)
 end
@@ -98,7 +98,7 @@ end
 --[[
 Resizes the array.
 ]]
----@param size integer The new size.
+---@param size number The new size.
 methods.resize = function(self, size)
     gm.array_resize(self, size)
 end
@@ -126,7 +126,7 @@ end
 --[[
 Inserts a value at the specified index, starting at `0`.
 ]]
----@param index integer The index to insert at.
+---@param index number The index to insert at.
 ---@param value any The value to insert.
 methods.insert = function(self, index, value)
     gm.array_insert(self, index, unwrap(value))
@@ -135,8 +135,8 @@ end
 --[[
 Deletes value(s) from the specified index, starting at `0`.
 ]]
----@param index integer The index to delete at.
----@param count? integer The number of values to delete. <br>`1` by default.
+---@param index number The index to delete at.
+---@param count? number The number of values to delete. <br>`1` by default.
 methods.delete = function(self, index, count)
     gm.array_delete(self, index, count or 1)
 end
@@ -162,8 +162,8 @@ end
 Returns `true` if the array contains the specified value.
 ]]
 ---@param value any The value to check.
----@param offset integer The starting index of a subset to search in (`0`-based). <br>`0` by default.
----@param length integer The length of the subset. <br>`array:size()` by default.
+---@param offset number The starting index of a subset to search in (`0`-based). <br>`0` by default.
+---@param length number The length of the subset. <br>`array:size()` by default.
 ---@return boolean
 methods.contains = function(self, value, offset, length)
     return gm.array_contains(self, unwrap(value), offset or 0, length or #self)
@@ -174,7 +174,7 @@ Returns the index (starting at `0`) of the first occurence <br>
 of the specified value, or `nil` if not found.
 ]]
 ---@param value any The value to search for.
----@return integer | nil
+---@return number | nil
 methods.find = function(self, value)
     for i, v in ipairs(self) do
         if v == value then return i - 1 end
@@ -212,7 +212,7 @@ end
 
 ---@class Array
 ---@field RAPI string The name of this wrapper.
----@field [integer] any
+---@field [number] any
 
 local mt_name = "Array"
 

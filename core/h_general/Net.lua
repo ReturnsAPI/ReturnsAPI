@@ -1,61 +1,55 @@
-if __DEACTIVATE_OLD then return end
 -- Net
 
---[[
-```lua
--- (bools)
-Net.online   --> `true` if the game client is currently connected online.
-Net.host     --> `true` if the game client is currently the lobby host, or is offline.
-Net.client   --> `true` if the game client is currently a lobby client.
-```
-]]
-
+---@class Net
 Net = new_class()
+C.Net = Net
 
-__net_cache = __net_cache or {}
+run_on_initial_load(function()
+    P.net_cache = {}
+end)
 
+local net_cache = P.net_cache
+
+local gm_online = gm._mod_net_isOnline  ---@type function
+local gm_host   = gm._mod_net_isHost    ---@type function
+local gm_client = gm._mod_net_isClient  ---@type function
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Net"
+---@class Net
+---@field online boolean `true` if the game client is connected online.
+---@field host   boolean `true` if the game client is a lobby host, or is offline.
+---@field client boolean `true` if the game client is a lobby client.
 
-make_table_once("metatable_net_class", {
+M.Net = {
     __index = function(t, k)
-        if k == "online" then return __net_cache.online or gm._mod_net_isOnline()   end
-        if k == "host"   then return __net_cache.host   or gm._mod_net_isHost()     end
-        if k == "client" then return __net_cache.client or gm._mod_net_isClient()   end
+        if k == "online" then return net_cache.online or gm_online() end
+        if k == "host"   then return net_cache.host   or gm_host()   end
+        if k == "client" then return net_cache.client or gm_client() end
     end,
-
 
     __newindex = function(t, k, v)
         log.error("Net has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Class."..wrapper_name
-})
-setmetatable(Net, metatable_net_class)
-
+    __metatable = mt_class_name("Net"),
+}
+setmetatable(Net, M.Net)
 
 
 -- ========== Hooks ==========
 
-Hook.add_pre(RAPI_NAMESPACE, gm.constants.run_create, Callback.internal.FIRST, function(self, other, result, args)
-    __net_cache = {
-        online  = gm._mod_net_isOnline(),
-        host    = gm._mod_net_isHost(),
-        client  = gm._mod_net_isClient()
+gm.pre_script_hook(gm.constants.run_create, function(self, other, result, args)
+    P.net_cache = {
+        online = gm_online(),
+        host   = gm_host(),
+        client = gm_client(),
     }
+    net_cache = P.net_cache
 end)
 
-
-Hook.add_post(RAPI_NAMESPACE, gm.constants.run_destroy, Callback.internal.FIRST, function(self, other, result, args)
-    __net_cache = {}
+gm.post_script_hook(gm.constants.run_destroy, function(self, other, result, args)
+    P.net_cache = {}
+    net_cache = P.net_cache
 end)
-
-
-
--- Public export
-__class.Net = Net
-__class_mt.Net = metatable_net_class

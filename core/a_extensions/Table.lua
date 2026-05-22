@@ -214,10 +214,10 @@ Returns an enum from a list of keys. <br>
 **enum** - table where `k = <number>` for all `k` in the list
 ]]
 ---@param t table The list of keys.
----@param start? float The starting value for the first element. <br>`1` by default.
----@param add? float Increment for each key. <br>`1` by default.
----@param mult? float Multiplier for each key (applied *after* `add`). <br>`1` by default.
----@return table<any, float> enum
+---@param start? number The starting value for the first element. <br>`1` by default.
+---@param add? number Increment for each key. <br>`1` by default.
+---@param mult? number Multiplier for each key (applied *after* `add`). <br>`1` by default.
+---@return table<any, number> enum
 Table.enum = function(t, start, add, mult)
     start = start or 1
     add   = add   or 1

@@ -108,7 +108,7 @@ Returns the size (length) of the map.
 
 You can also use Lua syntax (i.e., `#map`).
 ]]
----@return integer size
+---@return number size
 methods.size = function(self)
     return gm.ds_map_size(proxy[self])
 end
@@ -149,7 +149,7 @@ end
 -- ========== Metatables ==========
 
 ---@class Map
----@field value integer The value being wrapped.
+---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 ---@field [any] any
 

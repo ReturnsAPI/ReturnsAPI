@@ -5,11 +5,11 @@ Instance = new_class()
 C.Instance = Instance
 
 run_on_initial_load(function()
-    P.instance_data                 = {}   ---@type table<integer, table<string, table<string, table>>>
-    P.instance_id_cache             = setmetatable({}, {__mode = "k"})  ---@type table<Instance, integer> Cache for `id`
-    P.instance_obj_ind_cache        = setmetatable({}, {__mode = "k"})  ---@type table<Instance, integer> Cache for `object_index`
-    P.instance_custom_obj_ind_cache = setmetatable({}, {__mode = "k"})  ---@type table<Instance, integer> Cache for `__object_index`
-    P.instance_wrapper_type         = setmetatable({}, {__mode = "k"})  ---@type table<Instance, integer> Cache for wrapper type (`1` to `3`)
+    P.instance_data                 = {}   ---@type table<number, table<string, table<string, table>>>
+    P.instance_id_cache             = setmetatable({}, {__mode = "k"})  ---@type table<Instance, number> Cache for `id`
+    P.instance_obj_ind_cache        = setmetatable({}, {__mode = "k"})  ---@type table<Instance, number> Cache for `object_index`
+    P.instance_custom_obj_ind_cache = setmetatable({}, {__mode = "k"})  ---@type table<Instance, number> Cache for `__object_index`
+    P.instance_wrapper_type         = setmetatable({}, {__mode = "k"})  ---@type table<Instance, number> Cache for wrapper type (`1` to `3`)
 end)
 
 local instance_data        = P.instance_data
@@ -18,20 +18,21 @@ local obj_ind_cache        = P.instance_obj_ind_cache
 local custom_obj_ind_cache = P.instance_custom_obj_ind_cache
 local wrapper_type         = P.instance_wrapper_type
 
-local gm_id_to_cinst = gm.CInstance.instance_id_to_CInstance    ---@type table<integer, sol.CInstance*>
-local constants_oP   = gm.constants.oP  ---@type integer
-
 local proxy = P.proxy
 
 local type               = type
 local tostring           = tostring
 local getmetatable       = debug.getmetatable
+local string_sub         = string.sub
 local gm                 = gm                   ---@type table<string, function>
 local gm_instance_create = gm.instance_create   ---@type function
 local gm_instance_exists = gm.instance_exists   ---@type function
 local unwrap             = Wrap.unwrap
 
-local ancestor_lookup = {}  ---@type table<integer, boolean> Maps objects to booleans of whether or not they inherit from `pActor`
+local gm_id_to_cinst = gm.CInstance.instance_id_to_CInstance    ---@type table<number, sol.CInstance*>
+local constants_oP   = gm.constants.oP  ---@type number
+
+local ancestor_lookup = {}  ---@type table<number, boolean> Maps objects to booleans of whether or not they inherit from `pActor`
 for obj_index = 0, 900 do
     if gm.object_exists(obj_index) then
         ancestor_lookup[obj_index] = (gm.object_is_ancestor(obj_index, gm.constants.pActor) == 1)
@@ -42,21 +43,11 @@ end
 -- ========== Static Methods ==========
 
 --[[
-Returns `true` if the instance exists, and `false` otherwise.
-]]
----@param inst integer | Instance The instance to check.
----@return boolean
-Instance.exists = function(inst)
-    return inst and gm_instance_exists(inst) == 1
-        or false
-end
-
---[[
 Creates and returns an instance of the specified object.
 ]]
----@param x float The x spawn coordinate.
----@param y float The y spawn coordinate.
----@param object integer | Object The object to spawn.
+---@param x number The x spawn coordinate.
+---@param y number The y spawn coordinate.
+---@param object number | Object The object to spawn.
 ---@return Instance
 Instance.create = function(x, y, object)
     return gm_instance_create(x, y, unwrap(object))
@@ -65,7 +56,7 @@ end
 --[[
 Destroys an instance, or all instances of an object.
 ]]
----@param inst integer | Instance | Object The instance to destroy, or object index.
+---@param inst number | Instance | Object The instance to destroy, or object index.
 Instance.destroy = function(inst)
     if not inst then return end
     local id = inst.id
@@ -74,11 +65,21 @@ Instance.destroy = function(inst)
 end
 
 --[[
-Returns the first (or *n*-th) instance of the specified object, <br>
-or `Instance.INVALID` if none are found.
+Returns `true` if the instance exists, and `false` otherwise.
 ]]
----@param object integer | Object The object to check.
----@param n? integer The *n*-th instance, indexed from 1. <br>`1` by default.
+---@param inst number | Instance The instance to check.
+---@return boolean
+Instance.exists = function(inst)
+    return inst and gm_instance_exists(inst) == 1
+        or false
+end
+
+--[[
+Returns the first (or *n*-th) instance of the specified object, <br>
+or `nil` if none are found.
+]]
+---@param object number | Object The object to check.
+---@param n? number The *n*-th instance, indexed from 1. <br>`1` by default.
 ---@return Instance
 Instance.find = function(object, n)
     object = unwrap(object)
@@ -110,7 +111,7 @@ Returns a table of all instances of the specified object.
 instances of the object, and can be *very* expensive at high numbers. <br>
 Try not to call this too much.
 ]]
----@param object integer | Object The object to check.
+---@param object number | Object The object to check.
 ---@return table instances
 Instance.find_all = function(object)
     object = unwrap(object)
@@ -126,12 +127,12 @@ end
 
 --[[
 Returns the instance of the given object nearest to the specified position, <br>
-or `Instance.INVALID` if none are found. <br>
+or `nil` if none are found. <br>
 Works with custom objects too.
 ]]
----@param x float The x coordinate to check from.
----@param y float The y coordinate to check from.
----@param object integer | Object The object to check.
+---@param x number The x coordinate to check from.
+---@param y number The y coordinate to check from.
+---@param object number | Object The object to check.
 ---@return Instance
 Instance.nearest = function(x, y, object)
     object = unwrap(object)
@@ -144,8 +145,8 @@ end
 --[[
 Returns the instance count of the specified object.
 ]]
----@param object integer | Object The object to check.
----@return integer
+---@param object number | Object The object to check.
+---@return number
 Instance.count = function(object)
     object = unwrap(object)
     if not object then throw("object is nil") end
@@ -160,7 +161,7 @@ This table is useful for storing Lua data (such as tables) in instances, which c
 It is also faster to access than instance variables. <br>
 It is automatically deleted upon the instance's destruction.
 ]]
----@param instance integer | Instance The instance to get the table for.
+---@param instance number | Instance The instance to get the table for.
 ---@param subtable? string If specified, returns a different table under the ID `subtable`. <br>Useful for organization and preventing variable name conflicts within a mod itself. <br>This string can be whatever you want.
 ---@param namespace? string If specified, returns another mod's table for the instance.
 ---@return table
@@ -184,7 +185,7 @@ end
 Returns an Instance wrapper containing the provided instance.
 ]]
 ---@deprecated
----@param inst integer | sol.CInstance* | Instance The instance to wrap.
+---@param inst number | sol.CInstance* | Instance The instance to wrap.
 ---@return Instance
 Instance.wrap = function(inst)
     return inst
@@ -218,7 +219,7 @@ Returns the object that the instance is a type of, accounting for custom objects
 methods.get_object = function(self)
     local obj_index = custom_obj_ind_cache[self]
     if not obj_index then
-        obj_index = self:get_object_index_self() ---@type integer
+        obj_index = self:get_object_index_self() ---@type number
         custom_obj_ind_cache[self] = obj_index
     end
     return Object.wrap(obj_index)
@@ -227,11 +228,11 @@ end
 --[[
 Returns the instance's correct object index, accounting for custom objects.
 ]]
----@return integer object_index
+---@return number object_index
 methods.get_object_index = function(self)
     local obj_index = custom_obj_ind_cache[self]
     if not obj_index then
-        obj_index = self:get_object_index_self() ---@type integer
+        obj_index = self:get_object_index_self() ---@type number
         custom_obj_ind_cache[self] = obj_index
     end
     return obj_index
@@ -294,7 +295,7 @@ that this instance is colliding with.
 ---@param object Object
 ---@param x? number Uses this instance's current x position by default.
 ---@param y? number Uses this instance's current y position by default.
----@return table<integer, Instance>
+---@return table<number, Instance>
 methods.get_collisions = function(self, object, x, y)
     object = unwrap(object)
     x = x or self.x
@@ -352,7 +353,7 @@ that this instance can collide with in the given rectangular area.
 ---@param y1 number
 ---@param x2 number
 ---@param y2 number
----@return table<integer, Instance>
+---@return table<number, Instance>
 methods.get_collisions_rectangle = function(self, object, x1, y1, x2, y2)
     object = unwrap(object)
 
@@ -494,7 +495,7 @@ end
 
 ---@class Instance
 ---@field RAPI string The name of this wrapper.
----@field id integer
+---@field id number
 ---@field [string] any
 
 local inst = gm.instance_create(0, 0, gm.constants.oB)
@@ -535,7 +536,7 @@ W.Instance = {
         if not _type then
             local obj_index = obj_ind_cache[t]
             if not obj_index then
-                obj_index = og_index(t, "object_index") ---@type integer
+                obj_index = og_index(t, "object_index") ---@type number
                 obj_ind_cache[t] = obj_index
             end
             _type = 1
@@ -564,16 +565,16 @@ W.Instance = {
         local ret = og_index(t, k)
 
         -- Return object function callable if key starts with "gml_"
-        -- TODO
+        -- TODO assess if this is still required since we are modifying sol directly now
         -- if not ret then
-        --     if k:sub(1, 4) == "gml_" then
+        --     if string_sub(k, 1, 4) == "gml_" then
         --         return function(self, other)
-        --             local value = self.value
-        --             if not value then log.error(k..": self does not exist", 2) end
-        --             return value[k](value, unwrap(other))
+        --             return self[k](self, other)
         --         end
         --     end
         -- end
+
+        -- TODO add AttackInfo wrapping
 
         -- If Script, set its `self`/`other`
         local mt = getmetatable(ret)

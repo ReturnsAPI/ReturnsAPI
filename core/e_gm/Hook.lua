@@ -5,12 +5,12 @@ Hook = new_class()
 C.Hook = Hook
 
 run_on_initial_load(function()
-    P.pre_hooks           = {}  ---@type table<script, integer> Stores return IDs of `gm.pre_script_hook`s.
-    P.post_hooks          = {}  ---@type table<script, integer> Stores return IDs of `gm.post_script_hook`s.
+    P.pre_hooks           = {}  ---@type table<script, number> Stores return IDs of `gm.pre_script_hook`s.
+    P.post_hooks          = {}  ---@type table<script, number> Stores return IDs of `gm.post_script_hook`s.
     P.pre_hook_functions  = {}  ---@type table<script, CallbackTable>
     P.post_hook_functions = {}  ---@type table<script, CallbackTable>
     P.hook_counter        = {value = 0} -- Shared counter for all hook `CallbackTable`s.
-    P.hook_id_to_table    = {}  ---@type table<integer, CallbackTable> Stores which CallbackTable a function is in.
+    P.hook_id_to_table    = {}  ---@type table<number, CallbackTable> Stores which CallbackTable a function is in.
 end)
 
 -- Scripts that are (potentially) bad for performance
@@ -211,7 +211,7 @@ If you need to be more specific than that, try to keep a distance of at least `1
 *Technical:* Uses `gm.pre_script_hook` (script) or `gm.pre_code_execute` (object event) internally, passing wrapped values.
 ]]
 ---@param script number | string The GameMaker script or object event to hook.
----@param priority integer The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
+---@param priority number The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
 ---@param fn function The function to register. <br>The parameters for it should be: <br>Script hooks - `self, other, result, args` <br>Object hooks - `self, other`
 ---@return Hook
 Hook.add_pre = function(NAMESPACE, script, priority, fn)
@@ -276,7 +276,7 @@ If you need to be more specific than that, try to keep a distance of at least `1
 *Technical:* Uses `gm.post_script_hook` (script) or `gm.post_code_execute` (object event) internally, passing wrapped values.
 ]]
 ---@param script number | string The GameMaker script or object event to hook.
----@param priority integer The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
+---@param priority number The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
 ---@param fn function The function to register. <br>The parameters for it should be: <br>Script hooks - `self, other, result, args` <br>Object hooks - `self, other`
 ---@return Hook
 Hook.add_post = function(NAMESPACE, script, priority, fn)
@@ -340,7 +340,7 @@ run_on_import(Hook.remove_all)
 --[[
 Returns a Hook wrapper containing the provided hook function ID.
 ]]
----@param hook integer | Hook The hook to wrap.
+---@param hook number | Hook The hook to wrap.
 ---@return Hook
 Hook.wrap = function(hook)
     return new_proxy(unwrap(hook), metatable)
@@ -390,7 +390,7 @@ end
 -- ========== Metatables ==========
 
 ---@class Hook
----@field value integer The value being wrapped.
+---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 
 local mt_name = "Hook"

@@ -65,7 +65,7 @@ To allow for a decent amount of space between priorities, <br>
 use the enum values in @link {`Callback.Priority` | Callback#Priority}. <br>
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
----@param priority integer The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
+---@param priority number The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
 ---@param fn function The function to register.
 Initialize.add = function(NAMESPACE, priority, fn)
     if P.initialize_done then return end
@@ -96,7 +96,7 @@ To allow for a decent amount of space between priorities, <br>
 use the enum values in @link {`Callback.Priority` | Callback#Priority}. <br>
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
----@param priority integer The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
+---@param priority number The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
 ---@param fn function The function to register.
 Initialize.add_hotloadable = function(NAMESPACE, priority, fn)
     local _type = type(priority)

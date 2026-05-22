@@ -120,7 +120,7 @@ Benchmarks a function and prints the results (in milliseconds, up to 7 decimal p
 Each frame is 16.66~ ms (although much of that is taken up by the game itself). <br>
 Note: 'total time' will always be a whole number.
 ]]
----@param n integer The number of calls to make.
+---@param n number The number of calls to make.
 ---@param fn function The function to benchmark.
 ---@param ... any A variable number of arguments to pass.
 Util.benchmark = function(n, fn, ...)
@@ -548,9 +548,9 @@ Returns an enum from a list of keys <br>
 ]]
 ---@deprecated
 ---@param t table
----@param start? float
----@param add? float
----@param mult? float
+---@param start? number
+---@param add? number
+---@param mult? number
 ---@return table enum
 Util.enum = function(t, start, add, mult)
     start = start or 1
@@ -578,7 +578,7 @@ left side to match the desired string length.
 ]]
 ---@deprecated
 ---@param s string The table to pad.
----@param length integer The desired string length.
+---@param length number The desired string length.
 ---@param char string The character to use. <br>`" "` (space) by default.
 ---@return string
 Util.pad_string_left = function(str, length, char)
@@ -605,7 +605,7 @@ right side to match the desired string length.
 ]]
 ---@deprecated
 ---@param s string The table to pad.
----@param length integer The desired string length.
+---@param length number The desired string length.
 ---@param char string The character to use. <br>`" "` (space) by default.
 ---@return string
 Util.pad_string_right = function(str, length, char)
@@ -628,7 +628,7 @@ Width information is based on the current font.
 ]]
 ---@deprecated
 ---@param str string The table to pad.
----@param width float The desired pixel width.
+---@param width number The desired pixel width.
 ---@param char string The character to use. <br>`" "` (space) by default.
 ---@return string
 Util.pad_string_left_to_width = function(str, width, char)
@@ -655,7 +655,7 @@ Width information is based on the current font.
 ]]
 ---@deprecated
 ---@param str string The table to pad.
----@param width float The desired pixel width.
+---@param width number The desired pixel width.
 ---@param char string The character to use. <br>`" "` (space) by default.
 ---@return string
 Util.pad_string_right_to_width = function(str, width, char)

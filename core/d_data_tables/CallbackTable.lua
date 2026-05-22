@@ -15,7 +15,7 @@ local metatable
 --[[
 Returns a new CallbackTable.
 ]]
----@param counter? table<string, integer> A table containing `value = <integer>`. <br>Used to sync unique ID counters between CallbackTables. <br>`0` by default.
+---@param counter? table<string, number> A table containing `value = <number>`. <br>Used to sync unique ID counters between CallbackTables. <br>`0` by default.
 ---@return CallbackTable
 CallbackTable.new = function(counter)
     ---@class CallbackTable
@@ -40,8 +40,8 @@ Returns the unique ID assigned and the stored data table.
 ]]
 ---@param fn function The function to register.
 ---@param namespace string The namespace of the function.
----@param priority? integer The priority of the function. <br>`0` by default.
----@return integer id, data table
+---@param priority? number The priority of the function. <br>`0` by default.
+---@return number id, data table
 methods.add = function(self, fn, namespace, priority)
     priority = priority or 0
 
@@ -82,7 +82,7 @@ end
 --[[
 Toggles a callback function.
 ]]
----@param id integer The ID of the function to toggle.
+---@param id number The ID of the function to toggle.
 ---@param value boolean
 methods.toggle = function(self, id, value)
     local data = self.id_lookup[id]
@@ -101,7 +101,7 @@ end
 Removes a callback function. <br>
 Returns the removed function, or `nil` if it does not exist.
 ]]
----@param id integer The ID of the function to remove.
+---@param id number The ID of the function to remove.
 ---@return function | nil
 methods.remove = function(self, id)
     local data = self.id_lookup[id]
@@ -126,7 +126,7 @@ Removes all callback functions in a namespace. <br>
 Returns the number of functions removed.
 ]]
 ---@param namespace string The namespace to remove from.
----@return integer count
+---@return number count
 methods.remove_all = function(self, namespace)
     local priority_count = self.priority_count
     local i = #self
@@ -155,11 +155,11 @@ end
 -- ========== Metatables ==========
 
 ---@class CallbackTable
----@field [integer] CallbackTableData
----@field enabled_count integer Number of *currently enabled* functions.
----@field next_id table<string, integer> Contains `value`, which is the next unique ID available to assign.
----@field priority_count table<integer, integer> Stores the number of functions each priority has.
----@field id_lookup table<integer, CallbackTableData> Maps IDs to function data.
+---@field [number] CallbackTableData
+---@field enabled_count number Number of *currently enabled* functions.
+---@field next_id table<string, number> Contains `value`, which is the next unique ID available to assign.
+---@field priority_count table<number, number> Stores the number of functions each priority has.
+---@field id_lookup table<number, CallbackTableData> Maps IDs to function data.
 
 W.CallbackTable = {
     __index = methods,

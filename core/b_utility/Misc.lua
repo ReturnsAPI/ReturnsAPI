@@ -5,17 +5,17 @@ local m_get_table_pointer    = memory.get_table_pointer     ---@type function
 local m_get_usertype_pointer = memory.get_usertype_pointer  ---@type function
 
 ---Functions to run after `core` has loaded.
----@type table<integer, function>
+---@type table<number, function>
 G.run_after_core = {}
 
 ---Functions to run during content initialization.
----@type table<integer, function>
+---@type table<number, function>
 G.run_on_initialize = {}
 
 ---Functions to run when RAPI is imported. <br>
 ---This is in `P` so that RAPI can <br>
 ---run it for itself on hotload.
----@type table<integer, function>
+---@type table<number, function>
 P.run_on_import = {}
 
 ---Table of `sol.` types that RAPI modifies.
@@ -140,7 +140,7 @@ Automatically prepends the method name and uses correct level of error.
 ]]
 ---@param msg string The message to display.
 ---@param name string? The name of the method. <br>Necessary for namespace-binded methods.
----@param level? integer The error level. <br>`3` by default.
+---@param level? number The error level. <br>`3` by default.
 function throw(msg, name, level)
     level = level or 3
     local n = name or debug.getinfo(level - 1, "n").name

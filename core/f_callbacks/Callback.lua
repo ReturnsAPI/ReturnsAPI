@@ -5,9 +5,9 @@ Callback = new_class()
 C.Callback = Callback
 
 run_on_initial_load(function()
-    P.callback_functions      = {}  ---@type table<integer, CallbackTable>
+    P.callback_functions      = {}  ---@type table<number, CallbackTable>
     P.callback_counter        = {value = 0} -- Shared counter for all callback `CallbackTable`s.
-    P.callback_id_to_table    = {}  ---@type table<integer, CallbackTable> Stores which CallbackTable a function is in.
+    P.callback_id_to_table    = {}  ---@type table<number, CallbackTable> Stores which CallbackTable a function is in.
     
     P.callback_custom         = FindTable.new()
     P.callback_custom_counter = 0   -- Next usable custom callback ID; `Callback.CUSTOM_START` is added to this.
@@ -16,8 +16,8 @@ end)
 local callback_functions = P.callback_functions
 local callback_custom    = P.callback_custom
 
-local callback_arg_types = {}  ---@type table<integer, table<integer, string>> Contains argument types for callbacks `0` to `42`.
-local callback_constants = {}  ---@type table<integer, string> Array table of callback types `0` to `42` (indexed from `1`).
+local callback_arg_types = {}  ---@type table<number, table<number, string>> Contains argument types for callbacks `0` to `42`.
+local callback_constants = {}  ---@type table<number, string> Array table of callback types `0` to `42` (indexed from `1`).
 
 local proxy = P.proxy
 local metatable_type
@@ -158,7 +158,7 @@ use the enum values in @link {`Callback.Priority` | Callback#Priority}. <br>
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 ---@param callback number | CallbackType The callback type to register under.
----@param priority integer The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
+---@param priority number The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
 ---@param fn function The function to register. <br>The parameters for it depend on the callback type.
 ---@return CallbackFunction
 Callback.add = function(NAMESPACE, callback, priority, fn)
@@ -212,7 +212,7 @@ use the enum values in @link {`Callback.Priority` | Callback#Priority}. <br>
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 ---@param callback number | CallbackType The callback type to register under.
----@param priority integer The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
+---@param priority number The priority of the function. <br>Higher values run before lower ones. <br>`0` by default.
 ---@param fn function The function to register. <br>The parameters for it depend on the callback type.
 ---@return CallbackFunction
 Callback.add_SO = function(NAMESPACE, callback, priority, fn)
@@ -262,7 +262,7 @@ run_on_import(Callback.remove_all)
 --[[
 Returns a CallbackFunction wrapper containing the provided callback function ID.
 ]]
----@param id integer | CallbackFunction The callback function to wrap.
+---@param id number | CallbackFunction The callback function to wrap.
 ---@return CallbackFunction
 Callback.wrap_function = function(id)
     return new_proxy(unwrap(id), metatable_function)
@@ -313,7 +313,7 @@ If no namespace is provided, searches globally in a non-deterministic* order. <b
 * Guaranteed to check in your mod's namespace first.
 ]]
 ---@param namespace? string The namespace to search in.
----@return table<integer, CallbackType>
+---@return table<number, CallbackType>
 Callback.find_all = function(namespace, namespace_is_specified)
     return callback_custom:get_all(namespace, namespace_is_specified)
 end
@@ -321,7 +321,7 @@ end
 --[[
 Returns a CallbackType wrapper containing the provided callback type.
 ]]
----@param id integer | CallbackType The callback type to wrap.
+---@param id number | CallbackType The callback type to wrap.
 ---@return CallbackType
 Callback.wrap_type = function(id)
     return new_proxy(unwrap(id), metatable_type)
@@ -423,7 +423,7 @@ end
 -- ========== Metatables ==========
 
 ---@class CallbackFunction
----@field value integer The value being wrapped.
+---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 
 local mt_name = "CallbackFunction"
@@ -452,7 +452,7 @@ W.CallbackFunction = {
 metatable_function = W.CallbackFunction
 
 ---@class CallbackType
----@field value integer The value being wrapped.
+---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 
 local mt_name = "CallbackType"
@@ -484,7 +484,7 @@ metatable_type = W.CallbackType
 -- ========== Hooks ==========
 
 gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
-    local type_id = args[1].value   ---@type integer
+    local type_id = args[1].value   ---@type number
     local cb_table = callback_functions[type_id]
     if not cb_table then return end
 

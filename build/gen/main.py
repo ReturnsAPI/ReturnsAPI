@@ -3,6 +3,7 @@
 """
 TODO
 - Descriptions for `@class`
+- Store appearance order for enums and methods
 """
 
 import os
