@@ -6,8 +6,11 @@ return function()
     Tests.assert(p.namespace, RAPI_NAMESPACE)
 
     -- type
+    local t = {}
     local p = new_proxy()
-    Tests.assert(Util.type({}), "table")
+    Tests.assert(Util.type(t), "table")
+    Tests.assert(Util.type(p), "Proxy")
+    Tests.assert(Util.type(t), "table") -- Repeat to test cache
     Tests.assert(Util.type(p), "Proxy")
 
     -- bool

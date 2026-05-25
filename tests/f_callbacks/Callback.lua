@@ -44,6 +44,9 @@ return function()
     Tests.assert(ret, 456)
     cb:remove()
 
+    Tests.assert(cbn.namespace, RAPI_NAMESPACE)
+    Tests.assert(cbn.identifier, "myCallback")
+
 
     -- find
     local cbt1 = Callback.find("onStageStart", "ror", true)

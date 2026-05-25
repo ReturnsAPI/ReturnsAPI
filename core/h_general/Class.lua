@@ -1,79 +1,88 @@
-if __DEACTIVATE_OLD then return end
 -- Class
 
 --[[
 Allows for accessing content class arrays via `Class.<class>`.
 (E.g., `Class.Item`)
 ]]
-
+---@class Class
 Class = new_class()
+C.Class = Class
 
+local proxy = P.proxy
+
+local string_upper       = string.upper
+local check_init_started = Initialize.internal.check_if_started
 
 
 -- ========== RAPI <-> Global name mapping ==========
 
 -- Mappings for RAPI class name
 -- to global name and vice versa
-local file = toml.decodeFromFile(path.combine(PATH, "core/data/class_name_mapping.txt"))
 
-local class_name_r2g = file.mapping   -- RAPI   -> Global
-local class_name_g2r = {}             -- Global -> RAPI
+local file = toml.decodeFromFile(path.combine(PATH, "data", "tables", "class_name_mapping.txt"))
+
+local class_name_r2g = file.mapping ---@type table<string, string> RAPI   -> Global
+local class_name_g2r = {}           ---@type table<string, string> Global -> RAPI
 
 for name_rapi, name_global in pairs(class_name_r2g) do
     class_name_g2r[name_global] = name_rapi
 end
 
 
-
 -- ========== Metatables ==========
 
-local class_wrappers = {}
+local class_arrays = {} ---@type table<string, Array>
 
-Class.internal.initialize = function()
+local populate_class_arrays = function()
     for name_rapi, name_global in pairs(class_name_r2g) do
-        -- Populate class_wrappers on initialize
+        -- Populate `class_arrays` on initialize
         -- since some content class arrays do not exist before then
-        -- Wrap `class_*` in Array wrappers and store in `class_wrappers`
-        class_wrappers[name_rapi:upper()] = Global[name_global]
+
+        -- Wrap `class_*` in Array wrappers and store in `class_arrays`
+        -- E.g., `class_arrays["ITEM"] = Global["class_item"]
+        class_arrays[string_upper(name_rapi)] = Global[name_global]
     end
 end
-table.insert(_rapi_initialize, Class.internal.initialize)
+run_on_initialize(populate_class_arrays)
 
+---@class Class
+---@field [string] Array A content class array.
 
-make_table_once("metatable_class", {
-    -- Allows for accessing wrapped content class arrays via Class.<class> (case-insensitive)
+local mt_name = "Class"
+
+M.Class = {
+    -- Allows for accessing wrapped content class arrays via `Class.<class>` (case-insensitive)
     __index = function(t, k)
-        k = k:upper()
-        if class_wrappers[k] then return class_wrappers[k] end
+        check_init_started(mt_name)
+        local wrapper = class_arrays[string_upper(k)]
+        if wrapper then return wrapper end
         log.error("Class does not exist", 2)
     end,
 
-
     __newindex = function(t, k, v)
-        log.error("Class has no properties to set", 2)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Class.Class"
-})
-setmetatable(Class, metatable_class)
-
+    __metatable = mt_class_name(mt_name),
+}
+setmetatable(Class, M.Class)
 
 
--- ========== Find Caches ==========
+-- ========== Find Tables ==========
 
--- Create class find caches
-run_once(function()
-    __class_find_caches = {}
+run_on_initial_load(function()
+    P.class_find_tables = {}  ---@type table<string, FindTable> `<name_global>` -> Content class FindTable
 
     for name_global, _ in pairs(class_name_g2r) do
-        __class_find_caches[name_global] = __class_find_caches[name_global] or FindCache.new()
+        P.class_find_tables[name_global] = FindTable.new()
     end
 end)
 
+local class_find_tables = P.class_find_tables
 
--- Detect if new content is added and add to find cache
+-- Detect if new content is added and add to find table
 -- All vanilla content is added through these as well
+---@type table<number, table>
 local hooks = {
     {gm.constants.achievement_create,       "class_achievement"},
     {gm.constants.actor_skin_create,        "class_actor_skin"},
@@ -94,23 +103,23 @@ local hooks = {
     {gm.constants.skill_create,             "class_skill"},
     {gm.constants.stage_create,             "class_stage"},
     {gm.constants.survivor_create,          "class_survivor"},
-    {gm.constants.survivor_log_create,      "class_survivor_log"}
+    {gm.constants.survivor_log_create,      "class_survivor_log"},
 }
 for _, hook in ipairs(hooks) do
     local name_rapi   = class_name_g2r[hook[2]]
-    local name_global = hook[2]
+    local name_global = hook[2]  ---@type string
 
     gm.post_script_hook(hook[1], function(self, other, result, args)
-        local namespace  = args[1].value
-        local identifier = args[2].value
-        local id         = result.value
+        local namespace  = args[1].value  ---@type string
+        local identifier = args[2].value  ---@type string
+        local id         = result.value   ---@type number
 
-        -- Add to find cache
+        -- Add to find table
         if namespace then
-            __class_find_caches[name_global]:set(
+            class_find_tables[name_global]:set(
                 {
-                    wrapper = __class[name_rapi].wrap(id),
-                    array   = Global[name_global]:get(id),
+                    wrapper    = C[name_rapi].wrap(id),
+                    properties = Global[name_global]:get(id), -- Array
                 },
                 identifier,
                 namespace,
@@ -121,171 +130,103 @@ for _, hook in ipairs(hooks) do
 end
 
 
-
 -- ========== Class Base Implementations ==========
 
--- This file will also create the base implementations
--- for every content class array, containing:
---      * Property      enum
---      * find          static method
---      * find_all      static method
---      * wrap          static method
---      * print         instance method
---      * Metatable for get/set properties
--- 
+-- This file will also create the table declarations
+-- for every content class array, as well as the
+-- metatables for get/set properties
+--
 -- The variable for the class (e.g., `Item`)
--- will already be defined, so no need to write
--- `= new_class()` or anything in their files
--- 
--- Additionally, modify `methods_class[<RAPI name>]` for instance methods
-
+-- will already be defined
+-- E.g.,
+-- ---@class Item
+-- Item = C["Item"]
+--
+-- Additionally, modify `G.methods_content[<RAPI name>]` for wrapper methods
+-- E.g.,
+-- ---@class Item
+-- local methods = G.methods_content["Item"]
 
 -- Load property names from data
-local file = toml.decodeFromFile(PATH.."core/data/class_array.txt")
+local file = toml.decodeFromFile(path.combine(PATH, "data", "tables", "class_array.txt"))
 local properties = file.array
 
+G.methods_content = {}  ---@type table<string, table> Contains tables of wrapper methods for each content class.
 
 -- Create new class table for every content class
-methods_content_class = {}
-
 for name_rapi, name_global in pairs(class_name_r2g) do
-    local class_table = new_class()
+    local content_class = new_class()
+    C[name_rapi] = content_class
 
-    __class[name_rapi] = class_table
-    private[name_rapi] = class_table    -- Define variable for internal use
+    local methods = {}
+    G.methods_content[name_rapi] = methods
 
-    local metatable_name = "metatable_"..name_rapi
+    -- Must create `Property` enum and
+    -- all methods in respective class file
+    -- (See above)
+    content_class.Property = {}
+    content_class.new      = function() throw("Method has not been created for this class yet") end
+    content_class.find     = function() throw("Method has not been created for this class yet") end
+    content_class.find_all = function() throw("Method has not been created for this class yet") end
+    content_class.wrap     = function() throw("Method has not been created for this class yet") end
+    methods.print          = function() throw("Method has not been created for this class yet") end
 
+    local class_find_table = class_find_tables[name_global]
 
-    -- Create enum `Property` from "class_array.txt"
-    local enum = {}
-    for k, v in pairs(properties[name_global]) do
-        enum[k:upper()] = v -- e.g., Item.Property.NAMESPACE = 0
-        enum[v] = k         -- e.g., Item.Property[0] = "namespace"; don't capitalize property name here
-    end
-    class_table.Property = enum
-
-
-    -- `new` (placeholder)
-    class_table.new = function(NAMESPACE, identifier)
-        log.error(name_rapi..".new: Method has not been created for this class yet", 2)
-    end
-
-
-    -- `find`
-    class_table.find = function(identifier, namespace, namespace_is_specified)
-        Initialize.internal.check_if_started(name_rapi..".find")
-        local cached = __class_find_caches[name_global]:get(identifier, namespace, namespace_is_specified)
-        if cached then return cached.wrapper end
-    end
-
-
-    -- `find_all`
-    class_table.find_all = function(NAMESPACE, filter, property)
-        Initialize.internal.check_if_started(name_rapi..".find_all")
-        property = property or 0    -- `namespace` filter by default
-
-        -- Namespace filter
-        if property == 0 then
-            local namespace_is_specified = (filter ~= nil)
-            filter = filter or NAMESPACE
-            return __class_find_caches[name_global]:get_all(filter, namespace_is_specified, "wrapper")
-        end
-
-
-        -- Other filter (very slow!)
-        local elements = {}
-        local find_cache = __class_find_caches[name_global]
-
-        for id = 0, #find_cache - 1 do
-            local element_table = find_cache:get(id)
-            if element_table.array:get(property) == filter then
-                table.insert(elements, element_table.wrapper)
-            end
-        end
-
-        return elements
-    end
-
-
-    -- `wrap`
-    class_table.wrap = function(value)
-        -- Input:   number
-        -- Wraps:   number
-        return make_proxy(Wrap.unwrap(value), private[metatable_name])
-    end
-
-
-    -- Instance methods
-    methods_content_class[name_rapi] = {
-        print = function(self)
-            local array = __class_find_caches[name_global]:get(self.value).array
-            local str = ""
-            for i, v in ipairs(array) do
-                str = str.."\n"..Util.pad_string_right(class_table.Property[i - 1], 32).." = "..Util.tostring(v)
-            end
-            print(str)
-        end
-    }
-
-
-    -- Metatable
-    make_table_once(metatable_name, {
-        __index = function(proxy, k)
+    W[name_rapi] = {
+        __index = function(t, k)
             -- Get wrapped value
-            local value = __proxy[proxy]
+            local value = proxy[t]  ---@type number
             if k == "value" then return value end
-            if k == "RAPI"  then return name_rapi end
-            if k == "array" then return __class_find_caches[name_global]:get(value).array end
+            if k == "RAPI" then return name_rapi end
+            if k == "properties"
+            or k == "array" then
+                return class_find_table[value].value.properties
+            end
 
             -- Methods
-            local method = methods_content_class[name_rapi][k]
-            if method then
-                return method
-            end
+            local method = methods[k]
+            if method then return method end
 
             -- Getter
-            if type(k) == "string" then
-                local index = class_table.Property[k:upper()]
-                if index then
-                    return proxy.array:get(index)
-                end
+            local index = content_class.Property[string_upper(k)]
+            if index then
+                ---@type Array
+                local properties = class_find_table[value].value.properties
+                return properties:get(index)
             end
             log.error("Non-existent "..name_rapi.." property '"..k.."'", 2)
         end,
 
-
-        __newindex = function(proxy, k, v)
+        __newindex = function(t, k, v)
             -- Throw read-only error for certain keys
             if k == "value"
             or k == "RAPI"
+            or k == "properties"
             or k == "array" then
                 log.error("Key '"..k.."' is read-only", 2)
             end
-            
+
             -- Setter
-            if type(k) == "string" then
-                local index = class_table.Property[k:upper()]
-                if index then
-                    proxy.array:set(index, v)
-                    return
-                end
+            local index = content_class.Property[string_upper(k)]
+            if index then
+                local value = proxy[t]
+                ---@type Array
+                local properties = class_find_table[value].value.properties
+                properties:set(index, v)
+                return
             end
             log.error("Non-existent "..name_rapi.." property '"..k.."'", 2)
         end,
 
-
-        __eq = function(proxy, other)
-            return proxy.value == other.value
+        __eq = function(t, other)
+            return proxy[t] == proxy[other]
         end,
 
-        
-        __metatable = "RAPI.Wrapper."..name_rapi
-    })
+        __tostring = function(t)
+            return name_rapi..": "..get_table_pointer(t)
+        end,
+
+        __metatable = mt_wrapper_name(name_rapi),
+    }
 end
-
-
-
--- Public export
-__class.Class = Class
-__class_mt.Class = metatable_class

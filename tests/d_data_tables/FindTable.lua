@@ -54,4 +54,9 @@ return function()
     -- empty namespace behavior
     local empty = ft:get_all("Z", true)
     Tests.assert(#empty, 0)
+
+    -- set/get by id
+    local id = 1000
+    ft:set(123, "foo", "bar", id)
+    Tests.assert(ft[id].value, 123)
 end

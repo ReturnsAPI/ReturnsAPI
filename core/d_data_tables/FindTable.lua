@@ -26,17 +26,19 @@ end
 local methods = {}
 
 --[[
-Stores a value with `identifier` and `namespace`.
+Stores a value with `identifier` and `namespace` (and optionally `id`).
 ]]
 ---@param value any The value to set.
 ---@param identifier string The identifier of the value.
 ---@param namespace string The namespace of the value.
-methods.set = function(self, value, identifier, namespace)
+---@param id? number The numerical ID of the value.
+methods.set = function(self, value, identifier, namespace, id)
     ---@class FindTableData
     local data = {
         value      = value,
         identifier = identifier,
         namespace  = namespace,
+        id         = id,
     }
 
     local ns_table = self[namespace]
@@ -45,6 +47,7 @@ methods.set = function(self, value, identifier, namespace)
         self[namespace] = ns_table
     end
     ns_table[identifier] = data
+    if id then self[id] = data end
 end
 
 --[[
@@ -53,6 +56,8 @@ Retrieves a value with `identifier` and `namespace`.
 Behavior if the user did not provide a namespace:
 - Check in the calling mod's namespace first.
 - Check the rest of the namespaces in a non-deterministic order.
+
+If you need to retrieve by `id`, simply do `<find_table>[<id>].value`.
 ]]
 ---@param identifier string The identifier of the value.
 ---@param namespace string The namespace of the value.
@@ -131,6 +136,7 @@ end
 
 ---@class FindTable
 ---@field [string] table<string, FindTableData>
+---@field [number] FindTableData
 
 W.FindTable = {
     __index = methods,

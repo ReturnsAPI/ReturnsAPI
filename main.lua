@@ -13,9 +13,9 @@ local function make() local _t = {} return setmetatable({}, {__index = function(
 
 G = {}          -- Globals
 P = P or {}     -- Persistent globals that are not reinitialized on hotload
-C = {}          -- Public classes for export
-M = M or make() -- Metatables for classes <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows RAPI hotloads to automatically update existing classes
-W = W or make() -- Metatables for wrappers <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows RAPI hotloads to automatically update existing wrappers
+C = {}          ---@type table<string, table> Public classes for export
+M = M or make() ---@type table<string, table> Metatables for classes <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows RAPI hotloads to automatically update existing classes
+W = W or make() ---@type table<string, table> Metatables for wrappers <br><br>Setting an existing table will merge it instead of overwriting; <br>this allows RAPI hotloads to automatically update existing wrappers
 
 -- Run import functions for RAPI itself
 -- This needs to be called before loading core

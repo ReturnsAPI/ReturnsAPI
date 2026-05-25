@@ -13,7 +13,7 @@ end)
 
 -- ========== Internal ==========
 
----@param name string The name of the method. <br>Necessary for namespace-binded methods.
+---@param name? string The name of the method. <br>Necessary for namespace-binded methods.
 Initialize.internal.check_if_started = function(name)
     if P.initialize_started then return end
     throw("Cannot call method before vanilla content initialization has finished; try placing the call within 'Initialize.add()'", name, 4)

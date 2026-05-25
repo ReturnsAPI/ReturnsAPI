@@ -97,7 +97,6 @@ Callback.ON_SHIELD_RESTORE = 10002
 Callback.ON_SKILL_ACTIVATE = 10003
 Callback.ON_EQUIPMENT_SWAP = 10004
 
----@enum Callback.Priority
 Callback.Priority = {
     NORMAL = 0,
     BEFORE = 1000,
@@ -132,7 +131,7 @@ local function populate_arg_types()
             identifier = identifier:sub(1, pos - 1)..identifier:sub(pos + 1, pos + 1):upper()..identifier:sub(pos + 2, -1)
         end
         local wrapper = Callback.wrap_type(type_id - 1)
-        callback_custom:set(wrapper, identifier, "ror")
+        callback_custom:set(wrapper, identifier, "ror", type_id - 1)
     end
 end
 
@@ -289,7 +288,7 @@ Callback.new = function(NAMESPACE, identifier)
     P.callback_custom_counter = P.callback_custom_counter + 1
 
     local wrapper = Callback.wrap_type(id)
-    callback_custom:set(wrapper, identifier, NAMESPACE)
+    callback_custom:set(wrapper, identifier, NAMESPACE, id)
     return wrapper
 end
 
@@ -454,6 +453,8 @@ metatable_function = W.CallbackFunction
 ---@class CallbackType
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
+---@field namespace string The namespace of the callback type.
+---@field identifier string The identifier of the callback type.
 
 local mt_name = "CallbackType"
 
@@ -466,6 +467,13 @@ W.CallbackType = {
         -- Methods
         local method = methods_type[k]
         if method then return method end
+
+        -- Getter
+        ---@type FindTableData
+        local data = callback_custom[proxy[t]]
+        if data then
+            return data[k]
+        end
     end,
 
     __newindex = function(t, k, v)
