@@ -1,163 +1,90 @@
-if __DEACTIVATE_OLD then return end
 -- ActorState
 
+---@class ActorStateClass
+ActorState = C["ActorState"]
+
+local proxy              = P.proxy
+local metatable          = W["ActorState"]
+local find_table_wrapper = P.class_find_tables_wrapper["ActorState"]
+local find_table_array   = P.class_find_tables_array["ActorState"]
+
+local check_init_started = Initialize.internal.check_if_started
+local unwrap             = Wrap.unwrap
+
+
+-- ========== Annotations ==========
+
+---@class ActorState
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
+
+---@class ActorState
+-- Populate with properties
 
 
 -- ========== Enums ==========
 
---@section Enums
+ActorState.Property = {
 
---@enum
---@name Property
---[[
-NAMESPACE                   0
-IDENTIFIER                  1
-ON_ENTER                    2
-ON_EXIT                     3
-ON_STEP                     4
-ON_GET_INTERRUPT_PRIORITY   5
-CALLABLE_SERIALIZE          6
-CALLABLE_DESERIALIZE        7
-IS_SKILL_STATE              8
-IS_CLIMB_STATE              9
-ACTIVITY_FLAGS              10
-]]
-
-
---@enum
-ActorState.ActivityFlag = {
-    NONE                    = 0,
-    ALLOW_ROPE_CANCEL       = 1,
-    ALLOW_AIM_TURN          = 2
 }
-
-
---@enum
-ActorState.InterruptPriority = {
-    ANY                     = 0,
-    SKILL_INTERRUPT_PERIOD  = 1,
-    SKILL                   = 2,
-    PRIORITY_SKILL          = 3,
-    LEGACY_ACTIVITY_STATE   = 4,
-    CLIMB                   = 5,
-    PAIN                    = 6,
-    FROZEN                  = 7,
-    CHARGE                  = 8,
-    VEHICLE                 = 9,
-    BURROWED                = 10,
-    SPAWN                   = 11,
-    TELEPORT                = 12
-}
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The state ID being wrapped.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-
-<br>
-
-Property | Type | Description
-| - | - | -
-`namespace`                 | string    | The namespace the state is in.
-`identifier`                | string    | The identifier for the state within the namespace.
-`on_enter`                  | number    | The ID of the callback that runs when the state is entered. <br>The callback function should have the arguments `actor, data`. <br>`data` is a persistent Struct created by the game.
-`on_exit`                   | number    | The ID of the callback that runs when the state is exited. <br>The callback function should have the arguments `actor, data`. <br>`data` is a persistent Struct created by the game.
-`on_step`                   | number    | The ID of the callback that runs every frame while in the state. <br>The callback function should have the arguments `actor, data`. <br>`data` is a persistent Struct created by the game.
-`on_get_interrupt_priority` | number    | 
-`callable_serialize`        |           | 
-`callable_deserialize`      |           | 
-`is_skill_state`            | bool      | 
-`is_climb_state`            | bool      | 
-`activity_flags`            | number    | 
-]]
-
+local t = {}
+for name, num in pairs(ActorState.Property) do t[num] = name end
+for i = 0, #t do ActorState.Property[i] = t[i] end
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return   ActorState
---@param    identifier  | string    | The identifier for the state.
 --[[
-Creates a new state with the given identifier if it does not already exist,
+Creates a new actor state with the given identifier if it does not already exist, <br>
 or returns the existing one if it does.
 ]]
-ActorState.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started("ActorState.new")
-    if not identifier then log.error("ActorState.new: No identifier provided", 2) end
+---@param identifier string The identifier for the actor state.
+---@return ActorState
+-- ActorState.new = function(NAMESPACE, identifier)
 
-    -- Return existing state if found
-    local state = ActorState.find(identifier, NAMESPACE, true)
-    if state then return state end
+-- end
 
-    -- Create new
-    state = ActorState.wrap(gm.actor_state_create(
-        NAMESPACE,
-        identifier
-    ))
-
-    return state
-end
-
-
---@static
---@name         find
---@return       ActorState or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
 --[[
-Searches for the specified state and returns it.
+Searches for the specified actor state and returns it.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return ActorState
+ActorState.find = function(identifier, namespace, namespace_is_specified) end
 
-
---@static
---@name         find_all
---@return       table
---@param        filter      |           | The filter to search by.
---@optional     property    | number    | The property to check. <br>@link {`ActorState.Property.NAMESPACE` | ActorState#Property} by default.
 --[[
-Returns a table of states matching the specified filter and property.
+Returns a table of all actor state in the specified namespace.
 
-**Note on namespace filter:**
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 
-**NOTE:** Filtering by a non-namespace property is *very slow*!
+**NOTE:** Filtering by a non-namespace property is *very slow*! <br>
 Try not to do that too much.
 ]]
+---@param filter any The filter to search by.
+---@param property? number The property to check. <br>`ActorState.Property.NAMESPACE` by default.
+---@return table<number, ActorState>
+ActorState.find_all = function(NAMESPACE, filter, property) end
 
-
---@static
---@name         wrap
---@return       ActorState
---@param        id          | number    | The state ID to wrap.
 --[[
-Returns an ActorState wrapper containing the provided state ID.
+Returns an actor state wrapper containing the provided actor state ID.
 ]]
+---@param id number | ActorState The actor state to wrap.
+---@return ActorState
+ActorState.wrap = function(id) end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class ActorState
+local methods = G.methods_content["ActorState"]
 
---@section Instance Methods
+-- Insert other methods before `print`
 
-Util.table_append(methods_content_class["ActorState"], {
-
-    --@instance
-    --@name         print
-    --[[
-    Prints the state's properties.
-    ]]
-
-})
+--[[
+Prints the actor state's properties.
+]]
+methods.print = function(self) end

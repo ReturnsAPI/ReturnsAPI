@@ -12,6 +12,7 @@ local proxy = P.proxy
 
 local string_upper       = string.upper
 local check_init_started = Initialize.internal.check_if_started
+local unwrap             = Wrap.unwrap
 
 
 -- ========== RAPI <-> Global name mapping ==========
@@ -71,14 +72,17 @@ setmetatable(Class, M.Class)
 -- ========== Find Tables ==========
 
 run_on_initial_load(function()
-    P.class_find_tables = {}  ---@type table<string, FindTable> `<name_rapi>` -> Content class FindTable
+    P.class_find_tables_wrapper = {}  ---@type table<string, FindTable> `<name_rapi>` -> Content class FindTable (wrappers)
+    P.class_find_tables_array   = {}  ---@type table<string, FindTable> `<name_rapi>` -> Content class FindTable (property arrays)
 
     for name_rapi, _ in pairs(class_name_r2g) do
-        P.class_find_tables[name_rapi] = FindTable.new()
+        P.class_find_tables_wrapper[name_rapi] = FindTable.new()
+        P.class_find_tables_array[name_rapi]   = FindTable.new()
     end
 end)
 
-local class_find_tables = P.class_find_tables
+local find_tables_wrapper = P.class_find_tables_wrapper
+local find_tables_array   = P.class_find_tables_array
 
 -- Detect if new content is added and add to find table
 -- All vanilla content is added through these as well
@@ -114,17 +118,10 @@ for _, hook in ipairs(hooks) do
         local identifier = args[2].value  ---@type string
         local id         = result.value   ---@type number
 
-        -- Add to find table
+        -- Add to find tables
         if namespace then
-            class_find_tables[name_rapi]:set(
-                {
-                    wrapper    = C[name_rapi].wrap(id),
-                    properties = Global[name_global]:get(id), -- Array
-                },
-                identifier,
-                namespace,
-                id
-            )
+            find_tables_wrapper[name_rapi]:set(C[name_rapi].wrap(id), identifier, namespace, id)
+            find_tables_array[name_rapi]:set(Global[name_global]:get(id), identifier, namespace, id) -- e.g., `Global.class_item:get(10)`
         end
     end)
 end
@@ -132,9 +129,12 @@ end
 
 -- ========== Class Base Implementations ==========
 
--- This file will also create the table declarations
--- for every content class array, as well as the
--- metatables for get/set properties
+-- This file initializes the starting tables
+-- for every content class array, as well as:
+--   * .find()
+--   * .find_all()
+--   * .wrap()
+--   * Metatable
 --
 -- The variable for the class (e.g., `Item`)
 -- will already be defined
@@ -147,31 +147,75 @@ end
 -- ---@class Item
 -- local methods = G.methods_content["Item"]
 
--- Load property names from data
-local file = toml.decodeFromFile(path.combine(PATH, "data", "tables", "class_array.txt"))
-local properties = file.array
-
 G.methods_content = {}  ---@type table<string, table> Contains tables of wrapper methods for each content class.
+
+--[[
+Returns a table with keys settable only *once*. <br>
+This allows for annotations in their respective <br>
+files without overriding methods defined here.
+]]
+---@param t table
+local function set_once(t)
+    return new_proxy(t, {
+        __index = function(t, k) return proxy[t][k] end,
+        __newindex = function(t, k, v) if not proxy[t][k] then proxy[t][k] = v end end
+    })
+end
 
 -- Create new class table for every content class
 for name_rapi, name_global in pairs(class_name_r2g) do
-    local content_class = new_class()
+    local content_class = set_once(new_class())
     C[name_rapi] = content_class
 
-    local methods = {}
+    local metatable
+    local find_table_wrapper = find_tables_wrapper[name_rapi]
+    local find_table_array   = find_tables_array[name_rapi]
+
+    content_class.find = function(identifier, namespace, namespace_is_specified)
+        check_init_started("find")
+        return find_table_wrapper:get(identifier, namespace, namespace_is_specified)
+    end
+
+    content_class.find_all = function(NAMESPACE, filter, property)
+        check_init_started("find_all")
+        property = property or 0  -- `namespace` filter by default
+
+        -- Namespace filter
+        if property == 0 then
+            local namespace_is_specified = (filter ~= nil)
+            return find_table_wrapper:get_all(filter or NAMESPACE, namespace_is_specified)
+        end
+
+        -- Other filter (very slow!)
+        -- Loop over entire find table
+        local out, i = {}, 1
+        for id = 0, #find_table - 1 do
+            ---@type Array
+            local element = find_table_array[id].value
+            if element:get(property) == filter then
+                out[i] = find_table_wrapper[id].value
+                i = i + 1
+            end
+        end
+        return out
+    end
+
+    content_class.wrap = function(id)
+        return new_proxy(unwrap(id), metatable)
+    end
+
+    local methods = set_once({})
     G.methods_content[name_rapi] = methods
 
-    -- Must create `Property` enum and
-    -- all methods in respective class file
-    -- (See above)
-    content_class.Property = {}
-    content_class.new      = function() throw("Method has not been created for this class yet") end
-    content_class.find     = function() throw("Method has not been created for this class yet") end
-    content_class.find_all = function() throw("Method has not been created for this class yet") end
-    content_class.wrap     = function() throw("Method has not been created for this class yet") end
-    methods.print          = function() throw("Method has not been created for this class yet") end
-
-    local class_find_table = class_find_tables[name_rapi]
+    methods.print = function(self)
+        ---@type Array
+        local array = find_table_array[proxy[self]].value
+        local str = ""
+        for i = 0, #content_class.Property do
+            str = str.."\n"..string.pad_right(string.lower(content_class.Property[i]), 32).." = "..tostring(array:get(i))
+        end
+        print(str)
+    end
 
     W[name_rapi] = {
         __index = function(t, k)
@@ -181,7 +225,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             if k == "RAPI" then return name_rapi end
             if k == "properties"
             or k == "array" then
-                return class_find_table[value].value.properties
+                return find_table_array[value].value
             end
 
             -- Methods
@@ -192,7 +236,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             local index = content_class.Property[string_upper(k)]
             if index then
                 ---@type Array
-                local properties = class_find_table[value].value.properties
+                local properties = find_table_array[value].value
                 return properties:get(index)
             end
             log.error("Non-existent "..name_rapi.." property '"..k.."'", 2)
@@ -212,7 +256,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
             if index then
                 local value = proxy[t]
                 ---@type Array
-                local properties = class_find_table[value].value.properties
+                local properties = find_table_array[value].value
                 properties:set(index, v)
                 return
             end
@@ -229,4 +273,21 @@ for name_rapi, name_global in pairs(class_name_r2g) do
 
         __metatable = mt_wrapper_name(name_rapi),
     }
+    metatable = W[name_rapi]
+
+    -- Turn Proxy tables into normal tables afterwards
+    run_after_core(function()
+        local t = {}
+        local value = proxy[content_class]
+        for k, v in pairs(value) do t[k] = v end
+        content_class = t
+        C[name_rapi] = t
+        private[name_rapi] = t
+
+        local t = {}
+        local value = proxy[methods]
+        for k, v in pairs(value) do t[k] = v end
+        methods = t
+        G.methods_content[name_rapi] = t
+    end)
 end

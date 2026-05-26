@@ -1,98 +1,90 @@
-if __DEACTIVATE_OLD then return end
 -- GameMode
 
+---@class GameModeClass
+GameMode = C["GameMode"]
+
+local proxy              = P.proxy
+local metatable          = W["GameMode"]
+local find_table_wrapper = P.class_find_tables_wrapper["GameMode"]
+local find_table_array   = P.class_find_tables_array["GameMode"]
+
+local check_init_started = Initialize.internal.check_if_started
+local unwrap             = Wrap.unwrap
+
+
+-- ========== Annotations ==========
+
+---@class GameMode
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
+
+---@class GameMode
+-- Populate with properties
 
 
 -- ========== Enums ==========
 
---@section Enums
+GameMode.Property = {
 
---@enum
---@name Property
---[[
-NAMESPACE                       0
-IDENTIFIER                      1
-COUNT_NORMAL_UNLOCKS            2
-COUNT_TOWARDS_GAMES_PLAYED      3
-]]
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The game mode ID being wrapped.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-
-<br>
-
-Property | Type | Description
-| - | - | -
-`namespace`                     | string    | The namespace the game mode is in.
-`identifier`                    | string    | The identifier for the game mode within the namespace.
-`count_normal_unlocks`          |           | 
-`count_towards_games_played`    |           | 
-]]
-
+}
+local t = {}
+for name, num in pairs(GameMode.Property) do t[num] = name end
+for i = 0, #t do GameMode.Property[i] = t[i] end
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
+--[[
+Creates a new game mode with the given identifier if it does not already exist, <br>
+or returns the existing one if it does.
+]]
+---@param identifier string The identifier for the game mode.
+---@return GameMode
+-- GameMode.new = function(NAMESPACE, identifier)
 
---@static
---@name         find
---@return       GameMode or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
+-- end
+
 --[[
 Searches for the specified game mode and returns it.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return GameMode
+GameMode.find = function(identifier, namespace, namespace_is_specified) end
 
-
---@static
---@name         find_all
---@return       table
---@param        filter      |           | The filter to search by.
---@optional     property    | number    | The property to check. <br>@link {`GameMode.Property.NAMESPACE` | GameMode#Property} by default.
 --[[
-Returns a table of game modes matching the specified filter and property.
+Returns a table of all game mode in the specified namespace.
 
-**Note on namespace filter:**
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 
-**NOTE:** Filtering by a non-namespace property is *very slow*!
+**NOTE:** Filtering by a non-namespace property is *very slow*! <br>
 Try not to do that too much.
 ]]
+---@param filter any The filter to search by.
+---@param property? number The property to check. <br>`GameMode.Property.NAMESPACE` by default.
+---@return table<number, GameMode>
+GameMode.find_all = function(NAMESPACE, filter, property) end
 
-
---@static
---@name         wrap
---@return       GameMode
---@param        id          | number    | The game mode ID to wrap.
 --[[
-Returns an GameMode wrapper containing the provided game mode ID.
+Returns a game mode wrapper containing the provided game mode ID.
 ]]
+---@param id number | GameMode The game mode to wrap.
+---@return GameMode
+GameMode.wrap = function(id) end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class GameMode
+local methods = G.methods_content["GameMode"]
 
---@section Instance Methods
+-- Insert other methods before `print`
 
-Util.table_append(methods_content_class["GameMode"], {
-
-    --@instance
-    --@name         print
-    --[[
-    Prints the game mode's properties.
-    ]]
-
-})
+--[[
+Prints the game mode's properties.
+]]
+methods.print = function(self) end

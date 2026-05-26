@@ -7,6 +7,7 @@ Used for content lookup tables.
 FindTable = {}
 
 local metatable
+local type = type
 
 
 -- ========== Static Methods ==========
@@ -74,7 +75,7 @@ methods.get = function(self, identifier, namespace, namespace_is_specified)
     -- Global find (if namespace not provided)
     if not namespace_is_specified then
         for ns, ns_table in pairs(self) do
-            if ns ~= namespace then
+            if ns ~= namespace and type(ns) == "string" then
                 ---@type FindTableData
                 local data = ns_table[identifier]
                 if data then return data.value end
@@ -106,7 +107,7 @@ methods.get_all = function(self, namespace, namespace_is_specified)
     -- Global find (if namespace not provided)
     if not namespace_is_specified then
         for ns, ns_table in pairs(self) do
-            if ns ~= namespace then
+            if ns ~= namespace and type(ns) == "string" then
                 for identifier, data in pairs(ns_table) do
                     table.insert(t, data.value)
                 end

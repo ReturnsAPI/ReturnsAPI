@@ -1,109 +1,90 @@
-if __DEACTIVATE_OLD then return end
 -- ActorSkin
 
---[[
-This class is here for completeness.
-Skin adding should be done through @link {`survivor:add_skin` | Survivor#add_skin }.
-]]
+---@class ActorSkinClass
+ActorSkin = C["ActorSkin"]
 
+local proxy              = P.proxy
+local metatable          = W["ActorSkin"]
+local find_table_wrapper = P.class_find_tables_wrapper["ActorSkin"]
+local find_table_array   = P.class_find_tables_array["ActorSkin"]
+
+local check_init_started = Initialize.internal.check_if_started
+local unwrap             = Wrap.unwrap
+
+
+-- ========== Annotations ==========
+
+---@class ActorSkin
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
+
+---@class ActorSkin
+-- Populate with properties
 
 
 -- ========== Enums ==========
 
---@section Enums
+ActorSkin.Property = {
 
---@enum
---@name Property
---[[
-NAMESPACE                   0
-IDENTIFIER                  1
-EFFECT_DISPLAY              2
-DRAW_LOADOUT_PREVIEW        3
-GET_SKIN_SPRITE             4
-DRAW_SKINNABLE_INSTANCE     5
-SKIN_TYPE_INDEX             6
-]]
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The skin ID being wrapped.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-
-<br>
-
-Property | Type | Description
-| - | - | -
-`namespace`                 | string    | The namespace the skin is in.
-`identifier`                | string    | The identifier for the skin within the namespace.
-`effect_display`            | EffectDisplay | 
-`draw_loadout_preview`      |           | 
-`get_skin_sprite`           |           | 
-`draw_skinnable_instance`   |           | 
-`skin_type_index`           | number    | 
-]]
-
+}
+local t = {}
+for name, num in pairs(ActorSkin.Property) do t[num] = name end
+for i = 0, #t do ActorSkin.Property[i] = t[i] end
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@name         find
---@return       ActorSkin or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
 --[[
-Searches for the specified skin and returns it.
-
---@findinfo
+Creates a new actor skin with the given identifier if it does not already exist, <br>
+or returns the existing one if it does.
 ]]
+---@param identifier string The identifier for the actor skin.
+---@return ActorSkin
+-- ActorSkin.new = function(NAMESPACE, identifier)
 
+-- end
 
---@static
---@name         find_all
---@return       table
---@param        filter      |           | The filter to search by.
---@optional     property    | number    | The property to check. <br>@link {`ActorSkin.Property.NAMESPACE` | ActorSkin#Property} by default.
 --[[
-Returns a table of skins matching the specified filter and property.
+Searches for the specified actor skin and returns it.
 
-**Note on namespace filter:**
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
+]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return ActorSkin
+ActorSkin.find = function(identifier, namespace, namespace_is_specified) end
 
-**NOTE:** Filtering by a non-namespace property is *very slow*!
+--[[
+Returns a table of all actor skin in the specified namespace.
+
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
+
+**NOTE:** Filtering by a non-namespace property is *very slow*! <br>
 Try not to do that too much.
 ]]
+---@param filter any The filter to search by.
+---@param property? number The property to check. <br>`ActorSkin.Property.NAMESPACE` by default.
+---@return table<number, ActorSkin>
+ActorSkin.find_all = function(NAMESPACE, filter, property) end
 
-
---@static
---@name         wrap
---@return       ActorSkin
---@param        id          | number    | The skin ID to wrap.
 --[[
-Returns an ActorSkin wrapper containing the provided skin ID.
+Returns an actor skin wrapper containing the provided actor skin ID.
 ]]
+---@param id number | ActorSkin The actor skin to wrap.
+---@return ActorSkin
+ActorSkin.wrap = function(id) end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class ActorSkin
+local methods = G.methods_content["ActorSkin"]
 
---@section Instance Methods
+-- Insert other methods before `print`
 
-Util.table_append(methods_content_class["ActorSkin"], {
-
-    --@instance
-    --@name         print
-    --[[
-    Prints the skin's properties.
-    ]]
-
-})
+--[[
+Prints the actor skin's properties.
+]]
+methods.print = function(self) end

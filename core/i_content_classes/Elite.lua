@@ -1,149 +1,90 @@
-if __DEACTIVATE_OLD then return end
 -- Elite
 
+---@class EliteClass
+Elite = C["Elite"]
+
+local proxy              = P.proxy
+local metatable          = W["Elite"]
+local find_table_wrapper = P.class_find_tables_wrapper["Elite"]
+local find_table_array   = P.class_find_tables_array["Elite"]
+
+local check_init_started = Initialize.internal.check_if_started
+local unwrap             = Wrap.unwrap
+
+
+-- ========== Annotations ==========
+
+---@class Elite
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
+
+---@class Elite
+-- Populate with properties
 
 
 -- ========== Enums ==========
 
---@section Enums
+Elite.Property = {
 
---@enum
---@name Property
---[[
-NAMESPACE           0
-IDENTIFIER          1
-TOKEN_NAME          2
-PALETTE             3
-BLEND_COL           4
-HEALTHBAR_ICON      5
-EFFECT_DISPLAY      6
-ON_APPLY            7
-]]
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The elite ID being wrapped.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-
-<br>
-
-Property | Type | Description
-| - | - | -
-`namespace`         | string        | The namespace the elite is in.
-`identifier`        | string        | The identifier for the elite within the namespace.
-`token_name`        | string        | 
-`palette`           | sprite        | 
-`blend_col`         | color         | 
-`healthbar_icon`    | sprite        | 
-`effect_display`    | EffectDisplay | 
-`on_apply`          | number        | The ID of the callback that runs when the elite type is applied to an actor. <br>The callback function should have the argument `actor`.
-]]
-
+}
+local t = {}
+for name, num in pairs(Elite.Property) do t[num] = name end
+for i = 0, #t do Elite.Property[i] = t[i] end
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return   Elite
---@param    identifier  | string    | The identifier for the elite type.
 --[[
-Creates a new elite type with the given identifier if it does not already exist,
+Creates a new elite with the given identifier if it does not already exist, <br>
 or returns the existing one if it does.
 ]]
-Elite.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started("Elite.new")
-    if not identifier then log.error("Elite.new: No identifier provided", 2) end
+---@param identifier string The identifier for the elite.
+---@return Elite
+-- Elite.new = function(NAMESPACE, identifier)
 
-    -- Return existing elite if found
-    local elite = Elite.find(identifier, NAMESPACE, true)
-    if elite then return elite end
+-- end
 
-    -- Create new
-    elite = Elite.wrap(gm.elite_type_create(
-        NAMESPACE,
-        identifier
-    ))
-
-    return elite
-end
-
-
---@static
---@name         find
---@return       Elite or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified elite and returns it.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return Elite
+Elite.find = function(identifier, namespace, namespace_is_specified) end
 
-
---@static
---@name         find_all
---@return       table
---@param        filter      |           | The filter to search by.
---@optional     property    | number    | The property to check. <br>@link {`Elite.Property.NAMESPACE` | Elite#Property} by default.
 --[[
-Returns a table of elites matching the specified filter and property.
+Returns a table of all elite in the specified namespace.
 
-**Note on namespace filter:**
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 
-**NOTE:** Filtering by a non-namespace property is *very slow*!
+**NOTE:** Filtering by a non-namespace property is *very slow*! <br>
 Try not to do that too much.
 ]]
+---@param filter any The filter to search by.
+---@param property? number The property to check. <br>`Elite.Property.NAMESPACE` by default.
+---@return table<number, Elite>
+Elite.find_all = function(NAMESPACE, filter, property) end
 
-
---@static
---@name         wrap
---@return       Elite
---@param        id          | number    | The elite ID to wrap.
 --[[
-Returns an Elite wrapper containing the provided elite ID.
+Returns an elite wrapper containing the provided elite ID.
 ]]
+---@param id number | Elite The elite to wrap.
+---@return Elite
+Elite.wrap = function(id) end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class Elite
+local methods = G.methods_content["Elite"]
 
---@section Instance Methods
+-- Insert other methods before `print`
 
-Util.table_append(methods_content_class["Elite"], {
-
-    --@instance
-    --@name         print
-    --[[
-    Prints the elite's properties.
-    ]]
-
-
-    --@instance
-    --@param        palette     | sprite    | The palette sprite to set.
-    --[[
-    Sets the palette sprite of the elite type.
-
-    This also calls `GM.elite_generate_palettes()`.
-    ]]
-    set_palette = function(self, palette)
-        if not palette then log.error("set_palette: sprite is not provided", 2) end
-
-        palette = Wrap.unwrap(palette)
-        if type(palette) ~= "number" then log.error("set_palette: Invalid palette argument", 2) end
-
-        self.palette = palette
-        gm.elite_generate_palettes()
-    end,
-
-})
+--[[
+Prints the elite's properties.
+]]
+methods.print = function(self) end

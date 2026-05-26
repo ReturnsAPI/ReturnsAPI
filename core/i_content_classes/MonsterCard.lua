@@ -1,133 +1,90 @@
-if __DEACTIVATE_OLD then return end
 -- MonsterCard
 
+---@class MonsterCardClass
+MonsterCard = C["MonsterCard"]
+
+local proxy              = P.proxy
+local metatable          = W["MonsterCard"]
+local find_table_wrapper = P.class_find_tables_wrapper["MonsterCard"]
+local find_table_array   = P.class_find_tables_array["MonsterCard"]
+
+local check_init_started = Initialize.internal.check_if_started
+local unwrap             = Wrap.unwrap
+
+
+-- ========== Annotations ==========
+
+---@class MonsterCard
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
+
+---@class MonsterCard
+-- Populate with properties
 
 
 -- ========== Enums ==========
 
---@section Enums
+MonsterCard.Property = {
 
---@enum
---@name Property
---[[
-NAMESPACE           0
-IDENTIFIER          1
-SPAWN_TYPE          2
-SPAWN_COST          3
-OBJECT_ID           4
-IS_BOSS             5
-IS_NEW_ENEMY        6
-ELITE_LIST          7
-CAN_BE_BLIGHTED     8
-]]
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The monster card ID being wrapped.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-
-<br>
-
-Property | Type | Description
-| - | - | -
-`namespace`                     | string    | The namespace the monster card is in.
-`identifier`                    | string    | The identifier for the monster card within the namespace.
-`spawn_type`                    | number    | 
-`spawn_cost`                    | number    | 
-`object_id`                     | number    | 
-`is_boss`                       | bool      | 
-`is_new_enemy`                  | bool      | 
-`elite_list`                    |           | 
-`can_be_blighted`               | bool      | 
-]]
-
+}
+local t = {}
+for name, num in pairs(MonsterCard.Property) do t[num] = name end
+for i = 0, #t do MonsterCard.Property[i] = t[i] end
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return   MonsterCard
---@param    identifier  | string    | The identifier for the card.
 --[[
-Creates a new card with the given identifier if it does not already exist,
+Creates a new monster card with the given identifier if it does not already exist, <br>
 or returns the existing one if it does.
 ]]
-MonsterCard.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started("MonsterCard.new")
-    if not identifier then log.error("MonsterCard.new: No identifier provided", 2) end
+---@param identifier string The identifier for the monster card.
+---@return MonsterCard
+-- MonsterCard.new = function(NAMESPACE, identifier)
 
-    -- Return existing card if found
-    local card = MonsterCard.find(identifier, NAMESPACE, true)
-    if card then return card end
+-- end
 
-    -- Create new
-    card = MonsterCard.wrap(gm.monster_card_create(
-        NAMESPACE,
-        identifier
-    ))
-
-    return card
-end
-
-
---@static
---@name         find
---@return       MonsterCard or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified monster card and returns it.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return MonsterCard
+MonsterCard.find = function(identifier, namespace, namespace_is_specified) end
 
-
---@static
---@name         find_all
---@return       table
---@param        filter      |           | The filter to search by.
---@optional     property    | number    | The property to check. <br>@link {`MonsterCard.Property.NAMESPACE` | MonsterCard#Property} by default.
 --[[
-Returns a table of monster cards matching the specified filter and property.
+Returns a table of all monster card in the specified namespace.
 
-**Note on namespace filter:**
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 
-**NOTE:** Filtering by a non-namespace property is *very slow*!
+**NOTE:** Filtering by a non-namespace property is *very slow*! <br>
 Try not to do that too much.
 ]]
+---@param filter any The filter to search by.
+---@param property? number The property to check. <br>`MonsterCard.Property.NAMESPACE` by default.
+---@return table<number, MonsterCard>
+MonsterCard.find_all = function(NAMESPACE, filter, property) end
 
-
---@static
---@name         wrap
---@return       MonsterCard
---@param        id          | number    | The monster card ID to wrap.
 --[[
-Returns an MonsterCard wrapper containing the provided monster card ID.
+Returns a monster card wrapper containing the provided monster card ID.
 ]]
+---@param id number | MonsterCard The monster card to wrap.
+---@return MonsterCard
+MonsterCard.wrap = function(id) end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class MonsterCard
+local methods = G.methods_content["MonsterCard"]
 
---@section Instance Methods
+-- Insert other methods before `print`
 
-Util.table_append(methods_content_class["MonsterCard"], {
-
-    --@instance
-    --@name         print
-    --[[
-    Prints the monster card's properties.
-    ]]
-
-})
+--[[
+Prints the monster card's properties.
+]]
+methods.print = function(self) end
