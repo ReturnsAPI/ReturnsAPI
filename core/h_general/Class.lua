@@ -71,10 +71,10 @@ setmetatable(Class, M.Class)
 -- ========== Find Tables ==========
 
 run_on_initial_load(function()
-    P.class_find_tables = {}  ---@type table<string, FindTable> `<name_global>` -> Content class FindTable
+    P.class_find_tables = {}  ---@type table<string, FindTable> `<name_rapi>` -> Content class FindTable
 
-    for name_global, _ in pairs(class_name_g2r) do
-        P.class_find_tables[name_global] = FindTable.new()
+    for name_rapi, _ in pairs(class_name_r2g) do
+        P.class_find_tables[name_rapi] = FindTable.new()
     end
 end)
 
@@ -116,7 +116,7 @@ for _, hook in ipairs(hooks) do
 
         -- Add to find table
         if namespace then
-            class_find_tables[name_global]:set(
+            class_find_tables[name_rapi]:set(
                 {
                     wrapper    = C[name_rapi].wrap(id),
                     properties = Global[name_global]:get(id), -- Array
@@ -171,7 +171,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
     content_class.wrap     = function() throw("Method has not been created for this class yet") end
     methods.print          = function() throw("Method has not been created for this class yet") end
 
-    local class_find_table = class_find_tables[name_global]
+    local class_find_table = class_find_tables[name_rapi]
 
     W[name_rapi] = {
         __index = function(t, k)

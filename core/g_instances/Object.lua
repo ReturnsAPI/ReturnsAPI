@@ -136,7 +136,7 @@ end
 Searches for the specified object and returns it.
 
 If no namespace is provided, searches globally in a non-deterministic* order. <br>
-* Guaranteed to check in your mod's namespace first.
+\* Guaranteed to check in your mod's namespace first.
 ]]
 ---@param identifier string The identifier to search for.
 ---@param namespace? string The namespace to search in.
@@ -149,7 +149,7 @@ end
 Returns a table of all objects in the specified namespace.
 
 If no namespace is provided, searches globally in a non-deterministic* order. <br>
-* Guaranteed to check in your mod's namespace first.
+\* Guaranteed to check in your mod's namespace first.
 ]]
 ---@param namespace? string The namespace to search in.
 ---@return table<number, Object>
@@ -378,15 +378,15 @@ end
 ---@field array Array | table Alias for `.properties`.
 
 ---@class Object
----@field base number The `object_index` of the "base" (parent) object used to create this one. <br>**Only exists for custom objects.**
----@field obj_depth number The object depth.
+---@field base       number The `object_index` of the "base" (parent) object used to create this one. <br>**Only exists for custom objects.**
+---@field obj_depth  number The object depth.
 ---@field obj_sprite number The object sprite ID.
 ---@field identifier string The identifier for the object within the namespace.
----@field namespace string The namespace the object is in.
----@field on_create number The ID of the callback that runs when an instance of the object is created. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+---@field namespace  string The namespace the object is in.
+---@field on_create  number The ID of the callback that runs when an instance of the object is created. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
 ---@field on_destroy number The ID of the callback that runs when an instance of the object is destroyed. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
----@field on_step number The ID of the callback that runs every step for an instance of the object. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
----@field on_draw number The ID of the callback that runs every step for an instance of the object (for drawing). <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+---@field on_step    number The ID of the callback that runs every step for an instance of the object. <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
+---@field on_draw    number The ID of the callback that runs every step for an instance of the object (for drawing). <br>The callback function should have the argument `inst`. <br>**Only exists for custom objects.**
 
 local mt_name = "Object"
 

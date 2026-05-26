@@ -296,7 +296,7 @@ end
 Searches for the specified callback type and returns it.
 
 If no namespace is provided, searches globally in a non-deterministic* order. <br>
-* Guaranteed to check in your mod's namespace first.
+\* Guaranteed to check in your mod's namespace first.
 ]]
 ---@param identifier string The identifier to search for.
 ---@param namespace? string The namespace to search in.
@@ -309,7 +309,7 @@ end
 Returns a table of all callback types in the specified namespace.
 
 If no namespace is provided, searches globally in a non-deterministic* order. <br>
-* Guaranteed to check in your mod's namespace first.
+\* Guaranteed to check in your mod's namespace first.
 ]]
 ---@param namespace? string The namespace to search in.
 ---@return table<number, CallbackType>
