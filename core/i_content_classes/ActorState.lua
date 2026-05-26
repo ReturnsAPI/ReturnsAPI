@@ -40,9 +40,9 @@ or returns the existing one if it does.
 ]]
 ---@param identifier string The identifier for the actor state.
 ---@return ActorState
--- ActorState.new = function(NAMESPACE, identifier)
-
--- end
+ActorState.new = function(NAMESPACE, identifier)
+    throw("Method has not been created for this class yet", "new")
+end
 
 --[[
 Searches for the specified actor state and returns it.

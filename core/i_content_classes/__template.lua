@@ -42,9 +42,9 @@ or returns the existing one if it does.
 ]]
 ---@param identifier string The identifier for the CLASS_LOWER.
 ---@return CLASS_UPPER
--- CLASS_UPPER.new = function(NAMESPACE, identifier)
-
--- end
+CLASS_UPPER.new = function(NAMESPACE, identifier)
+    throw("Method has not been created for this class yet", "new")
+end
 
 --[[
 Searches for the specified CLASS_LOWER and returns it.

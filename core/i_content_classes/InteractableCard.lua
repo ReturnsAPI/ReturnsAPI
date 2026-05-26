@@ -40,9 +40,9 @@ or returns the existing one if it does.
 ]]
 ---@param identifier string The identifier for the interactable card.
 ---@return InteractableCard
--- InteractableCard.new = function(NAMESPACE, identifier)
-
--- end
+InteractableCard.new = function(NAMESPACE, identifier)
+    throw("Method has not been created for this class yet", "new")
+end
 
 --[[
 Searches for the specified interactable card and returns it.

@@ -40,9 +40,9 @@ or returns the existing one if it does.
 ]]
 ---@param identifier string The identifier for the difficulty.
 ---@return Difficulty
--- Difficulty.new = function(NAMESPACE, identifier)
-
--- end
+Difficulty.new = function(NAMESPACE, identifier)
+    throw("Method has not been created for this class yet", "new")
+end
 
 --[[
 Searches for the specified difficulty and returns it.
