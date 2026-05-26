@@ -1,6 +1,6 @@
 -- Hook
 
----@class Hook
+---@class HookClass
 Hook = new_class()
 C.Hook = Hook
 

@@ -1,6 +1,6 @@
 -- Player
 
----@class Player: Actor
+---@class PlayerClass
 Player = new_class()
 C.Player = Player
 
@@ -28,7 +28,7 @@ end
 
 -- ========== Wrapper Methods ==========
 
----@class Player
+---@class Player: Actor
 local methods = {}
 G.methods_player = methods
 

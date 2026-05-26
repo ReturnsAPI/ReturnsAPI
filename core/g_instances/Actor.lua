@@ -1,6 +1,6 @@
 -- Actor
 
----@class Actor: Instance
+---@class ActorClass
 Actor = new_class()
 C.Actor = Actor
 
@@ -30,7 +30,7 @@ Actor.KnockbackKind = {
 
 -- ========== Wrapper Methods ==========
 
----@class Actor
+---@class Actor: Instance
 local methods = {}
 G.methods_actor = methods
 

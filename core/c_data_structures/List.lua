@@ -6,7 +6,7 @@ Allows for easier manipulation of GameMaker DS Lists.
 DS resources should always be destroyed once <br>
 they are no longer in use to free up memory.
 ]]
----@class List
+---@class ListClass
 List = new_class()
 C.List = List
 

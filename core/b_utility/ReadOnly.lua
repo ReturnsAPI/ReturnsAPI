@@ -1,6 +1,6 @@
 -- ReadOnly
 
----@class ReadOnly
+---@class ReadOnlyClass
 ReadOnly = new_class()
 C.ReadOnly = ReadOnly
 

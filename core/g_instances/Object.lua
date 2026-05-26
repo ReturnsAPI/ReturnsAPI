@@ -1,6 +1,6 @@
 -- Object
 
----@class Object
+---@class ObjectClass
 Object = new_class()
 C.Object = Object
 

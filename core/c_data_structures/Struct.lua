@@ -6,7 +6,7 @@ Allows for manipulation of GameMaker structs.
 Struct wrappers can be get/set to using dot syntax <br>
 (e.g., `struct.my_key = 123`).
 ]]
----@class Struct
+---@class StructClass
 Struct = new_class()
 C.Struct = Struct
 

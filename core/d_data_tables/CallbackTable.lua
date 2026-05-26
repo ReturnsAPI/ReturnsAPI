@@ -4,7 +4,7 @@
 Used for storing callback functions, <br>
 with a numerical priority system.
 ]]
----@class CallbackTable
+---@class CallbackTableClass
 CallbackTable = {}
 
 local metatable

@@ -6,7 +6,7 @@ Allows for easier manipulation of GameMaker DS Maps.
 DS resources should always be destroyed once <br>
 they are no longer in use to free up memory.
 ]]
----@class Map
+---@class MapClass
 Map = new_class()
 C.Map = Map
 

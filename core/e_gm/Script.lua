@@ -1,6 +1,6 @@
 -- Script
 
----@class Script
+---@class ScriptClass
 Script = {}
 C.Script = Script
 

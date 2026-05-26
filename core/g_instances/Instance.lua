@@ -1,6 +1,6 @@
 -- Instance
 
----@class Instance
+---@class InstanceClass
 Instance = new_class()
 C.Instance = Instance
 

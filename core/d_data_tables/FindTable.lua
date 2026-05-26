@@ -3,7 +3,7 @@
 --[[
 Used for content lookup tables.
 ]]
----@class FindTable
+---@class FindTableClass
 FindTable = {}
 
 local metatable

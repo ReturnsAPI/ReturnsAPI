@@ -3,7 +3,7 @@
 --[[
 Allows for easier manipulation of GameMaker arrays.
 ]]
----@class Array
+---@class ArrayClass
 Array = new_class()
 C.Array = Array
 
