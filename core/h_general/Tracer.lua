@@ -3,8 +3,8 @@ if __DEACTIVATE_OLD then return end
 
 Tracer = new_class()
 
-run_once(function()
-    __tracer_find_cache = FindCache.new()
+run_on_initial_load(function()
+    __tracer_find_cache = FindTable.new()
     __tracer_callbacks = {}
 end)
 

@@ -53,7 +53,7 @@ gm.translate("foo.bar.baz", "world")    --> "Hello world!"
 
 Language = new_class()
 
-run_once(function()
+run_on_initial_load(function()
     -- Contains ENV tables of all registered mods
     __language_registered = {}
 end)

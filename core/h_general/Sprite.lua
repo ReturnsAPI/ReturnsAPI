@@ -3,8 +3,8 @@ if __DEACTIVATE_OLD then return end
 
 Sprite = new_class()
 
-run_once(function()
-    __sprite_find_cache = FindCache.new()
+run_on_initial_load(function()
+    __sprite_find_cache = FindTable.new()
 end)
 
 

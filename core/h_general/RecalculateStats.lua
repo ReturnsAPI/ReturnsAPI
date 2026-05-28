@@ -3,8 +3,8 @@ if __DEACTIVATE_OLD then return end
 
 RecalculateStats = new_class()
 
-run_once(function()
-    __recalcstats_cache = CallbackCache.new()
+run_on_initial_load(function()
+    __recalcstats_cache = CallbackTable.new()
 end)
 
 
@@ -62,7 +62,7 @@ Automatically called when you hotload your mod.
 RecalculateStats.remove_all = function(NAMESPACE)
     __recalcstats_cache:remove_all(NAMESPACE)
 end
-table.insert(_clear_namespace_functions, RecalculateStats.remove_all)
+run_on_import(RecalculateStats.remove_all)
 
 
 

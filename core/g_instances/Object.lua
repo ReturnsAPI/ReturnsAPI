@@ -249,7 +249,7 @@ Automatically called when you hotload your mod.
 --         if #subtable <= 0 then __object_deserializers[object] = nil end
 --     end
 -- end
--- table.insert(_clear_namespace_functions, Object.remove_all_serializers)
+-- run_on_import(Object.remove_all_serializers)
 
 --[[
 Returns an Object wrapper containing the provided object index.

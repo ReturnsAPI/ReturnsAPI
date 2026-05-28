@@ -5,8 +5,8 @@ if __DEACTIVATE_OLD then return end
 
 ItemTier = new_class()
 
-run_once(function()
-    __item_tier_cache = FindCache.new()
+run_on_initial_load(function()
+    __item_tier_cache = FindTable.new()
 end)
 
 

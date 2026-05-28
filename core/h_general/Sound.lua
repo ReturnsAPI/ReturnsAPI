@@ -3,8 +3,8 @@ if __DEACTIVATE_OLD then return end
 
 Sound = new_class()
 
-run_once(function()
-    __sound_find_cache = FindCache.new()
+run_on_initial_load(function()
+    __sound_find_cache = FindTable.new()
 end)
 
 local packet_syncSound

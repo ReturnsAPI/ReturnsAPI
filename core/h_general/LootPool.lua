@@ -7,8 +7,8 @@ if __DEACTIVATE_OLD then return end
 
 LootPool = new_class()
 
-run_once(function()
-    __loot_pool_cache = FindCache.new()
+run_on_initial_load(function()
+    __loot_pool_cache = FindTable.new()
 end)
 
 local enable_capture = false

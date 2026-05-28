@@ -26,7 +26,7 @@ local unwrap = Wrap.unwrap
 
 M.Global = {
     __index = function(t, k)
-        if k == "_current_frame" then return P.current_frame
+        if k == "_current_frame" then return P.current_frame end
         return g_get(k)
     end,
 

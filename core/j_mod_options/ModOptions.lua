@@ -3,7 +3,7 @@ if __DEACTIVATE_OLD then return end
 
 ModOptions = new_class()
 
-run_once(function()
+run_on_initial_load(function()
     __mod_options_headers = {}
 end)
 
@@ -80,7 +80,7 @@ Automatically called when you hotload your mod.
 ModOptions.remove = function(NAMESPACE)
     __mod_options_headers[NAMESPACE] = nil
 end
-table.insert(_clear_namespace_functions, ModOptions.remove)
+run_on_import(ModOptions.remove)
 
 
 

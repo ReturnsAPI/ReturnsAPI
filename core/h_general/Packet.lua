@@ -5,8 +5,8 @@ if __DEACTIVATE_OLD then return end
 
 Packet = new_class()
 
-run_once(function()
-    __packet_find_cache = FindCache.new()
+run_on_initial_load(function()
+    __packet_find_cache = FindTable.new()
 
     __callbacks_onSerialize   = {}  -- Stores callback functions to run on serialization/deserialization
     __callbacks_onDeserialize = {}
