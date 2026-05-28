@@ -1,260 +1,175 @@
-if __DEACTIVATE_OLD then return end
 -- AttackFlag
 
+---@class AttackFlagClass
 AttackFlag = new_class()
+C.AttackFlag = AttackFlag
 
-AttackFlag.CUSTOM_START = 32
-
-run_once(function()
-    __attack_flag_cache = FindCache.new()
-    __attack_flag_counter = AttackFlag.CUSTOM_START - 1
+run_on_initial_load(function()
+    P.attack_flag_table = FindTable.new()
 end)
 
+local flag_table = P.attack_flag_table
+
+local proxy = P.proxy
+local metatable
+
+local flag_constants = {}   ---@type table<number, string> Array table of vanilla flags (indexed from `1`).
+
+local unwrap = Wrap.unwrap
 
 
 -- ========== Constants ==========
 
---@section Constants
+-- The actual values used by the game are $2^n$ (i.e., bitwise).
 
---[[
-The actual values used by the game are $2^n$ (i.e., bitwise).
-]]
+AttackFlag.CD_RESET_ON_KILL         = 0
+AttackFlag.INFLICT_POISON_DOT       = 1
+AttackFlag.CHEF_IGNITE              = 2
+AttackFlag.STUN_PROC_EF             = 3
+AttackFlag.KNOCKBACK_PROC_EF        = 4 
+AttackFlag.SPAWN_LIGHTNING          = 5
+AttackFlag.SNIPER_BONUS_60          = 6
+AttackFlag.SNIPER_BONUS_30          = 7
+AttackFlag.HAND_STEAM_1             = 8
+AttackFlag.HAND_STEAM_5             = 9
+AttackFlag.DRIFTER_SCRAP_BIT1       = 10
+AttackFlag.DRIFTER_SCRAP_BIT2       = 11
+AttackFlag.DRIFTER_EXECUTE          = 12
+AttackFlag.MINER_HEAT               = 13
+AttackFlag.COMMANDO_WOUND           = 14
+AttackFlag.COMMANDO_WOUND_DAMAGE    = 15
+AttackFlag.GAIN_SKULL_ON_KILL       = 16
+AttackFlag.GAIN_SKULL_BOOSTED       = 17
+AttackFlag.CHEF_FREEZE              = 18
+AttackFlag.CHEF_BIGFREEZE           = 19
+AttackFlag.CHEF_FOOD                = 20
+AttackFlag.INFLICT_ARMOR_STRIP      = 21
+AttackFlag.INFLICT_FLAME_DOT        = 22
+AttackFlag.MERC_AFTERIMAGE_NODAMAGE = 23
+AttackFlag.PILOT_RAID               = 24
+AttackFlag.PILOT_RAID_BOOSTED       = 25
+AttackFlag.PILOT_MINE               = 26
+AttackFlag.INFLICT_ARTI_FLAME_DOT   = 27
+AttackFlag.SAWMERANG                = 28
+AttackFlag.FORCE_PROC               = 29
 
---@constants
---[[
-CD_RESET_ON_KILL            0
-INFLICT_POISON_DOT          1
-CHEF_IGNITE                 2
-STUN_PROC_EF                3
-KNOCKBACK_PROC_EF           4 
-SPAWN_LIGHTNING             5
-SNIPER_BONUS_60             6
-SNIPER_BONUS_30             7
-HAND_STEAM_1                8
-HAND_STEAM_5                9
-DRIFTER_SCRAP_BIT1          10
-DRIFTER_SCRAP_BIT2          11
-DRIFTER_EXECUTE             12
-MINER_HEAT                  13
-COMMANDO_WOUND              14
-COMMANDO_WOUND_DAMAGE       15
-GAIN_SKULL_ON_KILL          16
-GAIN_SKULL_BOOSTED          17
-CHEF_FREEZE                 18
-CHEF_BIGFREEZE              19
-CHEF_FOOD                   20
-INFLICT_ARMOR_STRIP         21
-INFLICT_FLAME_DOT           22
-MERC_AFTERIMAGE_NODAMAGE    23
-PILOT_RAID                  24
-PILOT_RAID_BOOSTED          25
-PILOT_MINE                  26
-INFLICT_ARTI_FLAME_DOT      27
-SAWMERANG                   28
-FORCE_PROC                  29
-]]
-
-local flag_constants = {
-    CD_RESET_ON_KILL            = 0,
-    INFLICT_POISON_DOT          = 1,
-    CHEF_IGNITE                 = 2,
-    STUN_PROC_EF                = 3,
-    KNOCKBACK_PROC_EF           = 4, 
-    SPAWN_LIGHTNING             = 5,
-    SNIPER_BONUS_60             = 6,
-    SNIPER_BONUS_30             = 7,
-    HAND_STEAM_1                = 8,
-    HAND_STEAM_5                = 9,
-    DRIFTER_SCRAP_BIT1          = 10,
-    DRIFTER_SCRAP_BIT2          = 11,
-    DRIFTER_EXECUTE             = 12,
-    MINER_HEAT                  = 13,
-    COMMANDO_WOUND              = 14,
-    COMMANDO_WOUND_DAMAGE       = 15,
-    GAIN_SKULL_ON_KILL          = 16,
-    GAIN_SKULL_BOOSTED          = 17,
-    CHEF_FREEZE                 = 18,
-    CHEF_BIGFREEZE              = 19,
-    CHEF_FOOD                   = 20,
-    INFLICT_ARMOR_STRIP         = 21,
-    INFLICT_FLAME_DOT           = 22,
-    MERC_AFTERIMAGE_NODAMAGE    = 23,
-    PILOT_RAID                  = 24,
-    PILOT_RAID_BOOSTED          = 25,
-    PILOT_MINE                  = 26,
-    INFLICT_ARTI_FLAME_DOT      = 27,
-    SAWMERANG                   = 28,
-    FORCE_PROC                  = 29,
-}
-
--- Add to AttackFlag directly (e.g., AttackFlag.MINER_HEAT)
-for k, v in pairs(flag_constants) do
-    AttackFlag[k] = v
+-- Populate `flag_constants`
+for name, flag in pairs(AttackFlag) do
+    if type(flag) == "number" then
+        flag_constants[flag + 1] = name
+    end
 end
 
+AttackFlag.CUSTOM_START = 32
 
---@constants
---[[
-CUSTOM_START    32
-]]
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The ID of the attack flag.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`namespace`     | string    | *Read-only.* The namespace the attack flag is in.
-`identifier`    | string    | *Read-only.* The identifier for the attack flag within the namespace.
-]]
-
+run_on_initial_load(function()
+    P.attack_flag_counter = AttackFlag.CUSTOM_START - 1  -- Highest attack flag value *currently in use*; increment before taking.
+end)
 
 
 -- ========== Internal ==========
 
--- Called at the bottom of this file
--- (I want to keep the Internal section up here
--- to match the ordering everywhere else)
-AttackFlag.internal.populate = function()
-    -- Populate find cache with vanilla attack flags
-    for name, num_id in pairs(flag_constants) do
+-- Called at the bottom of this file since it does wrapping
+local function populate_find_table()
+    -- Populate find table with vanilla attack flags
+    for flag, name in ipairs(flag_constants) do
         local identifier = name:lower()
+
+        -- Convert snake_case to camelCase
         while true do
             local pos = identifier:find("_")
             if not pos then break end
-
-            -- E.g., PILOT_RAID -> pilotRaid
             identifier = identifier:sub(1, pos - 1)..identifier:sub(pos + 1, pos + 1):upper()..identifier:sub(pos + 2, -1)
         end
 
-        __attack_flag_cache:set(
-            {
-                wrapper = AttackFlag.wrap(num_id),
-            },
-            identifier,
-            "ror",
-            num_id
-        )
+        flag_table:set(AttackFlag.wrap(flag), identifier, "ror", flag)
     end
 end
 
 
-
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       AttackFlag
---@param        identifier      | string    | The identifier for the attack flag.
 --[[
-Allocates a new attack flag value for the given identifier if it does not already exist,
+Allocates a new attack flag value for the given identifier if it does not already exist, <br>
 or returns the existing one if it does.
 ]]
+---@param identifier string The identifier for the attack flag.
+---@return AttackFlag
 AttackFlag.new = function(NAMESPACE, identifier)
     -- Return existing flag if found
     local flag = AttackFlag.find(identifier, NAMESPACE, true)
     if flag then return flag end
 
-    __attack_flag_counter = __attack_flag_counter + 1
+    -- Get next usable ID
+    P.attack_flag_counter = P.attack_flag_counter + 1
 
-    local wrapper = AttackFlag.wrap(__attack_flag_counter)
-
-    -- Add to cache
-    __attack_flag_cache:set(
-        {
-            wrapper = wrapper,
-        },
-        identifier,
-        NAMESPACE,
-        __attack_flag_counter
-    )
-
+    local wrapper = AttackFlag.wrap(P.attack_flag_counter)
+    flag_table:set(wrapper, identifier, NAMESPACE, P.attack_flag_counter)
     return wrapper
 end
 
-
---@static
---@return       AttackFlag
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified attack flag value and returns it.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return AttackFlag
 AttackFlag.find = function(identifier, namespace, namespace_is_specified)
-    local cached = __attack_flag_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached.wrapper end
+    return flag_table:get(identifier, namespace, namespace_is_specified)
 end
 
-
---@static
---@return       table
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Returns a table of all attack flags in the specified namespace.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param namespace? string The namespace to search in.
+---@return table<number, AttackFlag>
 AttackFlag.find_all = function(namespace, namespace_is_specified)
-    return __attack_flag_cache:get_all(namespace, namespace_is_specified, "wrapper")
+    return flag_table:get_all(namespace, namespace_is_specified)
 end
 
-
---@static
---@return       AttackFlag
---@param        id          | number    | The attack flag ID to wrap.
 --[[
 Returns an AttackFlag wrapper containing the provided attack flag ID.
 ]]
+---@param id number The attack flag ID to wrap.
+---@return AttackFlag
 AttackFlag.wrap = function(id)
-    -- Input:   number or AttackFlag wrapper
-    -- Wraps:   number
-    return make_proxy(Wrap.unwrap(id), metatable_attack_flag)
+    return new_proxy(unwrap(id), metatable)
 end
-
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "AttackFlag"
+---@class AttackFlag
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field namespace string The namespace of the attack flag.
+---@field identifier string The identifier of the attack flag.
 
-make_table_once("metatable_attack_flag", {
-    __index = function(proxy, k)
+local mt_name = "AttackFlag"
+
+W.AttackFlag = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
         
         -- Getter
-        return __attack_flag_cache:get(__proxy[proxy])[k]
+        return flag_table[proxy[t]][k]
     end,
     
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-        
-        log.error(wrapper_name.." has no properties to set", 2)
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.AttackFlag
 
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
 
-
-
--- Populate
-AttackFlag.internal.populate()
-
--- Public export
-__class.AttackFlag = AttackFlag
+populate_find_table()

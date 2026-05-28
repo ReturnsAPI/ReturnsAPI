@@ -1,282 +1,255 @@
-if __DEACTIVATE_OLD then return end
 -- AttackInfo
 
---[[
-AttackInfo wrappers are "children" of @link {`Struct` | Struct}, and can use its properties and instance methods.
-]]
-
+---@class AttackInfoClass
 AttackInfo = new_class()
+C.AttackInfo = AttackInfo
 
+local proxy = P.proxy
+local metatable
+local metatable_struct = W.Struct
 
+local type    = type
+local ceil    = math.ceil
+local floor   = math.floor
+local max     = math.max
+local to_bool = Util.bool
+local unwrap  = Wrap.unwrap
 
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         |           | *Read-only.* The `sol.YYObjectBase*` being wrapped.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-]]
-
+local kb_standard = Actor.KnockbackKind.STANDARD
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       AttackInfo
---@param        attack_info | Struct    | The `attack_info` struct to wrap.
 --[[
 Returns an AttackInfo wrapper containing the provided `attack_info` struct.
 ]]
+---@param attack_info Struct The `attack_info` struct to wrap.
+---@return AttackInfo
 AttackInfo.wrap = function(attack_info)
-    -- Input:   struct or AttackInfo wrapper
-    -- Wraps:   struct
-    return make_proxy(Wrap.unwrap(attack_info), metatable_attackinfo)
+    return new_proxy(unwrap(attack_info), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class AttackInfo
+local methods = {}
 
---@section Instance Methods
+--[[
+If called, treats the attack's damage as a raw value, <br>
+instead of having been multiplied as a damage coefficient.
 
-methods_attackinfo = {
-
-    --@instance
-    --[[
-    If called, treats the attack's damage as a raw value,
-    instead of having been multiplied as a damage coefficient.
-
-    *Technical:* Divides `damage` by `parent.damage`.
-    ]]
-    use_raw_damage = function(self)
-        local parent = self.parent
-        if not Instance.exists(parent) then log.error("use_raw_damage: parent does not exist", 2) end
-        
-        local p_damage = parent.damage
-        self.damage = (p_damage > 0 and math.ceil(self.damage / p_damage)) or 0
-    end,
-
-
-    --@instance
-    --@return       number
-    --[[
-    Returns the attack's damage *before* critical calculation.
-    ]]
-    get_damage_nocrit = function(self)
-        if Util.bool(self.critical) then
-            return math.ceil(self.damage / 2)
-        end
-        return self.damage
-    end,
-
-
-    --@instance
-    --@param        damage      | number    | The damage to set.
-    --[[
-    Sets the damage of the attack *before* critical calculation.
-    ]]
-    set_damage = function(self, damage)
-        if not damage then log.error("set_damage: Missing damage argument", 2) end
-        
-        if Util.bool(self.critical) then damage = damage * 2 end
-        self.damage = math.ceil(damage)
-    end,
-
-
-    --@instance
-    --@param        bool            | bool      | `true` - Crit <br>`false` - Non-crit
-    --[[
-    Sets whether or not this attack is a critical hit.
+*Technical:* Divides `damage` by `parent.damage`.
+]]
+methods.use_raw_damage = function(self)
+    local parent = self.parent
+    if not Instance.exists(parent) then throw("parent does not exist") end
     
-    *Technical:* Multiplies/divides `damage` by 2 alongside setting `critical`.
-    ]]
-    set_critical = function(self, bool, ignore_spotter)
-        if bool == nil then log.error("set_critical: Missing bool argument", 2) end
+    local p_damage = parent.damage
+    self.damage = (p_damage > 0 and ceil(self.damage / p_damage)) or 0
+end
 
-        -- Enable crit
-        if bool and (not Util.bool(self.critical)) then
-            self.critical = true
-            self.damage = self.damage * 2
+--[[
+Returns the attack's damage *before* critical calculation.
+]]
+---@return number
+methods.get_damage_nocrit = function(self)
+    if to_bool(self.critical) then
+        return ceil(self.damage / 2)
+    end
+    return self.damage
+end
 
-        -- Disable crit
-        elseif (not bool) and Util.bool(self.critical) then
-            self.critical = false
-            self.damage = math.ceil(self.damage / 2)
+--[[
+Sets the damage of the attack *before* critical calculation.
+]]
+---@param damage number The damage to set.
+methods.set_damage = function(self, damage)
+    if not damage then throw("Missing damage argument") end
+    
+    if to_bool(self.critical) then damage = damage * 2 end
+    self.damage = math.ceil(damage)
+end
 
+--[[
+Sets whether or not this attack is a critical hit.
+
+*Technical:* Multiplies/divides `damage` by 2 alongside setting `critical`.
+]]
+---@param bool boolean `true` - Crit <br>`false` - Non-crit
+methods.set_critical = function(self, bool, ignore_spotter)
+    if bool == nil then throw("Missing bool argument") end
+
+    -- Enable crit
+    if bool and (not to_bool(self.critical)) then
+        self.critical = true
+        self.damage = self.damage * 2
+
+    -- Disable crit
+    elseif (not bool) and to_bool(self.critical) then
+        self.critical = false
+        self.damage = math.ceil(self.damage / 2)
+    end
+end
+
+--[[
+Sets the knockback (stun) that is applied to hit actors.
+]]
+---@param direction number The direction of knockback. <br>`-1` is left, and `1` is right. <br>Other values will stretch/compress the sprite horizontally.
+---@param duration? number The duration of knockback (in frames). <br>`20` by default.
+---@param force? number The force of knockback (in some unknown metric). <br>`3` by default.
+---@param kind? number The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
+methods.set_knockback = function(self, direction, duration, force, kind)
+    self.knockback_direction = direction
+    self.stun                = (duration or 20) / (1.5 * 60)
+    self.knockback           = force or 3
+    self.knockback_kind      = kind  or kb_standard
+end
+
+--[[
+Returns `true` if the attack flag is active, and `false` otherwise.
+]]
+---@param flag number The @link {flag | AttackFlag#Constants} to check.
+---@return boolean
+methods.get_flag = function(self, flag)
+    flag = unwrap(flag)
+
+    if flag <= AttackFlag.FORCE_PROC then
+        return (self.attack_flags & (1 << flag)) > 0
+    end
+
+    if  flag >= AttackFlag.CUSTOM_START
+    and flag <= __attack_flag_counter then
+        local group = floor(flag / 32)
+        local flag_group = self["attack_flags_group_"..group]
+        if flag_group then
+            return (flag_group & (1 << (flag % 32))) > 0
         end
-    end,
+    end
 
+    return false
+end
 
-    --@instance
-    --@param        direction   | number    | The direction of knockback. <br>`-1` is left, and `1` is right. <br>Other values will stretch/compress the sprite horizontally.
-    --@optional     duration    | number    | The duration of knockback (in frames). <br>`20` by default.
-    --@optional     force       | number    | The force of knockback (in some unknown metric). <br>`3` by default.
-    --@optional     kind        | number    | The @link {kind | Actor#KnockbackKind} of knockback. <br>`Actor.KnockbackKind.STANDARD` (`1`) by default.
-    --[[
-    Sets the knockback (stun) that is applied to hit actors.
-    ]]
-    set_knockback = function(self, direction, duration, force, kind)
-        self.knockback_direction    = direction
-        self.stun                   = (duration or 20) / (1.5 * 60)
-        self.knockback              = force or 3
-        self.knockback_kind         = kind  or Actor.KnockbackKind.STANDARD
-    end,
+--[[
+Sets the state of the specified attack flag(s).
+]]
+---@param flag number | table A @link {flag | AttackFlag#Constants} or table of flags to modify.
+---@param state boolean `true` - Enable flag(s) <br>`false` - Disable flag(s)
+methods.set_flag = function(self, flag, state)
+    if type(flag) ~= "table" or flag.RAPI then flag = {flag} end
+    if state == nil then throw("state argument not provided") end
 
+    local attack_flags_group_count  ---@type number The number of attack flag groups present.
+    local attack_flags_group = {}   ---@type table<number, number> Array table of u32s (groups).
 
-    --@instance
-    --@return       bool
-    --@param        flag        | number    | The @link {flag | AttackFlag#Constants} to check.
-    --[[
-    Returns `true` if the attack flag is active, and `false` otherwise.
-    ]]
-    get_flag = function(self, flag)
-        flag = Wrap.unwrap(flag)
+    for _, fl in ipairs(flag) do
+        fl = unwrap(fl)  ---@type number
 
-        if flag <= AttackFlag.FORCE_PROC then
-            return (self.attack_flags & (1 << flag)) > 0
-        end
+        -- Vanilla
+        if fl <= AttackFlag.FORCE_PROC then
+            fl = 1 << fl
 
-        if  flag >= AttackFlag.CUSTOM_START
-        and flag <= __attack_flag_counter then
-            local group = math.floor(flag / 32)
-            local flag_group = self["attack_flags_group_"..group]
-            if flag_group then
-                return (flag_group & (1 << (flag % 32))) > 0
+            -- Toggle
+            local flags = self.attack_flags
+            if ((flags & fl) == 0) and state then
+                self.attack_flags = flags + fl
+            elseif ((flags & fl) > 0) and (not state) then
+                self.attack_flags = flags - fl
             end
-        end
 
-        return false
-    end,
+        -- Custom
+        elseif fl >= AttackFlag.CUSTOM_START
+           and fl <= P.attack_flag_counter then
 
+            -- Since the original `attack_flags` is a u32,
+            -- flags over 2^31 need to be stored in new integers
 
-    --@instance
-    --@param        flag        | number or table   | A @link {flag | AttackFlag#Constants} or table of flags to modify.
-    --@param        state       | bool              | `true` - Enable flag(s) <br>`false` - Disable flag(s)
-    --[[
-    Sets the state of the specified attack flag(s).
-    ]]
-    set_flag = function(self, flag, state)
-        if (type(flag) ~= "table") or flag.RAPI then flag = table.pack(flag) end
-        if state == nil then log.error("set_flags: state argument not provided", 2) end
-
-        local attack_flags_group_count
-        local attack_flags_group = {}
-
-        for _, fl in ipairs(flag) do
-            fl = Wrap.unwrap(fl)
-
-            -- Vanilla
-            if fl <= AttackFlag.FORCE_PROC then
-                fl = 1 << fl
-
-                -- Toggle
-                if ((self.attack_flags & fl) == 0) and state then
-                    self.attack_flags = self.attack_flags + fl
-                end
-                if ((self.attack_flags & fl) > 0) and (not state) then
-                    self.attack_flags = self.attack_flags - fl
-                end
-
-            -- Custom
-            elseif fl >= AttackFlag.CUSTOM_START
-               and fl <= __attack_flag_counter then
-                local group = math.floor(fl / 32)
-                local flag  = 1 << (fl % 32)
-                
-                -- Only access variables once per `set_flag` call
-                -- and store locally to prevent unnecessary GM calls
-                if not attack_flags_group_count then
-                    attack_flags_group_count = self.attack_flags_group_count or 0
-                end
-                if not attack_flags_group[group] then
-                    attack_flags_group[group] = self["attack_flags_group_"..group] or 0
-                end
-                
-                -- Update highest group count
-                attack_flags_group_count = math.max(attack_flags_group_count, group)
-
-                -- Toggle
-                if ((attack_flags_group[group] & flag) == 0) and state then
-                    attack_flags_group[group] = attack_flags_group[group] + flag
-                end
-                if ((attack_flags_group[group] & flag) > 0) and (not state) then
-                    attack_flags_group[group] = attack_flags_group[group] - flag
-                end
+            local group = floor(fl / 32)  -- The u32 (group) this flag is in
+            local flag  = 1 << (fl % 32)  ---@type number Position within the u32 (group)
+            
+            if not attack_flags_group_count then
+                attack_flags_group_count = self.attack_flags_group_count or 0
             end
-        end
+            if not attack_flags_group[group] then
+                attack_flags_group[group] = self["attack_flags_group_"..group] or 0
+            end
+            
+            -- Update number of groups present
+            attack_flags_group_count = max(attack_flags_group_count, group)
 
-        if attack_flags_group_count then
-            self.attack_flags_group_count = attack_flags_group_count
-
-            -- Set unintialized flag groups to 0
-            for group = 1, attack_flags_group_count do
-                self["attack_flags_group_"..group] = attack_flags_group[group] or 0
+            -- Toggle
+            local u32 = attack_flags_group[group]
+            if ((u32 & flag) == 0) and state then
+                attack_flags_group[group] = u32 + flag
+            elseif ((u32 & flag) > 0) and (not state) then
+                attack_flags_group[group] = u32 - flag
             end
         end
     end
 
-}
+    -- Store values back into struct
+    if attack_flags_group_count then
+        self.attack_flags_group_count = attack_flags_group_count
 
+        -- Set unintialized flag groups to 0
+        for group = 1, attack_flags_group_count do
+            self["attack_flags_group_"..group] = attack_flags_group[group] or 0
+        end
+    end
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "AttackInfo"
+---@class AttackInfo
+---@field value Struct The value being wrapped.
+---@field RAPI string The name of this wrapper.
 
-make_table_once("metatable_attackinfo", {
-    __index = function(proxy, k)
+local mt_name = "AttackInfo"
+
+W.AttackInfo = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
 
         -- Methods
-        if methods_attackinfo[k] then
-            return methods_attackinfo[k]
-        end
+        local method = methods[k]
+        if method then return method end
 
-        -- Pass to metatable_struct
-        return metatable_struct.__index(proxy, k)
+        -- Getter
+        return proxy[t][k]
     end,
 
-
-    __newindex = function(proxy, k, v)
+    __newindex = function(t, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
         or k == "RAPI" then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
-        -- Pass to metatable_struct
-        return metatable_struct.__newindex(proxy, k, v)
+        -- Setter
+        proxy[t][k] = v
     end,
 
-
-    __len = function(proxy)
-        return metatable_struct.__len(proxy)
+    __len = function(t)
+        return #proxy[t]
     end,
 
-
-    __pairs = function(proxy)
-        return metatable_struct.__pairs(proxy)
+    __pairs = function(t)
+        return metatable_struct.__pairs(t)
     end,
 
-    
-    __metatable = "RAPI.Wrapper."..wrapper_name
+    __metatable = mt_wrapper_name(mt_name),
 })
-
+metatable = W.AttackInfo
 
 
 -- ========== Hooks ==========
 
 -- Write custom attack flags
 gm.post_script_hook(gm.constants.write_attackinfo, function(self, other, result, args)
-    local info = args[1].value
+    local info  = args[1].value  ---@type Struct
     local count = info.attack_flags_group_count or 0
     
     gm.writebyte(count)
@@ -288,10 +261,9 @@ gm.post_script_hook(gm.constants.write_attackinfo, function(self, other, result,
     end
 end)
 
-
 -- Read custom attack flags
 gm.post_script_hook(gm.constants.read_attackinfo, function(self, other, result, args)
-    local info = result.value
+    local info  = result.value  ---@type Struct
     local count = gm.readbyte()
 
     if count > 0 then
@@ -302,7 +274,3 @@ gm.post_script_hook(gm.constants.read_attackinfo, function(self, other, result, 
         end
     end
 end)
-
-
-
-__class.AttackInfo = AttackInfo

@@ -8,6 +8,11 @@ Automatically wraps/unwraps on access.
 Global = new_class()
 C.Global = Global
 
+run_on_initial_load(function()
+    ---@type number
+    P.current_frame = gm.variable_global_get("_current_frame")
+end)
+
 local g_get  = gm.variable_global_get   ---@type function
 local g_set  = gm.variable_global_set   ---@type function
 local wrap   = Wrap.wrap
@@ -21,6 +26,7 @@ local unwrap = Wrap.unwrap
 
 M.Global = {
     __index = function(t, k)
+        if k == "_current_frame" then return P.current_frame
         return g_get(k)
     end,
 
@@ -31,3 +37,11 @@ M.Global = {
     __metatable = mt_class_name("Global"),
 }
 setmetatable(Global, M.Global)
+
+
+-- ========== Hooks ==========
+
+gm.post_code_execute("gml_Object_oInit_Step_1", function(self, other)
+    -- `_current_frame` is updated in this event
+    P.current_frame = g_get("_current_frame")
+end)

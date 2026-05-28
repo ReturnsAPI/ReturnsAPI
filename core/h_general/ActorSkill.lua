@@ -1,219 +1,150 @@
-if __DEACTIVATE_OLD then return end
 -- ActorSkill
 
 --[[
 Not to be confused with @link {Skill | Skill}.
 ]]
-
+---@class ActorSkillClass
 ActorSkill = new_class()
+C.ActorSkill = ActorSkill
 
+local proxy = P.proxy
+local metatable
+local metatable_struct = W.Struct
 
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         |           | *Read-only.* The `sol.YYObjectBase*` being wrapped.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`skill`         | Skill     | *Read-only.* The Skill of the ActorSkill.
-
-<br>
-
-TODO add the rest
-
-Property | Type | Description
-| - | - | -
-`parent`            | Actor     | The parent of the ActorSkill.
-`skill_id`          | number    | The ID of the Skill of the ActorSkill.
-`slot_index`        | number    | The @link {skill slot | Skill#Slot} this ActorSkill is in.
-]]
-
+local getmetatable = debug.getmetatable
+local unwrap       = Wrap.unwrap
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       ActorSkill
---@param        actor_skill | Struct    | The `actor_skill` struct to wrap.
 --[[
 Returns an ActorSkill wrapper containing the provided `actor_skill` struct.
 ]]
-ActorSkill.wrap = function(actor_skill)
-    -- Input:   struct or ActorSkill wrapper
-    -- Wraps:   struct
-    return make_proxy(Wrap.unwrap(actor_skill), metatable_actorskill)
+---@param struct Struct The `actor_skill` struct to wrap.
+---@return ActorSkill
+ActorSkill.wrap = function(struct)
+    return new_proxy(unwrap(struct), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class ActorSkill
+local methods = {}
 
---@section Instance Methods
+--[[
+Sets the base cooldown of the ActorSkill.
+]]
+---@param value number The cooldown to set (in frames).
+methods.set_cooldown = function(self, value)
+    if not value then throw("value is invalid") end
+    proxy[self].set_cooldown(value)
+end
 
-methods_actorskill = {
+--[[
+Freezes the remaining cooldown of the ActorSkill for one frame.
+]]
+methods.freeze_cooldown = function(self)
+    proxy[self].freeze_cooldown()
+end
 
-    --@instance
-    --@param        value       | number    | The cooldown to set (in frames).
-    --[[
-    Sets the base cooldown of the ActorSkill.
-    ]]
-    set_cooldown = function(self, value)
-        if not value then log.error("set_cooldown: value is invalid", 2) end
+--[[
+Removes the remaining cooldown for the ActorSkill.
+]]
+methods.cancel_cooldown = function(self)
+    proxy[self].cancel_cooldown()
+end
 
-        metatable_struct.__index(self, "set_cooldown")
-        (
-            value
-        )
-    end,
+--[[
+Restarts the cooldown for the ActorSkill and adds <br>
+a stock if the Skill's `auto_restock` is `true`.
+]]
+methods.reset_cooldown = function(self)
+    proxy[self].reset_cooldown()
+end
 
+--[[
+Sets the remaining cooldown of the ActorSkill.
+]]
+---@param value number The cooldown to set (in frames).
+methods.override_cooldown = function(self, value)
+    if not value then throw("value is invalid") end
+    local stopwatch = self.cooldown_stopwatch   ---@type Array
+    gm.stopwatch_stop(stopwatch)
+    gm.stopwatch_start(stopwatch, Global._current_frame + value)
+end
 
-    --@instance
-    --[[
-    Freezes the remaining cooldown of the ActorSkill for one frame.
-    ]]
-    freeze_cooldown = function(self)
-        metatable_struct.__index(self, "freeze_cooldown")
-        ()
-    end,
+--[[
+Sets the current stock of the ActorSkill.
+]]
+---@param value number The stock to set.
+methods.set_stock = function(self, value)
+    if not value then throw("value is invalid") end
+    proxy[self].set_stock(value)
+end
 
+--[[
+Adds (a) stock to the ActorSkill.
+]]
+---@param value? number The amount of stocks to add. <br>`1` by default.
+---@param ignore_max? boolean If `true`, added stocks can go past `max_stock`. <br>`false` by default.
+methods.add_stock = function(self, value, ignore_max)
+    proxy[self].add_stock(value or 1, ignore_max or false)
+end
 
-    --@instance
-    --[[
-    Removes the remaining cooldown for the ActorSkill.
-    ]]
-    cancel_cooldown = function(self)
-        metatable_struct.__index(self, "cancel_cooldown")
-        ()
-    end,
-
-
-    --@instance
-    --[[
-    Restarts the cooldown for the ActorSkill and adds
-    a stock if the Skill's `auto_restock` is `true`.
-    ]]
-    reset_cooldown = function(self)
-        Util.print(metatable_struct.__index(self, "reset_cooldown"))
-
-        metatable_struct.__index(self, "reset_cooldown")
-        ()
-    end,
-
-
-    --@instance
-    --@param        value       | number    | The cooldown to set (in frames).
-    --[[
-    Sets the remaining cooldown of the ActorSkill.
-    ]]
-    override_cooldown = function(self, value)
-        if not value then log.error("override_cooldown: value is invalid", 2) end
-
-        local stopwatch = self.cooldown_stopwatch.value
-        gm.stopwatch_stop(stopwatch)
-        gm.stopwatch_start(stopwatch, Global._current_frame + value)
-    end,
-
-
-    --@instance
-    --@param        value       | number    | The stock to set.
-    --[[
-    Sets the current stock of the ActorSkill.
-    ]]
-    set_stock = function(self, value)
-        if not value then log.error("set_stock: value is invalid", 2) end
-
-        metatable_struct.__index(self, "set_stock")
-        (
-            value
-        )
-    end,
-
-
-    --@instance
-    --@param        value       | number    | The amount of stocks to add. <br>`1` by default.
-    --@param        ignore_max  | bool      | If `true`, added stocks can go past `max_stock`. <br>`false` by default.
-    --[[
-    Adds (a) stock to the ActorSkill.
-    ]]
-    add_stock = function(self, value, ignore_max)
-        metatable_struct.__index(self, "add_stock")
-        (
-            value       or 1,
-            ignore_max  or false
-        )
-    end,
-
-
-    --@instance
-    --@param        value       | number    | The amount of stocks to remove. <br>`1` by default.
-    --[[
-    Removes (a) stock from the ActorSkill.
-    ]]
-    remove_stock = function(self, value)
-        metatable_struct.__index(self, "remove_stock")
-        (
-            value or 1
-        )
-    end,
-
-}
-
+--[[
+Removes (a) stock from the ActorSkill.
+]]
+---@param value? number The amount of stocks to remove. <br>`1` by default.
+methods.remove_stock = function(self, value)
+    proxy[self].remove_stock(value or 1)
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "ActorSkill"
+---@class ActorSkill
+---@field value Struct The value being wrapped.
+---@field RAPI string The name of this wrapper.
 
-make_table_once("metatable_actorskill", {
-    __index = function(proxy, k)
+local mt_name = "ActorSkill"
+
+W.ActorSkill = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
-        if k == "skill" then return Skill.wrap(proxy.skill_id) end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
+        if k == "skill" then return Skill.wrap(proxy[t][k]) end
 
         -- Methods
-        if methods_actorskill[k] then
-            return methods_actorskill[k]
-        end
+        local method = methods[k]
+        if method then return method end
 
-        -- Pass to metatable_struct
-        return metatable_struct.__index(proxy, k)
+        -- Getter
+        return proxy[t][k]
     end,
 
-
-    __newindex = function(proxy, k, v)
+    __newindex = function(t, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
         or k == "RAPI"
         or k == "skill"
-        or methods_actorskill[k] then
+        or methods[k] then
             log.error("Key '"..k.."' is read-only", 2)
         end
 
-        -- Pass to metatable_struct
-        return metatable_struct.__newindex(proxy, k, v)
+        -- Setter
+        proxy[t][k] = v
     end,
 
-
-    __len = function(proxy)
-        return metatable_struct.__len(proxy)
+    __len = function(t)
+        return #proxy[t]
     end,
 
-
-    __pairs = function(proxy)
-        return metatable_struct.__pairs(proxy)
+    __pairs = function(t)
+        return metatable_struct.__pairs(t)
     end,
 
-    
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
-
-
-__class.ActorSkill = ActorSkill
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.ActorSkill
