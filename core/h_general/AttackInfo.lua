@@ -8,12 +8,13 @@ local proxy = P.proxy
 local metatable
 local metatable_struct = W.Struct
 
-local type    = type
-local ceil    = math.ceil
-local floor   = math.floor
-local max     = math.max
-local to_bool = Util.bool
-local unwrap  = Wrap.unwrap
+local type      = type
+local ceil      = math.ceil
+local floor     = math.floor
+local max       = math.max
+local new_proxy = new_proxy
+local to_bool   = Util.bool
+local unwrap    = Wrap.unwrap
 
 local kb_standard = Actor.KnockbackKind.STANDARD
 
@@ -241,7 +242,7 @@ W.AttackInfo = {
     end,
 
     __metatable = mt_wrapper_name(mt_name),
-})
+}
 metatable = W.AttackInfo
 
 

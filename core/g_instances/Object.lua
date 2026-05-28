@@ -25,6 +25,7 @@ local type               = type
 local gm                 = gm                   ---@type table<string, function>
 local gm_instance_create = gm.instance_create   ---@type function
 local gm_instance_exists = gm.instance_exists   ---@type function
+local new_proxy          = new_proxy
 local unwrap             = Wrap.unwrap
 local check_init_started = Initialize.internal.check_if_started
 

@@ -12,6 +12,7 @@ local metatable
 local metatable_struct = W.Struct
 
 local getmetatable = debug.getmetatable
+local new_proxy    = new_proxy
 local unwrap       = Wrap.unwrap
 
 

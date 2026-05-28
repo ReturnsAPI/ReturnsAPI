@@ -1,167 +1,202 @@
-if __DEACTIVATE_OLD then return end
 -- Buffer
+
+-- The class table is private, but the wrappers are publicly accessible
 
 --[[
 Buffer wrappers are used internally by @link {Packet | Packet}.
 ]]
-
--- The class table is private, but the wrappers are publicly accessible
-
+---@class BufferClass
 Buffer = new_class()
 
+local proxy = P.proxy
+local metatable
+
+local gm               = gm                         ---@type table<string, function>
+local gm_buffer_exists = gm.buffer_exists           ---@type function
+local gm_msg_begin     = gm._mod_net_message_begin  ---@type function
+local new_proxy        = new_proxy
+local to_bool          = Util.bool
+local unwrap           = Wrap.unwrap
 
 
 -- ========== Static Methods ==========
 
 Buffer.net_message_begin = function()
-    return Buffer.wrap(gm._mod_net_message_begin())
+    return Buffer.wrap(gm_msg_begin())
 end
-
-
--- Returns a Buffer wrapper; buffer ID is a number
-Buffer.wrap = function(buffer_id)
-    -- Input:   number
-    -- Wraps:   number
-    if not gm.buffer_exists(buffer_id) then
-        log.error("Buffer.wrap: buffer '"..tostring(buffer_id).."' does not exist", 2)
-    end
-    return make_proxy(buffer_id, metatable_buffer)
-end
-
-
-
--- ========== Instance Methods ==========
-
---@section Instance Methods
 
 --[[
-```lua
--- Each take a single argument corresponding
--- to the type of value they write
-buffer:write_instance
-buffer:write_bool
-buffer:write_byte
-buffer:write_int
-buffer:write_uint
-buffer:write_uint_packed
-buffer:write_short
-buffer:write_ushort
-buffer:write_half
-buffer:write_float
-buffer:write_double
-buffer:write_string
-buffer:write_color
-
--- These take no arguments
-buffer:read_instance
-buffer:read_bool
-buffer:read_byte
-buffer:read_int
-buffer:read_uint
-buffer:read_uint_packed
-buffer:read_short
-buffer:read_ushort
-buffer:read_half
-buffer:read_float
-buffer:read_double
-buffer:read_string
-buffer:read_color
-```
+Returns a Buffer wrapper containing the provided buffer ID.
 ]]
-
-methods_buffer = {
-
-    write_instance = function(self, instance)
-        gm.write_instance_direct(self.value, Wrap.unwrap(instance))
-    end,
-
-    read_instance = function(self)
-        return Instance.wrap(gm.read_instance_direct(self.value))
-    end,
-
-
-    write_bool = function(self, bool)
-        self:write_byte((bool and 1) or 0)
-    end,
-
-    read_bool = function(self)
-        return Util.bool(self:read_byte())
-    end,
-
-}
-
-
--- Add instance methods for primitive types to `methods_buffer`
-local primitive_types = {
-    "byte",
-    "int",
-    "uint",
-    "uint_packed",
-    "short",
-    "ushort",
-    "half",
-    "float",
-    "double",
-    "string",
-    "_color",
-}
-
-for _, type_name in ipairs(primitive_types) do
-    do -- writes
-        local method_name = "write_"..type_name
-        local gm_name = "write"..type_name.."_direct"
-
-        if type_name == "_color" then method_name = "write_color" end
-
-        methods_buffer[method_name] = function(self, value)
-            gm[gm_name](self.value, Wrap.unwrap(value))
-        end
+---@param buffer_id number The buffer to wrap.
+---@return Buffer
+Buffer.wrap = function(buffer_id)
+    if not gm_buffer_exists(buffer_id) then
+        throw("buffer '"..tostring(buffer_id).."' does not exist")
     end
-
-    do -- reads
-        local method_name = "read_"..type_name
-        local gm_name = "read"..type_name.."_direct"
-
-        if type_name == "_color" then method_name = "read_color" end
-
-        methods_buffer[method_name] = function(self)
-            return Wrap.wrap(gm[gm_name](self.value))
-        end
-    end
+    return new_proxy(buffer_id, metatable)
 end
 
+
+-- ========== Wrapper Methods ==========
+
+---@class Buffer
+local methods = {}
+
+---@param value Instance | Actor | Player
+methods.write_instance = function(self, value)
+    gm.write_instance_direct(proxy[self], value)
+end
+
+---@param value boolean
+methods.write_bool = function(self, value)
+    self:write_byte(value and 1 or 0)
+end
+
+---@param value number `u8`
+methods.write_byte = function(self, value)
+    gm.writebyte_direct(proxy[self], unwrap(value))
+end
+
+---@param value number `s32`
+methods.write_int = function(self, value)
+    gm.writeint_direct(proxy[self], unwrap(value))
+end
+
+---@param value number `u32`
+methods.write_uint = function(self, value)
+    gm.writeuint_direct(proxy[self], unwrap(value))
+end
+
+---@param value number
+methods.write_uint_packed = function(self, value)
+    gm.writeuint_packed_direct(proxy[self], unwrap(value))
+end
+
+---@param value number `s16`
+methods.write_short = function(self, value)
+    gm.writeshort_direct(proxy[self], unwrap(value))
+end
+
+---@param value number `u16`
+methods.write_ushort = function(self, value)
+    gm.writeushort_direct(proxy[self], unwrap(value))
+end
+
+---@param value number `f16`
+methods.write_half = function(self, value)
+    gm.writehalf_direct(proxy[self], unwrap(value))
+end
+
+---@param value number `f32`
+methods.write_float = function(self, value)
+    gm.writefloat_direct(proxy[self], unwrap(value))
+end
+
+---@param value number `f64`
+methods.write_double = function(self, value)
+    gm.writedouble_direct(proxy[self], unwrap(value))
+end
+
+---@param value string
+methods.write_string = function(self, value)
+    gm.writestring_direct(proxy[self], unwrap(value))
+end
+
+---@param value number
+methods.write_color = function(self, value)
+    gm.write_color_direct(proxy[self], unwrap(value))
+end
+
+---@return Instance | Actor | Player
+methods.read_instance = function(self)
+    return gm.read_instance_direct(proxy[self])
+end
+
+---@return boolean
+methods.read_bool = function(self)
+    return to_bool(self:read_byte())
+end
+
+---@return number `u8`
+methods.read_byte = function(self)
+    return gm.readbyte_direct(proxy[self])
+end
+
+---@return number `s32`
+methods.read_int = function(self)
+    return gm.readint_direct(proxy[self])
+end
+
+---@return number `u32`
+methods.read_uint = function(self)
+    return gm.readuint_direct(proxy[self])
+end
+
+---@return number
+methods.read_uint_packed = function(self)
+    return gm.readuint_packed_direct(proxy[self])
+end
+
+---@return number `s16`
+methods.read_short = function(self)
+    return gm.readshort_direct(proxy[self])
+end
+
+---@return number `u16`
+methods.read_ushort = function(self)
+    return gm.readushort_direct(proxy[self])
+end
+
+---@return number `f16`
+methods.read_half = function(self)
+    return gm.readhalf_direct(proxy[self])
+end
+
+---@return number `f32`
+methods.read_float = function(self)
+    return gm.readfloat_direct(proxy[self])
+end
+
+---@return number `f64`
+methods.read_double = function(self)
+    return gm.readdouble_direct(proxy[self])
+end
+
+---@return string
+methods.read_string = function(self)
+    return gm.readstring_direct(proxy[self])
+end
+
+---@return number
+methods.read_color = function(self)
+    return gm.read_color_direct(proxy[self])
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Buffer"
+---@class Buffer
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
 
-make_table_once("metatable_buffer", {
-    __index = function(proxy, k)
+local mt_name = "Buffer"
+
+W.Buffer = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
 
         -- Methods
-        if methods_buffer[k] then
-            return methods_buffer[k]
-        end
-
-        return nil
+        local method = methods[k]
+        if method then return method end
     end,
 
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-
-        -- Setter
-        log.error("Buffer has no properties to set", 2)
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.Buffer

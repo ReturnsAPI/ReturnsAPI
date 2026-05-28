@@ -11,6 +11,7 @@ C.Class = Class
 local proxy = P.proxy
 
 local string_upper       = string.upper
+local new_proxy          = new_proxy
 local check_init_started = Initialize.internal.check_if_started
 local unwrap             = Wrap.unwrap
 

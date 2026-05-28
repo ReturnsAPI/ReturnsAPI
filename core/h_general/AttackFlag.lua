@@ -15,7 +15,8 @@ local metatable
 
 local flag_constants = {}   ---@type table<number, string> Array table of vanilla flags (indexed from `1`).
 
-local unwrap = Wrap.unwrap
+local new_proxy = new_proxy
+local unwrap    = Wrap.unwrap
 
 
 -- ========== Constants ==========

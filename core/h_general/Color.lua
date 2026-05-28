@@ -242,7 +242,7 @@ All of these functions are defined entirely in lua, with the purpose of reducing
 local mt_name = "Color"
 
 M.Color = {
-    __call = function(_, hex)
+    __call = function(t, hex)
         return Color.from_hex(hex)
     end,
 

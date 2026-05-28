@@ -1,130 +1,102 @@
-if __DEACTIVATE_OLD then return end
 -- TOML
 
 --[[
-Slightly easier syntax wrapper for `toml`.
-Files are stored in `paths.plugins_data()` (or `paths.config()` if `new_config()` is used).
+Slightly easier syntax wrapper for `toml`. <br>
+Files are stored in `paths.plugins_data()` (or a specified path).
 ]]
-
+---@class TOMLClass
 TOML = new_class()
+C.TOML = TOML
 
-__toml_directories = __toml_directories or setmetatable({}, {__mode = "k"})
+run_on_initial_load(function()
+    P.toml_directories = setmetatable({}, {__mode = "k"})   ---@type table<TOML, string> Maps TOML wrappers to cwd.
+end)
 
+local proxy = P.proxy
+local metatable
 
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The filename being used.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`path`          | string    | *Read-only.* The filepath being used.
-]]
-
+local tostring  = tostring
+local pcall     = pcall
+local path      = path  ---@type table<string, function>
+local paths     = paths ---@type table<string, function>
+local toml      = toml  ---@type table<string, function>
+local new_proxy = new_proxy
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       TOML
---@optional     name        | string    | The filename to use. <br>Automatically prepended with your namespace. <br>Adding an extension is *not* required; `".toml"` is automatically appended.
---@optional     directory   | string    | The directory to create in. <br>`paths.plugins_data()` by default.
 --[[
 Creates a new TOML wrapper and returns it.
 ]]
+---@param name string The filename to use. <br>Automatically prepended with your namespace. <br>Adding an extension is *not* required; `".toml"` is automatically appended.
+---@param directory string The directory to create in. <br>`paths.plugins_data()` by default.
+---@return TOML
 TOML.new = function(NAMESPACE, name, directory)
-    local proxy = make_proxy(NAMESPACE..((name and "-"..tostring(name)) or ""), metatable_toml)
-    __toml_directories[proxy] = directory or paths.plugins_data()
-    return proxy
+    local wrapper = new_proxy(NAMESPACE..((name and "-"..tostring(name)) or ""), metatable)
+    P.toml_directories[wrapper] = directory or paths.plugins_data()
+    return wrapper
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class TOML
+local methods = {}
 
---@section Instance Methods
-
-methods_toml = {
-
-    --@instance
-    --@return       table or nil
-    --[[
-    Loads the stored data from the file.
-    Returns `nil` if the file does not exist.
-    ]]
-    read = function(self)
-        local success, file = pcall(toml.decodeFromFile, self.path)
-        if not success then
-            -- Ignore non-existent file error
-            if file.reason == "File could not be opened for reading" then
-                return
-            end
-
-            log.error("toml read error: "..file.reason, 2)
+--[[
+Reads the stored data from the file. <br>
+Returns `nil` if the file does not exist.
+]]
+---@return table | nil
+methods.read = function(self)
+    local success, file = pcall(toml.decodeFromFile, self.path)
+    if not success then
+        -- Ignore error from non-existent file
+        if file.reason == "File could not be opened for reading" then
+            return nil
         end
-        return file
-    end,
-
-
-    --@instance
-    --@param        table           | table     | The table to write.
-    --[[
-    Overwrites the file with a table.
-    ]]
-    write = function(self, t)
-        local success, err = pcall(toml.encodeToFile, t, { file = self.path, overwrite = true })
-        if not success then log.error("toml write error: "..err, 2) end
+        log.error("toml read error: "..file.reason, 2)
     end
+    return file
+end
 
-}
-
+--[[
+Overwrites the file with a table.
+]]
+---@param t table The table to write.
+methods.write = function(self, t)
+    local success, err = pcall(toml.encodeToFile, t, { file = self.path, overwrite = true })
+    if not success then log.error("toml write error: "..err, 2) end
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "TOML"
+---@class TOML
+---@field value string The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field path string The filepath being used.
 
-make_table_once("metatable_toml", {
-    __index = function(proxy, k)
+local mt_name = "TOML"
+
+W.TOML = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
         if k == "path" then
-            return path.combine(__toml_directories[proxy], __proxy[proxy]..".toml")
+            return path.combine(P.toml_directories[t], proxy[t]..".toml")
         end
 
         -- Methods
-        if methods_toml[k] then
-            return methods_toml[k]
-        end
-
-        return nil
+        local method = methods[k]
+        if method then return method end
     end,
 
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI"
-        or k == "path" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-
-        -- Setter
-        log.error("TOML has no properties to set", 2)
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
-
-
--- Public export
-__class.TOML = TOML
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.TOML
