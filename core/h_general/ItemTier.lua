@@ -107,8 +107,8 @@ ItemTier.new = function(NAMESPACE, identifier)
     tiers_array:push(struct)
 
     local wrapper = ItemTier.wrap(id)
-    wrapper_table:set(wrapper, identifier, "ror", id)
-    struct_table:set(struct, identifier, "ror", id)
+    wrapper_table:set(wrapper, identifier, NAMESPACE, id)
+    struct_table:set(struct, identifier, NAMESPACE, id)
     return wrapper
 end
 
