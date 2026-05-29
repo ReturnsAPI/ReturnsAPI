@@ -1,90 +1,64 @@
-if __DEACTIVATE_OLD then return end
 -- HitInfo
 
 --[[
-HitInfo wrappers are "children" of @link {`Struct` | Struct}, and can use its properties and instance methods.
+HitInfo wrappers are "children" of @link {`Struct` | Struct}, and can use its properties and wrapper methods. <br>
 They also contain an @link {`AttackInfo` | AttackInfo}.
 ]]
-
+---@class HitInfoClass
 HitInfo = new_class()
+C.HitInfo = HitInfo
 
--- Cache for hit_info.attack_info
-local attackinfo_cache = setmetatable({}, {__mode = "k"})
+local proxy = P.proxy
+local metatable
+local metatable_struct = W.Struct
 
+local attackinfo_cache = setmetatable({}, {__mode = "k"})  ---@type table <HitInfo, AttackInfo> Cache for `.attack_info`
 
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         |           | *Read-only.* The `sol.YYObjectBase*` being wrapped.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`attack_info`   | AttackInfo | *Read-only.* The attack_info struct of the HitInfo. <br>Comes automatically wrapped.
-]]
-
+local new_proxy = new_proxy
+local unwrap    = Wrap.unwrap
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       HitInfo
---@param        hit_info    | Struct    | The `hit_info` struct to wrap.
 --[[
 Returns a HitInfo wrapper containing the provided `hit_info` struct.
 ]]
+---@param hit_info Struct The `hit_info` struct to wrap.
+---@return HitInfo
 HitInfo.wrap = function(hit_info)
-    return make_proxy(Wrap.unwrap(hit_info), metatable_hitinfo)
+    return new_proxy(unwrap(hit_info), metatable)
 end
-
-
-
--- ========== Instance Methods ==========
-
-methods_hitinfo = {
-
-    
-
-}
-
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "HitInfo"
+---@class HitInfo
+---@field value Struct The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field attack_info AttackInfo The `attack_info` struct of the HitInfo.
 
-make_table_once("metatable_hitinfo", {
-    __index = function(proxy, k)
+local mt_name = "HitInfo"
+
+W.HitInfo = {
+    ---@param t HitInfo
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
         if k == "attack_info" then
-            -- Check cache
-            local attackinfo = attackinfo_cache[proxy]
+            local attackinfo = attackinfo_cache[t]
             if not attackinfo then
-                attackinfo = AttackInfo.wrap(metatable_struct.__index(proxy, k))
-                attackinfo_cache[proxy] = attackinfo
+                attackinfo = AttackInfo.wrap(proxy[t][k])
+                attackinfo_cache[t] = attackinfo
             end
-
             return attackinfo
         end
 
-        -- Methods
-        if methods_hitinfo[k] then
-            return methods_hitinfo[k]
-        end
-
-        -- Pass to metatable_struct
-        return metatable_struct.__index(proxy, k)
+        -- Getter
+        return proxy[t][k]
     end,
 
-
-    __newindex = function(proxy, k, v)
+    __newindex = function(t, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
         or k == "RAPI"
@@ -92,25 +66,18 @@ make_table_once("metatable_hitinfo", {
             log.error("Key '"..k.."' is read-only", 2)
         end
 
-        -- Pass to metatable_struct
-        return metatable_struct.__newindex(proxy, k, v)
+        -- Setter
+        proxy[t][k] = v
     end,
 
-
-    __len = function(proxy)
-        return metatable_struct.__len(proxy)
+    __len = function(t)
+        return #proxy[t]
     end,
 
-
-    __pairs = function(proxy)
-        return metatable_struct.__pairs(proxy)
+    __pairs = function(t)
+        return metatable_struct.__pairs(t)
     end,
 
-    
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
-
-
--- Public export
-__class.HitInfo = HitInfo
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.HitInfo

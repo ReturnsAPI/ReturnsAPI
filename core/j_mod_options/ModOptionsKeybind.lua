@@ -234,7 +234,7 @@ ModOptionsKeybind.internal.input_binding_gamepad = function(input_code)
 end
 
 
-table.insert(_rapi_initialize, function()
+run_on_initialize(function()
     debug_print("executing queue!")
     -- Add verbs in queue
     for _, v in ipairs(__add_verb_queue) do

@@ -1,7 +1,7 @@
 if true then return end
 -- Add achievements for Commando and Huntress to put their survivor-specific achievements under
 
-table.insert(_rapi_initialize, function()
+run_on_initialize(function()
     local list = List.wrap(Global.achievement_display_list)
 
     unlock_commando = Achievement.new("ror", "unlock_commando")

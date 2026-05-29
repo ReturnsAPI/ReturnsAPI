@@ -1,4 +1,3 @@
-if __DEACTIVATE_OLD then return end
 -- Language
 
 --[[
@@ -38,7 +37,7 @@ return {
 }
 ```
 
----
+<br>
 
 `gm.translate(token, ...)` will return the actual text of the localization token in the current language.
 If the token's actual text has instances of `%s`, they will be replaced with the variable arguments in order.
@@ -47,41 +46,39 @@ E.g.,
 ```lua
 -- "foo.bar.baz" maps to "Hello %s!" in the language file.
 
-gm.translate("foo.bar.baz", "world")    --> "Hello world!"
+gm.translate("foo.bar.baz", "world")  --> "Hello world!"
 ```
 ]]
-
+---@class Language
 Language = new_class()
+C.Language = Language
 
 run_on_initial_load(function()
-    -- Contains ENV tables of all registered mods
-    __language_registered = {}
+    P.language_registered = {}  ---@type table<number, ENV> Contains ENV tables of all registered mods
 end)
 
+local table = table
+local gm    = gm
+local path  = path
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       string
---@param        env         | table     | The environment table of the mod to register.
 --[[
 Registers a mod to autoload language files in a `language` (case-insensitive) folder.
 
-Automatically called on `.auto()` import.
+Automatically called on ReturnsAPI import.
 ]]
+---@param env? table The environment table of the mod to register. <br>If not provided, automatically fetches your `_ENV`.
 Language.register_autoload = function(env)
     if not env then env = envy.getfenv(2) end
-    if not Util.table_has(__language_registered, env) then
-        table.insert(__language_registered, env)
+    if not table.find(P.language_registered, env) then
+        table.insert(P.language_registered, env)
     end
 end
 
 
-
--- ========== Functions ==========
+-- ========== Internal ==========
 
 -- Recursive parsing of a json-like Lua table
 local function parse_keys(map, t, key)
@@ -96,7 +93,6 @@ local function parse_keys(map, t, key)
         end
     end
 end
-
 
 -- Loads language files from a mod's "language" folder
 local function load_from_folder(folder_path)
@@ -157,11 +153,10 @@ local function load_from_folder(folder_path)
     end
 end
 
-
 -- Loads language files from all registered mods
 local function load_from_mods()
     -- Loop through registered mods
-    for _, env in ipairs(__language_registered) do
+    for _, env in ipairs(P.language_registered) do
 
         -- Search for a "language" folder in mod folder
         local folders = path.get_directories(env["!plugins_mod_folder_path"])
@@ -175,15 +170,9 @@ local function load_from_mods()
 end
 
 
-
 -- ========== Hooks ==========
 
-Hook.add_post(RAPI_NAMESPACE, gm.constants.translate_load_active_language, Callback.internal.FIRST, function(self, other, result, args)
+gm.post_script_hook(gm.constants.translate_load_active_language, function(self, other, result, args)
     load_from_folder(PATH.."language")  -- RAPI internal language files
     load_from_mods()
 end)
-
-
-
--- Public export
-__class.Language = Language

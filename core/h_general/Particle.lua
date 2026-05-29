@@ -80,7 +80,7 @@ Particle.internal.initialize = function()
         )
     end
 end
-table.insert(_rapi_initialize, Particle.internal.initialize)
+run_on_initialize(Particle.internal.initialize)
 
 
 

@@ -135,7 +135,7 @@ Tracer.internal.initialize = function()
         )
     end
 end
-table.insert(_rapi_initialize, Tracer.internal.initialize)
+run_on_initialize(Tracer.internal.initialize)
 
 
 

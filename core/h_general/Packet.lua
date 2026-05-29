@@ -131,7 +131,7 @@ Packet.internal.initialize = function()
         end
     )
 end
-table.insert(_rapi_initialize, Packet.internal.initialize)
+run_on_initialize(Packet.internal.initialize)
 
 
 

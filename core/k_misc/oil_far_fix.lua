@@ -1,5 +1,5 @@
 if true then return end
-table.insert(_rapi_initialize, function()
+run_on_initialize(function()
 	local bOil = Buff.find("oil", "ror", true)
 	local ignite_fix = AttackFlag.new(RAPI_NAMESPACE, "ChefIgniteFix")
 

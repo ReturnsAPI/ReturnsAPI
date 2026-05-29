@@ -6,7 +6,7 @@ if true then return end
 
 local settings
 
-table.insert(_rapi_initialize, function()
+run_on_initialize(function()
     local file = TOML.new(RAPI_NAMESPACE)
     settings = file:read() or {}
 

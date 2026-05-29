@@ -1,5 +1,8 @@
 -- AttackInfo
 
+--[[
+AttackInfo wrappers are "children" of @link {`Struct` | Struct}, and can use its properties and wrapper methods.
+]]
 ---@class AttackInfoClass
 AttackInfo = new_class()
 C.AttackInfo = AttackInfo

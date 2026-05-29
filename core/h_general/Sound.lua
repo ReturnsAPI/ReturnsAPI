@@ -71,7 +71,7 @@ Sound.internal.initialize = function()
         end
     )
 end
-table.insert(_rapi_initialize, Sound.internal.initialize)
+run_on_initialize(Sound.internal.initialize)
 
 
 

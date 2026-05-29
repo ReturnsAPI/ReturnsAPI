@@ -35,7 +35,7 @@ end
 
 local class_arrays = {} ---@type table<string, Array>
 
-local populate_class_arrays = function()
+local function populate_class_arrays()
     for name_rapi, name_global in pairs(class_name_r2g) do
         -- Populate `class_arrays` on initialize
         -- since some content class arrays do not exist before then

@@ -4,6 +4,7 @@
 TODO
 - Descriptions for `@class`
 - Store appearance order for enums and methods
+- Capture varargs (...)
 """
 
 import os

@@ -1,122 +1,78 @@
-if __DEACTIVATE_OLD then return end
 -- ItemTier
 
 -- TODO: Add property docs
 
+---@class ItemTierClass
 ItemTier = new_class()
+C.ItemTier = ItemTier
 
 run_on_initial_load(function()
-    __item_tier_cache = FindTable.new()
+    P.item_tier_find_table_wrapper = FindTable.new()
+    P.item_tier_find_table_struct  = FindTable.new()
 end)
 
+local wrapper_table = P.item_tier_find_table_wrapper
+local struct_table  = P.item_tier_find_table_struct
+
+local proxy = P.proxy
+local metatable
+
+local type               = type
+local new_proxy          = new_proxy
+local check_init_started = Initialize.internal.check_if_started
+local unwrap             = Wrap.unwrap
 
 
 -- ========== Constants ==========
 
---@section Constants
+ItemTier.COMMON    = 0
+ItemTier.UNCOMMON  = 1
+ItemTier.RARE      = 2
+ItemTier.EQUIPMENT = 3
+ItemTier.BOSS      = 4
+ItemTier.SPECIAL   = 5
+ItemTier.FOOD      = 6
+ItemTier.NOTIER    = 7
 
---@constants
---[[
-COMMON      0
-UNCOMMON    1
-RARE        2
-EQUIPMENT   3
-BOSS        4
-SPECIAL     5
-FOOD        6
-NOTIER      7
-]]
-
-local tier_constants = {
-    COMMON      = 0,
-    UNCOMMON    = 1,
-    RARE        = 2,
-    EQUIPMENT   = 3,
-    BOSS        = 4,
-    SPECIAL     = 5,
-    FOOD        = 6,
-    NOTIER      = 7
-}
-
--- Add to ItemTier directly (e.g., ItemTier.COMMON)
-for k, v in pairs(tier_constants) do
-    ItemTier[k] = v
+-- Populate `tier_constants`
+local tier_constants = {}  ---@type table<number, string> Array table of vanilla tier IDs (indexed from `1`).
+for name, tier in pairs(ItemTier) do
+    if type(tier) == "number" then
+        tier_constants[tier + 1] = name
+    end
 end
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The ID of the item tier.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-
-<br>
-
-Property | Type | Description
-| - | - | -
-`namespace`                 | string    | The namespace the item tier is in.
-`identifier`                | string    | The identifier for the item tier within the namespace.
-`fair_item_value`           | number    | <br>`0` by default.
-`text_color`                | string    | The text formatting color code. <br>`"w"` by default.
-`spawn_sound`               | sound     | The sound played when an item pickup is spawned. <br>`wItemDrop_White` by default.
-`pickup_color`              | color     | The color used for the pickup head shape and trail. <br>`Color.WHITE` by default.
-`pickup_color_bright`       | color     | The color used for the outer ring of the center of the pickup head. <br>`Color.WHITE` by default.
-`pickup_particle_type`      | Particle  | The particle that is emitted while the item pickup is traveling. <br>Particle should be white; it is blended with `pickup_color`. <br>`-1` by default.
-`pickup_head_shape`         | Array     | An array of points; each point has the format `[angle, dist_from_center]`. <br>E.g., `[[0, 11], [120, 11], [240, 11]\]` makes a triangle with each point being 11px from the center. <br>`nil` by default.
-`ignore_fair`               | bool      | <br>`false` by default.
-`item_pool_for_reroll`      | number    | The ID of the associated item loot pool. <br>`-1` (none) by default.
-`equipment_pool_for_reroll` | number    | The ID of the associated equipment loot pool. <br>`-1` (none) by default.
-]]
-
 
 
 -- ========== Internal ==========
 
-ItemTier.internal.initialize = function()
-    -- Populate find table with vanilla tiers
-    for constant, id in pairs(tier_constants) do
-        local identifier = constant:lower()
-        local struct     = Global.item_tiers:get(id)
+local function populate_find_table()
+    -- Populate find tables with vanilla tiers
+    for tier, name in pairs(tier_constants) do
+        local identifier = name:lower()
+        local struct     = Global.item_tiers:get(tier - 1)
 
         -- Custom properties
         struct.namespace  = "ror"
         struct.identifier = identifier
 
-        __item_tier_cache:set(
-            {
-                wrapper = ItemTier.wrap(id),
-                struct  = struct,
-            },
-            identifier,
-            "ror",
-            id
-        )
+        wrapper_table:set(ItemTier.wrap(tier - 1), identifier, "ror", tier - 1)
+        struct_table:set(struct, identifier, "ror", tier - 1)
     end
 end
-table.insert(_rapi_initialize, ItemTier.internal.initialize)
-
+run_on_initialize(populate_find_table)
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       ItemTier
---@param        identifier      | string    | The identifier for the item tier.
 --[[
-Creates a new item tier with the given identifier if it does not already exist,
+Creates a new item tier with the given identifier if it does not already exist, <br>
 or returns the existing one if it does.
 ]]
+---@param identifier string The identifier for the item tier.
+---@return ItemTier
 ItemTier.new = function(NAMESPACE, identifier)
-    Initialize.internal.check_if_started("ItemTier.new")
-    if not identifier then log.error("ItemTier.new: No identifier provided", 2) end
+    check_init_started("new")
+    if not identifier then throw("No identifier provided", "new") end
 
     -- Return existing tier if found
     local tier = ItemTier.find(identifier, NAMESPACE, true)
@@ -144,130 +100,119 @@ ItemTier.new = function(NAMESPACE, identifier)
     )
 
     -- Custom properties
-    struct.namespace    = NAMESPACE
-    struct.identifier   = identifier
+    struct.namespace  = NAMESPACE
+    struct.identifier = identifier
 
     -- Push onto array
     tiers_array:push(struct)
 
-    local tier = ItemTier.wrap(id)
-
-    -- Add to find table
-    __item_tier_cache:set(
-        {
-            wrapper = tier,
-            struct  = struct,
-        },
-        identifier,
-        NAMESPACE,
-        id
-    )
-
-    return tier
+    local wrapper = ItemTier.wrap(id)
+    wrapper_table:set(wrapper, identifier, "ror", id)
+    struct_table:set(struct, identifier, "ror", id)
+    return wrapper
 end
 
-
---@static
---@return       ItemTier or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified item tier and returns it.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return ItemTier | nil
 ItemTier.find = function(identifier, namespace, namespace_is_specified)
-    local cached = __item_tier_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached.wrapper end
+    return wrapper_table:get(identifier, namespace, namespace_is_specified)
 end
 
-
---@static
---@return       table
---@optional     namespace   | string    | The namespace to check.
 --[[
 Returns a table of all item tiers in the specified namespace.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param namespace? string The namespace to search in.
+---@return table<number, ItemTier>
 ItemTier.find_all = function(namespace, namespace_is_specified)
-    return __item_tier_cache:get_all(namespace, namespace_is_specified, "wrapper")
+    return wrapper_table:get_all(namespace, namespace_is_specified)
 end
 
-
---@static
---@return       ItemTier
---@param        tier        | number    | The item tier to wrap.
 --[[
-Returns an ItemTier wrapper containing the provided item tier.
+Returns an ItemTier wrapper containing the provided item tier ID.
 ]]
+---@param id number | ItemTier The item tier to wrap.
+---@return ItemTier
 ItemTier.wrap = function(tier)
-    -- Input:   number or ItemTier wrapper
-    -- Wraps:   number
-    return make_proxy(Wrap.unwrap(tier), metatable_item_tier)
+    return new_proxy(unwrap(tier), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class ItemTier
+local methods = {}
 
---@section Instance Methods
+--[[
+Sets the item drop head shape.
+]]
+---@param points table<number, table> A table of points; each point has the format `{angle, dist_from_center}`. <br>E.g., `{{0, 11}, {120, 11}, {240, 11}}` makes a triangle with each point being 11px from the center.
+methods.set_head_shape = function(self, points)
+    if type(points) ~= "table" then throw("points is invalid") end
 
-methods_item_tier = {
+    local arr = Array.new()
+    for _, point in ipairs(points) do
+        local p = Array.new(point)
+        arr:push(p)
+    end
+    self.pickup_head_shape = arr
+end
 
-    --@instance
-    --[[
-    Prints the item tier's properties.
-    ]]
-    print = function(self)
-        local struct = __item_tier_cache:get(self.value).struct
-        struct:print()
-    end,
-
-
-    --@instance
-    --@param        points      | table     | A table of points; each point has the format `{angle, dist_from_center}`. <br>E.g., `{{0, 11}, {120, 11}, {240, 11}}` makes a triangle with each point being 11px from the center.
-    --[[
-    Sets the item drop head shape.
-    ]]
-    set_head_shape = function(self, points)
-        if type(points) ~= "table" then log.error("set_head_shape: points is invalid", 2) end
-
-        local arr = Array.new()
-        for _, point in ipairs(points) do
-            local p = Array.new(point)
-            arr:push(p)
-        end
-
-        self.pickup_head_shape = arr
-    end,
-
-}
-
+--[[
+Prints the item tier's properties.
+]]
+methods.print = function(self)
+    struct_table[proxy[self]].value:print()
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "ItemTier"
+---@class ItemTier
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
 
-make_table_once("metatable_item_tier", {
-    __index = function(proxy, k)
+---@class ItemTier
+---@field namespace                  string   The namespace the item tier is in.
+---@field identifier                 string   The identifier for the item tier within the namespace.
+---@field fair_item_value            number   `0` by default.
+---@field text_color                 string   The text formatting color code. <br>`"w"` by default.
+---@field spawn_sound                number   The ID of the sound played when an item pickup is spawned. <br>`wItemDrop_White` by default.
+---@field pickup_color               number   The color used for the pickup head shape and trail. <br>`Color.WHITE` by default.
+---@field pickup_color_bright        number   The color used for the outer ring of the center of the pickup head. <br>`Color.WHITE` by default.
+---@field pickup_particle_type       number   The ID of the particle that is emitted while the item pickup is traveling. <br>Particle should be white; it is blended with `pickup_color`. <br>`-1` by default.
+---@field pickup_head_shape          Array    An array of points; each point has the format `[angle, dist_from_center]`. <br>E.g., `[[0, 11], [120, 11], [240, 11]\]` makes a triangle with each point being 11px from the center. <br>`nil` by default.
+---@field ignore_fair                boolean  `false` by default.
+---@field item_pool_for_reroll       number   The ID of the associated item loot pool. <br>`-1` (none) by default.
+---@field equipment_pool_for_reroll  number   The ID of the associated equipment loot pool. <br>`-1` (none) by default.
+
+local mt_name = "ItemTier"
+
+W.ItemTier = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
 
         -- Methods
-        if methods_item_tier[k] then
-            return methods_item_tier[k]
-        end
+        local method = methods[k]
+        if method then return method end
 
         -- Getter
-        local struct = __item_tier_cache:get(__proxy[proxy]).struct
+        local struct = struct_table[proxy[t]].value
         return struct[k]
     end,
 
-
-    __newindex = function(proxy, k, v)
+    __newindex = function(t, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
         or k == "RAPI" then
@@ -275,15 +220,10 @@ make_table_once("metatable_item_tier", {
         end
 
         -- Setter
-        local struct = __item_tier_cache:get(__proxy[proxy]).struct
+        local struct = struct_table[proxy[t]].value
         struct[k] = v
     end,
-
     
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
-
-
--- Public export
-__class.ItemTier = ItemTier
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.ItemTier

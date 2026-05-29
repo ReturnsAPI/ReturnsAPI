@@ -212,11 +212,14 @@ public.auto = function(properties)
         env.lua_type = env.type
     end
     env.type = wrapper.Util.type
+
+    -- Register for language file loading
+    if Language then Language.register_autoload(env) end
 end
 
 -- NOTE: Do service subscriptions for `setup()` too,
 -- but not anything that imports directly into env
     -- Subscriptions:
-    -- * Language autoregister
-    -- * MP check
     -- ✓ Remove callback functions on hotload
+    -- ✓ Language autoregister
+    -- * MP check
