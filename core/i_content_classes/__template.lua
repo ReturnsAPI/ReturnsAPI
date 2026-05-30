@@ -19,6 +19,8 @@ local unwrap             = Wrap.unwrap
 ---@class CLASS_UPPER
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
+---@field properties Array The array storing this CLASS_LOWER's properties.
+---@field array Array Alias for `.properties`.
 
 ---@class CLASS_UPPER
 -- Populate with properties

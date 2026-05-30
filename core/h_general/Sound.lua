@@ -1,52 +1,38 @@
-if __DEACTIVATE_OLD then return end
 -- Sound
 
+---@class SoundClass
 Sound = new_class()
+C.Sound = Sound
 
 run_on_initial_load(function()
-    __sound_find_cache = FindTable.new()
+    P.sound_find_table = FindTable.new()
 end)
 
-local packet_syncSound
+local sound_find_table = P.sound_find_table
 
+local proxy = P.proxy
+local metatable
 
+local gm                 = gm  ---@type table<string, function>
+local new_proxy          = new_proxy
+local unwrap             = Wrap.unwrap
+local check_init_started = Initialize.internal.check_if_started
 
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The sound ID being wrapped.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`namespace`     | string    | *Read-only.* The namespace the sound is in.
-`identifier`    | string    | *Read-only.* The identifier for the sound within the namespace.
-]]
-
+local packet_syncSound  ---@type Packet
 
 
 -- ========== Internal ==========
 
-Sound.internal.initialize = function()
+local function sound_initialize()
     -- Populate cache with vanilla sounds
     local resource_manager = Map.wrap(Global.ResourceManager_audio.__namespacedAssetLookup)
     
     for identifier, sound in pairs(Map.wrap(resource_manager["ror"])) do
         local wrapper = Sound.wrap(sound)
-
-        __sound_find_cache:set(
-            {
-                wrapper = wrapper,
-            },
-            identifier,
-            "ror",
-            sound
-        )
+        sound_find_table:set(wrapper, identifier, "ror", sound)
     end
     
-    -- `play_synced`
+    -- Packet for `play_synced`
     packet_syncSound = Packet.new(RAPI_NAMESPACE, "syncSound")
     packet_syncSound:set_serializers(
         function(buffer, identifier, namespace, x, y, volume, pitch)
@@ -71,26 +57,22 @@ Sound.internal.initialize = function()
         end
     )
 end
-run_on_initialize(Sound.internal.initialize)
-
+run_on_initialize(sound_initialize)
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return       Sound
---@param        identifier  | string    | The identifier for the sound.
---@param        path        | string    | The file path to the sound. <br>`~` expands to your mod folder.
 --[[
-Creates a new sound with the given identifier if it does not already exist,
+Creates a new sound with the given identifier if it does not already exist, <br>
 or returns the existing one if it does.
 ]]
+---@param identifier string The identifier for the sound.
+---@param path string The file path to the sound. <br>`~` expands to your mod folder.
+---@return Sound
 Sound.new = function(NAMESPACE, identifier, path)
-    Initialize.internal.check_if_started("Sound.new")
-    if not identifier then log.error("Sound.new: No identifier provided", 2) end
-    if not path then log.error("Sound.new: No image path provided", 2) end
+    check_init_started("new")
+    if not identifier then throw("No identifier provided", "new") end
+    if not path then throw("No image path provided", "new") end
 
     path = expand_path(NAMESPACE, path)
 
@@ -106,7 +88,7 @@ Sound.new = function(NAMESPACE, identifier, path)
     )
 
     if sound == -1 then
-        log.error("Sound.new: Could not load sound at '"..path.."'", 2)
+        throw("Could not load sound at '"..path.."'", "new")
     end
 
     -- Adding to find table is done in the hook at the bottom
@@ -114,165 +96,138 @@ Sound.new = function(NAMESPACE, identifier, path)
     return Sound.wrap(sound)
 end
 
-
---@static
---@return       Sound or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified sound and returns it.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return Sound | nil
 Sound.find = function(identifier, namespace, namespace_is_specified)
-    local cached = __sound_find_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached.wrapper end
+    return sound_find_table:get(identifier, namespace, namespace_is_specified)
 end
 
-
---@static
---@return       table
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Returns a table of all sounds in the specified namespace.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param namespace? string The namespace to search in.
+---@return table<number, Sound>
 Sound.find_all = function(namespace, namespace_is_specified)
-    return __sound_find_cache:get_all(namespace, namespace_is_specified, "wrapper")
+    return sound_find_table:get_all(namespace, namespace_is_specified)
 end
 
-
---@static
---@return       Sound
---@param        sound       | number    | The sound ID to wrap.
 --[[
 Returns a Sound wrapper containing the provided sound ID.
 ]]
+---@param sound number | Sound The sound to wrap.
+---@return Sound
 Sound.wrap = function(sound)
-    -- Input:   number or Sound wrapper
-    -- Wraps:   number
-    return make_proxy(Wrap.unwrap(sound), metatable_sound)
+    return new_proxy(unwrap(sound), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class Sound
+local methods = {}
 
---@section Instance Methods
+--[[
+Plays the sound at the specified location.
 
-methods_sound = {
+This does not sync with other players online.
+]]
+---@param x number The x coordinate to play at.
+---@param y number The y coordinate to play at.
+---@param volume? number The volume of the sound. <br>`1` by default.
+---@param pitch? number The pitch of the sound. <br>`1` by default.
+methods.play = function(self, x, y, volume, pitch)
+    if not x then throw("x is nil", 2) end
+    if not y then throw("y is nil", 2) end
 
-    --@instance
-    --@param        x           | number    | The x coordinate to play at.
-    --@param        y           | number    | The y coordinate to play at.
-    --@optional     volume      | number    | The volume of the sound. <br>`1` by default.
-    --@optional     pitch       | number    | The pitch of the sound. <br>`1` by default.
-    --[[
-    Plays the sound at the specified location.
+    gm.sound_play_at(
+        proxy[self],
+        volume or 1,
+        pitch  or 1,
+        x,
+        y
+    )
+end
 
-    This does not sync with other players online.
-    ]]
-    play = function(self, x, y, volume, pitch)
-        if not x then log.error("play: x coordinate is not provided", 2) end
-        if not y then log.error("play: y coordinate is not provided", 2) end
+--[[
+Plays the sound at the specified location.
 
-        gm.sound_play_at(
-            self.value,
-            volume  or 1,
-            pitch   or 1,
-            x,
-            y
-        )
-    end,
+This syncs with other players online, however <br>
+having every client call {`sound:play` | Sound#play} themselves <br>
+is preferable since that has no packet latency.
+]]
+---@param x number The x coordinate to play at.
+---@param y number The y coordinate to play at.
+---@param volume? number The volume of the sound. <br>`1` by default.
+---@param pitch? number The pitch of the sound. <br>`1` by default.
+methods.play_synced = function(self, x, y, volume, pitch)
+    if not x then throw("x is nil", 2) end
+    if not y then throw("y is nil", 2) end
 
-
-    --@instance
-    --@param        x           | number    | The x coordinate to play at.
-    --@param        y           | number    | The y coordinate to play at.
-    --@optional     volume      | number    | The volume of the sound. <br>`1` by default.
-    --@optional     pitch       | number    | The pitch of the sound. <br>`1` by default.
-    --[[
-    Plays the sound at the specified location.
-
-    This syncs with other players online, but
-    having every client call {`sound:play` | Sound#play} themselves
-    is preferable since that has no packet latency.
-    ]]
-    play_synced = function(self, x, y, volume, pitch)
-        if not x then log.error("play: x coordinate is not provided", 2) end
-        if not y then log.error("play: y coordinate is not provided", 2) end
-
-        gm.sound_play_at(
-            self.value,
-            volume  or 1,
-            pitch   or 1,
-            x,
-            y
-        )
-
-        packet_syncSound:send_to_all(self.identifier, self.namespace, x, y, volume or 1, pitch or 1)
-    end
-
-}
-
+    gm.sound_play_at(
+        proxy[self],
+        volume or 1,
+        pitch  or 1,
+        x,
+        y
+    )
+    packet_syncSound:send_to_all(self.identifier, self.namespace, x, y, volume or 1, pitch or 1)
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Sound"
+---@class Sound
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field namespace string The namespace of the sound.
+---@field identifier string The identifier of the sound.
 
-make_table_once("metatable_sound", {
-    __index = function(proxy, k)
+local mt_name = "Sound"
+
+W.Sound = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
         
         -- Methods
-        if methods_sound[k] then
-            return methods_sound[k]
-        end
+        local method = methods[k]
+        if method then return method end
 
         -- Getter
-        return __sound_find_cache:get(__proxy[proxy])[k]
+        return sound_find_table[proxy[t]][k]
     end,
     
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-
-        -- Setter
-        log.error("Sound has no properties to set", 2)
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.Sound
 
 
 -- ========== Hooks ==========
 
 -- Add new sounds to find table
-Hook.add_post(RAPI_NAMESPACE, gm.constants.sound_add_w, Callback.internal.FIRST, function(self, other, result, args)
+gm.post_script_hook(gm.constants.sound_add_w, function(self, other, result, args)
     local id = result.value
     if id == -1 then return end
 
-    __sound_find_cache:set(
-        {
-            wrapper = Sound.wrap(id),
-        },
-        args[2].value,
-        args[1].value,
+    sound_find_table:set(
+        Sound.wrap(id),
+        args[2].value,  -- identifier
+        args[1].value,  -- namespace
         id
     )
 end)
-
-
-
--- Public export
-__class.Sound = Sound

@@ -104,6 +104,7 @@ end
 -- ========== Metatables ==========
 
 ---@class Struct
+---@field value Struct *Legacy.* The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 ---@field [any] any
 
@@ -111,6 +112,7 @@ local mt_name = "Struct"
 
 W.Struct = {
     __index = function(t, k)
+        if k == "value" then return t end
         if k == "RAPI" then return mt_name end
 
         -- Methods

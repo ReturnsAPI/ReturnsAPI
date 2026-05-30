@@ -498,9 +498,15 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
 
     local _args = args_holders[args_holder_rsp + 1]
     args_holder_rsp = args_holder_rsp + 1
+
+    -- Callback type 41
+    if type_id == Callback.NET_MESSAGE_ON_RECEIVED then
+        _args[1] = Packet.wrap(args[2].value)  -- `nil` if packet ID is not in use
+        _args[2] = Buffer.wrap(args[3].value)
+        _args[3] = nil
     
     -- Callback types 0 ~ 42
-    if type_id < #callback_constants then
+    elseif type_id < #callback_constants then
         local arg_types = callback_arg_types[type_id]
 
         local n = #arg_types
@@ -509,21 +515,12 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
             local arg_type = arg_types[i]
             
             -- Wrap as certain wrappers depending on arg type
-            -- TODO
-            -- if arg then
-            --     if     arg_type == "AttackInfo" then arg = AttackInfo.wrap(arg) -- Assuming `arg` is a Struct wrapper
-            --     elseif arg_type == "HitInfo"    then arg = HitInfo.wrap(arg)
-            --     elseif arg_type == "Equipment"  then arg = Equipment.wrap(arg)
-            --     end
-            -- end
-
-            -- Packet and Message edge cases (41 - net_message_onReceived)
-            -- TODO
-            -- if type_id == Callback.NET_MESSAGE_ON_RECEIVED then
-            --     if      i == 1 then arg = Packet.wrap(arg)  -- `nil` if packet ID is not in use
-            --     elseif  i == 2 then arg = Buffer.wrap(arg)
-            --     end
-            -- end
+            if arg then
+                if     arg_type == "AttackInfo" then arg = AttackInfo.wrap(arg)
+                elseif arg_type == "HitInfo"    then arg = HitInfo.wrap(arg)
+                elseif arg_type == "Equipment"  then arg = Equipment.wrap(arg)
+                end
+            end
             
             _args[i] = arg
         end

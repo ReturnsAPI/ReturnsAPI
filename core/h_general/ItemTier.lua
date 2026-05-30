@@ -140,7 +140,7 @@ end
 --[[
 Returns an ItemTier wrapper containing the provided item tier ID.
 ]]
----@param id number | ItemTier The item tier to wrap.
+---@param tier number | ItemTier The item tier to wrap.
 ---@return ItemTier
 ItemTier.wrap = function(tier)
     return new_proxy(unwrap(tier), metatable)

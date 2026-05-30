@@ -17,6 +17,8 @@ local unwrap             = Wrap.unwrap
 ---@class Elite
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
+---@field properties Array The array storing this elite's properties.
+---@field array Array Alias for `.properties`.
 
 ---@class Elite
 -- Populate with properties

@@ -72,6 +72,7 @@ end
 -- ========== Metatables ==========
 
 ---@class Script
+---@field value Script *Legacy.* The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 ---@field name string The name of the script.
 ---@field script_name string Alias for `.name`.
@@ -93,6 +94,7 @@ local mt_name = "Script"
 
 W.Script = {
     __index = function(t, k)
+        if k == "value" then return t end
         if k == "RAPI" then return mt_name end
         if k == "name" or k == "script_name" then
             return string_sub(og_index(t, "script_name"), 12, -1)

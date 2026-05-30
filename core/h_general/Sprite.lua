@@ -1,75 +1,57 @@
-if __DEACTIVATE_OLD then return end
 -- Sprite
 
+---@class SpriteClass
 Sprite = new_class()
+C.Sprite = Sprite
 
 run_on_initial_load(function()
-    __sprite_find_cache = FindTable.new()
+    P.sprite_find_table = FindTable.new()
 end)
 
+local sprite_find_table = P.sprite_find_table
 
+local proxy = P.proxy
+local metatable
 
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The sprite ID being wrapped.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`namespace`     | string    | *Read-only.* The namespace the sprite is in.
-`identifier`    | string    | *Read-only.* The identifier for the sprite within the namespace.
-`width`         | number    | *Read-only.* The width of the sprite (in pixels).
-`height`        | number    | *Read-only.* The height of the sprite (in pixels).
-`subimages`     | number    | *Read-only.* The number of subimages of the sprite.
-]]
-
+local floor              = math.floor
+local gm                 = gm  ---@type table<string, function>
+local new_proxy          = new_proxy
+local unwrap             = Wrap.unwrap
+local check_init_started = Initialize.internal.check_if_started
 
 
 -- ========== Internal ==========
 
-Sprite.internal.initialize = function()
+local function populate_find_table()
     -- Populate cache with vanilla sprites
     local resource_manager = Map.wrap(Global.ResourceManager_sprite.__namespacedAssetLookup)
     
     for identifier, sprite in pairs(Map.wrap(resource_manager["ror"])) do
         local wrapper = Sprite.wrap(sprite)
-
-        __sprite_find_cache:set(
-            {
-                wrapper = wrapper,
-            },
-            identifier,
-            "ror",
-            sprite
-        )
+        sprite_find_table:set(wrapper, identifier, "ror", sprite)
     end
 end
-run_on_initialize(Sprite.internal.initialize)
-
+run_on_initialize(populate_find_table)
 
 
 -- ========== Static Methods ==========
 
 --@section Static Methods
 
---@static
---@return       Sprite
---@param        identifier      | string    | The identifier for the sprite.
---@param        path            | string    | The file path to the sprite. <br>`~` expands to your mod folder.
---@optional     image_number    | number    | The number of subimages. <br>`1` by default.
---@optional     x_origin        | number    | The x coordinate of the origin (offset). <br>`0` by default.
---@optional     y_origin        | number    | The y coordinate of the origin (offset). <br>`0` by default.
 --[[
-Creates a new sprite with the given identifier if it does not already exist,
+Creates a new sprite with the given identifier if it does not already exist, <br>
 or returns the existing one if it does.
 ]]
+---@param identifier string The identifier for the sprite.
+---@param path string The file path to the sprite. <br>`~` expands to your mod folder.
+---@param image_number number The number of subimages. <br>`1` by default.
+---@param x_origin number The x coordinate of the origin (offset). <br>`0` by default.
+---@param y_origin number The y coordinate of the origin (offset). <br>`0` by default.
+---@return Sprite
 Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_origin)
-    Initialize.internal.check_if_started("Sprite.new")
-    if not identifier then log.error("Sprite.new: No identifier provided", 2) end
-    if not path then log.error("Sprite.new: No image path provided", 2) end
+    check_init_started("new")
+    if not identifier then throw("No identifier provided", "new") end
+    if not path then throw("No image path provided", "new") end
 
     path = expand_path(NAMESPACE, path)
 
@@ -92,7 +74,7 @@ Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_ori
     )
 
     if sprite == -1 then
-        log.error("Sprite.new: Could not load sprite at '"..path.."'", 2)
+        throw("Could not load sprite at '"..path.."'", "new")
     end
 
     -- Adding to find table is done in the hook at the bottom
@@ -100,175 +82,145 @@ Sprite.new = function(NAMESPACE, identifier, path, image_number, x_origin, y_ori
     return Sprite.wrap(sprite)
 end
 
-
---@static
---@return       Sprite or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified sprite and returns it.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return Sprite | nil
 Sprite.find = function(identifier, namespace, namespace_is_specified)
-    local cached = __sprite_find_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached.wrapper end
+    return sprite_find_table:get(identifier, namespace, namespace_is_specified)
 end
 
-
---@static
---@return       table
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Returns a table of all sprites in the specified namespace.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param namespace? string The namespace to search in.
+---@return table<number, Sprite>
 Sprite.find_all = function(namespace, namespace_is_specified)
-    return __sprite_find_cache:get_all(namespace, namespace_is_specified, "wrapper")
+    return sprite_find_table:get_all(namespace, namespace_is_specified)
 end
 
-
---@static
---@return       Sprite
---@param        sprite      | number    | The sprite ID to wrap.
 --[[
 Returns a Sprite wrapper containing the provided sprite ID.
 ]]
+---@param sprite number | Sprite The sprite to wrap.
+---@return Sprite
 Sprite.wrap = function(sprite)
-    -- Input:   number or Sprite wrapper
-    -- Wraps:   number
-    return make_proxy(Wrap.unwrap(sprite), metatable_sprite)
+    return new_proxy(unwrap(sprite), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+local methods = {}
 
---@section Instance Methods
+--[[
+Sets the origin of the sprite.
+Resets unspecified coordinates to `0`.
+]]
+---@param x_origin? number The x coordinate of the origin (offset). <br>`0` by default.
+---@param y_origin? number The y coordinate of the origin (offset). <br>`0` by default.
+methods.set_origin = function(self, x_origin, y_origin)
+    gm.sprite_set_offset(proxy[self], x_origin or 0, y_origin or 0)
+end
 
-methods_sprite = {
+--[[
+Sets the animation speed of the sprite.
+]]
+---@param speed number The animation speed, in "sprite frames per game frame".
+methods.set_speed = function(self, speed)
+    if not speed then throw("speed is not provided") end
+    gm.sprite_set_speed(proxy[self], speed, 1)  -- Using `spritespeed_framespergameframe` (1)
+end
 
-    --@instance
-    --@optional     x_origin    | number    | The x coordinate of the origin (offset). <br>`0` by default.
-    --@optional     y_origin    | number    | The y coordinate of the origin (offset). <br>`0` by default.
-    --[[
-    Sets the origin of the sprite.
-    Resets unspecified coordinates to `0`.
-    ]]
-    set_origin = function(self, x_origin, y_origin)
-        gm.sprite_set_offset(self.value, x_origin or 0, y_origin or 0)
-    end,
+--[[
+Sets the collision mask of the sprite, relative to the top-left corner (0, 0).
 
+E.g., For a 16x16 `mySprite`, `mySprite:set_collision_mask(1, 1, 15, 15)` would reduce the hitbox by 1px on each side.
+]]
+---@param bbox_left number The left x.
+---@param bbox_top number The top y.
+---@param bbox_right number The right x.
+---@param bbox_bottom number The bottom y.
+methods.set_collision_mask = function(self, bbox_left, bbox_top, bbox_right, bbox_bottom)
+    if not bbox_left   then throw("bbox_left is not provided", 2) end
+    if not bbox_top    then throw("bbox_top is not provided", 2) end
+    if not bbox_right  then throw("bbox_right is not provided", 2) end
+    if not bbox_bottom then throw("bbox_bottom is not provided", 2) end
 
-    --@instance
-    --@param        speed       | number    | The animation speed, in "sprite frames per game frame".
-    --[[
-    Sets the animation speed of the sprite.
-    ]]
-    set_speed = function(self, speed)
-        if not speed then log.error("set_speed: speed is not provided", 2) end
-        gm.sprite_set_speed(self.value, speed, 1)   -- Using `spritespeed_framespergameframe` (1)
-    end,
-
-
-    --@instance
-    --@param        bbox_left   | number    | The left x.
-    --@param        bbox_top    | number    | The top y.
-    --@param        bbox_right  | number    | The right x.
-    --@param        bbox_bottom | number    | The bottom y.
-    --[[
-    Sets the collision mask of the sprite, relative to the top-left corner (0, 0).
-
-    E.g., For a 16x16 `mySprite`, `mySprite:set_collision_mask(1, 1, 15, 15)` would reduce the hitbox by 1px on each side.
-    ]]
-    set_collision_mask = function(self, bbox_left, bbox_top, bbox_right, bbox_bottom)
-        if not bbox_left    then log.error("set_collision_mask: bbox_left is not provided", 2) end
-        if not bbox_top     then log.error("set_collision_mask: bbox_top is not provided", 2) end
-        if not bbox_right   then log.error("set_collision_mask: bbox_right is not provided", 2) end
-        if not bbox_bottom  then log.error("set_collision_mask: bbox_bottom is not provided", 2) end
-
-        gm.sprite_collision_mask(
-            self.value,
-            false,
-            2,  -- `2` is user-defined
-            bbox_left,
-            bbox_top,
-            bbox_right,
-            bbox_bottom,
-            0,  -- `0` is `bboxkind_rectangular`
-            0   -- `0` transparency tolerance
-        )
-    end
-
-}
-
+    gm.sprite_collision_mask(
+        proxy[self],
+        false,
+        2,  -- `2` is user-defined
+        bbox_left,
+        bbox_top,
+        bbox_right,
+        bbox_bottom,
+        0,  -- `0` is `bboxkind_rectangular`
+        0   -- `0` transparency tolerance
+    )
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Sprite"
+---@class Sprite
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field namespace string The namespace of the sprite.
+---@field identifier string The identifier of the sprite.
+---@field width number The width of the sprite (in pixels).
+---@field height number The height of the sprite (in pixels).
+---@field subimages number The number of subimages of the sprite.
 
-make_table_once("metatable_sprite", {
-    __index = function(proxy, k)
+local mt_name = "Sprite"
+
+W.Sprite = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
 
         -- Get width/height
-        if k == "width"     then return math.floor(gm.sprite_get_width (__proxy[proxy])) end
-        if k == "height"    then return math.floor(gm.sprite_get_height(__proxy[proxy])) end
-        if k == "subimages" then return math.floor(gm.sprite_get_number(__proxy[proxy])) end
+        if k == "width"     then return floor(gm.sprite_get_width (proxy[t])) end
+        if k == "height"    then return floor(gm.sprite_get_height(proxy[t])) end
+        if k == "subimages" then return floor(gm.sprite_get_number(proxy[t])) end
         
         -- Methods
-        if methods_sprite[k] then
-            return methods_sprite[k]
-        end
+        local method = methods[k]
+        if method then return method end
 
         -- Getter
-        return __sprite_find_cache:get(__proxy[proxy])[k]
-    end,
-    
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI"
-        or k == "namespace"
-        or k == "identifier"
-        or k == "width"
-        or k == "height"
-        or k == "subimages" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-        
-        log.error("Sprite has no properties to set", 2)
+        return sprite_find_table:get(proxy[t])[k]
     end,
 
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
+    end,
 
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.Sprite
 
 
 -- ========== Hooks ==========
 
 -- Add new sprites to find table
-Hook.add_post(RAPI_NAMESPACE, gm.constants.sprite_add_w, Callback.internal.FIRST, function(self, other, result, args)
+gm.post_script_hook(gm.constants.sprite_add_w, function(self, other, result, args)
     local id = result.value
     if id == -1 then return end
 
-    __sprite_find_cache:set(
-        {
-            wrapper = Sprite.wrap(id),
-        },
+    sprite_find_table:set(
+        Sprite.wrap(id),
         args[2].value,
         args[1].value,
         id
     )
 end)
-
-
-
--- Public export
-__class.Sprite = Sprite

@@ -1,90 +1,95 @@
-if __DEACTIVATE_OLD then return end
 -- Timer
 
--- A native implementation of RoRR's `stopwatch` system.
--- Only runs when unpaused.
--- See usage here:  https://github.com/ReturnsAPI/ReturnsAPI/wiki/Timer
-
+--[[
+A native implementation of RoRR's `stopwatch` system. <br>
+Only runs when unpaused.
+]]
+---@class TimerClass
 Timer = new_class()
+C.Timer = Timer
 
-__timer_frame = __timer_frame or 0
+run_on_initial_load(function()
+    P.timer_frame = 0
+end)
 
+local metatable
+
+local type    = type
+local to_bool = Util.bool
 
 
 -- ========== Instance Methods ==========
 
-methods_timer = {
+---@class Timer
+local methods = {}
 
-    start = function(self, duration)
-        if duration and (type(duration) ~= "number") then log.error("start: duration must be a number", 2) end
-        self.end_time = __timer_frame + (duration or self.duration)
-    end,
+methods.start = function(self, duration)
+    if duration and (type(duration) ~= "number") then throw("duration must be a number") end
+    self.end_time = P.timer_frame + (duration or self.duration)
+end
 
-
-    stop = function(self)
-        self.end_time = __timer_frame
-    end
-
-}
-
+methods.stop = function(self)
+    self.end_time = P.timer_frame
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Timer"
+---@class TimerClass
+---@overload fun(duration: number, autostart: boolean): Timer
 
-make_table_once("metatable_timer_class", {
-    
-    -- Create new timer
+local mt_name = "TimerClass"
+
+M.Timer = {
     __call = function(t, duration, autostart)
+        -- Create new timer
         if duration and (type(duration) ~= "number") then log.error("Timer: duration must be a number", 2) end
         duration = duration or 0
 
         return setmetatable({
             duration = duration,
-            end_time = __timer_frame + ((autostart and duration) or 0),
-        }, metatable_timer)
+            end_time = P.timer_frame + ((autostart and duration) or 0),
+        }, metatable)
     end,
-
 
     __newindex = function(t, k, v)
-        -- Do nothing
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
+    __metatable = mt_class_name(mt_name),
+}
+setmetatable(Timer, M.Timer)
 
-    __metatable = "RAPI.Class."..wrapper_name
-})
-setmetatable(Timer, metatable_timer_class)
+---@class Timer
+---@field RAPI string The name of this wrapper.
+---@field time_left number Time left in frames; can be a negative value (which means "time elapsed since end time").
+---@field finished boolean `true` if timer is finished.
 
+local mt_name = "Timer"
 
-make_table_once("metatable_timer", {
+W.Timer = {
     __index = function(t, k)
-        if k == "time_left" then return t.end_time - __timer_frame end
-        if k == "finished"  then return __timer_frame >= t.end_time end
-        if k == "RAPI"      then return wrapper_name end
-        if methods_timer[k] then return methods_timer[k] end
+        if k == "time_left" then return t.end_time - P.timer_frame end
+        if k == "finished"  then return P.timer_frame >= t.end_time end
+        if k == "RAPI"      then return mt_name end
+        
+        -- Methods
+        local method = methods[k]
+        if method then return method end
     end,
-
 
     __newindex = function(t, k, v)
-        -- Do nothing
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.Timer
 
 
 -- ========== Hooks ==========
 
 Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, function(self, other, result, args)
-    if Util.bool(Global.gameplay_paused) then return end
-    __timer_frame = __timer_frame + 1
+    if to_bool(Global.gameplay_paused) then return end
+    P.timer_frame = P.timer_frame + 1
 end)
-
-
-
--- Public export
-__class.Timer = Timer
-__class_mt.Timer = metatable_timer_class

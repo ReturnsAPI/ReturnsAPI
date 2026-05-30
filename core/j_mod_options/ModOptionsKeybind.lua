@@ -309,13 +309,13 @@ methods_modoptionskeybind = {
 
 -- ========== Metatables ==========
 
-local wrapper_name = "ModOptionsKeybind"
+local mt_name = "ModOptionsKeybind"
 
 make_table_once("metatable_modoptionskeybind", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
-        if k == "RAPI" then return wrapper_name end
+        if k == "RAPI" then return mt_name end
 
         -- Get certain values
         if k == "namespace"     then return __proxy[proxy].namespace end

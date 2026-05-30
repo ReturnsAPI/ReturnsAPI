@@ -31,7 +31,7 @@ methods_vector = {
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Vector"
+local mt_name = "Vector"
 
 make_table_once("metatable_vector_class", {
     __call = function(t, x, y)
@@ -75,7 +75,7 @@ make_table_once("metatable_vector", {
         -- Get length/direction
         if k == "length"    then return math.sqrt(vec.x^2 + vec.y^2) end
         if k == "direction" then return (-math.atan(vec.y, vec.x) * Math.RAD2DEG) % 360 end
-        if k == "RAPI"      then return wrapper_name end
+        if k == "RAPI"      then return mt_name end
 
         -- Methods
         return methods_vector[k]

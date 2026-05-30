@@ -211,6 +211,7 @@ end
 -- ========== Metatables ==========
 
 ---@class Array
+---@field value Array *Legacy.* The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 ---@field [number] any
 
@@ -218,6 +219,7 @@ local mt_name = "Array"
 
 W.Array = {
     __index = function(t, k)
+        if k == "value" then return t end
         if k == "RAPI" then return mt_name end
         
         -- Methods

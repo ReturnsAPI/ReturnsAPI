@@ -17,6 +17,8 @@ local unwrap             = Wrap.unwrap
 ---@class ActorSkin
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
+---@field properties Array The array storing this actor skin's properties.
+---@field array Array Alias for `.properties`.
 
 ---@class ActorSkin
 -- Populate with properties

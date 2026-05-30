@@ -17,6 +17,8 @@ local unwrap             = Wrap.unwrap
 ---@class Stage
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
+---@field properties Array The array storing this stage's properties.
+---@field array Array Alias for `.properties`.
 
 ---@class Stage
 -- Populate with properties

@@ -88,13 +88,13 @@ methods_modoptionsbutton = {
 
 -- ========== Metatables ==========
 
-local wrapper_name = "ModOptionsButton"
+local mt_name = "ModOptionsButton"
 
 make_table_once("metatable_modoptionsbutton", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
-        if k == "RAPI" then return wrapper_name end
+        if k == "RAPI" then return mt_name end
 
         -- Get certain values
         if k == "namespace" then return __proxy[proxy].namespace end

@@ -1,155 +1,94 @@
-if __DEACTIVATE_OLD then return end
 -- Tracer
 
+---@class TracerClass
 Tracer = new_class()
+C.Tracer = Tracer
 
 run_on_initial_load(function()
-    __tracer_find_cache = FindTable.new()
-    __tracer_callbacks = {}
+    P.tracer_find_table_wrapper = FindTable.new()
+    P.tracer_find_table_struct  = FindTable.new()
+    P.tracer_functions          = {}  ---@type table<number, function>
 end)
 
+local wrapper_table    = P.tracer_find_table_wrapper
+local struct_table     = P.tracer_find_table_struct
+local tracer_functions = P.tracer_functions
+
+local proxy = P.proxy
+local metatable
+
+local new_proxy = new_proxy
+local unwrap    = Wrap.unwrap
 
 
 -- ========== Constants ==========
 
---@section Constants
+Tracer.NONE                 = 0
+Tracer.WISPG                = 1
+Tracer.WISPG2               = 2
+Tracer.PILOT_RAID           = 3
+Tracer.PILOT_RAID_BOOSTED   = 4
+Tracer.PILOT_PRIMARY        = 5
+Tracer.PILOT_PRIMARY_STRONG = 6
+Tracer.PILOT_PRIMARY_ALT    = 7
+Tracer.COMMANDO1            = 8
+Tracer.COMMANDO2            = 9
+Tracer.COMMANDO3            = 10
+Tracer.COMMANDO3_R          = 11
+Tracer.SNIPER1              = 12
+Tracer.SNIPER2              = 13
+Tracer.ENGI_TURRET          = 14
+Tracer.ENFORCER1            = 15
+Tracer.ROBOMANDO1           = 16
+Tracer.ROBOMANDO2           = 17
+Tracer.BANDIT1              = 18
+Tracer.BANDIT2              = 19
+Tracer.BANDIT2_R            = 20
+Tracer.BANDIT3              = 21
+Tracer.BANDIT3_R            = 22
+Tracer.ACRID                = 23
+Tracer.NO_SPARKS_ON_MISS    = 24
+Tracer.END_SPARKS_ON_PIERCE = 25
+Tracer.DRILL                = 26
+Tracer.PLAYER_DRONE         = 27
 
---@constants
---[[
-NONE                    0
-WISPG                   1
-WISPG2                  2
-PILOT_RAID              3
-PILOT_RAID_BOOSTED      4
-PILOT_PRIMARY           5
-PILOT_PRIMARY_STRONG    6
-PILOT_PRIMARY_ALT       7
-COMMANDO1               8
-COMMANDO2               9
-COMMANDO3               10
-COMMANDO3_R             11
-SNIPER1                 12
-SNIPER2                 13
-ENGI_TURRET             14
-ENFORCER1               15
-ROBOMANDO1              16
-ROBOMANDO2              17
-BANDIT1                 18
-BANDIT2                 19
-BANDIT2_R               20
-BANDIT3                 21
-BANDIT3_R               22
-ACRID                   23
-NO_SPARKS_ON_MISS       24
-END_SPARKS_ON_PIERCE    25
-DRILL                   26
-PLAYER_DRONE            27
-]]
+-- Populate `tracer_constants`
 
-local tracer_constants = {
-    NONE                    = 0,
-    WISPG                   = 1,
-    WISPG2                  = 2,
-    PILOT_RAID              = 3,
-    PILOT_RAID_BOOSTED      = 4,
-    PILOT_PRIMARY           = 5,
-    PILOT_PRIMARY_STRONG    = 6,
-    PILOT_PRIMARY_ALT       = 7,
-    COMMANDO1               = 8,
-    COMMANDO2               = 9,
-    COMMANDO3               = 10,
-    COMMANDO3_R             = 11,
-    SNIPER1                 = 12,
-    SNIPER2                 = 13,
-    ENGI_TURRET             = 14,
-    ENFORCER1               = 15,
-    ROBOMANDO1              = 16,
-    ROBOMANDO2              = 17,
-    BANDIT1                 = 18,
-    BANDIT2                 = 19,
-    BANDIT2_R               = 20,
-    BANDIT3                 = 21,
-    BANDIT3_R               = 22,
-    ACRID                   = 23,
-    NO_SPARKS_ON_MISS       = 24,
-    END_SPARKS_ON_PIERCE    = 25,
-    DRILL                   = 26,
-    PLAYER_DRONE            = 27,
-}
-
--- Add to Tracer directly (e.g., Tracer.COMMANDO1)
-for k, v in pairs(tracer_constants) do
-    Tracer[k] = v
+local tracer_constants = {}  ---@type table<number, string> Array table of vanilla tracers (indexed from `1`).
+for name, tracer in pairs(Tracer) do
+    if type(tracer) == "number" then
+        tracer_constants[tracer + 1] = name
+    end
 end
-
-
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`value`         | number    | *Read-only.* The ID of the tracer.
-`RAPI`          | string    | *Read-only.* The wrapper name.
-
-<br>
-
-Property | Type | Description
-| - | - | -
-`namespace`                         | string    | The namespace the tracer is in.
-`identifier`                        | string    | The identifier for the tracer within the namespace.
-`consistent_sparks_flip`            | bool      | 
-`show_sparks_if_miss`               | bool      | 
-`sparks_offset_y`                   | number    | 
-`show_end_sparks_on_piercing_hit`   | bool      | 
-`override_sparks_miss`              | number    | 
-`override_sparks_solid`             | number    | 
-`draw_tracer`                       | bool      | 
-]]
-
 
 
 -- ========== Internal ==========
 
-Tracer.internal.initialize = function()
+local function populate_find_table()
     -- Populate find table with vanilla tracers
-    for constant, id in pairs(tracer_constants) do
-        local identifier = constant:lower()
-        local struct     = Global.tracer_info:get(id)
+    for tracer, name in pairs(tracer_constants) do
+        local identifier = name:lower()
+        local struct     = Global.tracer_info:get(tracer - 1)
 
         -- Custom properties
         struct.namespace  = "ror"
         struct.identifier = identifier
 
-        __tracer_find_cache:set(
-            {
-                wrapper = Tracer.wrap(id),
-                struct  = struct,
-            },
-            identifier,
-            "ror",
-            id
-        )
+        wrapper_table:set(Tracer.wrap(id), identifier, "ror", tracer - 1)
+        struct_table:set(struct, identifier, "ror", tracer - 1)
     end
 end
-run_on_initialize(Tracer.internal.initialize)
-
+run_on_initialize(populate_find_table)
 
 
 -- ========== Static Methods ==========
 
---@section Static Methods
-
---@static
---@return   Tracer
---@param    identifier      | string    | The identifier for the tracer.
 --[[
-Creates a new tracer with the given identifier if it does not already exist,
+Creates a new tracer with the given identifier if it does not already exist, <br>
 or returns the existing one if it does.
 ]]
+---@param identifier string The identifier for the tracer.
+---@return Tracer
 Tracer.new = function(NAMESPACE, identifier)
     -- Return existing tracer if found
     local tracer = Tracer.find(identifier, NAMESPACE)
@@ -173,122 +112,110 @@ Tracer.new = function(NAMESPACE, identifier)
     )
 
     -- Custom properties
-    struct.namespace    = NAMESPACE
-    struct.identifier   = identifier
+    struct.namespace  = NAMESPACE
+    struct.identifier = identifier
 
     -- Push onto array
     tracer_info_array:push(struct)
 
-    local tracer = Tracer.wrap(id)
-
-    -- Add to find table
-    __tracer_find_cache:set(
-        {
-            wrapper = tracer,
-            struct  = struct,
-        },
-        identifier,
-        NAMESPACE,
-        id
-    )
-
-    return tracer
+    local wrapper = Tracer.wrap(id)
+    wrapper_table:set(wrapper, identifier, NAMESPACE, id)
+    struct_table:set(struct, identifier, NAMESPACE, id)
+    return wrapper
 end
 
-
---@static
---@return       Tracer or nil
---@param        identifier  | string    | The identifier to search for.
---@optional     namespace   | string    | The namespace to search in.
 --[[
 Searches for the specified tracer and returns it.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param identifier string The identifier to search for.
+---@param namespace? string The namespace to search in.
+---@return Tracer | nil
 Tracer.find = function(identifier, namespace, namespace_is_specified)
-    local cached = __tracer_find_cache:get(identifier, namespace, namespace_is_specified)
-    if cached then return cached.wrapper end
+    return wrapper_table:get(identifier, namespace, namespace_is_specified)
 end
 
-
---@static
---@return       table
---@optional     namespace   | string    | The namespace to check.
 --[[
 Returns a table of all tracers in the specified namespace.
 
---@findinfo
+If no namespace is provided, searches globally in a non-deterministic* order. <br>
+\* Guaranteed to check in your mod's namespace first.
 ]]
+---@param namespace? string The namespace to search in.
+---@return table<number, Tracer>
 Tracer.find_all = function(namespace, namespace_is_specified)
-    return __tracer_find_cache:get_all(namespace, namespace_is_specified, "wrapper")
+    return wrapper_table:get_all(namespace, namespace_is_specified)
 end
 
-
---@static
---@return       Tracer
---@param        tracer      | number    | The tracer to wrap.
 --[[
 Returns a Tracer wrapper containing the provided tracer.
 ]]
+---@param tracer number | Tracer The tracer to wrap.
+---@return Tracer
 Tracer.wrap = function(tracer)
-    -- Input:   number or Tracer wrapper
-    -- Wraps:   number
-    return make_proxy(Wrap.unwrap(tracer), metatable_tracer)
+    return new_proxy(unwrap(tracer), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class Tracer
+local methods = {}
 
---@section Instance Methods
+--[[
+Sets the function that gets called while the tracer is drawn.
+]]
+---@param func function The function to set. <br>The parameters for it are `x1, y1, x2, y2, color`.
+methods.set_callback = function(self, func)
+    tracer_functions[proxy[self]] = func
+end
 
-methods_tracer = {
-
-    --@instance
-    --[[
-    Prints the tracer's properties.
-    ]]
-    print = function(self)
-        local struct = __tracer_find_cache:get(self.value).struct
-        struct:print()
-    end,
-
-
-    --@instance
-    --@param        func        | function  | The function to set. <br>The parameters for it are `x1, y1, x2, y2, color`.
-    --[[
-    Sets the function that gets called while the tracer is drawn.
-    ]]
-    set_callback = function(self, func)
-        __tracer_callbacks[self.value] = func
-    end
-
-}
-
+--@instance
+--[[
+Prints the tracer's properties.
+]]
+methods.print = function(self)
+    struct_table[proxy[self]].value:print()
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "Tracer"
+---@class Tracer
+---@field value number The value being wrapped.
+---@field RAPI string The name of this wrapper.
 
-make_table_once("metatable_tracer", {
-    __index = function(proxy, k)
+---@class Tracer
+---@field namespace                        string   The namespace the tracer is in.
+---@field identifier                       string   The identifier for the tracer within the namespace.
+---@field consistent_sparks_flip           boolean  
+---@field show_sparks_if_miss              boolean  
+---@field sparks_offset_y                  number   
+---@field show_end_sparks_on_piercing_hit  boolean  
+---@field override_sparks_miss             number   
+---@field override_sparks_solid            number   
+---@field draw_tracer                      boolean  
+
+local mt_name = "Tracer"
+
+W.Tracer = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return __proxy[proxy] end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return proxy[t] end
+        if k == "RAPI" then return mt_name end
 
         -- Methods
-        if methods_tracer[k] then
-            return methods_tracer[k]
-        end
+        local method = methods[k]
+        if method then return method end
 
         -- Getter
-        local struct = __tracer_find_cache:get(__proxy[proxy]).struct
+        local struct = struct_table[proxy[t]].value
         return struct[k]
     end,
 
-
-    __newindex = function(proxy, k, v)
+    __newindex = function(t, k, v)
         -- Throw read-only error for certain keys
         if k == "value"
         or k == "RAPI" then
@@ -296,13 +223,13 @@ make_table_once("metatable_tracer", {
         end
 
         -- Setter
-        local struct = __tracer_find_cache:get(__proxy[proxy]).struct
-        struct[k] = Wrap.unwrap(v)
+        local struct = struct_table[proxy[t]].value
+        struct[k] = unwrap(v)
     end,
 
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.Tracer
 
 
 -- ========== Hooks ==========
@@ -310,7 +237,7 @@ make_table_once("metatable_tracer", {
 gm.post_script_hook(gm.constants.bullet_draw_tracer, function(self, other, result, args)
     local tracer_kind = args[1].value
 
-    local fn = __tracer_callbacks[tracer_kind]
+    local fn = tracer_functions[tracer_kind]
     if not fn then return end
 
     local tracer_col = args[2].value
@@ -321,8 +248,3 @@ gm.post_script_hook(gm.constants.bullet_draw_tracer, function(self, other, resul
 
     fn(x1, y1, x2, y2, tracer_col)
 end)
-
-
-
--- Public export
-__class.Tracer = Tracer

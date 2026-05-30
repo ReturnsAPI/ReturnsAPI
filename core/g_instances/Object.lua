@@ -72,7 +72,7 @@ local populate_find_table = function()
     local resource_manager = Map.wrap(Global.ResourceManager_object.__namespacedAssetLookup)
     
     for identifier, object in pairs(Map.wrap(resource_manager["ror"])) do
-        object_find_table:set(Object.wrap(object), identifier, "ror")
+        object_find_table:set(Object.wrap(object), identifier, "ror", object)
 
         -- Create mock `.properties` tables for vanilla (non-custom) objects
         if object < Object.CUSTOM_START
@@ -375,7 +375,7 @@ end
 ---@class Object
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
----@field properties Array | table The array storing this content's properties. <br>For vanilla objects, this is a Lua table.
+---@field properties Array | table The array storing this object's properties. <br>For vanilla objects, this is a Lua table.
 ---@field array Array | table Alias for `.properties`.
 
 ---@class Object
@@ -479,7 +479,8 @@ gm.post_script_hook(gm.constants.object_add_w, function(self, other, result, arg
     object_find_table:set(
         Object.wrap(id),
         args[2].value,  -- identifier
-        args[1].value   -- namespace
+        args[1].value,  -- namespace
+        id
     )
 end)
 

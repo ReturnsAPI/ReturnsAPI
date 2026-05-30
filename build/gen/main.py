@@ -5,6 +5,7 @@ TODO
 - Descriptions for `@class`
 - Store appearance order for enums and methods
 - Capture varargs (...)
+- Capture `fun(arg: type, ...)` args
 """
 
 import os

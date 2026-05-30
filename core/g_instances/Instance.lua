@@ -494,6 +494,7 @@ end
 -- ========== Metatables ==========
 
 ---@class Instance
+---@field value Instance | Actor | Player *Legacy.* The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 ---@field id number
 ---@field [string] any
@@ -520,6 +521,7 @@ local mt_names = {"Instance", "Actor", "Player"}
 
 W.Instance = {
     __index = function(t, k)
+        if k == "value" then return t end
         if k == "id" then
             local id = id_cache[t]
             if not id then

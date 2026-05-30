@@ -66,7 +66,7 @@ Registers a function that runs whenever actor attack evasion/blocking is checked
 The function runs for both host and client. <br>
 Returns the unique ID of the registered function.
 
-**Priority Convention**
+**Priority Convention** <br>
 To allow for a decent amount of space between priorities, <br>
 use the enum values in @link {`Callback.Priority` | Callback#Priority}. <br>
 If you need to be more specific than that, try to keep a distance of at least `100`.

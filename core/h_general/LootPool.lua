@@ -205,7 +205,7 @@ end
 --[[
 Returns a LootPool wrapper containing the provided loot pool ID.
 ]]
----@param id number | LootPool The loot pool to wrap.
+---@param pool number | LootPool The loot pool to wrap.
 ---@return LootPool
 LootPool.wrap = function(pool)
     return new_proxy(unwrap(pool), metatable)
@@ -360,7 +360,7 @@ W.LootPool = {
         if method then return method end
 
         -- Getter
-        local loot_struct = struct_table[proxy[t]].value.
+        local loot_struct = struct_table[proxy[t]].value
         local ret = loot_struct[k]
         if ret then return ret end
 

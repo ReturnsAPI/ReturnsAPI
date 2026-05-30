@@ -17,6 +17,8 @@ local unwrap             = Wrap.unwrap
 ---@class Item
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
+---@field properties Array The array storing this item's properties.
+---@field array Array Alias for `.properties`.
 
 ---@class Item
 ---@field namespace       string        The namespace the item is in.

@@ -13,8 +13,6 @@ local flag_table = P.attack_flag_table
 local proxy = P.proxy
 local metatable
 
-local flag_constants = {}   ---@type table<number, string> Array table of vanilla flags (indexed from `1`).
-
 local new_proxy = new_proxy
 local unwrap    = Wrap.unwrap
 
@@ -55,6 +53,8 @@ AttackFlag.SAWMERANG                = 28
 AttackFlag.FORCE_PROC               = 29
 
 -- Populate `flag_constants`
+
+local flag_constants = {}  ---@type table<number, string> Array table of vanilla flags (indexed from `1`).
 for name, flag in pairs(AttackFlag) do
     if type(flag) == "number" then
         flag_constants[flag + 1] = name
@@ -137,7 +137,7 @@ end
 --[[
 Returns an AttackFlag wrapper containing the provided attack flag ID.
 ]]
----@param id number The attack flag ID to wrap.
+---@param id number | AttackFlag The attack flag ID to wrap.
 ---@return AttackFlag
 AttackFlag.wrap = function(id)
     return new_proxy(unwrap(id), metatable)

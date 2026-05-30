@@ -1,74 +1,22 @@
-if __DEACTIVATE_OLD then return end
 -- RecalculateStats
 
+---@class RecalculateStatsClass
 RecalculateStats = new_class()
+C.RecalculateStats = RecalculateStats
 
 run_on_initial_load(function()
-    __recalcstats_cache = CallbackTable.new()
+    P.recalcstats_functions = CallbackTable.new()
 end)
 
+local recalc_functions = P.recalcstats_functions
 
-
--- ========== Static Methods ==========
-
---@section Static Methods
-
---@static
---@return       number
---@param        fn          | function  | The function to register. <br>The parameters for it are `actor, api`.
---@overload
---@return       number
---@param        priority    | number    | The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
---@param        fn          | function  | The function to register. <br>The parameters for it are `actor, api`.
---[[
-Registers a function for stat recalculation.
-Returns the unique ID of the registered function.
-
-*Technical:* This function will run in `recalculate_stats` pre-hook.
-
-**Priority Convention**
-To allow for a decent amount of space between priorities,
-use the enum values in @link {`Callback.Priority` | Callback#Priority}.
-If you need to be more specific than that, try to keep a distance of at least `100`.
-]]
-RecalculateStats.add = function(NAMESPACE, arg1, arg2)
-    if type(arg1) == "function" then
-        return __recalcstats_cache:add(arg1, NAMESPACE)
-    end
-
-    if type(arg1) ~= "number" then log.error("RecalculateStats.add: Priority should be a number", 2) end
-    return __recalcstats_cache:add(arg2, NAMESPACE, arg1)
-end
-
-
---@static
---@return       function
---@param        id          | number    | The unique ID of the registered function to remove.
---[[
-Removes and returns a registered stat recalculation function.
-The ID is the one from @link {`RecalculateStats.add` | RecalculateStats#add}.
-]]
-RecalculateStats.remove = function(id)
-    return __recalcstats_cache:remove(id)
-end
-
-
---@static
---[[
-Removes all registered stat recalculation functions from your namespace.
-
-Automatically called when you hotload your mod.
-]]
-RecalculateStats.remove_all = function(NAMESPACE)
-    __recalcstats_cache:remove_all(NAMESPACE)
-end
-run_on_import(RecalculateStats.remove_all)
-
+local type        = type
+local math_max    = math.max
+local math_floor  = math.floor
+local struct_wrap = Struct.wrap
 
 
 -- ========== Internal ==========
-
---@section `api`
 
 --[[
 ### Methods
@@ -111,7 +59,6 @@ Method | Arguments | Notes
 `skill_special.max_stock_add( value )`      | `value` (number) <br>* The value to add.          | 
 `skill_special.cooldown_mult( value )`      | `value` (number) <br>* The value to multiply by.  | 
 ]]
-
 
 local params
 
@@ -185,59 +132,151 @@ local function reset_params()
 end
 reset_params()
 
-local api = {}
+
+-- ========== Static Methods ==========
+
+--[[
+Registers a function for stat recalculation. <br>
+Returns the unique ID of the registered function.
+
+*Technical:* This function will run in `recalculate_stats` pre-hook.
+]]
+---@param fn fun(actor: Actor | Player, api: RecalculateStats) The function to register. <br>The parameters for it are `actor, api`.
+---@return number
+RecalculateStats.add = function(NAMESPACE, fn) end
+
+--[[
+Registers a function for stat recalculation. <br>
+Returns the unique ID of the registered function.
+
+*Technical:* This function will run in `recalculate_stats` pre-hook.
+
+**Priority Convention** <br>
+To allow for a decent amount of space between priorities, <br>
+use the enum values in @link {`Callback.Priority` | Callback#Priority}. <br>
+If you need to be more specific than that, try to keep a distance of at least `100`.
+]]
+---@param priority number The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
+---@param fn fun(actor: Actor | Player, api: RecalculateStats) The function to register. <br>The parameters for it are `actor, api`.
+---@return number
+RecalculateStats.add = function(NAMESPACE, priority, fn)
+    if type(priority) == "function" then
+        return recalc_functions:add(priority, NAMESPACE)
+    end
+    return recalc_functions:add(fn, NAMESPACE, priority)
+end
+
+--[[
+Removes and returns a registered stat recalculation function. <br>
+The ID is the one from @link {`RecalculateStats.add` | RecalculateStats#add}.
+]]
+---@param id number The unique ID of the registered function to remove.
+---@return function | nil
+RecalculateStats.remove = function(id)
+    return recalc_functions:remove(id)
+end
+
+--[[
+Removes all registered stat recalculation functions from your namespace.
+
+Automatically called when you hotload your mod.
+]]
+RecalculateStats.remove_all = function(NAMESPACE)
+    recalc_functions:remove_all(NAMESPACE)
+end
+run_on_import(RecalculateStats.remove_all)
+
+
+-- ========== Wrapper Methods ==========
+
+-- TODO maybe write all the methods out like with Particle
+-- so that there are annotations
+
+---@class RecalculateStats
+local methods = {}
 
 for param, value in pairs(params) do
-    if type(value) == "number" then -- standard
-        local fn
+    -- Stat
+    if type(value) == "number" then
         if string.sub(param, -4, -1) == "mult" then
-            fn = function(multiplier)
+            methods[param] = function(multiplier)
                 params[param] = params[param] * multiplier
             end
         else
-            fn = function(adder)
+            methods[param] = function(adder)
                 params[param] = params[param] + adder
             end
         end
-        api[param] = fn
+    
+    -- Skill
     elseif type(value) == "table" then
-        api[param] = ReadOnly.new({
+        methods[param] = ReadOnly.new{
             max_stock_add = function(stock)
                 params[param].max_stock_add = params[param].max_stock_add + stock
             end,
             cooldown_mult = function(mult)
                 params[param].cooldown_mult = params[param].cooldown_mult * mult
             end,
-        })
+        }
     end
 end
 
-api = ReadOnly.new(api)
 
-local gather_params = function(actor)
-    -- Reset the `params` table
-    reset_params()
+-- ========== Metatables ==========
 
-    -- Gather params
-    -- Call registered functions with wrapped arg
-    __recalcstats_cache:loop_and_call_functions(function(fn_table)
-        local status, err = pcall(fn_table.fn, actor, api)
-        if not status then
-            if (err == nil)
-            or (err == "C++ exception") then err = "GameMaker error (see above)" end
-            log.warning("\n"..fn_table.namespace..": RecalculateStats (ID '"..fn_table.id.."') failed to execute fully.\n"..err)
-        end
-    end)
-end
+---@class RecalculateStats
+---@field skill_secondary table<string, fun(value: number)>
+---@field skill_utility table<string, fun(value: number)>
+---@field skill_special table<string, fun(value: number)>
+---@field [string] fun(value: number)
 
+local mt_name = "RecalculateStats"
+
+W.RecalculateStats = {
+    __index = function(t, k)
+        -- Methods
+        local method = methods[k]
+        if method then return method end
+
+        log.error(mt_name.." has no method '"..k.."'", 2)
+    end,
+
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
+    end,
+
+    __metatable = mt_wrapper_name(mt_name),
+}
+
+-- Make single instance of wrapper
+
+---@type RecalculateStats
+local api = setmetatable({}, W.RecalculateStats)
 
 
 -- ========== Hooks ==========
 
 Hook.add_pre(RAPI_NAMESPACE, gm.constants.recalculate_stats, Callback.internal.FIRST, function(self, other, result, args)
-    gather_params(self)
-end)
+    local actor = self  ---@type Actor | Player
+    
+    -- Reset the `params` table
+    reset_params()
 
+    -- Call registered functions
+    for i = 1, #recalc_functions do
+        local data = recalc_functions[i]
+        if data.enabled then
+            local status, out = pcall(data.fn, actor, api)
+            if not status then
+                if out == nil
+                or out == "C++ exception" then
+                    out = "GameMaker error (see above)"
+                end
+                log.warning("\n| "..data.namespace..": Error in stat recalculation function (ID "..math.floor(data.id)..")\n| "..out)
+            end
+        end
+    end
+end)
 
 local ptr = gm.get_script_function_address(gm.constants.recalculate_stats)
 
@@ -281,7 +320,7 @@ end)
 memory.dynamic_hook_mid("RAPI.RecalculateStats.damage", {"rbp+98h"}, {"RValue*"}, 0, ptr:add(0x1744), function(args)
     -- runs between vanilla additive and multiplicative modifiers, so both operations can be in the same hook
     -- prevent value from going below 0 because vanilla doesn't protect against it
-    args[1].value = math.max(0, (args[1].value + params.damage_add) * params.damage_mult)
+    args[1].value = math_max(0, (args[1].value + params.damage_add) * params.damage_mult)
 end)
 
 -- Hooks line 98 (var _maxshield = maxshield_base + ...`)
@@ -296,7 +335,7 @@ memory.dynamic_hook_mid("RAPI.RecalculateStats.maxshield", {"rax"}, {"RValue*"},
     ) * params.maxshield_mult
 
     -- prevent value from going below 0 because vanilla doesn't protect against it
-    args[1].value = math.max(0, finalized)
+    args[1].value = math_max(0, finalized)
 end)
 
 -- Hooks line 127 (`critical_chance = _critical_chance`)
@@ -349,7 +388,7 @@ end)
 -- Hooks line 196 (`maxbarrier = (maxhp + ...`)
 -- IDA: Look for constants 1, 0.2 (enums 92); hook below
 memory.dynamic_hook_mid("RAPI.RecalculateStats.maxbarrier", {"rax"}, {"RValue*"}, 0, ptr:add(0x533A), function(args)
-    args[1].value = math.max(0, (args[1].value + params.maxbarrier_add) * params.maxbarrier_mult)
+    args[1].value = math_max(0, (args[1].value + params.maxbarrier_add) * params.maxbarrier_mult)
 end)
 
 
@@ -368,7 +407,7 @@ local index_to_table = {
 gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@scr_actor_skills"], function(self, other, result, args)
     if not params then return end
 
-    local self_struct = Struct.wrap(self)
+    local self_struct = struct_wrap(self)
 
     -- Get skill_id
     local skill_id = self_struct.skill_id or 0
@@ -384,12 +423,12 @@ gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@s
 
     -- add stock
     local max_stock = self_struct.max_stock
-    max_stock = math.max(1, max_stock + modifiers.max_stock_add)
+    max_stock = math_max(1, max_stock + modifiers.max_stock_add)
     self_struct.max_stock = max_stock
 
     -- modify cooldown
     local cooldown = self_struct.cooldown
-    cooldown = math.floor(math.max(30, cooldown * modifiers.cooldown_mult))
+    cooldown = math_floor(math_max(30, cooldown * modifiers.cooldown_mult))
     self_struct.cooldown = cooldown
 
     -- start cooldown if necessary. ugly because orig already calls this before this hook, but oh well
@@ -400,8 +439,3 @@ gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@s
         self_struct.skill_start_cooldown()
     end
 end)
-
-
-
--- Public export
-__class.RecalculateStats = RecalculateStats

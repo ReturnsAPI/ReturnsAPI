@@ -145,13 +145,13 @@ methods_modoptionsdropdown = {
 
 -- ========== Metatables ==========
 
-local wrapper_name = "ModOptionsDropdown"
+local mt_name = "ModOptionsDropdown"
 
 make_table_once("metatable_modoptionsdropdown", {
     __index = function(proxy, k)
         -- Get wrapped value
         if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
-        if k == "RAPI" then return wrapper_name end
+        if k == "RAPI" then return mt_name end
 
         -- Get certain values
         if k == "namespace" then return __proxy[proxy].namespace end

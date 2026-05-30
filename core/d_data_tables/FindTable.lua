@@ -122,7 +122,7 @@ end
 Applies a function to all values. <br>
 The function should accept `value` as the argument, and return the value to set.
 ]]
----@param fn function The function to apply.
+---@param fn fun(value: any) The function to apply.
 methods.map = function(self, fn)
     for ns, ns_table in pairs(self) do
         for identifier, data in pairs(ns_table) do

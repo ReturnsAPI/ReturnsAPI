@@ -17,6 +17,8 @@ local unwrap             = Wrap.unwrap
 ---@class Difficulty
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
+---@field properties Array The array storing this difficulty's properties.
+---@field array Array Alias for `.properties`.
 
 ---@class Difficulty
 -- Populate with properties
