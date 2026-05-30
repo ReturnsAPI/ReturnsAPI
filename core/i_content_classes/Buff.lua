@@ -43,7 +43,23 @@ local unwrap             = Wrap.unwrap
 -- ========== Enums ==========
 
 Buff.Property = {
-
+    NAMESPACE              = 0,
+    IDENTIFIER             = 1,
+    SHOW_ICON              = 2,
+    ICON_SPRITE            = 3,
+    ICON_SUBIMAGE          = 4,
+    ICON_FRAME_SPEED       = 5,
+    ICON_STACK_SUBIMAGE    = 6,
+    DRAW_STACK_NUMBER      = 7,
+    STACK_NUMBER_COL       = 8,
+    MAX_STACK              = 9,
+    ON_APPLY               = 10,
+    ON_REMOVE              = 11,
+    ON_STEP                = 12,
+    IS_TIMED               = 13,
+    IS_DEBUFF              = 14,
+    CLIENT_HANDLES_REMOVAL = 15,
+    EFFECT_DISPLAY         = 16,
 }
 local t = {}
 for name, num in pairs(Buff.Property) do t[num] = name end

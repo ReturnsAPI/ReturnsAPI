@@ -240,7 +240,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
                 local properties = find_table_array[value].value
                 return properties:get(index)
             end
-            log.error("Non-existent "..name_rapi.." property '"..k.."'", 2)
+            log.error(mt_name.." has no property or method '"..k.."'", 2)
         end,
 
         __newindex = function(t, k, v)
@@ -261,7 +261,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
                 properties:set(index, v)
                 return
             end
-            log.error("Non-existent "..name_rapi.." property '"..k.."'", 2)
+            log.error(mt_name.." has no property '"..k.."'", 2)
         end,
 
         __eq = function(t, other)

@@ -5,7 +5,7 @@ Instance = new_class()
 C.Instance = Instance
 
 run_on_initial_load(function()
-    P.instance_data                 = {}   ---@type table<number, table<string, table<string, table>>>
+    P.instance_data                 = {}   ---@type table<id, table<namespace, table<subtable, table>>>
     P.instance_id_cache             = setmetatable({}, {__mode = "k"})  ---@type table<Instance, number> Cache for `id`
     P.instance_obj_ind_cache        = setmetatable({}, {__mode = "k"})  ---@type table<Instance, number> Cache for `object_index`
     P.instance_custom_obj_ind_cache = setmetatable({}, {__mode = "k"})  ---@type table<Instance, number> Cache for `__object_index`
@@ -576,7 +576,9 @@ W.Instance = {
         --     end
         -- end
 
-        -- TODO add AttackInfo wrapping
+        -- For attack instances from `actor:fire_*`
+        -- methods, wrap `attack_info`
+        if k == "attack_info" then return AttackInfo.wrap(ret) end
 
         -- If Script, set its `self`/`other`
         local mt = getmetatable(ret)
@@ -610,3 +612,28 @@ W.Instance = {
 }
 
 table.merge(mt, W.Instance)
+
+
+-- ========== Hooks ==========
+
+-- On room change, remove non-existent instances from `__instance_data`
+gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+    for id, _ in pairs(instance_data) do
+        if not Instance.exists(id) then
+            instance_data[id] = nil
+        end
+    end
+end)
+
+-- Move `__instance_data` to new actor on transform
+gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
+    local actor_id = args[1].value.id
+    local new_id   = args[2].value.id
+
+    -- Move data
+    local data = instance_data[actor_id]
+    if data then
+        instance_data[new_id]   = data
+        instance_data[actor_id] = nil
+    end
+end)

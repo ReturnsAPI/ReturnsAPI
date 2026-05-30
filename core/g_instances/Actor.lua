@@ -18,11 +18,17 @@ local type       = type
 local math_floor = math.floor
 local math_clamp = math.clamp
 local math_sign  = math.sign
+local math_max   = math.max
 local gm         = gm   ---@type table<string, function>
 local bool       = Util.bool
 local unwrap     = Wrap.unwrap
 
-local sNone = gm.constants.sNone  ---@type number
+local sNone                 = gm.constants.sNone                    ---@type number
+local explosion_mask        = gm.constants.sBite1Mask               ---@type number
+local explosion_mask_width  = gm.sprite_get_width(explosion_mask)   ---@type number
+local explosion_mask_height = gm.sprite_get_height(explosion_mask)  ---@type number
+
+local packet_syncBuffStack  ---@type Packet
 
 
 -- ========== Enums ==========
@@ -34,6 +40,30 @@ Actor.KnockbackKind = {
     DEEPFREEZE  = 3,    -- Ice cube vfx; actor cannot move horizontally, but can jump and attack; actor also slides with less friction
     PULL        = 4,    -- `STANDARD`, but in the opposite direction
 }
+
+
+-- ========== Internal ==========
+
+local function make_sync_packet()
+    packet_syncBuffStack = Packet.new(RAPI_NAMESPACE, "syncBuffStack")
+    packet_syncBuffStack:set_serializers(
+        function(buffer, actor, buff, count)
+            buffer:write_instance(actor)
+            buffer:write_ushort(buff)
+            buffer:write_ushort(count)
+        end,
+
+        function(buffer, player)
+            local actor = buffer:read_instance()
+            local buff  = buffer:read_ushort()
+            local count = buffer:read_ushort()
+
+            actor.buff_stack:set(buff, count)
+            actor:queue_recalculate_stats()
+        end
+    )
+end
+run_on_initialize(make_sync_packet)
 
 
 -- ========== Wrapper Methods ==========
@@ -431,23 +461,22 @@ Applies stacks of the specified buff to the actor.
 
 **Must be called offline or as host.**
 ]]
--- TODO
--- ---@param buff Buff The buff to apply.
--- ---@param duration number The duration of the buff (in frames).
--- ---@param count? number The amount of stacks to apply. <br>`1` by default.
--- methods.buff_apply = function(self, buff, duration, count)
---     buff = unwrap(buff)
---     if type(buff) ~= "number" then throw("buff is invalid") end
---     if not duration then throw("duration is missing") end
+---@param buff Buff The buff to apply.
+---@param duration number The duration of the buff (in frames).
+---@param count? number The amount of stacks to apply. <br>`1` by default.
+methods.buff_apply = function(self, buff, duration, count)
+    buff = unwrap(buff)
+    if type(buff) ~= "number" then throw("buff is invalid") end
+    if not duration then throw("duration is nil") end
 
---     -- Clamp to max stack or under
---     -- Funny stuff happens if this is exceeded
---     local current   = self:buff_count(buff)
---     local max_stack = Buff.wrap(buff).max_stack
---     count = math_clamp(math_floor(count or 1), 0, max_stack - current)
+    -- Clamp to max stack or under
+    -- Funny stuff happens if this is exceeded
+    local current   = self:buff_count(buff)
+    local max_stack = Buff.wrap(buff).max_stack
+    count = math_clamp(math_floor(count or 1), 0, max_stack - current)
 
---     gm.apply_buff(self, buff, duration, count)
--- end
+    gm.apply_buff(self, buff, duration, count)
+end
 
 --[[
 Applies stacks of the specified buff to the actor.
@@ -455,146 +484,145 @@ Applies stacks of the specified buff to the actor.
 Application is not synced, and should be used for
 buffs that have `client_handles_removal` as `true`.
 ]]
--- TODO
--- ---@param buff Buff The buff to apply.
--- ---@param duration number The duration of the buff (in frames).
--- ---@param count? number The amount of stacks to apply. <br>`1` by default.
--- methods.buff_apply_local = function(self, buff, duration, count)
---     buff = unwrap(buff)
---     if type(buff) ~= "number" then throw("buff is invalid") end
---     if not duration then throw("duration is missing") end
+---@param buff Buff The buff to apply.
+---@param duration number The duration of the buff (in frames).
+---@param count? number The amount of stacks to apply. <br>`1` by default.
+methods.buff_apply_local = function(self, buff, duration, count)
+    buff = unwrap(buff)
+    if type(buff) ~= "number" then throw("buff is invalid") end
+    if not duration then throw("duration is nil") end
 
---     -- Clamp to max stack or under
---     -- Funny stuff happens if this is exceeded
---     local current   = self:buff_count(buff)
---     local max_stack = Buff.wrap(buff).max_stack
---     count = math_clamp(math_floor(count or 1), 0, max_stack - current)
+    -- Clamp to max stack or under
+    -- Funny stuff happens if this is exceeded
+    local current   = self:buff_count(buff)
+    local max_stack = Buff.wrap(buff).max_stack
+    count = math_clamp(math_floor(count or 1), 0, max_stack - current)
 
---     gm.apply_buff_internal(self, buff, duration, count)
--- end
+    gm.apply_buff_internal(self, buff, duration, count)
+end
 
 --[[
-Removes stacks of the specified buff from the actor.
-
-Removal is *not* synced if the buff's `client_handles_removal` is `true`.
+Removes stacks of the specified buff from the actor. <br>
+Removal is *not* synced *if* the buff's `client_handles_removal` is `true`.
 
 **Must be called offline or as host.**
 ]]
--- TODO
--- ---@param buff Buff The buff to remove.
--- ---@param count? number The amount of stacks to remove. <br>`1` by default.
--- methods.buff_remove = function(self, buff, count)
---     if Net.client then return end
+---@param buff Buff The buff to remove.
+---@param count? number The amount of stacks to remove. <br>`1` by default.
+methods.buff_remove = function(self, buff, count)
+    if Net.client then return end
 
---     count = math_floor(count or 1)
+    count = math_floor(count or 1)
 
---     -- Argument check
---     buff = unwrap(buff)
---     if type(buff) ~= "number" then throw("buff is invalid") end
+    -- Argument check
+    buff = unwrap(buff)
+    if type(buff) ~= "number" then throw("buff is invalid") end
 
---     local current_count = self:buff_count(buff)
+    local current_count = self:buff_count(buff)
 
---     -- Remove buff entirely if count >= current_count
---     if count >= current_count then
---         gm.remove_buff(self, buff)
---         return
---     end
+    -- Remove buff entirely if count >= current_count
+    if count >= current_count then
+        gm.remove_buff(self, buff)
+        return
+    end
 
---     -- Decrease count in array
---     -- Must manually call `recalculate_stats` when doing this
---     local value = current_count - count
---     self.buff_stack:set(buff, value)
---     self:queue_recalculate_stats()
+    -- Decrease count in array
+    -- Must manually call `recalculate_stats` when doing this
+    local value = current_count - count
+    self.buff_stack:set(buff, value)
+    self:queue_recalculate_stats()
 
---     if not bool(Buff.wrap(buff).client_handles_removal) then
---         packet_syncBuffStack:send_to_all(self, buff, value)
---     end
+    if not bool(Buff.wrap(buff).client_handles_removal) then
+        packet_syncBuffStack:send_to_all(self, buff, value)
+    end
 
---     -- Reset cached value
---     local id = self.id
---     if not buff_count_cache[id] then buff_count_cache[id] = {} end
---     buff_count_cache[id][buff] = nil
--- end
+    -- Reset cached value
+    local id = self.id  ---@type id
+    local t_actor = buff_count_cache[id]
+    if not t_actor then return end
+    t_actor[buff] = nil
+end
 
 --[[
 Removes stacks of the specified buff from the actor.
 
-Removal is not synced, and should be used for
+Removal is *not* synced, and should be used for <br>
 buffs that have `client_handles_removal` as `true`.
 ]]
--- TODO
--- ---@param buff Buff The buff to remove.
--- ---@param count? number The amount of stacks to remove. <br>`1` by default.
--- methods.buff_remove_local = function(self, buff, count)
---     count = math_floor(count or 1)
+---@param buff Buff The buff to remove.
+---@param count? number The amount of stacks to remove. <br>`1` by default.
+methods.buff_remove_local = function(self, buff, count)
+    count = math_floor(count or 1)
 
---     -- Argument check
---     buff = unwrap(buff)
---     if type(buff) ~= "number" then log.error("buff_remove_local: buff is invalid", 2) end
+    -- Argument check
+    buff = unwrap(buff)
+    if type(buff) ~= "number" then throw("buff is invalid") end
 
---     local current_count = self:buff_count(buff)
+    local current_count = self:buff_count(buff)
 
---     -- Remove buff entirely if count >= current_count
---     if count >= current_count then
---         gm.remove_buff_internal(self, buff)
---         return
---     end
+    -- Remove buff entirely if count >= current_count
+    if count >= current_count then
+        gm.remove_buff_internal(self, buff)
+        return
+    end
 
---     -- Decrease count in array
---     -- Must manually call `recalculate_stats` when doing this
---     local value = current_count - count
---     self.buff_stack:set(buff, value)
---     self:queue_recalculate_stats()
+    -- Decrease count in array
+    -- Must manually call `recalculate_stats` when doing this
+    local value = current_count - count
+    self.buff_stack:set(buff, value)
+    self:queue_recalculate_stats()
 
---     -- Reset cached value
---     local id = self.id
---     if not buff_count_cache[id] then buff_count_cache[id] = {} end
---     buff_count_cache[id][buff] = nil
--- end
+    -- Reset cached value
+    local id = self.id  ---@type id
+    local t_actor = buff_count_cache[id]
+    if not t_actor then return end
+    t_actor[buff] = nil
+end
 
 --[[
 Returns the number of stacks of the specified buff the actor has.
 ]]
--- TODO
--- ---@param buff Buff The buff to check.
--- ---@return number
--- methods.buff_count = function(self, buff)
---     local id = self.id
+---@param buff Buff The buff to check.
+---@return number
+methods.buff_count = function(self, buff)
+    local id = self.id
 
---     -- Argument check
---     buff = unwrap(buff)
---     if type(buff) ~= "number" then log.error("buff_count: buff is invalid", 2) end
+    buff = unwrap(buff)
+    if type(buff) ~= "number" then throw("buff is invalid") end
 
---     -- Build cache subtable if it does not exist
---     if not buff_count_cache[id] then buff_count_cache[id] = {} end
+    -- Build cache subtable if it does not exist
+    local t_actor = buff_count_cache[id]
+    if not t_actor then
+        t_actor = {}
+        buff_count_cache[id] = t_actor
+    end
     
---     -- Return from cache if stored
---     if buff_count_cache[id][buff] then return buff_count_cache[id][buff] end
+    -- Return from cache if stored
+    local value = t_actor[buff]
+    if value then return value end
 
---     -- Get buff count from array
---     local array = self.buff_stack
---     if buff >= #array then return 0 end -- Return 0 for custom if array hasn't been resized yet
---     local count = array:get(buff)
+    -- Get buff count from array
+    local array = self.buff_stack
+    if buff >= #array then return 0 end -- Return 0 for custom buffs if array hasn't been resized yet
+    local count = array:get(buff) or 0
 
---     -- Store in cache and return
---     buff_count_cache[id][buff] = count
---     if count == nil then return 0 end
---     return count
--- end
+    -- Store new value in cache and return
+    t_actor[buff] = count
+    return count
+end
 
 --[[
 Returns the remaining duration (in frames) of the specified buff the actor has.
 ]]
--- TODO
--- ---@param buff Buff The buff to check.
--- ---@return number
--- methods.buff_get_time = function(self, buff)
---     -- Argument check
---     buff = unwrap(buff)
---     if type(buff) ~= "number" then log.error("buff_get_time: buff is invalid", 2) end
+---@param buff Buff The buff to check.
+---@return number
+methods.buff_get_time = function(self, buff)
+    -- Argument check
+    buff = unwrap(buff)
+    if type(buff) ~= "number" then throw("buff is invalid") end
 
---     return math.max(gm.get_buff_time(self, buff), 0)
--- end
+    return math_max(gm.get_buff_time(self, buff), 0)
+end
 
 --[[
 Sets the remaining duration (in frames) for a specified buff that the actor has.
@@ -602,17 +630,16 @@ Does nothing if the actor does not have the buff.
 
 **Must be called offline or as host.**
 ]]
--- TODO
--- ---@param buff Buff The buff to set.
--- ---@param duration number The duration of the buff (in frames).
--- methods.buff_set_time = function(self, buff, duration)
---     -- Argument check
---     buff = unwrap(buff)
---     if type(buff) ~= "number" then log.error("buff_set_time: buff is invalid", 2) end
---     if not duration then log.error("buff_set_time: duration is missing", 2) end
+---@param buff Buff The buff to set.
+---@param duration number The duration of the buff (in frames).
+methods.buff_set_time = function(self, buff, duration)
+    -- Argument check
+    buff = unwrap(buff)
+    if type(buff) ~= "number" then throw("buff is invalid") end
+    if not duration then throw("duration is missing") end
 
---     gm.set_buff_time(self, buff, math.max(duration, 0))
--- end
+    gm.set_buff_time(self, buff, math_max(duration, 0))
+end
 
 --[[
 Sets the remaining duration (in frames) for a specified buff that the actor has.
@@ -621,17 +648,16 @@ Does nothing if the actor does not have the buff.
 This is not synced, and should be used for
 buffs that have `client_handles_removal` as `true`.
 ]]
--- TODO
--- ---@param buff Buff The buff to set.
--- ---@param duration number The duration of the buff (in frames).
--- methods.buff_set_time_local = function(self, buff, duration)
---     -- Argument check
---     buff = unwrap(buff)
---     if type(buff) ~= "number" then log.error("buff_set_time_local: buff is invalid", 2) end
---     if not duration then log.error("buff_set_time_local: duration is missing", 2) end
+---@param buff Buff The buff to set.
+---@param duration number The duration of the buff (in frames).
+methods.buff_set_time_local = function(self, buff, duration)
+    -- Argument check
+    buff = unwrap(buff)
+    if type(buff) ~= "number" then throw("buff is invalid") end
+    if not duration then throw("duration is missing") end
 
---     gm.set_buff_time_nosync(self, buff, math.max(duration, 0))
--- end
+    gm.set_buff_time_nosync(self, buff, math_max(duration, 0))
+end
 
 -- TODO ActorSkill methods
 
@@ -653,3 +679,94 @@ for _, hook in ipairs(hooks) do
         t_actor[item_id] = {}
     end)
 end
+
+-- Reset cache when a buff is removed
+-- Adds an `on_remove` callback to every buff for this,
+-- which allows for detecting passive buff expiry
+
+---@param buff Buff
+local function add_on_remove(buff)
+    -- Add an `on_remove` callback to reset the
+    -- cached value for that buff of the actor
+    -- * This callback should never be removed, hence the namespace
+    --      This is because buff_create will never run more than once
+    --      for a buff, so if it is removed it cannot be readded
+    Callback.add(PERMANENT_NAMESPACE, buff.on_remove, Callback.internal.FIRST, function(actor)
+        local actor_id = actor.id
+        local t_actor = buff_count_cache[actor_id]
+        if not t_actor then return end
+        t_actor[buff.value] = nil
+    end)
+end
+
+P.actor_add_on_remove_queue = P.actor_add_on_remove_queue or {}  ---@type table<number, Buff>
+
+run_on_initialize(function()
+    for _, buff in ipairs(P.actor_add_on_remove_queue) do
+        add_on_remove(buff)
+    end
+    P.actor_add_on_remove_queue = nil
+end)
+
+gm.post_script_hook(gm.constants.buff_create, function(self, other, result, args)
+    local buff = Buff.wrap(result.value)
+
+    -- Add to a queue pre-initialization,
+    -- otherwise add callback directly
+    -- This is because `Actor.lua` hooks come
+    -- before `Class.lua` hooks, so Buff find
+    -- table is not populated yet
+    if Initialize.is_done() then add_on_remove(buff)
+    else table.insert(P.actor_add_on_remove_queue, buff)
+    end
+end)
+
+-- On room change, remove non-existent actors from `*_count_cache`
+gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+    -- Item
+    for id, _ in pairs(item_count_cache) do
+        if not Instance.exists(id) then
+            item_count_cache[id] = nil
+        end
+    end
+
+    -- Buff
+    for id, _ in pairs(buff_count_cache) do
+        if not Instance.exists(id) then
+            buff_count_cache[id] = nil
+        end
+    end
+end)
+
+-- Remove `*_count_cache` on non-player kill
+gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
+    local actor    = args[1].value
+    local actor_id = actor.id
+
+    -- Do not clear for player deaths
+    local obj_ind = actor:get_object_index()
+    if obj_ind ~= gm.constants.oP then
+        item_count_cache[actor_id] = nil
+        buff_count_cache[actor_id] = nil
+    end
+end)
+
+-- Move `*_count_cache` to new actor
+gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
+    local actor_id = args[1].value.id
+    local new_id   = args[2].value.id
+
+    -- Move item cache
+    local cache = item_count_cache[actor_id]
+    if cache then
+        item_count_cache[new_id]   = cache
+        item_count_cache[actor_id] = nil
+    end
+
+    -- Move buff cache
+    local cache = buff_count_cache[actor_id]
+    if cache then
+        buff_count_cache[new_id]   = cache
+        buff_count_cache[actor_id] = nil
+    end
+end)

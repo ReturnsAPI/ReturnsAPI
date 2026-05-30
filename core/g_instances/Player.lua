@@ -4,6 +4,8 @@
 Player = new_class()
 C.Player = Player
 
+local inst_find = gm.instance_find  ---@type function
+
 
 -- ========== Static Methods ==========
 
@@ -16,11 +18,10 @@ this will return the local `oPrePlayer`.
 ]]
 ---@return Player | Instance | nil
 Player.get_local = function()
-    -- TODO
-    -- if Net.online then return Global.my_player end
+    if Net.online then return Global.my_player end
 
     -- Return first oP to exist
-    local inst = gm.instance_find(gm.constants.oP, 0)
+    local inst = inst_find(gm.constants.oP, 0)
     if inst ~= -4 then return inst end
     return nil
 end

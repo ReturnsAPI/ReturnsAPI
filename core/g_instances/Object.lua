@@ -8,14 +8,16 @@ run_on_initial_load(function()
     P.object_find_table         = FindTable.new()
     P.object_tags               = {}    ---@type table<string, table<number, Object>> Maps tags -> hash tables of object indices that have the tag.
     P.object_vanilla_properties = {}    -- `.properties` but for vanilla objects
-
-    -- __object_serializers = {}
-    -- __object_deserializers = {}
+    P.object_serializers        = {}    ---@type table<number, table<number, table<string, any>>>
+    P.object_deserializers      = {}    ---@type table<number, table<number, table<string, any>>>
 end)
 
-local object_find_table  = P.object_find_table
-local object_tags        = P.object_tags
-local vanilla_properties = P.object_vanilla_properties
+local object_find_table    = P.object_find_table
+local object_tags          = P.object_tags
+local vanilla_properties   = P.object_vanilla_properties
+local object_serializers   = P.object_serializers
+local object_deserializers = P.object_deserializers
+
 local properties_cache   = {}   ---@type table<number, Array> Cache for `.properties`/`.array`
 
 local proxy = P.proxy
@@ -181,15 +183,9 @@ Object.find_all_by_tag = function(tag)
     return copy, t.count
 end
 
---@static
---@param        object          | Object    | The object to set for.
---@param        serializer      | function  | The serialization function.
---@param        deserializer    | function  | The deserialization function.
 --[[
-Adds serialization and deserialization functions
+Adds serialization and deserialization functions <br>
 that run for instances of the object when syncing.
-
-The arguments for each function should be `inst, buffer`.
 
 Relevant functions (callable by host only):
 - `inst:instance_sync()` - Initial setup (generally in `on_create`); creates new instance for clients
@@ -197,29 +193,39 @@ Relevant functions (callable by host only):
 - `inst:projectile_sync(interval)` - Same as `instance_resync`, but with automatic periodic resync
 - `inst:instance_destroy_sync()` - Sync destruction; place in `on_destroy`
 
-**NOTE:** You *must* read all data you send in `serializer`,
+**NOTE:** You *must* read all data you send in `serializer`, <br>
 as all object serializations share the same packet.
 ]]
--- TODO
--- Object.add_serializers = function(NAMESPACE, object, serializer, deserializer)
---     if not object                       then log.error("Object.add_serializers: Missing object argument", 2) end
---     if type(serializer)   ~= "function" then log.error("Object.add_serializers: serializer should be a function", 2) end
---     if type(deserializer) ~= "function" then log.error("Object.add_serializers: deserializer should be a function", 2) end
+---@param object number | Object The object to set for.
+---@param serializer fun(inst: Instance, buffer: Buffer) The serialization function. <br>The parameters for it are `inst, buffer`.
+---@param deserializer fun(inst: Instance, buffer: Buffer) The deserialization function. <br>The parameters for it are `inst, buffer`.
+Object.add_serializers = function(NAMESPACE, object, serializer, deserializer)
+    if not object                       then throw("Missing object argument", "add_serializers") end
+    if type(serializer)   ~= "function" then throw("serializer should be a function", "add_serializers") end
+    if type(deserializer) ~= "function" then throw("deserializer should be a function", "add_serializers") end
 
---     object = Wrap.unwrap(object)
+    object = unwrap(object)  ---@type number
 
---     if not __object_serializers[object] then __object_serializers[object] = {} end
---     table.insert(__object_serializers[object], {
---         namespace   = NAMESPACE,
---         fn          = serializer
---     })
+    local t_serial = object_serializers[object]
+    if not t_serial then
+        t_serial = {}
+        object_serializers[object] = t_serial
+    end
+    table.insert(t_serial, {
+        namespace = NAMESPACE,
+        fn        = serializer,
+    })
 
---     if not __object_deserializers[object] then __object_deserializers[object] = {} end
---     table.insert(__object_deserializers[object], {
---         namespace   = NAMESPACE,
---         fn          = deserializer
---     })
--- end
+    local t_deserial = object_deserializers[object]
+    if not t_deserial then
+        t_deserial = {}
+        object_deserializers[object] = t_deserial
+    end
+    table.insert(t_deserial, {
+        namespace = NAMESPACE,
+        fn        = deserializer,
+    })
+end
 
 --@static
 --[[
@@ -227,29 +233,28 @@ Removes all registered serializers from your namespace.
 
 Automatically called when you hotload your mod.
 ]]
--- TODO
--- Object.remove_all_serializers = function(NAMESPACE)
---     for object, subtable in pairs(__object_serializers) do
---         for i = #subtable, 1, -1 do
---             local fn_table = subtable[i]
---             if fn_table.namespace == NAMESPACE then
---                 table.remove(subtable, i)
---             end
---         end
---         if #subtable <= 0 then __object_serializers[object] = nil end
---     end
+Object.remove_all_serializers = function(NAMESPACE)
+    for object, subtable in pairs(object_serializers) do
+        for i = #subtable, 1, -1 do
+            local fn_table = subtable[i]
+            if fn_table.namespace == NAMESPACE then
+                table.remove(subtable, i)
+            end
+        end
+        if #subtable <= 0 then object_serializers[object] = nil end
+    end
 
---     for object, subtable in pairs(__object_deserializers) do
---         for i = #subtable, 1, -1 do
---             local fn_table = subtable[i]
---             if fn_table.namespace == NAMESPACE then
---                 table.remove(subtable, i)
---             end
---         end
---         if #subtable <= 0 then __object_deserializers[object] = nil end
---     end
--- end
--- run_on_import(Object.remove_all_serializers)
+    for object, subtable in pairs(object_deserializers) do
+        for i = #subtable, 1, -1 do
+            local fn_table = subtable[i]
+            if fn_table.namespace == NAMESPACE then
+                table.remove(subtable, i)
+            end
+        end
+        if #subtable <= 0 then object_deserializers[object] = nil end
+    end
+end
+run_on_import(Object.remove_all_serializers)
 
 --[[
 Returns an Object wrapper containing the provided object index.
@@ -429,7 +434,7 @@ W.Object = {
             end
             return t.properties:get(index)
         end
-        log.error("Non-existent Object property '"..k.."'", 2)
+        log.error(mt_name.." has no property or method '"..k.."'", 2)
     end,
 
     ---@param t Object
@@ -456,7 +461,7 @@ W.Object = {
             t.properties:set(index, v)
             return
         end
-        log.error("Non-existent Object property '"..k.."'", 2)
+        log.error(mt_name.." has no property '"..k.."'", 2)
     end,
 
     ---@param t Object
@@ -484,41 +489,47 @@ gm.post_script_hook(gm.constants.object_add_w, function(self, other, result, arg
     )
 end)
 
--- TODO
--- gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_serialize, function(self, other, result, args)
---     local index = self.__object_index
---     local subtable = __object_serializers[index]
--- 	if subtable then
---         local inst = Instance.wrap(self)
---         local buffer = Buffer.wrap(Global.multiplayer_buffer)
---         for _, fn_table in ipairs(subtable) do
---             local status, err = pcall(fn_table.fn, inst, buffer)
---             if not status then
---                 if (err == nil)
---                 or (err == "C++ exception") then err = "GameMaker error (see above)" end
---                 log.warning("\n"..fn_table.namespace..": Object serialization for object '"..index.."' failed to execute fully.\n"..err)
---             end
---         end
--- 	end
--- end)
+-- Call custom object serializers
+gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_serialize, function(self, other, result, args)
+    local index    = self.__object_index
+    local subtable = object_serializers[index]
+	if subtable then
+        local inst   = self  ---@type Instance
+        local buffer = Buffer.wrap(Global.multiplayer_buffer)
+        for i = 1, #subtable do
+            local data = subtable[i]
+            local status, out = pcall(data.fn, inst, buffer)
+            if not status then
+                if out == nil
+                or out == "C++ exception" then
+                    out = "GameMaker error (see above)"
+                end
+                log.warning("\n| "..data.namespace..": Error in serialization function for object '"..index.."'\n| "..out)
+            end
+        end
+	end
+end)
 
--- TODO
--- gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_deserialize, function(self, other, result, args)
---     local index = self.__object_index
---     local subtable = __object_deserializers[index]
--- 	if subtable then
---         local inst = Instance.wrap(self)
---         local buffer = Buffer.wrap(Global.multiplayer_buffer)
---         for _, fn_table in ipairs(subtable) do
---             local status, err = pcall(fn_table.fn, inst, buffer)
---             if not status then
---                 if (err == nil)
---                 or (err == "C++ exception") then err = "GameMaker error (see above)" end
---                 log.warning("\n"..fn_table.namespace..": Object deserialization for object '"..index.."' failed to execute fully.\n"..err)
---             end
---         end
--- 	end
--- end)
+-- Call custom object deserializers
+gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_deserialize, function(self, other, result, args)
+    local index    = self.__object_index
+    local subtable = object_deserializers[index]
+	if subtable then
+        local inst   = self  ---@type Instance
+        local buffer = Buffer.wrap(Global.multiplayer_buffer)
+        for i = 1, #subtable do
+            local data = subtable[i]
+            local status, out = pcall(data.fn, inst, buffer)
+            if not status then
+                if out == nil
+                or out == "C++ exception" then
+                    out = "GameMaker error (see above)"
+                end
+                log.warning("\n| "..data.namespace..": Error in deserialization function for object '"..index.."'\n| "..out)
+            end
+        end
+	end
+end)
 
 
 -- ========== Assign some object tags ==========

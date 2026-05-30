@@ -2,8 +2,9 @@
 
 __DEACTIVATE_OLD = true -- DEBUG
 
-PATH           = _ENV["!plugins_mod_folder_path"]
-RAPI_NAMESPACE = "rapi" -- Namespace for ReturnsAPI that is used internally
+PATH                = _ENV["!plugins_mod_folder_path"]
+RAPI_NAMESPACE      = "rapi"        -- Namespace for ReturnsAPI that is used internally
+PERMANENT_NAMESPACE = "__permanent" -- Namespace for ReturnsAPI for internal callbacks that persist on hotload
 
 mods["LuaENVY-ENVY"].auto()
 envy = mods["LuaENVY-ENVY"]

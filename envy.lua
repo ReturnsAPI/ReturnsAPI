@@ -66,7 +66,7 @@ public.setup = function(properties)
 
     -- Prevent taking a namespace already used internally
     if namespace == RAPI_NAMESPACE
-    or namespace == "__permanent" then
+    or namespace == PERMANENT_NAMESPACE then
         log.error("setup: Namespace '"..namespace.."' is reserved", 2)
     end
 
