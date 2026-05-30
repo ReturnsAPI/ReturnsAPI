@@ -43,7 +43,7 @@ end
 ---@class Buffer
 local methods = {}
 
----@param value Instance | Actor | Player
+---@param value Instance
 methods.write_instance = function(self, value)
     gm.write_instance_direct(proxy[self], value)
 end
@@ -108,7 +108,7 @@ methods.write_color = function(self, value)
     gm.write_color_direct(proxy[self], unwrap(value))
 end
 
----@return Instance | Actor | Player
+---@return Instance
 methods.read_instance = function(self)
     return gm.read_instance_direct(proxy[self])
 end

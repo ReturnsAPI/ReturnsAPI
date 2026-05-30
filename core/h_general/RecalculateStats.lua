@@ -141,7 +141,7 @@ Returns the unique ID of the registered function.
 
 *Technical:* This function will run in `recalculate_stats` pre-hook.
 ]]
----@param fn fun(actor: Actor | Player, api: RecalculateStats) The function to register. <br>The parameters for it are `actor, api`.
+---@param fn fun(actor: Actor, api: RecalculateStats) The function to register. <br>The parameters for it are `actor, api`.
 ---@return number
 RecalculateStats.add = function(NAMESPACE, fn) end
 
@@ -157,7 +157,7 @@ use the enum values in @link {`Callback.Priority` | Callback#Priority}. <br>
 If you need to be more specific than that, try to keep a distance of at least `100`.
 ]]
 ---@param priority number The priority of the function. <br>Higher values run before lower ones; can be negative. <br>`Callback.Priority.NORMAL` (`0`) by default.
----@param fn fun(actor: Actor | Player, api: RecalculateStats) The function to register. <br>The parameters for it are `actor, api`.
+---@param fn fun(actor: Actor, api: RecalculateStats) The function to register. <br>The parameters for it are `actor, api`.
 ---@return number
 RecalculateStats.add = function(NAMESPACE, priority, fn)
     if type(priority) == "function" then
@@ -257,7 +257,7 @@ local api = setmetatable({}, W.RecalculateStats)
 -- ========== Hooks ==========
 
 Hook.add_pre(RAPI_NAMESPACE, gm.constants.recalculate_stats, Callback.internal.FIRST, function(self, other, result, args)
-    local actor = self  ---@type Actor | Player
+    local actor = self  ---@type Actor
     
     -- Reset the `params` table
     reset_params()

@@ -24,12 +24,12 @@ local type               = type
 local tostring           = tostring
 local getmetatable       = debug.getmetatable
 local string_sub         = string.sub
-local gm                 = gm                   ---@type table<string, function>
-local gm_instance_create = gm.instance_create   ---@type function
-local gm_instance_exists = gm.instance_exists   ---@type function
+local gm                 = gm                  ---@type table<string, function>
+local gm_instance_create = gm.instance_create  ---@type function
+local gm_instance_exists = gm.instance_exists  ---@type function
 local unwrap             = Wrap.unwrap
 
-local gm_id_to_cinst = gm.CInstance.instance_id_to_CInstance    ---@type table<number, sol.CInstance*>
+local gm_id_to_cinst = gm.CInstance.instance_id_to_CInstance  ---@type table<number, sol.CInstance*>
 local constants_oP   = gm.constants.oP  ---@type number
 
 local ancestor_lookup = {}  ---@type table<number, boolean> Maps objects to booleans of whether or not they inherit from `pActor`
@@ -112,7 +112,7 @@ instances of the object, and can be *very* expensive at high numbers. <br>
 Try not to call this too much.
 ]]
 ---@param object number | Object The object to check.
----@return table instances
+---@return table<number, Instance>
 Instance.find_all = function(object)
     object = unwrap(object)
     if not object then throw("object is nil") end
@@ -180,15 +180,12 @@ Instance.get_data = function(instance, subtable, namespace, namespace_is_specifi
 end
 
 --[[
-**[!] DEPRECATED**
-
-Returns an Instance wrapper containing the provided instance.
+Returns an Instance wrapper from an instance ID.
 ]]
----@deprecated
----@param inst number | sol.CInstance* | Instance The instance to wrap.
+---@param id number The instance ID to wrap.
 ---@return Instance
-Instance.wrap = function(inst)
-    return inst
+Instance.wrap = function(id)
+    return gm_id_to_cinst[id] or id
 end
 
 
