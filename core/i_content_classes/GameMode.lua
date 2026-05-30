@@ -21,7 +21,10 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class GameMode
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field count_normal_unlocks            = 2
+---@field count_towards_games_played      = 3
 
 
 -- ========== Enums ==========

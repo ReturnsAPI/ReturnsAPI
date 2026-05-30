@@ -21,7 +21,22 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class EnvironmentLog
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_story                     = 3
+---@field stage_id                        = 4
+---@field display_room_ids                = 5
+---@field initial_cam_x_1080              = 6
+---@field initial_cam_y_1080              = 7
+---@field initial_cam_x_720               = 8
+---@field initial_cam_y_720               = 9
+---@field initial_cam_alt_x_1080          = 10
+---@field initial_cam_alt_y_1080          = 11
+---@field initial_cam_alt_x_720           = 12
+---@field initial_cam_alt_y_720           = 13
+---@field is_secret                       = 14
+---@field spr_icon                        = 15
 
 
 -- ========== Enums ==========

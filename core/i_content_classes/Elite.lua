@@ -21,7 +21,14 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class Elite
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field palette                         = 3
+---@field blend_col                       = 4
+---@field healthbar_icon                  = 5
+---@field effect_display                  = 6
+---@field on_apply                        = 7
 
 
 -- ========== Enums ==========

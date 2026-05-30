@@ -21,7 +21,26 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class SurvivorLog
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_story                     = 3
+---@field token_id                        = 4
+---@field token_departed                  = 5
+---@field token_arrival                   = 6
+---@field sprite_icon_id                  = 7
+---@field sprite_id                       = 8
+---@field portrait_id                     = 9
+---@field portrait_index                  = 10
+---@field stat_hp_base                    = 11
+---@field stat_hp_level                   = 12
+---@field stat_damage_base                = 13
+---@field stat_damage_level               = 14
+---@field stat_regen_base                 = 15
+---@field stat_regen_level                = 16
+---@field stat_armor_base                 = 17
+---@field stat_armor_level                = 18
+---@field survivor_id                     = 19
 
 
 -- ========== Enums ==========

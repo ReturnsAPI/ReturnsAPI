@@ -21,7 +21,10 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class EndingType
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field primary_color                   = 2
+---@field is_victory                      = 3
 
 
 -- ========== Enums ==========

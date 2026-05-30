@@ -415,7 +415,9 @@ You can use this as a check before running any logic for {`call` | Callback#call
 ]]
 ---@return boolean
 methods_type.has_any = function(self)
-    return callback_functions[proxy[self]].enabled_count > 0
+    local cb_table = callback_functions[proxy[self]]
+    if not cb_table then return false end
+    return cb_table.enabled_count > 0
 end
 
 
@@ -562,7 +564,127 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
     args_holder_rsp = args_holder_rsp - 1
 end)
 
--- TODO RAPI custom callbacks
+
+-- ========== RAPI Custom Callbacks ==========
+
+-- 30 : onPlayerDeath
+-- This is never called by the game
+gm.pre_script_hook(gm.constants.actor_component_remove_flagged_for_death_removal, function(self, other, result, args)
+    gm.callback_execute(Callback.ON_PLAYER_DEATH, self)
+end)
+
+-- 10000 : onHeal
+local on_heal = Callback.new(RAPI_NAMESPACE, "onHeal")
+
+Hook.add_pre(RAPI_NAMESPACE, gm.constants.actor_heal_networked, function(self, other, result, args)
+    if not on_heal:has_any() then return end
+
+    -- Runs for both host and client, but value modification does nothing for client
+    local actor  = args[1].value
+    local amount = { value = args[2].value } -- Allows for passing modification to next callback function
+
+    on_heal:call(actor, amount)
+    args[2].value = amount.value
+end)
+
+-- For effects that use `lifesteal` (e.g., Leeching Seed)
+-- Hooks line 30.5 (between `var amount =` and `actor_heal_raw` call)
+local ptr = gm.get_script_function_address(gm.constants.damager_proc_posthit_clientandserver)
+memory.dynamic_hook_mid("RAPI.Callback.damager_proc_posthit_clientandserver", {"r12", "rbp-D0h"}, {"RValue**", "RValue*"}, 0, ptr:add(0x1172), function(args)
+    if not on_heal:has_any() then return end
+    
+    local actor  = memory.resolve_pointer_to_type(args[1]:deref():get_address(), "RValue*").value
+    local amount = { value = args[2].value } -- Allows for passing modification to next callback function
+
+    on_heal:call(actor, amount)
+    args[2].value = amount.value
+end)
+
+-- For effects that use `oEfHeal2Nosync` (e.g., Monster Tooth)
+-- Hooks line 22 (right after `place_meeting` check)
+local ptr = gm.get_object_function_address("gml_Object_oEfHeal2Nosync_Step_2")
+memory.dynamic_hook_mid("RAPI.Callback.gml_Object_oEfHeal2Nosync_Step_2_2", {"r14", "rbp-D0h"}, {"RValue*", "RValue*"}, 0, ptr:add(0x1155), function(args)
+    if not on_heal:has_any() then return end
+    
+    local actor  = args[1].value
+    local oHeal  = args[2].value
+    local amount = { value = oHeal.value }  -- Allows for passing modification to next callback function
+                                            -- `.value` here is the heal value
+
+    on_heal:call(actor, amount)
+    oHeal.value = amount.value
+end)
+
+-- 10001 : onShieldBreak
+local on_shield_break = Callback.new(RAPI_NAMESPACE, "onShieldBreak")
+
+Callback.add(RAPI_NAMESPACE, Callback.ON_DAMAGED_PROC, Callback.internal.FIRST, function(actor, hit_info)
+    if not on_shield_break:has_any() then return end
+
+    -- Check for shield break
+    local actor_data = Instance.get_data(actor)
+    if actor.shield <= 0 then
+        if actor_data.shield_active then
+            actor_data.shield_active = false
+            on_shield_break:call(actor, hit_info)
+        end
+    else actor_data.shield_active = true
+    end
+end)
+
+Hook.add_post(RAPI_NAMESPACE, gm.constants.recalculate_stats, Callback.internal.FIRST, function(self, other, result, args)
+    local maxshield = self.maxshield
+    local self_data = Instance.get_data(self)
+
+    if  maxshield > 0
+    and self.shield > 0 then
+        self_data.shield_active = true
+        return
+    end
+
+    if maxshield <= 0 then
+        self_data.shield_active = nil
+    end
+end)
+
+-- 10002 : onShieldRestore
+local on_shield_restore = Callback.new(RAPI_NAMESPACE, "onShieldRestore")
+
+Hook.add_pre(RAPI_NAMESPACE, gm.constants.server_message_send, Callback.internal.FIRST, function(self, other, result, args)
+    -- Shield regen sync packet
+    if args[2].value ~= 69 then return end
+    
+    local self_data = Instance.get_data(self)
+    self_data.shield_active = true
+
+    if not on_shield_restore:has_any() then return end
+    on_shield_restore:call(self)
+end)
+
+-- 10003 : onSkillActivate
+local on_skill_activate = Callback.new(RAPI_NAMESPACE, "onSkillActivate")
+
+Hook.add_post(RAPI_NAMESPACE, gm.constants.skill_activate, Callback.internal.FIRST, function(self, other, result, args)
+    if not on_skill_activate:has_any() then return end
+
+    local actor = self
+    local slot  = args[1].value
+
+    on_skill_activate:call(actor, slot)
+end)
+
+-- 10004 : onEquipmentSwap
+local on_equipment_swap = Callback.new(RAPI_NAMESPACE, "onEquipmentSwap")
+
+Hook.add_pre(RAPI_NAMESPACE, gm.constants.equipment_set, Callback.internal.FIRST, function(self, other, result, args)
+    if not on_equipment_swap:has_any() then return end
+
+    local actor = args[1].value
+    local new   = (args[2].value ~= -1 and Equipment.wrap(args[2].value)) or nil
+    local old   = actor:equipment_get()
+
+    on_equipment_swap:call(actor, new, old)
+end)
 
 
 populate_arg_types()

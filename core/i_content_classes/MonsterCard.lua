@@ -21,7 +21,15 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class MonsterCard
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field spawn_type                      = 2
+---@field spawn_cost                      = 3
+---@field object_id                       = 4
+---@field is_boss                         = 5
+---@field is_new_enemy                    = 6
+---@field elite_list                      = 7
+---@field can_be_blighted                 = 8
 
 
 -- ========== Enums ==========

@@ -21,7 +21,30 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class Achievement
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_desc                      = 3
+---@field token_desc2                     = 4
+---@field token_unlock_name               = 5
+---@field unlock_kind                     = 6
+---@field unlock_id                       = 7
+---@field sprite_id                       = 8
+---@field sprite_subimage                 = 9
+---@field sprite_scale                    = 10
+---@field sprite_scale_ingame             = 11
+---@field is_hidden                       = 12
+---@field is_trial                        = 13
+---@field is_server_authorative           = 14
+---@field milestone_alt_unlock            = 15
+---@field milestone_survivor              = 16
+---@field progress                        = 17
+---@field unlocked                        = 18
+---@field parent_id                       = 19
+---@field progress_needed                 = 20
+---@field death_reset                     = 21
+---@field group                           = 22
+---@field on_completed                    = 23
 
 
 -- ========== Enums ==========

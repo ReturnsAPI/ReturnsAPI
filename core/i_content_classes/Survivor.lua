@@ -21,7 +21,40 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class Survivor
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_name_upper                = 3
+---@field token_description               = 4
+---@field token_end_quote                 = 5
+---@field skill_family_z                  = 6
+---@field skill_family_x                  = 7
+---@field skill_family_c                  = 8
+---@field skill_family_v                  = 9
+---@field skin_family                     = 10
+---@field all_loadout_families            = 11
+---@field all_skill_families              = 12
+---@field sprite_loadout                  = 13
+---@field sprite_title                    = 14
+---@field sprite_idle                     = 15
+---@field sprite_portrait                 = 16
+---@field sprite_portrait_small           = 17
+---@field sprite_palette                  = 18
+---@field sprite_portrait_palette         = 19
+---@field sprite_loadout_palette          = 20
+---@field sprite_credits                  = 21
+---@field primary_color                   = 22
+---@field select_sound_id                 = 23
+---@field log_id                          = 24
+---@field achievement_id                  = 25
+---@field milestone_kills_1               = 26
+---@field milestone_items_1               = 27
+---@field milestone_stages_1              = 28
+---@field on_init                         = 29
+---@field on_step                         = 30
+---@field on_remove                       = 31
+---@field is_secret                       = 32
+---@field cape_offset                     = 33
 
 
 -- ========== Enums ==========

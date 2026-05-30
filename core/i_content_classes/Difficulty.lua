@@ -21,7 +21,19 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class Difficulty
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_description               = 3
+---@field sprite_id                       = 4
+---@field sprite_loadout_id               = 5
+---@field primary_color                   = 6
+---@field sound_id                        = 7
+---@field diff_scale                      = 8
+---@field general_scale                   = 9
+---@field point_scale                     = 10
+---@field is_monsoon_or_higher            = 11
+---@field allow_blight_spawns             = 12
 
 
 -- ========== Enums ==========

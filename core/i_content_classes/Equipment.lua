@@ -21,7 +21,20 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class Equipment
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_text                      = 3
+---@field on_use                          = 4
+---@field cooldown                        = 5
+---@field tier                            = 6
+---@field sprite_id                       = 7
+---@field object_id                       = 8
+---@field item_log_id                     = 9
+---@field achievement_id                  = 10
+---@field effect_display                  = 11
+---@field loot_tags                       = 12
+---@field is_new_equipment                = 13
 
 
 -- ========== Enums ==========

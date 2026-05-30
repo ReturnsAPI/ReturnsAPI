@@ -21,7 +21,18 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class ItemLog
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_description               = 3
+---@field token_story                     = 4
+---@field token_date                      = 5
+---@field token_destination               = 6
+---@field token_priority                  = 7
+---@field pickup_object_id                = 8
+---@field sprite_id                       = 9
+---@field group                           = 10
+---@field achievement_id                  = 11
 
 
 -- ========== Enums ==========

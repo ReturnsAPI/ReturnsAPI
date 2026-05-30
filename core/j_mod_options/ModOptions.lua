@@ -44,7 +44,7 @@ Creates a new ModOptions for your mod if it does not already exist,
 or returns the existing one if it does.
 ]]
 ModOptions.new = function(NAMESPACE)
-    -- Create new ModOptions if existn't
+    -- Create new ModOptions if it does not exist
     if not __mod_options_headers[NAMESPACE] then
         __mod_options_headers[NAMESPACE] = {
             namespace   = NAMESPACE,

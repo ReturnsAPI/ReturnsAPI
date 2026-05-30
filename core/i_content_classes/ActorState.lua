@@ -21,7 +21,17 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class ActorState
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field on_enter                        = 2
+---@field on_exit                         = 3
+---@field on_step                         = 4
+---@field on_get_interrupt_priority       = 5
+---@field callable_serialize              = 6
+---@field callable_deserialize            = 7
+---@field is_skill_state                  = 8
+---@field is_climb_state                  = 9
+---@field activity_flags                  = 10
 
 
 -- ========== Enums ==========

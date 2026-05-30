@@ -21,7 +21,13 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class ActorSkin
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field effect_display                  = 2
+---@field draw_loadout_preview            = 3
+---@field get_skin_sprite                 = 4
+---@field draw_skinnable_instance         = 5
+---@field skin_type_index                 = 6
 
 
 -- ========== Enums ==========

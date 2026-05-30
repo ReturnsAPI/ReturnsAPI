@@ -21,7 +21,23 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class Buff
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field show_icon                       = 2
+---@field icon_sprite                     = 3
+---@field icon_subimage                   = 4
+---@field icon_frame_speed                = 5
+---@field icon_stack_subimage             = 6
+---@field draw_stack_number               = 7
+---@field stack_number_col                = 8
+---@field max_stack                       = 9
+---@field on_apply                        = 10
+---@field on_remove                       = 11
+---@field on_step                         = 12
+---@field is_timed                        = 13
+---@field is_debuff                       = 14
+---@field client_handles_removal          = 15
+---@field effect_display                  = 16
 
 
 -- ========== Enums ==========

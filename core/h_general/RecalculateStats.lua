@@ -407,6 +407,9 @@ local index_to_table = {
 gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@scr_actor_skills"], function(self, other, result, args)
     if not params then return end
 
+    -- TODO restore this after Skill is done
+    if true then return end
+
     local self_struct = struct_wrap(self)
 
     -- Get skill_id

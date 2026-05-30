@@ -21,7 +21,16 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class Artifact
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_pickup_name               = 3
+---@field token_description               = 4
+---@field sprite_loadout_id               = 5
+---@field sprite_pickup_id                = 6
+---@field on_set_active                   = 7
+---@field active                          = 8
+---@field achievement_id                  = 9
 
 
 -- ========== Enums ==========

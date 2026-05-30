@@ -21,7 +21,24 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class MonsterLog
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_story                     = 3
+---@field sprite_id                       = 4
+---@field portrait_id                     = 5
+---@field portrait_index                  = 6
+---@field sprite_offset_x                 = 7
+---@field sprite_offset_y                 = 8
+---@field sprite_force_horizontal_align   = 9
+---@field sprite_height_offset            = 10
+---@field stat_hp                         = 11
+---@field stat_damage                     = 12
+---@field stat_speed                      = 13
+---@field log_backdrop_index              = 14
+---@field object_id                       = 15
+---@field enemy_object_ids_kills          = 16
+---@field enemy_object_ids_deaths         = 17
 
 
 -- ========== Enums ==========

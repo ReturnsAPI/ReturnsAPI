@@ -21,7 +21,36 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class Skill
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_description               = 3
+---@field sprite                          = 4
+---@field subimage                        = 5
+---@field cooldown                        = 6
+---@field damage                          = 7
+---@field max_stock                       = 8
+---@field start_with_stock                = 9
+---@field auto_restock                    = 10
+---@field required_stock                  = 11
+---@field require_key_press               = 12
+---@field allow_buffered_input            = 13
+---@field use_delay                       = 14
+---@field animation                       = 15
+---@field is_utility                      = 16
+---@field is_primary                      = 17
+---@field required_interrupt_priority     = 18
+---@field hold_facing_direction           = 19
+---@field override_strafe_direction       = 20
+---@field ignore_aim_direction            = 21
+---@field disable_aim_stall               = 22
+---@field does_change_activity_state      = 23
+---@field on_can_activate                 = 24
+---@field on_activate                     = 25
+---@field on_step                         = 26
+---@field on_equipped                     = 27
+---@field on_unequipped                   = 28
+---@field upgrade_skill                   = 29
 
 
 -- ========== Enums ==========

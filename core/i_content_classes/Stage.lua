@@ -21,7 +21,24 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class Stage
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field token_name                      = 2
+---@field token_subname                   = 3
+---@field spawn_enemies                   = 4
+---@field spawn_enemies_loop              = 5
+---@field spawn_interactables             = 6
+---@field spawn_interactables_loop        = 7
+---@field spawn_interactable_rarity       = 8
+---@field interactable_spawn_points       = 9
+---@field allow_mountain_shrine_spawn     = 10
+---@field classic_variant_count           = 11
+---@field is_new_stage                    = 12
+---@field room_list                       = 13
+---@field music_id                        = 14
+---@field teleporter_index                = 15
+---@field populate_biome_properties       = 16
+---@field log_id                          = 17
 
 
 -- ========== Enums ==========

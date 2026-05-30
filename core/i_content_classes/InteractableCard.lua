@@ -21,7 +21,16 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class InteractableCard
--- Populate with properties
+---@field namespace                       = 0
+---@field identifier                      = 1
+---@field spawn_cost                      = 2
+---@field spawn_weight                    = 3
+---@field object_id                       = 4
+---@field required_tile_space             = 5
+---@field spawn_with_sacrifice            = 6
+---@field is_new_interactable             = 7
+---@field default_spawn_rarity_override   = 8
+---@field decrease_weight_on_spawn        = 9
 
 
 -- ========== Enums ==========
