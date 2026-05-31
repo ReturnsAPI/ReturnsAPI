@@ -89,7 +89,7 @@ metatable = W.Timer
 
 -- ========== Hooks ==========
 
-Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, Callback.internal.FIRST, function(self, other, result, args)
     if to_bool(Global.gameplay_paused) then return end
     P.timer_frame = P.timer_frame + 1
 end)

@@ -18,30 +18,62 @@ local unwrap             = Wrap.unwrap
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 ---@field properties Array The array storing this actor state's properties.
----@field array Array Alias for `.properties`.
+---@field array Array Alias for .properties.
 
 ---@class ActorState
----@field namespace                       = 0
----@field identifier                      = 1
----@field on_enter                        = 2
----@field on_exit                         = 3
----@field on_step                         = 4
----@field on_get_interrupt_priority       = 5
----@field callable_serialize              = 6
----@field callable_deserialize            = 7
----@field is_skill_state                  = 8
----@field is_climb_state                  = 9
----@field activity_flags                  = 10
+---@field namespace                 string  The namespace the state is in.
+---@field identifier                string  The identifier for the state within the namespace.
+---@field on_enter                  number  The ID of the callback that runs when the state is entered. <br>The callback function should have the arguments actor, data. <br>data is a persistent Struct created by the game.
+---@field on_exit                   number  The ID of the callback that runs when the state is exited. <br>The callback function should have the arguments actor, data. <br>data is a persistent Struct created by the game.
+---@field on_step                   number  The ID of the callback that runs every frame while in the state. <br>The callback function should have the arguments actor, data. <br>data is a persistent Struct created by the game.
+---@field on_get_interrupt_priority number  
+---@field callable_serialize        unknown 
+---@field callable_deserialize      unknown 
+---@field is_skill_state            boolean 
+---@field is_climb_state            boolean 
+---@field activity_flags            number  
 
 
 -- ========== Enums ==========
 
 ActorState.Property = {
-
+    NAMESPACE                 = 0,
+    IDENTIFIER                = 1,
+    ON_ENTER                  = 2,
+    ON_EXIT                   = 3,
+    ON_STEP                   = 4,
+    ON_GET_INTERRUPT_PRIORITY = 5,
+    CALLABLE_SERIALIZE        = 6,
+    CALLABLE_DESERIALIZE      = 7,
+    IS_SKILL_STATE            = 8,
+    IS_CLIMB_STATE            = 9,
+    ACTIVITY_FLAGS            = 10,
 }
 local t = {}
 for name, num in pairs(ActorState.Property) do t[num] = name end
 for i = 0, #t do ActorState.Property[i] = t[i] end
+
+ActorState.ActivityFlag = {
+    NONE              = 0,
+    ALLOW_ROPE_CANCEL = 1,
+    ALLOW_AIM_TURN    = 2,
+}
+
+ActorState.InterruptPriority = {
+    ANY                    = 0,
+    SKILL_INTERRUPT_PERIOD = 1,
+    SKILL                  = 2,
+    PRIORITY_SKILL         = 3,
+    LEGACY_ACTIVITY_STATE  = 4,
+    CLIMB                  = 5,
+    PAIN                   = 6,
+    FROZEN                 = 7,
+    CHARGE                 = 8,
+    VEHICLE                = 9,
+    BURROWED               = 10,
+    SPAWN                  = 11,
+    TELEPORT               = 12,
+}
 
 
 -- ========== Static Methods ==========
@@ -53,7 +85,20 @@ or returns the existing one if it does.
 ---@param identifier string The identifier for the actor state.
 ---@return ActorState
 ActorState.new = function(NAMESPACE, identifier)
-    throw("Method has not been created for this class yet", "new")
+    check_init_started("new")
+    if not identifier then throw("No identifier provided", "new") end
+
+    -- Return existing state if found
+    local state = ActorState.find(identifier, NAMESPACE, true)
+    if state then return state end
+
+    -- Create new
+    state = ActorState.wrap(gm.actor_state_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return state
 end
 
 --[[
@@ -77,7 +122,7 @@ If no namespace is provided, searches globally in a non-deterministic* order. <b
 Try not to do that too much.
 ]]
 ---@param filter any The filter to search by.
----@param property? number The property to check. <br>`ActorState.Property.NAMESPACE` by default.
+---@param property? number The property to check. <br>ActorState.Property.NAMESPACE by default.
 ---@return table<number, ActorState>
 ActorState.find_all = function(NAMESPACE, filter, property) end
 
@@ -93,8 +138,6 @@ ActorState.wrap = function(id) end
 
 ---@class ActorState
 local methods = G.methods_content["ActorState"]
-
--- Insert other methods before `print`
 
 --[[
 Prints the actor state's properties.

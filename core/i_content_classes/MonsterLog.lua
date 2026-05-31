@@ -18,33 +18,50 @@ local unwrap             = Wrap.unwrap
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 ---@field properties Array The array storing this monster log's properties.
----@field array Array Alias for `.properties`.
+---@field array Array Alias for .properties.
 
 ---@class MonsterLog
----@field namespace                       = 0
----@field identifier                      = 1
----@field token_name                      = 2
----@field token_story                     = 3
----@field sprite_id                       = 4
----@field portrait_id                     = 5
----@field portrait_index                  = 6
----@field sprite_offset_x                 = 7
----@field sprite_offset_y                 = 8
----@field sprite_force_horizontal_align   = 9
----@field sprite_height_offset            = 10
----@field stat_hp                         = 11
----@field stat_damage                     = 12
----@field stat_speed                      = 13
----@field log_backdrop_index              = 14
----@field object_id                       = 15
----@field enemy_object_ids_kills          = 16
----@field enemy_object_ids_deaths         = 17
+---@field namespace                     string  The namespace the monster log is in.
+---@field identifier                    string  The identifier for the monster log within the namespace.
+---@field token_name                    string  
+---@field token_story                   string  
+---@field sprite_id                     number  
+---@field portrait_id                   unknown 
+---@field portrait_index                unknown 
+---@field sprite_offset_x               number  
+---@field sprite_offset_y               number  
+---@field sprite_force_horizontal_align boolean 
+---@field sprite_height_offset          number  
+---@field stat_hp                       number  
+---@field stat_damage                   number  
+---@field stat_speed                    number  
+---@field log_backdrop_index            unknown 
+---@field object_id                     number  
+---@field enemy_object_ids_kills        unknown 
+---@field enemy_object_ids_deaths       unknown 
 
 
 -- ========== Enums ==========
 
 MonsterLog.Property = {
-
+    NAMESPACE                     = 0,
+    IDENTIFIER                    = 1,
+    TOKEN_NAME                    = 2,
+    TOKEN_STORY                   = 3,
+    SPRITE_ID                     = 4,
+    PORTRAIT_ID                   = 5,
+    PORTRAIT_INDEX                = 6,
+    SPRITE_OFFSET_X               = 7,
+    SPRITE_OFFSET_Y               = 8,
+    SPRITE_FORCE_HORIZONTAL_ALIGN = 9,
+    SPRITE_HEIGHT_OFFSET          = 10,
+    STAT_HP                       = 11,
+    STAT_DAMAGE                   = 12,
+    STAT_SPEED                    = 13,
+    LOG_BACKDROP_INDEX            = 14,
+    OBJECT_ID                     = 15,
+    ENEMY_OBJECT_IDS_KILLS        = 16,
+    ENEMY_OBJECT_IDS_DEATHS       = 17,
 }
 local t = {}
 for name, num in pairs(MonsterLog.Property) do t[num] = name end
@@ -60,7 +77,20 @@ or returns the existing one if it does.
 ---@param identifier string The identifier for the monster log.
 ---@return MonsterLog
 MonsterLog.new = function(NAMESPACE, identifier)
-    throw("Method has not been created for this class yet", "new")
+    check_init_started("new")
+    if not identifier then throw("No identifier provided", "new") end
+
+    -- Return existing card if found
+    local card = MonsterCard.find(identifier, NAMESPACE, true)
+    if card then return card end
+
+    -- Create new
+    card = MonsterLog.wrap(gm.monster_log_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return card
 end
 
 --[[
@@ -84,7 +114,7 @@ If no namespace is provided, searches globally in a non-deterministic* order. <b
 Try not to do that too much.
 ]]
 ---@param filter any The filter to search by.
----@param property? number The property to check. <br>`MonsterLog.Property.NAMESPACE` by default.
+---@param property? number The property to check. <br>MonsterLog.Property.NAMESPACE by default.
 ---@return table<number, MonsterLog>
 MonsterLog.find_all = function(NAMESPACE, filter, property) end
 
@@ -100,8 +130,6 @@ MonsterLog.wrap = function(id) end
 
 ---@class MonsterLog
 local methods = G.methods_content["MonsterLog"]
-
--- Insert other methods before `print`
 
 --[[
 Prints the monster log's properties.

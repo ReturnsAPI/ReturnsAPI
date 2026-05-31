@@ -3,6 +3,12 @@
 ---@class SkillClass
 Skill = C["Skill"]
 
+run_on_initial_load(function()
+    P.skill_on_step_callbacks = {}  ---@type table<skill_id, table<number, CallbackType | boolean>>
+end)
+
+local skill_on_step_callbacks = P.skill_on_step_callbacks
+
 local proxy              = P.proxy
 local metatable          = W["Skill"]
 local find_table_wrapper = P.class_find_tables_wrapper["Skill"]
@@ -18,49 +24,92 @@ local unwrap             = Wrap.unwrap
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 ---@field properties Array The array storing this skill's properties.
----@field array Array Alias for `.properties`.
+---@field array Array Alias for .properties.
 
 ---@class Skill
----@field namespace                       = 0
----@field identifier                      = 1
----@field token_name                      = 2
----@field token_description               = 3
----@field sprite                          = 4
----@field subimage                        = 5
----@field cooldown                        = 6
----@field damage                          = 7
----@field max_stock                       = 8
----@field start_with_stock                = 9
----@field auto_restock                    = 10
----@field required_stock                  = 11
----@field require_key_press               = 12
----@field allow_buffered_input            = 13
----@field use_delay                       = 14
----@field animation                       = 15
----@field is_utility                      = 16
----@field is_primary                      = 17
----@field required_interrupt_priority     = 18
----@field hold_facing_direction           = 19
----@field override_strafe_direction       = 20
----@field ignore_aim_direction            = 21
----@field disable_aim_stall               = 22
----@field does_change_activity_state      = 23
----@field on_can_activate                 = 24
----@field on_activate                     = 25
----@field on_step                         = 26
----@field on_equipped                     = 27
----@field on_unequipped                   = 28
----@field upgrade_skill                   = 29
+---@field namespace                   string  The namespace the skill is in.
+---@field identifier                  string  The identifier for the skill within the namespace.
+---@field token_name                  string  
+---@field token_description           string  
+---@field sprite                      number  
+---@field subimage                    number  
+---@field cooldown                    number  The base cooldown of the skill (in frames).
+---@field damage                      number  The damage of the skill; 1 is 100% damage. <br>Does nothing if the skill/states themselves do not refer to it. <br>Can also be gotten using GM.skill_get_damage( skill ).
+---@field max_stock                   number  
+---@field start_with_stock            boolean If true, this skill will start with max_stock instead of 0.
+---@field auto_restock                unknown 
+---@field required_stock              unknown 
+---@field require_key_press           boolean 
+---@field allow_buffered_input        unknown 
+---@field use_delay                   unknown 
+---@field animation                   unknown 
+---@field is_utility                  boolean 
+---@field is_primary                  boolean 
+---@field required_interrupt_priority unknown 
+---@field hold_facing_direction       unknown 
+---@field override_strafe_direction   unknown 
+---@field ignore_aim_direction        boolean 
+---@field disable_aim_stall           boolean 
+---@field does_change_activity_state  unknown 
+---@field on_can_activate             number  The ID of the callback that runs when . <br>The callback function should have the arguments (TODO).
+---@field on_activate                 number  The ID of the callback that runs when the skill is used. <br>The callback function should have the arguments actor, skill, slot.
+---@field on_step                     number  The ID of the callback that runs every frame while slotted. <br>The callback function should have the arguments actor, skill, slot.
+---@field on_equipped                 number  The ID of the callback that runs when the skill is slotted. <br>The callback function should have the arguments actor, skill, slot.
+---@field on_unequipped               number  The ID of the callback that runs when the skill is unslotted. <br>The callback function should have the arguments actor, skill, slot.
+---@field upgrade_skill               number  The ID of the skill to upgrade to when picking up Ancient Scepter.
 
 
 -- ========== Enums ==========
 
 Skill.Property = {
-
+    NAMESPACE                   = 0,
+    IDENTIFIER                  = 1,
+    TOKEN_NAME                  = 2,
+    TOKEN_DESCRIPTION           = 3,
+    SPRITE                      = 4,
+    SUBIMAGE                    = 5,
+    COOLDOWN                    = 6,
+    DAMAGE                      = 7,
+    MAX_STOCK                   = 8,
+    START_WITH_STOCK            = 9,
+    AUTO_RESTOCK                = 10,
+    REQUIRED_STOCK              = 11,
+    REQUIRE_KEY_PRESS           = 12,
+    ALLOW_BUFFERED_INPUT        = 13,
+    USE_DELAY                   = 14,
+    ANIMATION                   = 15,
+    IS_UTILITY                  = 16,
+    IS_PRIMARY                  = 17,
+    REQUIRED_INTERRUPT_PRIORITY = 18,
+    HOLD_FACING_DIRECTION       = 19,
+    OVERRIDE_STRAFE_DIRECTION   = 20,
+    IGNORE_AIM_DIRECTION        = 21,
+    DISABLE_AIM_STALL           = 22,
+    DOES_CHANGE_ACTIVITY_STATE  = 23,
+    ON_CAN_ACTIVATE             = 24,
+    ON_ACTIVATE                 = 25,
+    ON_STEP                     = 26,
+    ON_EQUIPPED                 = 27,
+    ON_UNEQUIPPED               = 28,
+    UPGRADE_SKILL               = 29,
 }
 local t = {}
 for name, num in pairs(Skill.Property) do t[num] = name end
 for i = 0, #t do Skill.Property[i] = t[i] end
+
+Skill.Slot = {
+    PRIMARY   = 0,
+    SECONDARY = 1,
+    UTILITY   = 2,
+    SPECIAL   = 3,
+}
+
+Skill.OverridePriority = {
+    UPGRADE = 0,
+    BOOSTED = 1,
+    RELOAD  = 2,
+    CANCEL  = 3,
+}
 
 
 -- ========== Static Methods ==========
@@ -72,7 +121,20 @@ or returns the existing one if it does.
 ---@param identifier string The identifier for the skill.
 ---@return Skill
 Skill.new = function(NAMESPACE, identifier)
-    throw("Method has not been created for this class yet", "new")
+    check_init_started("new")
+    if not identifier then throw("No identifier provided", "new") end
+
+    -- Return existing skill if found
+    local skill = Skill.find(identifier, NAMESPACE, true)
+    if skill then return skill end
+
+    -- Create new
+    skill = Skill.wrap(gm.skill_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return skill
 end
 
 --[[
@@ -96,7 +158,7 @@ If no namespace is provided, searches globally in a non-deterministic* order. <b
 Try not to do that too much.
 ]]
 ---@param filter any The filter to search by.
----@param property? number The property to check. <br>`Skill.Property.NAMESPACE` by default.
+---@param property? number The property to check. <br>Skill.Property.NAMESPACE by default.
 ---@return table<number, Skill>
 Skill.find_all = function(NAMESPACE, filter, property) end
 
@@ -113,9 +175,44 @@ Skill.wrap = function(id) end
 ---@class Skill
 local methods = G.methods_content["Skill"]
 
--- Insert other methods before `print`
+--[[
+Returns the associated @link {Achievement | Achievement} if it exists, <br>
+or an invalid Achievement if it does not.
+]]
+---@return Achievement
+methods.get_achievement = function(self)
+    return Achievement.wrap(G.skill_achievement_map[proxy[self]] or -1)
+end
 
 --[[
 Prints the skill's properties.
 ]]
 methods.print = function(self) end
+
+
+-- ========== Hooks ==========
+
+-- Allow Skill `on_step` callbacks to run
+gm.post_script_hook(gm.constants.skill_create, function(self, other, result, args)
+    local on_step = Global.class_skill:get(result.value):get(Skill.Property.ON_STEP)
+    skill_on_step_callbacks[result.value] = {Callback.wrap_type(on_step), false}
+end)
+
+Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, Callback.internal.FIRST, function(self, other, result, args)
+    for skill, on_step in pairs(skill_on_step_callbacks) do
+        local cb_type = on_step[1]
+
+        -- Enable callback type if any fns are present
+        if cb_type:has_any() and (not on_step[2]) then
+            local value = proxy[cb_type]
+            Global.class_callback:get(value):set(1, true)
+            on_step[2] = true
+
+        -- Disable callback type if no fns are present
+        elseif (not cb_type:has_any()) and on_step[2] then
+            local value = proxy[cb_type]
+            Global.class_callback:get(value):set(1, false)
+            on_step[2] = false
+        end
+    end
+end)

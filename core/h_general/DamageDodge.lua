@@ -106,7 +106,7 @@ run_on_import(DamageDodge.remove_all)
 
 ---@class DamageDodge
 ---@field hit            Actor   The actor being hit.
----@field attacker_x     number  The x position of the attacker.
+---@field attacker_x     number  The x coordinate of the attacker.
 ---@field damage         number  The damage of the attack.
 ---@field ignore_immune  bool    If `true`, ignore immunity (i.e., if `DamageDodge.IMMUNE` is used).
 

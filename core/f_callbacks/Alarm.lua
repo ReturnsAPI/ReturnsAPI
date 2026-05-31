@@ -125,7 +125,7 @@ run_on_import(Alarm.remove_all)
 
 -- ========== Hooks ==========
 
-gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, function(self, other, result, args)
     local frame         = P.alarm_current_frame
     local frame_nopause = P.alarm_current_frame_nopause
     

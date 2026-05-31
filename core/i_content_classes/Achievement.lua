@@ -177,7 +177,7 @@ Achievement.wrap = function(id) end
 -- ========== Wrapper Methods ==========
 
 ---@class Achievement
-local methods = G.methods_survivor["Achievement"]
+local methods = G.methods_content["Achievement"]
 
 --[[
 Associates the achievement with an artifact.
@@ -186,7 +186,7 @@ Associates the achievement with an artifact.
 methods.set_unlock_artifact = function(self, artifact)
     if proxy[self] < 0 then throw("Achievement does not exist") end
     if not artifact then throw("artifact is nil") end
-    gm.achievement_set_unlock_artifact(proxy[self], unwrap(survivor))
+    gm.achievement_set_unlock_artifact(proxy[self], unwrap(artifact))
 end
 
 --[[

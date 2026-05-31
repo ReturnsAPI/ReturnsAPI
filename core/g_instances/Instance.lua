@@ -245,8 +245,8 @@ or *any* instance of a specified object.
 **NOTE:** Checking for custom objects is slower than vanilla objects.
 ]]
 ---@param object Object | Instance
----@param x? number The x coordinate to check at. <br>Uses this instance's current x position by default.
----@param y? number The y coordinate to check at. <br>Uses this instance's current y position by default.
+---@param x? number The x coordinate to check at. <br>Uses this instance's current x coordinate by default.
+---@param y? number The y coordinate to check at. <br>Uses this instance's current y coordinate by default.
 ---@return boolean
 methods.is_colliding = function(self, object, x, y)
     object = unwrap(object)
@@ -293,8 +293,8 @@ that this instance is colliding with.
 **NOTE:** Performance cost scales with the number of instances found.
 ]]
 ---@param object Object
----@param x? number Uses this instance's current x position by default.
----@param y? number Uses this instance's current y position by default.
+---@param x? number Uses this instance's current x coordinate by default.
+---@param y? number Uses this instance's current y coordinate by default.
 ---@return table<number, Instance>
 methods.get_collisions = function(self, object, x, y)
     object = unwrap(object)
@@ -409,8 +409,8 @@ that this instance can collide with in the given circular area.
 ]]
 ---@param object Object
 ---@param radius number
----@param x? number Uses this instance's current x position by default.
----@param y? number Uses this instance's current y position by default.
+---@param x? number Uses this instance's current x coordinate by default.
+---@param y? number Uses this instance's current y coordinate by default.
 ---@return table
 methods.get_collisions_circle = function(self, object, radius, x, y)
     object = unwrap(object)

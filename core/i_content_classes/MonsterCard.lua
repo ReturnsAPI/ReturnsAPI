@@ -18,24 +18,32 @@ local unwrap             = Wrap.unwrap
 ---@field value number The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 ---@field properties Array The array storing this monster card's properties.
----@field array Array Alias for `.properties`.
+---@field array Array Alias for .properties.
 
 ---@class MonsterCard
----@field namespace                       = 0
----@field identifier                      = 1
----@field spawn_type                      = 2
----@field spawn_cost                      = 3
----@field object_id                       = 4
----@field is_boss                         = 5
----@field is_new_enemy                    = 6
----@field elite_list                      = 7
----@field can_be_blighted                 = 8
+---@field namespace       string  The namespace the monster card is in.
+---@field identifier      string  The identifier for the monster card within the namespace.
+---@field spawn_type      number  
+---@field spawn_cost      number  
+---@field object_id       number  
+---@field is_boss         boolean 
+---@field is_new_enemy    boolean 
+---@field elite_list      unknown 
+---@field can_be_blighted boolean 
 
 
 -- ========== Enums ==========
 
 MonsterCard.Property = {
-
+    NAMESPACE       = 0,
+    IDENTIFIER      = 1,
+    SPAWN_TYPE      = 2,
+    SPAWN_COST      = 3,
+    OBJECT_ID       = 4,
+    IS_BOSS         = 5,
+    IS_NEW_ENEMY    = 6,
+    ELITE_LIST      = 7,
+    CAN_BE_BLIGHTED = 8,
 }
 local t = {}
 for name, num in pairs(MonsterCard.Property) do t[num] = name end
@@ -51,7 +59,20 @@ or returns the existing one if it does.
 ---@param identifier string The identifier for the monster card.
 ---@return MonsterCard
 MonsterCard.new = function(NAMESPACE, identifier)
-    throw("Method has not been created for this class yet", "new")
+    check_init_started("new")
+    if not identifier then throw("No identifier provided", "new") end
+
+    -- Return existing card if found
+    local card = MonsterCard.find(identifier, NAMESPACE, true)
+    if card then return card end
+
+    -- Create new
+    card = MonsterCard.wrap(gm.monster_card_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return card
 end
 
 --[[
@@ -75,7 +96,7 @@ If no namespace is provided, searches globally in a non-deterministic* order. <b
 Try not to do that too much.
 ]]
 ---@param filter any The filter to search by.
----@param property? number The property to check. <br>`MonsterCard.Property.NAMESPACE` by default.
+---@param property? number The property to check. <br>MonsterCard.Property.NAMESPACE by default.
 ---@return table<number, MonsterCard>
 MonsterCard.find_all = function(NAMESPACE, filter, property) end
 
@@ -91,8 +112,6 @@ MonsterCard.wrap = function(id) end
 
 ---@class MonsterCard
 local methods = G.methods_content["MonsterCard"]
-
--- Insert other methods before `print`
 
 --[[
 Prints the monster card's properties.
