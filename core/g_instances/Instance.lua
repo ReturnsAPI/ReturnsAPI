@@ -185,7 +185,10 @@ Returns an Instance wrapper from an instance ID.
 ---@param id number The instance ID to wrap.
 ---@return Instance
 Instance.wrap = function(id)
-    return gm_id_to_cinst[id] or id
+    if type(id) == "number" then
+        return gm_id_to_cinst[id]
+    end
+    return id
 end
 
 
@@ -614,7 +617,7 @@ table.merge(mt, W.Instance)
 -- ========== Hooks ==========
 
 -- On room change, remove non-existent instances from `__instance_data`
-gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.room_goto, Callback.internal.FIRST, function(self, other, result, args)
     for id, _ in pairs(instance_data) do
         if not Instance.exists(id) then
             instance_data[id] = nil
@@ -623,7 +626,7 @@ gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
 end)
 
 -- Move `__instance_data` to new actor on transform
-gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_transform, Callback.internal.FIRST, function(self, other, result, args)
     local actor_id = args[1].value.id
     local new_id   = args[2].value.id
 

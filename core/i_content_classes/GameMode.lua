@@ -21,16 +21,19 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class GameMode
----@field namespace                       = 0
----@field identifier                      = 1
----@field count_normal_unlocks            = 2
----@field count_towards_games_played      = 3
+---@field namespace                  string  The namespace the game mode is in.
+---@field identifier                 string  The identifier for the game mode within the namespace.
+---@field count_normal_unlocks       unknown 
+---@field count_towards_games_played unknown 
 
 
 -- ========== Enums ==========
 
 GameMode.Property = {
-
+    NAMESPACE                  = 0,
+    IDENTIFIER                 = 1,
+    COUNT_NORMAL_UNLOCKS       = 2,
+    COUNT_TOWARDS_GAMES_PLAYED = 3,
 }
 local t = {}
 for name, num in pairs(GameMode.Property) do t[num] = name end

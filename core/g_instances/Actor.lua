@@ -722,7 +722,7 @@ gm.post_script_hook(gm.constants.buff_create, function(self, other, result, args
 end)
 
 -- On room change, remove non-existent actors from `*_count_cache`
-gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.room_goto, Callback.internal.FIRST, function(self, other, result, args)
     -- Item
     for id, _ in pairs(item_count_cache) do
         if not Instance.exists(id) then
@@ -739,7 +739,7 @@ gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
 end)
 
 -- Remove `*_count_cache` on non-player kill
-gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_set_dead, Callback.internal.FIRST, function(self, other, result, args)
     local actor    = args[1].value
     local actor_id = actor.id
 
@@ -752,7 +752,7 @@ gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, a
 end)
 
 -- Move `*_count_cache` to new actor
-gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_transform, Callback.internal.FIRST, function(self, other, result, args)
     local actor_id = args[1].value.id
     local new_id   = args[2].value.id
 

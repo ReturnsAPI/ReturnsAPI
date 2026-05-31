@@ -21,16 +21,19 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class EndingType
----@field namespace                       = 0
----@field identifier                      = 1
----@field primary_color                   = 2
----@field is_victory                      = 3
+---@field namespace     string  The namespace the ending type is in.
+---@field identifier    string  The identifier for the ending type within the namespace.
+---@field primary_color number  
+---@field is_victory    boolean 
 
 
 -- ========== Enums ==========
 
 EndingType.Property = {
-
+    NAMESPACE     = 0,
+    IDENTIFIER    = 1,
+    PRIMARY_COLOR = 2,
+    IS_VICTORY    = 3,
 }
 local t = {}
 for name, num in pairs(EndingType.Property) do t[num] = name end

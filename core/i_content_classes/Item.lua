@@ -4,12 +4,12 @@
 Item = C["Item"]
 
 run_on_initial_load(function()
-    P.actors_holding_item = {} ---@type table<>
-    P.toggle_loot_off     = {} ---@type table<id, object> Items that are toggled off from dropping.
+    P.actors_holding_item  = {} ---@type table<actor_id | item_id, table<item_id | actor_id, true>> Mappings: <br>`table[actor_id][item_id] = true` <br>`table[item_id][actor_id] = true`
+    P.item_toggle_loot_off = {} ---@type table<id, object> Items that are toggled off from dropping.
 end)
 
 local actors_holding_item = P.actors_holding_item
-local toggle_loot_off     = P.toggle_loot_off
+local toggle_loot_off     = P.item_toggle_loot_off
 
 local actors
 
@@ -21,11 +21,16 @@ local find_table_array   = P.class_find_tables_array["Item"]
 local type               = type
 local math               = math
 local gm                 = gm  ---@type table<string, function>
+local List               = List
+local Global             = Global
 local Instance           = Instance
+local ItemTier           = ItemTier
+local LootPool           = LootPool
+local Achievement        = Achievement
 local check_init_started = Initialize.internal.check_if_started
 local unwrap             = Wrap.unwrap
 
-local queue_run_update_available_loot = false
+G.queue_run_update_available_loot = false  -- Force-update `available_drop_pool`s while in a run; located in `Item.lua`.
 
 
 -- ========== Annotations ==========
@@ -109,7 +114,27 @@ or returns the existing one if it does.
 ---@param identifier string The identifier for the item.
 ---@return Item
 Item.new = function(NAMESPACE, identifier)
-    throw("Method has not been created for this class yet", "new")
+    check_init_started("new")
+    if not identifier then throw("No identifier provided", "new") end
+
+    -- Return existing item if found
+    local item = Item.find(identifier, NAMESPACE, true)
+    if item then return item end
+
+    -- Create new
+    item = Item.wrap(gm.item_create(
+        NAMESPACE,
+        identifier,
+        nil,    -- item ID; if nil, it is auto-set
+        ItemTier.NOTIER,
+        gm.object_add_w(NAMESPACE, identifier, gm.constants.pPickupItem),
+        0       -- loot_tags (?)
+    ))
+
+    -- Remove `is_new_item` flag
+    item.is_new_item = false
+
+    return item
 end
 
 --[[
@@ -286,8 +311,7 @@ methods.toggle_loot = function(self, bool)
     toggle_loot_off[proxy[self]] = nil
     if not bool then toggle_loot_off[proxy[self]] = self.object_id end
 
-    -- Force-update `available_drop_pool`s while in a run
-    if Global.__run_exists then queue_run_update_available_loot = true end
+    if Global.__run_exists then G.queue_run_update_available_loot = true end
 end
 
 --[[
@@ -335,7 +359,7 @@ methods.get_available_loot_pools = function(self)
 end
 
 --[[
-Returns the associated @link {Achievement | Achievement} if it exists,
+Returns the associated @link {Achievement | Achievement} if it exists, <br>
 or an invalid Achievement if it does not.
 ]]
 ---@return Achievement
@@ -396,7 +420,7 @@ gm.post_script_hook(gm.constants.item_take_internal, function(self, other, resul
 end)
 
 -- On room change, remove non-existent instances from `actors_holding_item`
-gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.room_goto, Callback.internal.FIRST, function(self, other, result, args)
     for actor_id, _ in pairs(actors_holding_item) do
         if actor_id >= 100000  -- Make sure this is an actor and not an item
         and not Instance.exists(actor_id) then
@@ -409,7 +433,7 @@ gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
 end)
 
 -- Remove from `actors_holding_item` on non-player kill
-gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_set_dead, Callback.internal.FIRST, function(self, other, result, args)
     local actor    = args[1].value
     local actor_id = actor.id
     local t_actor  = actors_holding_item[actor_id]
@@ -426,13 +450,13 @@ gm.post_script_hook(gm.constants.actor_set_dead, function(self, other, result, a
 end)
 
 -- Add new instance to `actors_holding_item` and remove old
-gm.post_script_hook(gm.constants.actor_transform, function(self, other, result, args)
+Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_transform, Callback.internal.FIRST, function(self, other, result, args)
     local actor_id = args[1].value.id
     local t_actor  = actors_holding_item[actor_id]
     if not t_actor then return end
 
     local new_id = args[2].value.id
-    local t_new = actors_holding_item[new_id]
+    local t_new  = actors_holding_item[new_id]
     if not t_new then
         t_new = {}
         actors_holding_item[new_id] = t_new
@@ -463,8 +487,8 @@ end)
 
 -- Remove items in `toggle_loot_off` from all `available_drop_pool`s
 Callback.add(RAPI_NAMESPACE, Callback.ON_STEP, Callback.internal.FIRST, function()
-    if queue_run_update_available_loot then
-        queue_run_update_available_loot = false
+    if G.queue_run_update_available_loot then
+        G.queue_run_update_available_loot = false
         gm.run_update_available_loot()
     end
 end)

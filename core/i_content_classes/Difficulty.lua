@@ -8,6 +8,7 @@ local metatable          = W["Difficulty"]
 local find_table_wrapper = P.class_find_tables_wrapper["Difficulty"]
 local find_table_array   = P.class_find_tables_array["Difficulty"]
 
+local gm_get_diff        = gm._mod_game_getDifficulty  ---@type function
 local check_init_started = Initialize.internal.check_if_started
 local unwrap             = Wrap.unwrap
 
@@ -21,25 +22,37 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class Difficulty
----@field namespace                       = 0
----@field identifier                      = 1
----@field token_name                      = 2
----@field token_description               = 3
----@field sprite_id                       = 4
----@field sprite_loadout_id               = 5
----@field primary_color                   = 6
----@field sound_id                        = 7
----@field diff_scale                      = 8
----@field general_scale                   = 9
----@field point_scale                     = 10
----@field is_monsoon_or_higher            = 11
----@field allow_blight_spawns             = 12
+---@field namespace            string  The namespace the difficulty is in.
+---@field identifier           string  The identifier for the difficulty within the namespace.
+---@field token_name           string  The localization token for the difficulty's name.
+---@field token_description    string  The localization token for the difficulty's description.
+---@field sprite_id            number  The sprite ID for the small difficulty icon while in a run.
+---@field sprite_loadout_id    number  The sprite ID for the difficulty icon in the character select screen.
+---@field primary_color        number  The text color for the difficulty.
+---@field sound_id             number  The sound ID for when the difficulty is selected.
+---@field diff_scale           number  Affects enemy stat scaling. <br>Drizzle - `0.06` <br>Rainstorm - `0.12` <br>Monsoon - `0.16`
+---@field general_scale        number  Affects multiple values (timer, costs, stats, etc.) <br>Drizzle - `1` <br>Rainstorm - `2` <br>Monsoon - `3`
+---@field point_scale          number  Affects director credit scaling. <br>Drizzle - `1` <br>Rainstorm - `1` <br>Monsoon - `1.7`
+---@field is_monsoon_or_higher boolean If `true`, the difficulty will be classified as being at least as hard as Monsoon.
+---@field allow_blight_spawns  boolean If `true`, blighted elites are allowed to spawn.
 
 
 -- ========== Enums ==========
 
 Difficulty.Property = {
-
+    NAMESPACE            = 0,
+    IDENTIFIER           = 1,
+    TOKEN_NAME           = 2,
+    TOKEN_DESCRIPTION    = 3,
+    SPRITE_ID            = 4,
+    SPRITE_LOADOUT_ID    = 5,
+    PRIMARY_COLOR        = 6,
+    SOUND_ID             = 7,
+    DIFF_SCALE           = 8,
+    GENERAL_SCALE        = 9,
+    POINT_SCALE          = 10,
+    IS_MONSOON_OR_HIGHER = 11,
+    ALLOW_BLIGHT_SPAWNS  = 12,
 }
 local t = {}
 for name, num in pairs(Difficulty.Property) do t[num] = name end
@@ -55,7 +68,20 @@ or returns the existing one if it does.
 ---@param identifier string The identifier for the difficulty.
 ---@return Difficulty
 Difficulty.new = function(NAMESPACE, identifier)
-    throw("Method has not been created for this class yet", "new")
+    check_init_started("new")
+    if not identifier then throw("No identifier provided", "new") end
+
+    -- Return existing difficulty if found
+    local difficulty = Difficulty.find(identifier, NAMESPACE, true)
+    if difficulty then return difficulty end
+
+    -- Create new
+    difficulty = Difficulty.wrap(gm.difficulty_create(
+        NAMESPACE,
+        identifier
+    ))
+
+    return difficulty
 end
 
 --[[
@@ -96,7 +122,14 @@ Difficulty.wrap = function(id) end
 ---@class Difficulty
 local methods = G.methods_content["Difficulty"]
 
--- Insert other methods before `print`
+--[[
+Returns `true` if the difficulty is currently active. <br>
+Can only be `true` while in a run.
+]]
+---@return boolean
+methods.is_active = function(self)
+    return gm_get_diff() == proxy[self]
+end
 
 --[[
 Prints the difficulty's properties.
