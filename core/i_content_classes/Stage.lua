@@ -636,8 +636,6 @@ methods.print = function(self) end
 
 -- Title screen mini planet is based on last visited stage
 local hook = gm.post_script_hook(gm.constants.callable_call, function(self, other, result, args)
-    print("callable_call!")
-    
     if #args ~= 3 then return end
 
     -- Loop through cached property tables
@@ -684,9 +682,17 @@ local hook = gm.post_script_hook(gm.constants.callable_call, function(self, othe
     end
 end)
 
-gm.post_script_hook(gm.constants.run_create, function(self, other, result, args)
-    gm.hook_disable(hook)
-end)
-gm.pre_script_hook(gm.constants.run_destroy, function(self, other, result, args)
-    gm.hook_enable(hook)
+gm.post_script_hook(gm.constants.room_goto, function(self, other, result, args)
+    if args[1].value == gm.constants.rStart then
+        gm.hook_enable(hook)
+
+        -- Need to run `titlescreen_populate_biome_properties` again
+        -- since the hook above doesn't become active for 1 frame
+        Alarm.add(RAPI_NAMESPACE, 1, function()
+            local oStartMenu = Instance.find(gm.constants.oStartMenu)
+            oStartMenu.biome = gm.titlescreen_populate_biome_properties(gm.stage_find(Global.save_file.last_stage_id) or 0)
+        end)
+
+    else gm.hook_disable(hook)
+    end
 end)
