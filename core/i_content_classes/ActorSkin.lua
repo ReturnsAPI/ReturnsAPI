@@ -1,5 +1,9 @@
 -- ActorSkin
 
+--[[
+This class is here for completeness. <br>
+Skin adding should be done through @link {`survivor:add_skin` | Survivor#add_skin }.
+]]
 ---@class ActorSkinClass
 ActorSkin = C["ActorSkin"]
 
@@ -7,9 +11,6 @@ local proxy              = P.proxy
 local metatable          = W["ActorSkin"]
 local find_table_wrapper = P.class_find_tables_wrapper["ActorSkin"]
 local find_table_array   = P.class_find_tables_array["ActorSkin"]
-
-local check_init_started = Initialize.internal.check_if_started
-local unwrap             = Wrap.unwrap
 
 
 -- ========== Annotations ==========
@@ -21,19 +22,25 @@ local unwrap             = Wrap.unwrap
 ---@field array Array Alias for `.properties`.
 
 ---@class ActorSkin
----@field namespace                       = 0
----@field identifier                      = 1
----@field effect_display                  = 2
----@field draw_loadout_preview            = 3
----@field get_skin_sprite                 = 4
----@field draw_skinnable_instance         = 5
----@field skin_type_index                 = 6
+---@field namespace               string        The namespace the skin is in.
+---@field identifier              string        The identifier for the skin within the namespace.
+---@field effect_display          EffectDisplay 
+---@field draw_loadout_preview    unknown       
+---@field get_skin_sprite         unknown       
+---@field draw_skinnable_instance unknown       
+---@field skin_type_index         number        
 
 
 -- ========== Enums ==========
 
 ActorSkin.Property = {
-
+    NAMESPACE               = 0,
+    IDENTIFIER              = 1,
+    EFFECT_DISPLAY          = 2,
+    DRAW_LOADOUT_PREVIEW    = 3,
+    GET_SKIN_SPRITE         = 4,
+    DRAW_SKINNABLE_INSTANCE = 5,
+    SKIN_TYPE_INDEX         = 6,
 }
 local t = {}
 for name, num in pairs(ActorSkin.Property) do t[num] = name end
@@ -41,16 +48,6 @@ for i = 0, #t do ActorSkin.Property[i] = t[i] end
 
 
 -- ========== Static Methods ==========
-
---[[
-Creates a new actor skin with the given identifier if it does not already exist, <br>
-or returns the existing one if it does.
-]]
----@param identifier string The identifier for the actor skin.
----@return ActorSkin
-ActorSkin.new = function(NAMESPACE, identifier)
-    throw("Method has not been created for this class yet", "new")
-end
 
 --[[
 Searches for the specified actor skin and returns it.
@@ -89,8 +86,6 @@ ActorSkin.wrap = function(id) end
 
 ---@class ActorSkin
 local methods = G.methods_content["ActorSkin"]
-
--- Insert other methods before `print`
 
 --[[
 Prints the actor skin's properties.
