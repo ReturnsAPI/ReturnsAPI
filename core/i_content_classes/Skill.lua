@@ -4,7 +4,7 @@
 Skill = C["Skill"]
 
 run_on_initial_load(function()
-    P.skill_on_step_callbacks = {}  ---@type table<skill_id, table<number, CallbackType | boolean>>
+    P.skill_on_step_callbacks = {}  ---@type table<number, SkillOnStepData> Maps skill IDs to data on their `on_step` callbacks.
 end)
 
 local skill_on_step_callbacks = P.skill_on_step_callbacks
@@ -14,6 +14,8 @@ local metatable          = W["Skill"]
 local find_table_wrapper = P.class_find_tables_wrapper["Skill"]
 local find_table_array   = P.class_find_tables_array["Skill"]
 
+local table_insert       = table.insert
+local table_find         = table.find
 local check_init_started = Initialize.internal.check_if_started
 local unwrap             = Wrap.unwrap
 
@@ -52,10 +54,10 @@ local unwrap             = Wrap.unwrap
 ---@field disable_aim_stall           boolean 
 ---@field does_change_activity_state  unknown 
 ---@field on_can_activate             number  The ID of the callback that runs when . <br>The callback function should have the arguments (TODO).
----@field on_activate                 number  The ID of the callback that runs when the skill is used. <br>The callback function should have the arguments actor, skill, slot.
----@field on_step                     number  The ID of the callback that runs every frame while slotted. <br>The callback function should have the arguments actor, skill, slot.
----@field on_equipped                 number  The ID of the callback that runs when the skill is slotted. <br>The callback function should have the arguments actor, skill, slot.
----@field on_unequipped               number  The ID of the callback that runs when the skill is unslotted. <br>The callback function should have the arguments actor, skill, slot.
+---@field on_activate                 number  The ID of the callback that runs when the skill is used. <br>The callback function should have the arguments `actor, skill, slot`.
+---@field on_step                     number  The ID of the callback that runs every frame while slotted. <br>The callback function should have the arguments `actor, skill, slot`.
+---@field on_equipped                 number  The ID of the callback that runs when the skill is slotted. <br>The callback function should have the arguments `actor, skill, slot`.
+---@field on_unequipped               number  The ID of the callback that runs when the skill is unslotted. <br>The callback function should have the arguments `actor, skill, slot`.
 ---@field upgrade_skill               number  The ID of the skill to upgrade to when picking up Ancient Scepter.
 
 
@@ -194,25 +196,125 @@ methods.print = function(self) end
 
 -- Allow Skill `on_step` callbacks to run
 gm.post_script_hook(gm.constants.skill_create, function(self, other, result, args)
-    local on_step = Global.class_skill:get(result.value):get(Skill.Property.ON_STEP)
-    skill_on_step_callbacks[result.value] = {Callback.wrap_type(on_step), false}
+    local on_step_id = Global.class_skill:get(result.value):get(Skill.Property.ON_STEP)
+    
+    ---@class SkillOnStepData
+    ---@field [1] CallbackType
+    ---@field [2] table<actor_id, table<i, slot>> Mapping of actor IDs to skill slots.
+    skill_on_step_callbacks[result.value] = {
+        Callback.wrap_type(on_step_id),
+        {},
+    }
+
+    -- OLD callback_execute impl
+    -- skill_on_step_callbacks[result.value] = {
+    --     Callback.wrap_type(on_step_id),
+    --     false,
+    -- }
 end)
 
-Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, Callback.internal.FIRST, function(self, other, result, args)
-    for skill, on_step in pairs(skill_on_step_callbacks) do
+gm.post_script_hook(gm.constants["update_active_skill@anon@4242@ActorSkillSlot@scr_actor_skills"], function(self, other, result, args)
+    local skill   = self.active_skill.skill_id
+    local on_step = skill_on_step_callbacks[skill]
+    if not on_step then return end
+
+    local actor_id = self.parent.id
+    local actors   = on_step[2]  ---@type table<actor_id, table<i, slot>>
+    local t_actor  = actors[actor_id]
+    if not t_actor then
+        t_actor     = {}
+        actors[actor_id] = t_actor
+    end
+    
+    local slot = self.slot_index
+    if not table_find(t_actor, slot) then
+        table_insert(t_actor, slot)
+    end
+end)
+
+Callback.add(RAPI_NAMESPACE, Callback.ON_STEP, Callback.internal.FIRST, function()
+    for skill_id, on_step in pairs(skill_on_step_callbacks) do
         local cb_type = on_step[1]
+        if cb_type:has_any() then
+            local type_id = proxy[cb_type]
 
-        -- Enable callback type if any fns are present
-        if cb_type:has_any() and (not on_step[2]) then
-            local value = proxy[cb_type]
-            Global.class_callback:get(value):set(1, true)
-            on_step[2] = true
+            local actors = on_step[2]  ---@type table<actor_id, table<i, slot>>
+            for actor_id, slots in pairs(actors) do
+                local actor = Instance.wrap(actor_id)
+                for i = 1, #slots do
+                    local slot = slots[i]
 
-        -- Disable callback type if no fns are present
-        elseif (not cb_type:has_any()) and on_step[2] then
-            local value = proxy[cb_type]
-            Global.class_callback:get(value):set(1, false)
-            on_step[2] = false
+                    local cb_table = P.callback_functions[type_id]
+                    if not cb_table then return end
+
+                    -- Call registered functions
+                    for i = 1, #cb_table do
+                        local data = cb_table[i]
+                        if data.enabled then
+                            local status, out = pcall(data.fn, actor, skill_id, slot)  -- TODO wrap `skill`?
+                            if not status then
+                                if out == nil
+                                or out == "C++ exception" then
+                                    out = "GameMaker error (see above)"
+                                end
+                                log.warning("\n| "..data.namespace..": Error in callback function of type '"..tostring(type_id).."' (ID "..math.floor(data.id)..")\n| "..out)
+                            end
+                        end
+                    end
+                end
+            end
         end
     end
 end)
+
+-- On room change, remove non-existent instances from `__instance_data`
+Hook.add_post(RAPI_NAMESPACE, gm.constants.room_goto, Callback.internal.FIRST, function(self, other, result, args)
+    for skill, on_step in pairs(skill_on_step_callbacks) do
+        local actors = on_step[2]  ---@type table<actor_id, table<i, slot>>
+        for actor_id, _ in pairs(actors) do
+            if not Instance.exists(actor_id) then
+                actors[actor_id] = nil
+            end
+        end
+    end
+end)
+
+-- Remove from `actors_holding_item` on non-player kill
+Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_set_dead, Callback.internal.FIRST, function(self, other, result, args)
+    local actor_id = args[1].value.id
+    for skill, on_step in pairs(skill_on_step_callbacks) do
+        local actors = on_step[2]  ---@type table<actor_id, table<i, slot>>
+        actors[actor_id] = nil
+    end
+end)
+
+-- Add new instance to `actors_holding_item` and remove old
+Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_transform, Callback.internal.FIRST, function(self, other, result, args)
+    local actor_id = args[1].value.id
+    local new_id   = args[2].value.id
+    for skill, on_step in pairs(skill_on_step_callbacks) do
+        local actors = on_step[2]  ---@type table<actor_id, table<i, slot>>
+        actors[new_id]   = actors[actor_id]
+        actors[actor_id] = nil
+    end
+end)
+
+-- OLD callback_execute impl
+-- Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, Callback.internal.FIRST, function(self, other, result, args)    
+--     for skill, on_step in pairs(skill_on_step_callbacks) do
+--         local cb_type = on_step[1]
+
+--         -- Enable callback type if any fns are present
+--         if cb_type:has_any() and (not on_step[2]) then
+--             local value = proxy[cb_type]
+--             Global.class_callback:get(value):set(1, true)
+--             on_step[2] = true
+
+--         -- Disable callback type if no fns are present
+--         elseif (not cb_type:has_any()) and on_step[2] then
+--             local value = proxy[cb_type]
+--             Global.class_callback:get(value):set(1, false)
+--             on_step[2] = false
+--         end
+--     end
+-- end)

@@ -122,12 +122,12 @@ Object.new = function(NAMESPACE, identifier, parent)
 
     -- Add to Cognition artifact blacklist
     ---@type Map
-    local blacklist = Global.artifact_cognation_enemy_blacklist
+    local blacklist = Map.wrap(Global.artifact_cognation_enemy_blacklist)
     blacklist:set(obj, true)
 
     -- Add to deserialization map for online syncing
     ---@type Map
-    local deserialize = Global.__mtd_deserialize
+    local deserialize = Map.wrap(Global.__mtd_deserialize)
     deserialize:set(obj, gm.constants.__lf_init_multiplayer_globals_customobject_deserialize)
 
     -- Adding to find table is done in the hook at the bottom

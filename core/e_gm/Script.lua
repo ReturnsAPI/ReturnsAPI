@@ -23,9 +23,8 @@ local gm_struct_create = gm.struct_create   ---@type function
 local unwrap           = Wrap.unwrap
 local unwrap_args      = Wrap.internal.unwrap_args
 
-local args_holders = {}     -- Reusable tables for arg holders
-local args_holder_rsp = 0   -- Index of most recently used; increment before taking
-for i = 1, 128 do args_holders[i] = {} end
+local P               = P
+local reusable_tables = P.reusable_tables
 
 
 -- ========== Static Methods ==========
@@ -174,20 +173,13 @@ table.merge(mt, W.Script)
 -- * If the given function call relies on accessing `self` to be useful, then it likely won't be useful from this context
 
 gm.post_script_hook(gm.constants.function_dummy, function(self, other, result, args)
-    -- Much faster than `gm.is_struct`
-    -- local mt = getmetatable(self)
-    -- if not mt then return end
-    -- local name = mt.__name
-    -- if  name ~= "sol.YYObjectBaseLuaWrapper"
-    -- and name ~= "sol.YYObjectBase*"
-    -- and name ~= "sol.CInstance*" then return end
-
     if not self then return end
 
     local fn = script_binded_functions[self.__id]
     if fn then
-        local _args = args_holders[args_holder_rsp + 1]
-        args_holder_rsp = args_holder_rsp + 1
+        local rsp   = P.reusable_tables_rsp
+        local _args = reusable_tables[rsp + 1]
+        P.reusable_tables_rsp = rsp + 1
 
         local n = #args
         for i = 1, n do
@@ -202,6 +194,6 @@ gm.post_script_hook(gm.constants.function_dummy, function(self, other, result, a
             result.value = ret
         end
 
-        args_holder_rsp = args_holder_rsp - 1
+        P.reusable_tables_rsp = P.reusable_tables_rsp - 1
     end
 end)

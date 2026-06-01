@@ -70,7 +70,7 @@ for i = 0, #t do EnvironmentLog.Property[i] = t[i] end
 ---@param log EnvironmentLog
 local function set_correct_log_position(log)
     -- Remove from list
-    local log_order = Global.environment_log_display_list
+    local log_order = List.wrap(Global.environment_log_display_list)
     log_order:delete_value(log)
 
     -- Get lowest tier of the stage this log is assigned to
@@ -238,7 +238,7 @@ methods.set_hidden = function(self, bool)
         self.is_secret = true
 
         -- Move log position to end
-        local log_order = Global.environment_log_display_list
+        local log_order = List.wrap(Global.environment_log_display_list)
         log_order:delete_value(self)
         log_order:add(self)
 

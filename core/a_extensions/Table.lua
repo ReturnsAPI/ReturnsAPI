@@ -33,7 +33,7 @@ local function stringify(t, indent)
 
             local _type = util_type(v)
             if _type == "table" then
-                value = ":\n"..stringify(v, indent + indent_amount)
+                value = ": (table)\n"..stringify(v, indent + indent_amount)
             elseif _type == "string" then
                 value = " = \""..tostr.."\""
             end
@@ -53,7 +53,7 @@ local function stringify(t, indent)
 
             local _type = util_type(v)
             if _type == "table" then
-                value = ":\n"..stringify(v, indent + indent_amount)
+                value = ": (table)\n"..stringify(v, indent + indent_amount)
             elseif _type == "string" then
                 value = " = \""..tostr.."\""
             end
@@ -234,6 +234,7 @@ end
 
 -- Insert into ReturnAPI's `table`
 
+table.print         = Table.print
 table.find          = Table.find
 table.remove_value  = Table.remove_value
 table.shallow_copy  = Table.shallow_copy

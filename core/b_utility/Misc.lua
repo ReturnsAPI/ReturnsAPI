@@ -4,21 +4,21 @@ local string_format          = string.format
 local m_get_table_pointer    = memory.get_table_pointer     ---@type function
 local m_get_usertype_pointer = memory.get_usertype_pointer  ---@type function
 
----Functions to run after `core` has loaded.
+-- Functions to run after `core` has loaded.
 ---@type table<number, function>
 G.run_after_core = {}
 
----Functions to run during content initialization.
+-- Functions to run during content initialization.
 ---@type table<number, function>
 G.run_on_initialize = {}
 
----Functions to run when RAPI is imported. <br>
----This is in `P` so that RAPI can <br>
----run it for itself on hotload.
+-- Functions to run when RAPI is imported. <br>
+-- This is in `P` so that RAPI can <br>
+-- run it for itself on hotload.
 ---@type table<number, function>
 P.run_on_import = {}
 
----Table of `sol.` types that RAPI modifies.
+-- Table of `sol.` types that RAPI modifies.
 ---@type table<string, true>
 G.sol_types = table.set{
     "sol.RefDynamicArrayOfRValueLuaWrapper",
@@ -28,6 +28,13 @@ G.sol_types = table.set{
     "sol.CInstance*",
     "sol.CScriptRef*",
 }
+
+-- Reusable arg holders
+if not P.hotload then
+    P.reusable_tables     = {} ---@type table<number, table>
+    P.reusable_tables_rsp = 0  -- Index of most recently used; increment before taking.
+    for i = 1, 256 do P.reusable_tables[i] = {} end
+end
 
 --[[
 Returns a table with a subtable called `internal`.

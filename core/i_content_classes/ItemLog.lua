@@ -215,7 +215,7 @@ methods.set_group = function(self, group)
     -- move its position in the logbook
 
     -- Remove previous item log position (if found)
-    local item_log_order = Global.item_log_display_list
+    local item_log_order = List.wrap(Global.item_log_display_list)
     item_log_order:delete_value(proxy[self])
 
     -- Set new item log position

@@ -125,9 +125,11 @@ The function should accept `value` as the argument, and return the value to set.
 ---@param fn fun(value: any) The function to apply.
 methods.map = function(self, fn)
     for ns, ns_table in pairs(self) do
-        for identifier, data in pairs(ns_table) do
-            local new_value = fn(data.value)
-            if new_value then ns_table[identifier].value = new_value end
+        if type(ns) == "string" then
+            for identifier, data in pairs(ns_table) do
+                local new_value = fn(data.value)
+                if new_value then ns_table[identifier].value = new_value end
+            end
         end
     end
 end

@@ -1,5 +1,7 @@
 -- Callback
 
+-- TODO write list of callback 0 - 42 params
+
 ---@class Callback
 Callback = new_class()
 C.Callback = Callback
@@ -29,9 +31,8 @@ local table_unpack = table.unpack
 local wrap         = Wrap.wrap
 local unwrap       = Wrap.unwrap
 
-local args_holders = {}     -- Reusable tables for arg holders
-local args_holder_rsp = 0   -- Index of most recently used; increment before taking
-for i = 1, 128 do args_holders[i] = {} end
+local P               = P
+local reusable_tables = P.reusable_tables
 
 
 -- ========== Constants and Enums ==========
@@ -494,12 +495,13 @@ metatable_type = W.CallbackType
 -- ========== Hooks ==========
 
 gm.post_script_hook(gm.constants.callback_execute, function(self, other, result, args)
-    local type_id = args[1].value   ---@type number
+    local type_id  = args[1].value  ---@type number
     local cb_table = callback_functions[type_id]
     if not cb_table then return end
 
-    local _args = args_holders[args_holder_rsp + 1]
-    args_holder_rsp = args_holder_rsp + 1
+    local rsp   = P.reusable_tables_rsp
+    local _args = reusable_tables[rsp + 1]
+    P.reusable_tables_rsp = rsp + 1
 
     -- Callback type 41
     if type_id == Callback.NET_MESSAGE_ON_RECEIVED then
@@ -561,7 +563,7 @@ gm.post_script_hook(gm.constants.callback_execute, function(self, other, result,
         end
     end
 
-    args_holder_rsp = args_holder_rsp - 1
+    P.reusable_tables_rsp = P.reusable_tables_rsp - 1
 end)
 
 
