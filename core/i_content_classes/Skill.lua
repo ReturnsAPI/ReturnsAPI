@@ -201,7 +201,7 @@ methods.print = function(self) end
 
 -- ========== Hooks ==========
 
--- Allow Skill `on_step` callbacks to run
+-- Custom implementation for `on_step` callbacks
 gm.post_script_hook(gm.constants.skill_create, function(self, other, result, args)
     local on_step_id = Global.class_skill:get(result.value):get(Skill.Property.ON_STEP)
     
@@ -222,6 +222,26 @@ gm.post_script_hook(gm.constants.skill_create, function(self, other, result, arg
     -- }
 end)
 
+-- Remove from `skill_on_step_callbacks` if updating skill
+gm.pre_script_hook(gm.constants["update_active_skill@anon@4242@ActorSkillSlot@scr_actor_skills"], function(self, other, result, args)
+    local skill   = self.active_skill.skill_id
+    local on_step = skill_on_step_callbacks[skill]
+    if not on_step then return end
+
+    local parent   = self.parent
+    local actor_id = parent.id
+    local actors   = on_step[2]  ---@type table<i, actor_id>
+    local slots    = on_step[3]  ---@type table<actor_id, table<i, slot>>
+    local slot     = self.slot_index
+    local t_slots  = slots[actor_id]
+    table_remove_value(t_slots, slot)
+    if #t_slots <= 0 then
+        table_remove_value(actors, actor_id)
+        slots[actor_id] = nil
+    end
+end)
+
+-- Add to `skill_on_step_callbacks` if updating to a skill with an `on_step` callback
 gm.post_script_hook(gm.constants["update_active_skill@anon@4242@ActorSkillSlot@scr_actor_skills"], function(self, other, result, args)
     local skill   = self.active_skill.skill_id
     local on_step = skill_on_step_callbacks[skill]
@@ -256,6 +276,7 @@ gm.post_script_hook(gm.constants["update_active_skill@anon@4242@ActorSkillSlot@s
     end)
 end)
 
+-- Run all `on_step` callbacks together
 Callback.add(RAPI_NAMESPACE, Callback.ON_STEP, Callback.internal.FIRST, function()
     for skill_id, on_step in pairs(skill_on_step_callbacks) do
         local cb_type = on_step[1]
