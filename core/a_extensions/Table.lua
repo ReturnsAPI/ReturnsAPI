@@ -10,6 +10,8 @@ C.Table = Table
 local tostring      = tostring
 local debug_getinfo = debug.getinfo
 local string_sub    = string.sub
+local table_remove  = table.remove
+local math_floor    = math.floor
 local util_type     ---@type function
 
 
@@ -101,18 +103,58 @@ Table.find = function(t, value)
 end
 
 --[[
-Removes the first occurence of the <br>
-specified value from the table.
+Returns the position of the value to search for <br>
+in an array table, or `nil` if it does not exist.
 ]]
----@param t table The table to search through.
+---@param t table<number, any> The array table to search through.
+---@param value any The value to search for.
+---@return number
+Table.find_array = function(t, value)
+    if not t then throw("t is nil") end
+    for i = 1, #t do
+        if t[i] == value then
+            return i
+        end
+        i = i + 1
+    end
+    return nil
+end
+
+--[[
+Returns the position of the value to search for <br>
+in a sorted array table, or `nil` if it does not exist.
+]]
+---@param t table<number, any> The sorted array table to search through.
+---@param value any The value to search for.
+---@return number
+Table.find_sorted_array = function(t, value)
+    if not t then throw("t is nil") end
+    local low, high = 1, #t
+    while low <= high do
+        local mid = math_floor((high + low) / 2)
+        local mid_v = t[mid]
+        if     value == mid_v then return mid
+        elseif value >  mid_v then low  = mid + 1
+        else                       high = mid - 1
+        end
+    end
+    return nil
+end
+
+--[[
+Removes the first occurence of the <br>
+specified value from an array table.
+]]
+---@param t table The array table to search through.
 ---@param value any The value to remove.
 Table.remove_value = function(t, value)
     if not t then throw("t is nil") end
-    for i, v in ipairs(t) do
-        if v == value then
-            table.remove(t, i)
+    for i = 1, #t do
+        if t[i] == value then
+            table_remove(t, i)
             return
         end
+        i = i + 1
     end
 end
 
@@ -234,13 +276,15 @@ end
 
 -- Insert into ReturnAPI's `table`
 
-table.print         = Table.print
-table.find          = Table.find
-table.remove_value  = Table.remove_value
-table.shallow_copy  = Table.shallow_copy
-table.merge         = Table.merge
-table.merge_new     = Table.merge_new
-table.append        = Table.append
-table.append_new    = Table.append_new
-table.set           = Table.set
-table.enum          = Table.enum
+table.print             = Table.print
+table.find              = Table.find
+table.find_array        = Table.find_array
+table.find_sorted_array = Table.find_sorted_array
+table.remove_value      = Table.remove_value
+table.shallow_copy      = Table.shallow_copy
+table.merge             = Table.merge
+table.merge_new         = Table.merge_new
+table.append            = Table.append
+table.append_new        = Table.append_new
+table.set               = Table.set
+table.enum              = Table.enum

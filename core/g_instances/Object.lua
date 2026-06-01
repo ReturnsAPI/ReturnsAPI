@@ -29,10 +29,14 @@ local metatable
 
 local type               = type
 local table_insert       = table.insert
+local table_find_sorted  = table.find_sorted_array
+local table_remove       = table.remove
+local table_remove_value = table.remove_value
 local gm                 = gm                   ---@type table<string, function>
 local gm_instance_create = gm.instance_create   ---@type function
 local gm_instance_exists = gm.instance_exists   ---@type function
 local new_proxy          = new_proxy
+local Instance           = Instance
 local unwrap             = Wrap.unwrap
 local check_init_started = Initialize.internal.check_if_started
 
@@ -537,44 +541,33 @@ gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_dese
 end)
 
 -- Custom implementation for `on_step` callbacks
-gm.pre_code_execute("gml_Object_oCustomObject_Step_0", function(self, other)
-    return false
-end)
-
 gm.post_script_hook(gm.constants.object_add_w, function(self, other, result, args)
     local id  = result.value
     local obj = Object.wrap(id)
 
     ---@class ObjectOnStepData
     ---@field [1] CallbackType
-    ---@field [2] table<inst_id, Instance> List of instances to iterate over.
+    ---@field [2] table<i, inst_id> List of instances to iterate over.
     on_step_callbacks[id] = {
         Callback.wrap_type(obj.on_step),
         {},
     }
 
     Callback.add(PERMANENT_NAMESPACE, obj.on_create, Callback.internal.FIRST, function(inst)
-        local insts = on_step_callbacks[id][2]
-        insts[inst.id] = inst
+        local insts   = on_step_callbacks[id][2]
+        local inst_id = inst.id
+        if not table_find_sorted(insts, inst_id) then
+            table_insert(insts, inst_id)
+        end
     end)
     Callback.add(PERMANENT_NAMESPACE, obj.on_destroy, Callback.internal.FIRST, function(inst)
         local insts = on_step_callbacks[id][2]
-        insts[inst.id] = nil
+        table_remove_value(insts, inst.id)
     end)
 end)
 
 -- Run all `on_step` callbacks before any Draw event each frame
-local ran_this_frame = true
-Callback.add(RAPI_NAMESPACE, Callback.ON_STEP, Callback.internal.FIRST, function()
-    ran_this_frame = false
-end)
-gm.pre_code_execute("gml_Object_oCustomObject_Draw_0", function(self, other)
-    -- For some reason, recreating the event in this hook
-    -- and then preventing execution of the original is faster
-    self:draw_self()
-    if ran_this_frame then return false end
-    ran_this_frame = true
-
+local function run_on_step_callbacks()
     for obj_id, on_step in pairs(on_step_callbacks) do
         local cb_type = on_step[1]
         if cb_type:has_any() then
@@ -582,8 +575,9 @@ gm.pre_code_execute("gml_Object_oCustomObject_Draw_0", function(self, other)
             local cb_table = callback_functions[type_id]
             if not cb_table then return end
 
-            local insts = on_step[2]  ---@type table<inst_id, Instance>
-            for inst_id, inst in pairs(insts) do
+            local insts = on_step[2]  ---@type table<i, inst_id>
+            for j = 1, #insts do
+                local inst = Instance.wrap(insts[j])
 
                 -- Call registered functions
                 for i = 1, #cb_table do
@@ -602,16 +596,284 @@ gm.pre_code_execute("gml_Object_oCustomObject_Draw_0", function(self, other)
             end
         end
     end
-    return false
+end
+
+local ran_this_frame = true
+Callback.add(RAPI_NAMESPACE, Callback.ON_STEP, Callback.internal.FIRST, function()
+    ran_this_frame = false
 end)
+
+-- Each oCustomObject type is separate from each other
+-- so we need to hook all of them
+-- For some reason, recreating the events in hooks
+-- and then preventing execution of the original is faster
+local hooks = {
+    {
+        "gml_Object_oCustomObject_Step_0",
+        function(self, other)
+            return false
+        end,
+
+        "gml_Object_oCustomObject_Draw_0",
+        function(self, other)
+            self:draw_self()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pEnemyClassic_Step_2",
+        function(self, other)
+            self:event_inherited()
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pEnemyClassic_Draw_0",
+        function(self, other)
+            self:event_inherited()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pEnemyFlying_Step_2",
+        function(self, other)
+            self:skill_system_update()
+            self:step_actor()
+            self:ghost_update()
+            self:actor_death(self.force_death)
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pEnemyFlying_Draw_0",
+        function(self, other)
+            self:draw_actor()
+            self:draw_hp_bar()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pBoss_Step_2",
+        function(self, other)
+            self:skill_system_update()
+            self:step_actor()
+            self:ghost_update()
+            self:actor_death(self.force_death)
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pBoss_Draw_0",
+        function(self, other)
+            self:draw_actor()
+            self:draw_hp_bar()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pBossClassic_Step_2",
+        function(self, other)
+            self:event_inherited()
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pBossClassic_Draw_0",
+        function(self, other)
+            self:event_inherited()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pPickupItem_Step_0",
+        function(self, other)
+            self:event_inherited()
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pPickupItem_Draw_0",
+        function(self, other)
+            self:event_inherited()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pPickupEquipment_Step_0",
+        function(self, other)
+            self:event_inherited()
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pPickupEquipment_Draw_0",
+        function(self, other)
+            self:event_inherited()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pDrone_Step_2",
+        function(self, other)
+            self:step_drone()
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pDrone_Draw_0",
+        function(self, other)
+            self:draw_actor()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pMapObjects_Step_2",
+        function(self, other)
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pMapObjects_Draw_0",
+        function(self, other)
+            self:draw_self()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pInteractable_Step_2",
+        function(self, other)
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pInteractable_Draw_0",
+        function(self, other)
+            if not gm.rectangle_in_rectangle(
+                self.cam_rect_x1,
+                self.cam_rect_y1,
+                self.cam_rect_x2,
+                self.cam_rect_y2,
+                Global.___view_l_x,
+                Global.___view_l_y,
+                Global.___view_l_x2,
+                Global.___view_l_y2
+            ) then
+                return false
+            end
+
+            self:interactable_draw_self()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pInteractableChest_Step_2",
+        function(self, other)
+            self:event_inherited()
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pInteractableChest_Draw_0",
+        function(self, other)
+            if not gm.rectangle_in_rectangle(
+                self.cam_rect_x1,
+                self.cam_rect_y1,
+                self.cam_rect_x2,
+                self.cam_rect_y2,
+                Global.___view_l_x,
+                Global.___view_l_y,
+                Global.___view_l_x2,
+                Global.___view_l_y2
+            ) then
+                return false
+            end
+
+            self:interactable_draw_self()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pInteractableCrate_Step_2",
+        function(self, other)
+            self:event_inherited()
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pInteractableCrate_Draw_0",
+        function(self, other)
+            self:event_inherited()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+    {
+        "gml_Object_oCustomObject_pInteractableDrone_Step_2",
+        function(self, other)
+            self:event_inherited()
+            return false
+        end,
+
+        "gml_Object_oCustomObject_pInteractableDrone_Draw_0",
+        function(self, other)
+            self:event_inherited()
+
+            if ran_this_frame then return false end
+            ran_this_frame = true
+            run_on_step_callbacks()
+            return false
+        end,
+    },
+}
+for _, hook in ipairs(hooks) do
+    gm.pre_code_execute(hook[1], hook[2])
+    gm.pre_code_execute(hook[3], hook[4])
+end
 
 -- On room change, remove non-existent actors from `object_on_step_callbacks`
 Hook.add_post(RAPI_NAMESPACE, gm.constants.room_goto, Callback.internal.FIRST, function(self, other, result, args)
     for obj_id, on_step in pairs(on_step_callbacks) do
         local insts = on_step[2]  ---@type table<inst_id, Instance>
-        for inst_id, _ in pairs(insts) do
+        for i = #insts, 1, -1 do
+            local inst_id = insts[i]
             if not Instance.exists(inst_id) then
-                insts[inst_id] = nil
+                table_remove(insts, i)
             end
         end
     end
