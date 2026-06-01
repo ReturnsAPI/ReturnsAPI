@@ -29,8 +29,9 @@ local gm_instance_create = gm.instance_create  ---@type function
 local gm_instance_exists = gm.instance_exists  ---@type function
 local unwrap             = Wrap.unwrap
 
-local gm_id_to_cinst = gm.CInstance.instance_id_to_CInstance  ---@type table<number, sol.CInstance*>
-local constants_oP   = gm.constants.oP  ---@type number
+local gm_id_to_cinst    = gm.CInstance.instance_id_to_CInstance  ---@type table<number, sol.CInstance*>
+local id_to_cinst_cache = setmetatable({}, {__mode = "v"})       ---@type table<number, sol.CInstance*>
+local constants_oP      = gm.constants.oP  ---@type number
 
 local ancestor_lookup = {}  ---@type table<number, boolean> Maps objects to booleans of whether or not they inherit from `pActor`
 for obj_index = 0, 900 do
@@ -59,9 +60,7 @@ Destroys an instance, or all instances of an object.
 ---@param inst number | Instance | Object The instance to destroy, or object index.
 Instance.destroy = function(inst)
     if not inst then return end
-    local id = inst.id
-    instance_data[id] = nil
-    gm.instance_destroy(inst)
+    gm.instance_destroy(unwrap(inst))
 end
 
 --[[
@@ -185,10 +184,14 @@ Returns an Instance wrapper from an instance ID.
 ---@param id number The instance ID to wrap.
 ---@return Instance
 Instance.wrap = function(id)
+    local cached = id_to_cinst_cache[id]
+    if cached then return cached end
+    local inst = id
     if type(id) == "number" then
-        return gm_id_to_cinst[id]
+        inst = gm_id_to_cinst[id]
     end
-    return id
+    id_to_cinst_cache[id] = inst
+    return inst
 end
 
 
@@ -623,6 +626,9 @@ Hook.add_post(RAPI_NAMESPACE, gm.constants.room_goto, Callback.internal.FIRST, f
             instance_data[id] = nil
         end
     end
+
+    -- Also clear `id_to_cinst_cache`
+    id_to_cinst_cache = setmetatable({}, {__mode = "v"})
 end)
 
 -- Move `__instance_data` to new actor on transform
@@ -636,4 +642,6 @@ Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_transform, Callback.internal.FI
         instance_data[new_id]   = data
         instance_data[actor_id] = nil
     end
+
+    id_to_cinst_cache[actor_id] = nil
 end)

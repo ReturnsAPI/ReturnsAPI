@@ -15,12 +15,14 @@ local metatable          = W["Skill"]
 local find_table_wrapper = P.class_find_tables_wrapper["Skill"]
 local find_table_array   = P.class_find_tables_array["Skill"]
 
+local pcall              = pcall
 local table_insert       = table.insert
 local table_remove       = table.remove
 local table_remove_value = table.remove_value
 local table_find         = table.find
 local table_find_array   = table.find_array
 local table_find_sorted  = table.find_sorted_array
+local Instance           = Instance
 local check_init_started = Initialize.internal.check_if_started
 local unwrap             = Wrap.unwrap
 
@@ -225,7 +227,8 @@ gm.post_script_hook(gm.constants["update_active_skill@anon@4242@ActorSkillSlot@s
     local on_step = skill_on_step_callbacks[skill]
     if not on_step then return end
 
-    local actor_id = self.parent.id
+    local parent   = self.parent
+    local actor_id = parent.id
     local actors   = on_step[2]      ---@type table<i, actor_id>
     local slots    = on_step[3]      ---@type table<actor_id, table<i, slot>>
     local t_slots  = slots[actor_id] ---@type table<i, slot>
@@ -239,6 +242,18 @@ gm.post_script_hook(gm.constants["update_active_skill@anon@4242@ActorSkillSlot@s
     if not table_find_array(t_slots, slot) then
         table_insert(t_slots, slot)
     end
+
+    -- Add Destroy event hook to remove from `skill_on_step_callbacks`
+    if parent:get_object_index() == gm.constants.oP then return end
+    if gm.event_hook_pre_has(parent, gm.constants.ev_destroy, 0, "skill_on_step_callbacks_remove") then return end
+    gm.event_hook_pre_add(parent, gm.constants.ev_destroy, 0, "skill_on_step_callbacks_remove", function(inst)
+        for skill, on_step in pairs(skill_on_step_callbacks) do
+            local actors = on_step[2]  ---@type table<i, actor_id>
+            local slots  = on_step[3]  ---@type table<actor_id, table<i, slot>>
+            table_remove_value(actors, actor_id)
+            slots[actor_id] = nil
+        end
+    end)
 end)
 
 Callback.add(RAPI_NAMESPACE, Callback.ON_STEP, Callback.internal.FIRST, function()
@@ -295,30 +310,30 @@ Hook.add_post(RAPI_NAMESPACE, gm.constants.room_goto, Callback.internal.FIRST, f
 end)
 
 -- Remove from `skill_on_step_callbacks` on non-player kill
-Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_set_dead, Callback.internal.FIRST, function(self, other, result, args)
-    local actor_id = args[1].value.id
-    local obj_ind  = Instance.wrap(actor_id):get_object_index()
-    if obj_ind == gm.constants.oP then return end
+-- Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_set_dead, Callback.internal.FIRST, function(self, other, result, args)
+--     local actor_id = args[1].value.id
+--     local obj_ind  = Instance.wrap(actor_id):get_object_index()
+--     if obj_ind == gm.constants.oP then return end
 
-    for skill, on_step in pairs(skill_on_step_callbacks) do
-        local actors = on_step[2]  ---@type table<i, actor_id>
-        local slots  = on_step[3]  ---@type table<actor_id, table<i, slot>>
-        table_remove_value(actors, actor_id)
-        slots[actor_id] = nil
-    end
-end)
+--     for skill, on_step in pairs(skill_on_step_callbacks) do
+--         local actors = on_step[2]  ---@type table<i, actor_id>
+--         local slots  = on_step[3]  ---@type table<actor_id, table<i, slot>>
+--         table_remove_value(actors, actor_id)
+--         slots[actor_id] = nil
+--     end
+-- end)
 
 -- Remove from `skill_on_step_callbacks` on transform
-Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_transform, Callback.internal.FIRST, function(self, other, result, args)
-    local actor_id = args[1].value.id
+-- Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_transform, Callback.internal.FIRST, function(self, other, result, args)
+--     local actor_id = args[1].value.id
 
-    for skill, on_step in pairs(skill_on_step_callbacks) do
-        local actors = on_step[2]  ---@type table<i, actor_id>
-        local slots  = on_step[3]  ---@type table<actor_id, table<i, slot>>
-        table_remove_value(actors, actor_id)
-        slots[actor_id] = nil
-    end
-end)
+--     for skill, on_step in pairs(skill_on_step_callbacks) do
+--         local actors = on_step[2]  ---@type table<i, actor_id>
+--         local slots  = on_step[3]  ---@type table<actor_id, table<i, slot>>
+--         table_remove_value(actors, actor_id)
+--         slots[actor_id] = nil
+--     end
+-- end)
 
 -- OLD callback_execute impl
 -- Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, Callback.internal.FIRST, function(self, other, result, args)    

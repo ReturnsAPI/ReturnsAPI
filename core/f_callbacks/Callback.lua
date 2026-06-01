@@ -26,6 +26,7 @@ local metatable_type
 local metatable_function
 
 local type         = type
+local pcall        = pcall
 local new_proxy    = new_proxy
 local table_unpack = table.unpack
 local wrap         = Wrap.wrap

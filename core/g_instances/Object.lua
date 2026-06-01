@@ -28,6 +28,7 @@ local proxy = P.proxy
 local metatable
 
 local type               = type
+local pcall              = pcall
 local table_insert       = table.insert
 local table_find_sorted  = table.find_sorted_array
 local table_remove       = table.remove
@@ -606,7 +607,8 @@ end)
 -- Each oCustomObject type is separate from each other
 -- so we need to hook all of them
 -- For some reason, recreating the events in hooks
--- and then preventing execution of the original is faster
+-- and then preventing execution of the original is faster(?)
+--      Needs to be done anyway to dodge `callback_execute` call
 local hooks = {
     {
         "gml_Object_oCustomObject_Step_0",
@@ -616,11 +618,12 @@ local hooks = {
 
         "gml_Object_oCustomObject_Draw_0",
         function(self, other)
-            self:draw_self()
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
 
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
+            self:draw_self()
             return false
         end,
     },
@@ -633,11 +636,12 @@ local hooks = {
 
         "gml_Object_oCustomObject_pEnemyClassic_Draw_0",
         function(self, other)
-            self:event_inherited()
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
 
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
+            self:event_inherited()
             return false
         end,
     },
@@ -646,19 +650,22 @@ local hooks = {
         function(self, other)
             self:skill_system_update()
             self:step_actor()
-            self:ghost_update()
-            self:actor_death(self.force_death)
             return false
         end,
 
         "gml_Object_oCustomObject_pEnemyFlying_Draw_0",
         function(self, other)
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
+
+            -- Part of Step event
+            self:ghost_update()
+            self:actor_death(self.force_death)
+
             self:draw_actor()
             self:draw_hp_bar()
-
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
             return false
         end,
     },
@@ -667,19 +674,22 @@ local hooks = {
         function(self, other)
             self:skill_system_update()
             self:step_actor()
-            self:ghost_update()
-            self:actor_death(self.force_death)
             return false
         end,
 
         "gml_Object_oCustomObject_pBoss_Draw_0",
         function(self, other)
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
+
+            -- Part of Step event
+            self:ghost_update()
+            self:actor_death(self.force_death)
+
             self:draw_actor()
             self:draw_hp_bar()
-
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
             return false
         end,
     },
@@ -692,11 +702,12 @@ local hooks = {
 
         "gml_Object_oCustomObject_pBossClassic_Draw_0",
         function(self, other)
-            self:event_inherited()
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
 
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
+            self:event_inherited()
             return false
         end,
     },
@@ -709,11 +720,12 @@ local hooks = {
 
         "gml_Object_oCustomObject_pPickupItem_Draw_0",
         function(self, other)
-            self:event_inherited()
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
 
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
+            self:event_inherited()
             return false
         end,
     },
@@ -726,11 +738,12 @@ local hooks = {
 
         "gml_Object_oCustomObject_pPickupEquipment_Draw_0",
         function(self, other)
-            self:event_inherited()
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
 
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
+            self:event_inherited()
             return false
         end,
     },
@@ -743,11 +756,12 @@ local hooks = {
 
         "gml_Object_oCustomObject_pDrone_Draw_0",
         function(self, other)
-            self:draw_actor()
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
 
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
+            self:draw_actor()
             return false
         end,
     },
@@ -759,11 +773,12 @@ local hooks = {
 
         "gml_Object_oCustomObject_pMapObjects_Draw_0",
         function(self, other)
-            self:draw_self()
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
 
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
+            self:draw_self()
             return false
         end,
     },
@@ -775,6 +790,16 @@ local hooks = {
 
         "gml_Object_oCustomObject_pInteractable_Draw_0",
         function(self, other)
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
+
+            -- Part of Step event
+            if self.active == 1 then
+                self.active = 2
+            end
+
             if not gm.rectangle_in_rectangle(
                 self.cam_rect_x1,
                 self.cam_rect_y1,
@@ -789,10 +814,6 @@ local hooks = {
             end
 
             self:interactable_draw_self()
-
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
             return false
         end,
     },
@@ -805,6 +826,11 @@ local hooks = {
 
         "gml_Object_oCustomObject_pInteractableChest_Draw_0",
         function(self, other)
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
+
             if not gm.rectangle_in_rectangle(
                 self.cam_rect_x1,
                 self.cam_rect_y1,
@@ -819,10 +845,6 @@ local hooks = {
             end
 
             self:interactable_draw_self()
-
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
             return false
         end,
     },
@@ -835,11 +857,12 @@ local hooks = {
 
         "gml_Object_oCustomObject_pInteractableCrate_Draw_0",
         function(self, other)
-            self:event_inherited()
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
 
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
+            self:event_inherited()
             return false
         end,
     },
@@ -852,11 +875,12 @@ local hooks = {
 
         "gml_Object_oCustomObject_pInteractableDrone_Draw_0",
         function(self, other)
-            self:event_inherited()
+            if not ran_this_frame then
+                ran_this_frame = true
+                run_on_step_callbacks()
+            end
 
-            if ran_this_frame then return false end
-            ran_this_frame = true
-            run_on_step_callbacks()
+            self:event_inherited()
             return false
         end,
     },
@@ -878,19 +902,6 @@ Hook.add_post(RAPI_NAMESPACE, gm.constants.room_goto, Callback.internal.FIRST, f
         end
     end
 end)
-
--- Remove from `object_on_step_callbacks` on non-player kill
--- * Don't think this is needed; should be covered by `on_destroy`
--- Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_set_dead, Callback.internal.FIRST, function(self, other, result, args)
---     local actor_id = args[1].value.id
---     local obj_ind  = Instance.wrap(actor_id):get_object_index()
---     if obj_ind < Object.CUSTOM_START then return end
-
---     local on_step = on_step_callbacks[obj_ind]
---     if not on_step then return end
---     local insts = on_step[2]  ---@type table<inst_id, Instance>
---     insts[actor_id] = nil
--- end)
 
 
 -- ========== Assign some object tags ==========
