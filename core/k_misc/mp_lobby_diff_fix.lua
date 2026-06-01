@@ -1,4 +1,3 @@
-if true then return end
 -- Multiplayer Lobby Difficulty Fix
 -- by Kris
 

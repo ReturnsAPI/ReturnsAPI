@@ -1,7 +1,6 @@
-if true then return end
 --[[
-Generates correct palettes from baked-in spritestrips
-and saves them to AppData/Roaming/Risk_of_Rain_Returns.
+Generates correct palettes from baked-in spritestrips <br>
+and saves them to `AppData/Roaming/Risk_of_Rain_Returns`.
 
 These are VERY slow!
 ]]

@@ -1,4 +1,3 @@
-if true then return end
 -- Display version number under RoM's on title screen
 
 Hook.add_post(RAPI_NAMESPACE, "gml_Object_oStartMenu_Draw_0", function(self, other)

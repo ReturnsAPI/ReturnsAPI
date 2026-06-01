@@ -1,4 +1,3 @@
-if true then return end
 -- Store current stage variant as a global variable
 
 gm.variable_global_set("stage_variant", -1)

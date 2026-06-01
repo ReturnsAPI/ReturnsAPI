@@ -1,4 +1,3 @@
-if true then return end
 -- Show debug overlay
 
 debug_overlay = debug_overlay or false

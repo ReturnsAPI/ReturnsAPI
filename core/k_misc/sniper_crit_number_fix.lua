@@ -1,4 +1,3 @@
-if true then return end
 -- Fix incorrect damage numbers related to Sniper's spotter drone
 -- (Damage number not getting doubled on guaranteed crit)
 -- Somehow fixes it for mp too

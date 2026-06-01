@@ -1,17 +1,16 @@
-if true then return end
 -- Add achievements for Commando and Huntress to put their survivor-specific achievements under
 
 run_on_initialize(function()
     local list = List.wrap(Global.achievement_display_list)
 
-    unlock_commando = Achievement.new("ror", "unlock_commando")
+    local unlock_commando = Achievement.new("ror", "unlock_commando")
     unlock_commando:set_unlock_survivor(Survivor.find("commando", "ror", true))
     unlock_commando.group = 1
     unlock_commando:add_progress(1)
     list:delete_value(unlock_commando)
     list:insert(1, unlock_commando)
 
-    unlock_huntress = Achievement.new("ror", "unlock_huntress")
+    local unlock_huntress = Achievement.new("ror", "unlock_huntress")
     unlock_huntress:set_unlock_survivor(Survivor.find("huntress", "ror", true))
     unlock_huntress.group = 1
     unlock_huntress:add_progress(1)
@@ -46,20 +45,20 @@ run_on_initialize(function()
     end
 end)
 
-
 Hook.add_pre(RAPI_NAMESPACE, gm.constants.achievement_on_unlocked, function(self, other, result, args)
     -- Prevent Divine Intervention unlock from the two achievements above
-    if (args[1].value == unlock_commando.value)
-    or (args[1].value == unlock_huntress.value) then
+    local ach = args[1].value
+    if ach == unlock_commando.value
+    or ach == unlock_huntress.value then
         return false
     end
 end)
 
-
 Hook.add_pre(RAPI_NAMESPACE, gm.constants["achievement_unlocked@gml_Object_oInit_Create_0"], function(self, other, result, args)
     -- Prevent unlock being added to display queue for the two achievements above
-    if (args[1].value == unlock_commando.value)
-    or (args[1].value == unlock_huntress.value) then
+    local ach = args[1].value
+    if ach == unlock_commando.value
+    or ach == unlock_huntress.value then
         return false
     end
 end)

@@ -1,4 +1,3 @@
-if true then return end
 -- Force stat recalculation *1 frame* after picking up an
 -- equipment because this runs before RecalculateStats
 

@@ -1,4 +1,3 @@
-if true then return end
 -- HUD Draw Callback Fix
 -- by Onyx
 

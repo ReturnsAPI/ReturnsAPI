@@ -1,4 +1,3 @@
-if true then return end
 -- FOR DEBUGGING ONLY
 -- Keep this tab open while in use!!
 -- TODO: Comment out when publishing
