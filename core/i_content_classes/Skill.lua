@@ -222,9 +222,14 @@ gm.post_script_hook(gm.constants.skill_create, function(self, other, result, arg
     -- }
 end)
 
+local update_active_skill = gm.constants["update_active_skill@anon@4242@ActorSkillSlot@scr_actor_skills"]
+
 -- Remove from `skill_on_step_callbacks` if updating skill
-gm.pre_script_hook(gm.constants["update_active_skill@anon@4242@ActorSkillSlot@scr_actor_skills"], function(self, other, result, args)
-    local skill   = self.active_skill.skill_id
+gm.pre_script_hook(update_active_skill, function(self, other, result, args)
+    local active  = self.active_skill
+    if not active then return end
+    
+    local skill   = active.skill_id
     local on_step = skill_on_step_callbacks[skill]
     if not on_step then return end
 
@@ -242,7 +247,7 @@ gm.pre_script_hook(gm.constants["update_active_skill@anon@4242@ActorSkillSlot@sc
 end)
 
 -- Add to `skill_on_step_callbacks` if updating to a skill with an `on_step` callback
-gm.post_script_hook(gm.constants["update_active_skill@anon@4242@ActorSkillSlot@scr_actor_skills"], function(self, other, result, args)
+gm.post_script_hook(update_active_skill, function(self, other, result, args)
     local skill   = self.active_skill.skill_id
     local on_step = skill_on_step_callbacks[skill]
     if not on_step then return end
