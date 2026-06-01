@@ -10,6 +10,7 @@ run_on_initial_load(function()
     P.object_vanilla_properties = {}    -- `.properties` but for vanilla objects
     P.object_serializers        = {}    ---@type table<number, table<number, table<string, any>>>
     P.object_deserializers      = {}    ---@type table<number, table<number, table<string, any>>>
+    P.object_on_step_callbacks  = {}    ---@type table<number, ObjectOnStepData> Maps custom object indexes to data on their `on_step` callbacks.
 end)
 
 local object_find_table    = P.object_find_table
@@ -18,12 +19,16 @@ local vanilla_properties   = P.object_vanilla_properties
 local object_serializers   = P.object_serializers
 local object_deserializers = P.object_deserializers
 
+local on_step_callbacks    = P.object_on_step_callbacks
+local callback_functions   = P.callback_functions
+
 local properties_cache   = {}   ---@type table<number, Array> Cache for `.properties`/`.array`
 
 local proxy = P.proxy
 local metatable
 
 local type               = type
+local table_insert       = table.insert
 local gm                 = gm                   ---@type table<string, function>
 local gm_instance_create = gm.instance_create   ---@type function
 local gm_instance_exists = gm.instance_exists   ---@type function
@@ -530,6 +535,100 @@ gm.post_script_hook(gm.constants.__lf_init_multiplayer_globals_customobject_dese
         end
 	end
 end)
+
+-- Custom implementation for `on_step` callbacks
+gm.pre_code_execute("gml_Object_oCustomObject_Step_0", function(self, other)
+    return false
+end)
+
+gm.post_script_hook(gm.constants.object_add_w, function(self, other, result, args)
+    local id  = result.value
+    local obj = Object.wrap(id)
+
+    ---@class ObjectOnStepData
+    ---@field [1] CallbackType
+    ---@field [2] table<inst_id, Instance> List of instances to iterate over.
+    on_step_callbacks[id] = {
+        Callback.wrap_type(obj.on_step),
+        {},
+    }
+
+    Callback.add(PERMANENT_NAMESPACE, obj.on_create, Callback.internal.FIRST, function(inst)
+        local insts = on_step_callbacks[id][2]
+        insts[inst.id] = inst
+    end)
+    Callback.add(PERMANENT_NAMESPACE, obj.on_destroy, Callback.internal.FIRST, function(inst)
+        local insts = on_step_callbacks[id][2]
+        insts[inst.id] = nil
+    end)
+end)
+
+-- Run all `on_step` callbacks before any Draw event each frame
+local ran_this_frame = true
+Callback.add(RAPI_NAMESPACE, Callback.ON_STEP, Callback.internal.FIRST, function()
+    ran_this_frame = false
+end)
+gm.pre_code_execute("gml_Object_oCustomObject_Draw_0", function(self, other)
+    -- For some reason, recreating the event in this hook
+    -- and then preventing execution of the original is faster
+    self:draw_self()
+    if ran_this_frame then return false end
+    ran_this_frame = true
+
+    for obj_id, on_step in pairs(on_step_callbacks) do
+        local cb_type = on_step[1]
+        if cb_type:has_any() then
+            local type_id  = proxy[cb_type]
+            local cb_table = callback_functions[type_id]
+            if not cb_table then return end
+
+            local insts = on_step[2]  ---@type table<inst_id, Instance>
+            for inst_id, inst in pairs(insts) do
+
+                -- Call registered functions
+                for i = 1, #cb_table do
+                    local data = cb_table[i]
+                    if data.enabled then
+                        local status, out = pcall(data.fn, inst)
+                        if not status then
+                            if out == nil
+                            or out == "C++ exception" then
+                                out = "GameMaker error (see above)"
+                            end
+                            log.warning("\n| "..data.namespace..": Error in callback function of type '"..tostring(type_id).."' (ID "..math.floor(data.id)..")\n| "..out)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return false
+end)
+
+-- On room change, remove non-existent actors from `object_on_step_callbacks`
+Hook.add_post(RAPI_NAMESPACE, gm.constants.room_goto, Callback.internal.FIRST, function(self, other, result, args)
+    for obj_id, on_step in pairs(on_step_callbacks) do
+        local insts = on_step[2]  ---@type table<inst_id, Instance>
+        for inst_id, _ in pairs(insts) do
+            if not Instance.exists(inst_id) then
+                insts[inst_id] = nil
+            end
+        end
+    end
+end)
+
+-- Remove from `object_on_step_callbacks` on non-player kill
+-- * Don't think this is needed; should be covered by `on_destroy`
+-- Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_set_dead, Callback.internal.FIRST, function(self, other, result, args)
+--     local actor_id = args[1].value.id
+--     local obj_ind  = Instance.wrap(actor_id):get_object_index()
+--     if obj_ind < Object.CUSTOM_START then return end
+
+--     local on_step = on_step_callbacks[obj_ind]
+--     if not on_step then return end
+--     local insts = on_step[2]  ---@type table<inst_id, Instance>
+--     insts[actor_id] = nil
+-- end)
 
 
 -- ========== Assign some object tags ==========
