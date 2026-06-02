@@ -500,6 +500,7 @@ end
 ---@field value Instance | Actor | Player *Legacy.* The value being wrapped.
 ---@field RAPI string The name of this wrapper.
 ---@field id number
+---@field attack_info AttackInfo `attack_info` struct from damager instances.
 ---@field [string] any
 
 local inst = gm.instance_create(0, 0, gm.constants.oB)
@@ -566,8 +567,8 @@ W.Instance = {
         if method then return method end
 
         -- Getter
-        -- local ret = gm.variable_instance_get(t, k)
-        local ret = og_index(t, k)
+        local ret = gm.variable_instance_get(t, k)
+        -- local ret = og_index(t, k)  -- Sometimes returns `nil`(?)
 
         -- Return object function callable if key starts with "gml_"
         -- TODO assess if this is still required since we are modifying sol directly now
@@ -601,8 +602,8 @@ W.Instance = {
         end
 
         -- Setter
-        -- gm.variable_instance_set(t, k, unwrap(v))
-        og_newindex(t, k, unwrap(v))
+        gm.variable_instance_set(t, k, unwrap(v))
+        -- og_newindex(t, k, unwrap(v))
     end,
 
     __eq = function(t, other)

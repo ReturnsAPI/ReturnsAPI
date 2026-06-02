@@ -123,7 +123,7 @@ methods.get_flag = function(self, flag)
     end
 
     if  flag >= AttackFlag.CUSTOM_START
-    and flag <= __attack_flag_counter then
+    and flag <= P.attack_flag_counter then
         local group = floor(flag / 32)
         local flag_group = self["attack_flags_group_"..group]
         if flag_group then
