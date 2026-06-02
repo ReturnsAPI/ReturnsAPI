@@ -8,6 +8,8 @@ local fire_expl_nopar = gm.fire_explosion_noparent      ---@type function
 local chef_ignite = AttackFlag.CHEF_IGNITE
 local sparks12    = gm.constants.sSparks12      ---@type number
 local chefoilfire = gm.constants.sChefOilFire   ---@type number
+local oCrab       = gm.constants.oCrab			---@type number
+local oP 		  = gm.constants.oP				---@type number
 
 run_on_initialize(function()
 	local bOil = Buff.find("oil", "ror", true)
@@ -22,11 +24,11 @@ run_on_initialize(function()
 		
 		local target 	  = struct.target      ---@type Actor
 		local true_target = struct.target_true ---@type Actor
-		local parent      = attack_info.parent  ---@type Actor
+		local parent      = attack_info.parent ---@type Actor
 		
-		if  target.object_index == gm.constants.oCrab
+		if  target.object_index == oCrab
 		and Instance_exists(parent)
-		and parent.object_index == gm.constants.oP
+		and parent.object_index == oP
 		and parent.class == chef_class_id then
 			ach_prog_player(parent, 56, 1)
 		end
