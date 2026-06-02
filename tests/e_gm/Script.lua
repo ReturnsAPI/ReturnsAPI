@@ -13,6 +13,7 @@ return function()
     Tests.assert(scr.RAPI, "Script")
     Tests.assert(getmetatable(scr).__name, "sol.CScriptRef*")
     Tests.assert(scr.name, "function_dummy")
+    Tests.assert(scr.script_name, "gml_Script_function_dummy")
 
     local n = 10
     for i = 1, n do
