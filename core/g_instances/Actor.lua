@@ -481,7 +481,7 @@ end
 --[[
 Applies stacks of the specified buff to the actor.
 
-Application is not synced, and should be used for
+Application is not synced, and should be used for <br>
 buffs that have `client_handles_removal` as `true`.
 ]]
 ---@param buff Buff The buff to apply.
@@ -625,7 +625,7 @@ methods.buff_get_time = function(self, buff)
 end
 
 --[[
-Sets the remaining duration (in frames) for a specified buff that the actor has.
+Sets the remaining duration (in frames) for a specified buff that the actor has. <br>
 Does nothing if the actor does not have the buff.
 
 **Must be called offline or as host.**
@@ -642,10 +642,10 @@ methods.buff_set_time = function(self, buff, duration)
 end
 
 --[[
-Sets the remaining duration (in frames) for a specified buff that the actor has.
+Sets the remaining duration (in frames) for a specified buff that the actor has. <br>
 Does nothing if the actor does not have the buff.
 
-This is not synced, and should be used for
+This is not synced, and should be used for <br>
 buffs that have `client_handles_removal` as `true`.
 ]]
 ---@param buff Buff The buff to set.
@@ -659,7 +659,85 @@ methods.buff_set_time_local = function(self, buff, duration)
     gm.set_buff_time_nosync(self, buff, math_max(duration, 0))
 end
 
--- TODO ActorSkill methods
+--[[
+Returns the active [ActorSkill](https://github.com/ReturnsAPI/ReturnsAPI/wiki/ActorSkill) in the specified slot. <br>
+This will be the same as `get_default_skill` if there are currently no overrides.
+]]
+---@param slot number The @link {slot | Skill#slot} to get from.
+---@return ActorSkill
+methods.get_active_skill = function(self, slot)
+    if type(slot) ~= "number" then throw("Invalid slot argument") end
+    return ActorSkill.wrap(self.skills:get(slot).active_skill)
+end
+
+--[[
+Returns the default ActorSkill in the specified slot.
+]]
+---@param slot number The @link {slot | Skill#slot} to get from.
+---@return ActorSkill
+methods.get_default_skill = function(self, slot)
+    if type(slot) ~= "number" then throw("Invalid slot argument") end
+    return ActorSkill.wrap(self.skills:get(slot).default_skill)
+end
+
+--[[
+Sets the default skill for the specified slot.
+]]
+---@param slot number The @link {slot | Skill#slot} to get from.
+---@param skill number | Skill The skill to set.
+methods.set_default_skill = function(self, slot, skill)
+    skill = unwrap(skill)
+    if type(slot)  ~= "number" then throw("Invalid slot argument") end
+    if type(skill) ~= "number" then throw("Invalid skill argument") end
+    gm.actor_skill_set(proxy[self], slot, skill)
+end
+
+--[[
+Adds an overriding ActorSkill with the Skill `skill` to the specified slot.
+
+If there are multiple active overrides, the one with the highest <br>
+priority (and most recently added) will become the new active skill.
+]]
+---@param slot number The @link {slot | Skill#slot} to add to.
+---@param skill number | Skill The skill to add.
+---@param priority? number The priority value of the override. <br>`0` by default.
+methods.add_skill_override = function(self, slot, skill, priority)
+    skill = unwrap(skill)
+    if type(slot)  ~= "number" then throw("Invalid slot argument") end
+    if type(skill) ~= "number" then throw("Invalid skill argument") end
+    self.skills:get(slot).add_override(skill, priority or 0)
+end
+
+--[[
+Removes an overriding ActorSkill with the Skill `skill` from the specified slot.
+]]
+---@param slot number The @link {slot | Skill#slot} to remove from.
+---@param skill number | Skill The skill to remove.
+---@param priority? number The priority value of the override. <br>If given, the ActorSkill must have the same priority to be removed.
+methods.remove_skill_override = function(self, slot, skill, priority)
+    skill = unwrap(skill)
+    if type(slot)  ~= "number" then throw("Invalid slot argument") end
+    if type(skill) ~= "number" then throw("Invalid skill argument") end
+    self.skills:get(slot).remove_override(skill, priority)
+end
+
+--[[
+Returns a table of all ActorSkills in the specified slot. <br>
+The first element will always be `default_skill`.
+]]
+---@param slot number The @link {slot | Skill#slot} to remove from.
+---@return table<number, ActorSkill>
+methods.get_all_skills = function(self, slot, skill, priority)
+    if type(slot) ~= "number" then throw("Invalid slot argument") end
+
+    local t = {}
+    local array = self.skills:get(slot).get_all_skills()
+    local n = #array
+    for i = 1, n do
+        t[i] = ActorSkill.wrap(array[i])
+    end
+    return t
+end
 
 
 -- ========== Hooks ==========

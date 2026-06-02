@@ -335,32 +335,6 @@ Hook.add_post(RAPI_NAMESPACE, gm.constants.room_goto, Callback.internal.FIRST, f
     end
 end)
 
--- Remove from `skill_on_step_callbacks` on non-player kill
--- Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_set_dead, Callback.internal.FIRST, function(self, other, result, args)
---     local actor_id = args[1].value.id
---     local obj_ind  = Instance.wrap(actor_id):get_object_index()
---     if obj_ind == gm.constants.oP then return end
-
---     for skill, on_step in pairs(skill_on_step_callbacks) do
---         local actors = on_step[2]  ---@type table<i, actor_id>
---         local slots  = on_step[3]  ---@type table<actor_id, table<i, slot>>
---         table_remove_value(actors, actor_id)
---         slots[actor_id] = nil
---     end
--- end)
-
--- Remove from `skill_on_step_callbacks` on transform
--- Hook.add_post(RAPI_NAMESPACE, gm.constants.actor_transform, Callback.internal.FIRST, function(self, other, result, args)
---     local actor_id = args[1].value.id
-
---     for skill, on_step in pairs(skill_on_step_callbacks) do
---         local actors = on_step[2]  ---@type table<i, actor_id>
---         local slots  = on_step[3]  ---@type table<actor_id, table<i, slot>>
---         table_remove_value(actors, actor_id)
---         slots[actor_id] = nil
---     end
--- end)
-
 -- OLD callback_execute impl
 -- Hook.add_post(RAPI_NAMESPACE, gm.constants.__input_system_tick, Callback.internal.FIRST, function(self, other, result, args)    
 --     for skill, on_step in pairs(skill_on_step_callbacks) do

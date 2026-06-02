@@ -404,41 +404,41 @@ local index_to_table = {
 -- local _actorskill = Struct.new(gm.constants.ActorSkill, nil, 0, nil)  -- Create empty ActorSkill to grab the script name
 -- ^ this actually throws an error on startup so don't
 
+local skill_wrap  ---@type function
+run_after_core(function()
+    skill_wrap = Skill.wrap
+end)
+
 gm.post_script_hook(gm.constants["skill_recalculate_stats@anon@8392@ActorSkill@scr_actor_skills"], function(self, other, result, args)
     if not params then return end
 
-    -- TODO restore this after Skill is done
-    if true then return end
-
-    local self_struct = struct_wrap(self)
-
     -- Get skill_id
-    local skill_id = self_struct.skill_id or 0
-    local skill = Skill.wrap(skill_id)
+    local skill_id = self.skill_id or 0
+    local skill = skill_wrap and skill_wrap(skill_id) or Skill.wrap(skill_id)
 
     -- Check if skill is primary
     local is_primary = skill.is_primary or false
     if is_primary then return end
 
-    local slot_index = self_struct.slot_index
+    local slot_index = self.slot_index
     local modifiers = params[index_to_table[slot_index]]
     if not modifiers then return end
 
     -- add stock
-    local max_stock = self_struct.max_stock
+    local max_stock = self.max_stock
     max_stock = math_max(1, max_stock + modifiers.max_stock_add)
-    self_struct.max_stock = max_stock
+    self.max_stock = max_stock
 
     -- modify cooldown
-    local cooldown = self_struct.cooldown
+    local cooldown = self.cooldown
     cooldown = math_floor(math_max(30, cooldown * modifiers.cooldown_mult))
-    self_struct.cooldown = cooldown
+    self.cooldown = cooldown
 
     -- start cooldown if necessary. ugly because orig already calls this before this hook, but oh well
     local auto_restock = skill.auto_restock or false
     if auto_restock then
-        -- Autobinds `self_struct` as self/other
+        -- Autobinds `self` as self/other
         -- (See Struct class metatable for specifics of this)
-        self_struct.skill_start_cooldown()
+        self.skill_start_cooldown()
     end
 end)
