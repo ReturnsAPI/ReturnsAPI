@@ -1,8 +1,15 @@
+-- Local multiplayer check
 if true then return end
--- Multiplayer Check
 
--- Prevent online play if there are any mods
--- that are not marked as online-safe
+-- Prevent local multiplayer if there are any mods
+-- that are not marked as local-safe
+
+local string = string
+local table  = table
+local math   = math
+local gm     = gm
+local Util   = Util
+local P      = P
 
 local settings
 
@@ -12,26 +19,26 @@ run_on_initialize(function()
 
     if settings.disableMPBlock == nil then settings.disableMPBlock = false end
 
-    -- Add toggle to disable online button blocking
-    local options = ModOptions.new(RAPI_NAMESPACE)
-    local checkbox = options:add_checkbox("disableMPBlock")
-    checkbox:add_getter(function()
-        return settings.disableMPBlock
-    end)
-    checkbox:add_setter(function(value)
-        settings.disableMPBlock = value
-        file:write(settings)
-    end)
+    -- Add toggle to disable button blocking
+    -- TODO
+    -- local options = ModOptions.new(RAPI_NAMESPACE)
+    -- local checkbox = options:add_checkbox("disableMPBlock")
+    -- checkbox:add_getter(function()
+    --     return settings.disableMPBlock
+    -- end)
+    -- checkbox:add_setter(function(value)
+    --     settings.disableMPBlock = value
+    --     file:write(settings)
+    -- end)
 end)
-
 
 local text_x, text_y
 local box_x, box_y, box_w, box_h
 local initial_fadein
 
 gm.post_script_hook(gm.constants._ui_draw_box_text, function(self, other, result, args)
-    -- Find Online button
-    if args[5].value == gm.translate("ui.title.startOnline") then
+    -- Find button
+    if args[5].value == gm.translate("ui.title.startLocal") then
 
         -- Calculate correct position to draw text
         -- args 1 and 2 are text start
@@ -48,28 +55,29 @@ end)
 
 gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code, result, flags)
     if not text_x then return end
+    local button = self.menu[2]
     
     -- Check which mods are incompatible
-    -- Only checks mods that import RAPI via .auto()
+    -- Only checks mods that have imported RAPI
     local incomp = {}
-    for env, t in pairs(__auto_setups) do
-        if not t.mp then
-            local arr = GM.string_split(env["!guid"], "-")
+    for namespace, data in pairs(P.mod_data_ns) do
+        if not data.mp_local and not data.mp then
+            local t_guid = string.split(data.env["!guid"], "-")
             table.insert(incomp, {
-                author  = arr[1],
-                name    = arr[2]
+                author = t_guid[1],
+                name   = t_guid[2],
             })
         end
     end
     if #incomp <= 0 then
-        self.menu[3].disabled = false
+        button.disabled = false
         return
     end
     
-    -- Disable Online button
+    -- Disable button
     if not settings.disableMPBlock then
-        self.menu[3].disabled = true
-    else self.menu[3].disabled = false
+        button.disabled = true
+    else button.disabled = false
     end
 
     -- Get draw opacity of buttons
@@ -80,7 +88,7 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
     -- screen load (minor thing but looks better)
     if initial_fadein and (initial_fadein < 1) then
         initial_fadein = initial_fadein + 1/15  -- Hardcoded value that looks fine
-        opacity = Math.easein(initial_fadein)
+        opacity = math.easein(initial_fadein)
     end
     
     -- Show "x incompatible mod(s)" text

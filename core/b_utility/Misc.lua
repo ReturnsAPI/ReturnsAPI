@@ -121,7 +121,7 @@ Expands `~` to mod folder path.
 ---@param path string
 ---@return string expanded_path
 function expand_path(namespace, path)
-    local expansion = P.mod_data[namespace].path.."/"
+    local expansion = P.mod_data_ns[namespace].path.."/"
     return path:gsub("~", expansion)
 end
 

@@ -3,12 +3,8 @@
 local handle_optional_namespace = handle_optional_namespace
 
 run_on_initial_load(function()
-    --[[
-    Stores import property tables (`@class ModData`). <br>
-    Index key can be `guid` or `namespace`.
-    ]]
-    ---@type table<string, ModData>
-    P.mod_data = {}
+    P.mod_data_ns   = {} ---@type table<string, ModData> Stores import property tables (`@class ModData`). <br>Index key is `namespace`.
+    P.mod_data_guid = {} ---@type table<string, ModData> Stores import property tables (`@class ModData`). <br>Index key is `guid`.
 
     ---@class ModData
     ---@field env table
@@ -17,9 +13,6 @@ run_on_initial_load(function()
     ---@field mp boolean Deprecated; is both `mp_local` and `mp_online`
     ---@field mp_local boolean
     ---@field mp_online boolean
-
-    ---@type table<env, properties>
-    P.auto_imports = {} -- Stores `_ENV`s of mods that call `.auto()`
 
     -- Store RAPI's own properties
     ---@type ModData
@@ -30,8 +23,8 @@ run_on_initial_load(function()
         namespace = RAPI_NAMESPACE,
         path      = _ENV["!plugins_mod_folder_path"],
     }
-    P.mod_data[_ENV["!guid"]]  = p
-    P.mod_data[RAPI_NAMESPACE] = p
+    P.mod_data_ns[RAPI_NAMESPACE]  = p
+    P.mod_data_guid[_ENV["!guid"]] = p
 end)
 
 --[[
@@ -71,7 +64,7 @@ public.setup = function(properties)
     end
 
     -- Prevent taking a namespace already used by another mod
-    local data = P.mod_data[namespace]
+    local data = P.mod_data_ns[namespace]
     if data then
         if guid ~= data.env["!guid"] then
             log.error("setup: Namespace '"..namespace.."' is already in use", 2)
@@ -79,8 +72,8 @@ public.setup = function(properties)
     end
 
     properties.namespace  = namespace
-    P.mod_data[guid]      = properties
-    P.mod_data[namespace] = properties
+    P.mod_data_ns[namespace] = properties
+    P.mod_data_guid[guid]    = properties
 
     local wrapper = {}
 
@@ -199,8 +192,6 @@ public.auto = function(properties)
 
     local wrapper = public.setup(properties)
     envy.import_all(env, wrapper)
-
-    P.auto_imports[env] = properties
 
     -- Add extensions directly to Lua's tables
     for k, v in pairs(Math)   do env.math[k]   = v end

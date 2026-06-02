@@ -7,9 +7,11 @@ Extensions to Lua's `string`.
 String = {}
 C.String = String
 
-local tostring   = tostring
-local string_rep = string.rep
-local math_floor = math.floor
+local tostring    = tostring
+local string_rep  = string.rep
+local string_find = string.find
+local string_sub  = string.sub
+local math_floor  = math.floor
 
 
 -- ========== Static Methods ==========
@@ -92,6 +94,46 @@ String.pad_right_to_width = function(s, width, char)
     return s..string_rep(char, n)
 end
 
+--[[
+Returns a table of strings, split from an <br>
+input string based on a delimiter.
+]]
+---@param s string The string to split. <br>If empty (`""`), the output will be an empty table.
+---@param delimiter string The delimiter to use.
+---@param remove_empty? boolean If `true`, removes empty strings from the output. <br>`false` by default.
+---@param max_splits? number The maximum number of splits to make. <br>Infinite by default.
+---@return table<number, string>
+String.split = function(s, delimiter, remove_empty, max_splits)
+    s = tostring(s)
+    delimiter = tostring(delimiter)
+    n = max_splits or math.huge
+
+    local t, i = {}, 1
+    while #s > 0 do
+        a, b = string_find(s, delimiter)
+        if not a then
+            if not (s == "") or not remove_empty then
+                t[i] = s
+            end
+            break
+        end
+        local sub = string_sub(s, 1, a - 1)
+        if not (sub == "") or not remove_empty then
+            t[i] = sub
+            i = i + 1
+        end
+        s = string_sub(s, b + 1, -1)
+        n = n - 1
+        if n <= 0 then
+            if not (s == "") or not remove_empty then
+                t[i] = s
+            end
+            break
+        end
+    end
+    return t
+end
+
 
 -- Insert into ReturnAPI's `string`
 
@@ -99,3 +141,4 @@ string.pad_left             = String.pad_left
 string.pad_right            = String.pad_right
 string.pad_left_to_width    = String.pad_left_to_width
 string.pad_right_to_width   = String.pad_right_to_width
+string.split                = String.split

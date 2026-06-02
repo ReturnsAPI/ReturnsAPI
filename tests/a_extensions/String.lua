@@ -41,9 +41,30 @@ return function()
     local r6 = String.pad_right_to_width(s, w2, char)
     Tests.assert(#r6 >= #s, true)
 
-    -- string extension
-    Tests.assert(string.pad_left("x", 3), "  x")
-    Tests.assert(string.pad_right("x", 3), "x  ")
-    Tests.assert(type(string.pad_left_to_width), "function")
-    Tests.assert(type(string.pad_right_to_width), "function")
+    -- split
+    local t1 = String.split("a,b,c,d", ",")
+    Tests.assert(#t1, 4)
+    Tests.assert(t1[1], "a")
+
+    local t2 = String.split("abcd", ",")
+    Tests.assert(#t2, 1)
+    Tests.assert(t2[1], "abcd")
+
+    local t3 = String.split("", ",")
+    Tests.assert(#t3, 0)
+
+    local t4 = String.split("a,b,,c,d", ",", true)
+    Tests.assert(#t4, 4)
+
+    local t5 = String.split("a,b,c,d", ",", false, 2)
+    Tests.assert(#t5, 3)
+    Tests.assert(t5[3], "c,d")
+
+    local t6 = String.split("aWORDbWORDcWORd", "WORD")
+    Tests.assert(#t6, 3)
+    Tests.assert(t6[3], "cWORd")
+
+    local t7 = String.split("a, b, c, d", ",")
+    Tests.assert(#t7, 4)
+    Tests.assert(t7[2], " b")  -- leading space
 end

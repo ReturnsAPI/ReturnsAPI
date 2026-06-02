@@ -62,7 +62,7 @@ Returns a table containing the following keys:
 ---@param identifier string The guid or ReturnsAPI namespace of the mod.
 ---@return table | nil
 Util.get_mod_info = function(identifier)
-    local data = P.mod_data[identifier]
+    local data = P.mod_data_ns[identifier] or P.mod_data_guid[identifier]
     if data then
         return {
             guid      = data.env["!guid"],
