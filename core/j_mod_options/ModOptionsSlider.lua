@@ -1,3 +1,4 @@
+if __DEACTIVATE_OLD then return end
 -- ModOptionsSlider
 
 -- The class table is private, but the wrappers are publicly accessible
