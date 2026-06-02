@@ -1,7 +1,5 @@
 -- Callback
 
--- TODO write list of callback 0 - 42 params
-
 ---@class Callback
 Callback = new_class()
 C.Callback = Callback
@@ -38,49 +36,49 @@ local reusable_tables = P.reusable_tables
 
 -- ========== Constants and Enums ==========
 
-Callback.ON_LOAD                            = 0
-Callback.POST_LOAD                          = 1
-Callback.ON_STEP                            = 2
-Callback.PRE_STEP                           = 3
-Callback.POST_STEP                          = 4
-Callback.ON_DRAW                            = 5
-Callback.PRE_HUD_DRAW                       = 6
-Callback.ON_HUD_DRAW                        = 7
-Callback.POST_HUD_DRAW                      = 8
-Callback.CAMERA_ON_VIEW_CAMERA_UPDATE       = 9
-Callback.ON_SCREEN_REFRESH                  = 10
-Callback.ON_GAME_START                      = 11
-Callback.ON_GAME_END                        = 12
-Callback.ON_DIRECTOR_POPULATE_SPAWN_ARRAYS  = 13
-Callback.ON_STAGE_START                     = 14
-Callback.ON_SECOND                          = 15
-Callback.ON_MINUTE                          = 16
-Callback.ON_ATTACK_CREATE                   = 17
-Callback.ON_ATTACK_HIT                      = 18
-Callback.ON_ATTACK_HANDLE_START             = 19
-Callback.ON_ATTACK_HANDLE_END               = 20
-Callback.ON_DAMAGE_BLOCKED                  = 21
-Callback.ON_ENEMY_INIT                      = 22
-Callback.ON_ELITE_INIT                      = 23
-Callback.ON_DEATH                           = 24
-Callback.ON_PLAYER_INIT                     = 25
-Callback.ON_PLAYER_STEP                     = 26
-Callback.PRE_PLAYER_HUD_DRAW                = 27
-Callback.ON_PLAYER_HUD_DRAW                 = 28
-Callback.ON_PLAYER_INVENTORY_UPDATE         = 29
-Callback.ON_PLAYER_DEATH                    = 30
-Callback.ON_CHECKPOINT_RESPAWN              = 31
-Callback.ON_INPUT_PLAYER_DEVICE_UPDATE      = 32
-Callback.ON_PICKUP_COLLECTED                = 33
-Callback.ON_PICKUP_ROLL                     = 34
-Callback.ON_EQUIPMENT_USE                   = 35
-Callback.POST_EQUIPMENT_USE                 = 36
-Callback.ON_INTERACTABLE_ACTIVATE           = 37
-Callback.ON_HIT_PROC                        = 38
-Callback.ON_DAMAGED_PROC                    = 39
-Callback.ON_KILL_PROC                       = 40
-Callback.NET_MESSAGE_ON_RECEIVED            = 41
-Callback.CONSOLE_ON_COMMAND                 = 42
+Callback.ON_LOAD                           = 0   -- **Parameters:** <br>None <br><br>This is never called.
+Callback.POST_LOAD                         = 1   -- **Parameters:** <br>None <br><br>This is never called.
+Callback.ON_STEP                           = 2   -- **Parameters:** <br>None
+Callback.PRE_STEP                          = 3   -- **Parameters:** <br>None
+Callback.POST_STEP                         = 4   -- **Parameters:** <br>None
+Callback.ON_DRAW                           = 5   -- **Parameters:** <br>None
+Callback.PRE_HUD_DRAW                      = 6   -- **Parameters:** <br>None
+Callback.ON_HUD_DRAW                       = 7   -- **Parameters:** <br>None
+Callback.POST_HUD_DRAW                     = 8   -- **Parameters:** <br>None
+Callback.CAMERA_ON_VIEW_CAMERA_UPDATE      = 9   -- **Parameters:** <br>None
+Callback.ON_SCREEN_REFRESH                 = 10  -- **Parameters:** <br>None
+Callback.ON_GAME_START                     = 11  -- **Parameters:** <br>None
+Callback.ON_GAME_END                       = 12  -- **Parameters:** <br>None
+Callback.ON_DIRECTOR_POPULATE_SPAWN_ARRAYS = 13  -- **Parameters:** <br>None
+Callback.ON_STAGE_START                    = 14  -- **Parameters:** <br>None
+Callback.ON_SECOND                         = 15  -- **Parameters:** <br>`minute` (number) - Current minute on the timer. <br>`second` (number) - Current second on the timer.
+Callback.ON_MINUTE                         = 16  -- **Parameters:** <br>`minute` (number) - Current minute on the timer. <br>`second` (number) - Current second on the timer.
+Callback.ON_ATTACK_CREATE                  = 17  -- **Parameters:** <br>`attack_info` (AttackInfo)
+Callback.ON_ATTACK_HIT                     = 18  -- **Parameters:** <br>`hit_info` (HitInfo)
+Callback.ON_ATTACK_HANDLE_START            = 19  -- **Parameters:** <br>`attack_info` (AttackInfo)
+Callback.ON_ATTACK_HANDLE_END              = 20  -- **Parameters:** <br>`attack_info` (AttackInfo)
+Callback.ON_DAMAGE_BLOCKED                 = 21  -- **Parameters:** <br>`actor` (Actor) <br>`?` (?) <br>`?` (number)
+Callback.ON_ENEMY_INIT                     = 22  -- **Parameters:** <br>`actor` (Actor)
+Callback.ON_ELITE_INIT                     = 23  -- **Parameters:** <br>`actor` (Actor)
+Callback.ON_DEATH                          = 24  -- **Parameters:** <br>`actor` (Actor) <br>`out_of_bounds` (boolean) - `true` if the actor died by falling out of bounds.
+Callback.ON_PLAYER_INIT                    = 25  -- **Parameters:** <br>`player` (Player)
+Callback.ON_PLAYER_STEP                    = 26  -- **Parameters:** <br>`player` (Player)
+Callback.PRE_PLAYER_HUD_DRAW               = 27  -- **Parameters:** <br>`player` (Player) <br>`x` (number) <br>`y` (number)
+Callback.ON_PLAYER_HUD_DRAW                = 28  -- **Parameters:** <br>`player` (Player) <br>`x` (number) <br>`y` (number)
+Callback.ON_PLAYER_INVENTORY_UPDATE        = 29  -- **Parameters:** <br>`player` (Player)
+Callback.ON_PLAYER_DEATH                   = 30  -- **Parameters:** <br>`player` (Player)
+Callback.ON_CHECKPOINT_RESPAWN             = 31  -- **Parameters:** <br>`player` (Player)
+Callback.ON_INPUT_PLAYER_DEVICE_UPDATE     = 32  -- **Parameters:** <br>`?` (number)
+Callback.ON_PICKUP_COLLECTED               = 33  -- **Parameters:** <br>`pickup` (Instance) <br>`actor` (Actor)
+Callback.ON_PICKUP_ROLL                    = 34  -- **Parameters:** <br>`?` (?)
+Callback.ON_EQUIPMENT_USE                  = 35  -- **Parameters:** <br>`player` (Player) <br>`equipment` (Equipment) <br>`?` (boolean) <br>`?` (number)
+Callback.POST_EQUIPMENT_USE                = 36  -- **Parameters:** <br>`player` (Player) <br>`equipment` (Equipment) <br>`?` (boolean) <br>`?` (number)
+Callback.ON_INTERACTABLE_ACTIVATE          = 37  -- **Parameters:** <br>`interactable` (Instance) <br>`player` (Player)
+Callback.ON_HIT_PROC                       = 38  -- **Parameters:** <br>`attacker` (Actor) <br>`target` (Actor) <br>`hit_info` (HitInfo)
+Callback.ON_DAMAGED_PROC                   = 39  -- **Parameters:** <br>`actor` (Actor) <br>`hit_info` (HitInfo)
+Callback.ON_KILL_PROC                      = 40  -- **Parameters:** <br>`target` (Actor) <br>`attacker` (Actor)
+Callback.NET_MESSAGE_ON_RECEIVED           = 41  -- **Parameters:** <br>`packet` (Packet) <br>`buffer` (Buffer) <br>`buffer_tell` (number) <br>`player` (Player)
+Callback.CONSOLE_ON_COMMAND                = 42  -- **Parameters:** <br>`command` (string)
 
 -- Populate `callback_constants`
 for name, type_id in pairs(Callback) do
@@ -93,11 +91,11 @@ end
 
 Callback.CUSTOM_START      = 10000
 
-Callback.ON_HEAL           = 10000
-Callback.ON_SHIELD_BREAK   = 10001
-Callback.ON_SHIELD_RESTORE = 10002
-Callback.ON_SKILL_ACTIVATE = 10003
-Callback.ON_EQUIPMENT_SWAP = 10004
+Callback.ON_HEAL           = 10000  -- **Parameters:** <br>`actor` (Actor) - The actor that is being healed. <br>`amount` (table) - The heal value; access with `.value`. <br><br>Set `amount.value` to change the heal value. <br>This is called *before* healing is applied, and does <br>*not* cover passive health regeneration or Sprouting Egg.
+Callback.ON_SHIELD_BREAK   = 10001  -- **Parameters:** <br>`actor` (Actor) <br>`hit_info` (HitInfo) <br><br>This only runs when the actor loses shield <br>from taking damage, not when setting `shield`.
+Callback.ON_SHIELD_RESTORE = 10002  -- **Parameters:** <br>`actor` (Actor) <br><br>This runs before `shield = maxshield`.
+Callback.ON_SKILL_ACTIVATE = 10003  -- **Parameters:** <br>`actor` (Actor) <br>`slot` (number)
+Callback.ON_EQUIPMENT_SWAP = 10004  -- **Parameters:** <br>`actor` (Actor) <br>`new` (Equipment) <br>`old` (Equipment) <br><br>Runs *before* the equipment is actually set for the actor.
 
 Callback.Priority = {
     NORMAL = 0,
