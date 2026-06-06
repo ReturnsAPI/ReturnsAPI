@@ -197,6 +197,10 @@ W.Buffer = {
         log.error(mt_name.." has no properties to set", 2)
     end,
 
+    __tostring = function(t)
+        return mt_name..": "..get_table_pointer(t)
+    end,
+
     __metatable = mt_wrapper_name(mt_name),
 }
 metatable = W.Buffer

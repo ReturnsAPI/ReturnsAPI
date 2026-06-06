@@ -223,6 +223,10 @@ W.ItemTier = {
         local struct = struct_table[proxy[t]].value
         struct[k] = v
     end,
+
+    __tostring = function(t)
+        return mt_name..": "..get_table_pointer(t)
+    end,
     
     __metatable = mt_wrapper_name(mt_name),
 }

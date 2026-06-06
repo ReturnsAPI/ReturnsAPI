@@ -207,6 +207,10 @@ W.DamageCalculate = {
         log.error(mt_name.." has no property '"..k.."' to set", 2)
     end,
 
+    __tostring = function(t)
+        return mt_name..": "..get_table_pointer(t)
+    end,
+
     __metatable = mt_wrapper_name(mt_name),
 }
 

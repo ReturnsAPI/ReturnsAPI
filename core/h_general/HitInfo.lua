@@ -78,6 +78,10 @@ W.HitInfo = {
         return metatable_struct.__pairs(t)
     end,
 
+    __tostring = function(t)
+        return mt_name..": "..get_table_pointer(t)
+    end,
+
     __metatable = mt_wrapper_name(mt_name),
 }
 metatable = W.HitInfo
