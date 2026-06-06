@@ -174,7 +174,7 @@ end
 Returns a hash table of all objects with the specified tag, <br>
 and the number of objects in the table.
 
-Each key-value pair is `<object_index> = <Object wrapper>`.
+Each *key-value pair* is `<object_index> = <Object wrapper>`.
 
 ReturnsAPI-added tags:
 - `"enemy_projectile"`

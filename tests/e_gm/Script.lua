@@ -38,4 +38,19 @@ return function()
 
     d.player_level_up()
     Tests.assert(d.player_level, 2)
+
+
+    -- Struct `self`/`other` binding
+    local inst = gm.instance_create(0, 0, gm.constants.oLizard)
+
+    local slot = inst.skills:get(0)
+    Tests.assert(slot.RAPI, "Struct")
+    
+    local scr = slot.set_default_skill
+    Tests.assert(type(scr), "userdata")
+    Tests.assert(scr.RAPI, "Script")
+    Tests.assert(scr.self, slot)
+    Tests.assert(scr.other, slot)
+
+    gm.instance_destroy(inst)
 end

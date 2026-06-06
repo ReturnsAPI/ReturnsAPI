@@ -1,5 +1,5 @@
 return function()
-    -- TODO need some test cases for custom objs
+    Tests.start_run()
 
     -- .create, .exists, .destroy
     local obj = new_proxy(gm.constants.oB)  -- Mock object
@@ -39,10 +39,12 @@ return function()
     local data2 = Instance.get_data(near)
     local data3 = Instance.get_data(inst, nil, "foo", true)
     local data4 = Instance.get_data(inst, "subtable")
+    local data5 = Instance.get_data(inst.id)
     Tests.assert(type(data1), "table")
     Tests.assert(data1, data2)
     Tests.assert(data1 ~= data3, true)
     Tests.assert(data1 ~= data4, true)
+    Tests.assert(data1, data5)
 
     -- :destroy
     gm.instance_destroy(gm.constants.oLizard)
@@ -101,7 +103,42 @@ return function()
     local inst2 = Instance.find(gm.constants.oLizard)
     Tests.assert(inst, inst2)
 
+    -- Damager instance `.attack_info`
     if AttackInfo then
-        -- TODO
+        local inst = gm._mod_attack_fire_bullet(
+            inst, inst.x, inst.y,
+            1, 0, 1, gm.constants.sNone,
+            false, false
+        )
+        local ai = inst.attack_info
+        Tests.assert(ai.RAPI, "AttackInfo")
     end
+    gm.instance_destroy(gm.constants.oLizard)
+    Tests.pause_for(1)
+
+    -- `self`/`other` binding for Scripts
+    local oInit = gm.instance_find(gm.constants.oInit, 0)
+    local scr   = oInit.achievement_unlocked
+    Tests.assert(type(scr), "userdata")
+    Tests.assert(scr.RAPI, "Script")
+    Tests.assert(scr.self, oInit)
+    Tests.assert(scr.other, oInit)
+
+
+    -- CUSTOM OBJECTS
+    local obj  = Object.find("myObject", RAPI_NAMESPACE, true)
+    local obj2 = Object.find("myObject2", RAPI_NAMESPACE, true)
+
+    -- :get_object_index, .count
+    local inst = gm.instance_create(100, 100, obj.value)
+    Tests.assert(inst:get_object_index(), obj.value)
+    local inst2 = gm.instance_create(100, 100, obj2.value)
+    Tests.assert(Instance.count(obj), 1)
+    Tests.assert(Instance.count(obj2), 1)
+    Instance.destroy(obj)
+    Tests.assert(Instance.count(obj2), 1) -- Make sure they are treated as separate objects
+                                          -- even though they have the same base object
+    Instance.destroy(obj2)
+    
+    -- TODO test collisions with custom objs
 end

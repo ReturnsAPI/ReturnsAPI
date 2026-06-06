@@ -165,7 +165,10 @@ It is automatically deleted upon the instance's destruction.
 ---@param namespace? string If specified, returns another mod's table for the instance.
 ---@return table
 Instance.get_data = function(instance, subtable, namespace, namespace_is_specified)
-    local id = instance.id
+    local id
+    if type(instance) == "number" then id = instance
+    else id = instance.id
+    end
     if id < 100000 then throw("Instance does not exist") end
     
     subtable  = subtable  or "__main"

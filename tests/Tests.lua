@@ -88,28 +88,43 @@ gm.post_script_hook(gm.constants.__input_system_tick, function(self, other, resu
 end)
 
 -- Big Red Button
-gui.add_to_menu_bar(function()
-    if ImGui.Button("Run test suite") then
-        if running <= 0 then
-            running = 1
+gui.add_imgui(function()
+    if ImGui.Begin("ReturnsAPI Testing") then
+        if ImGui.Button("Run test suite") then
+            if running <= 0 then
+                running = 1
+            end
         end
     end
+
+    -- TODO add mp tests buttons
 end)
 
 -- Collect all test file functions
+-- If `order.txt` is present, use the order listed
 local dirs = path.get_directories(path.combine(PATH, "tests"))
 for _, dir in ipairs(dirs) do
-    local files = path.get_files(dir)
+    local files
+    local order = path.combine(dir, "order.txt")
+    if path.exists(order) then
+        files = {}
+        for filename in io.lines(order) do
+            table.insert(files, path.combine(dir, filename))
+        end
+    else files = path.get_files(dir)
+    end
     for _, file in ipairs(files) do
-        local filename = path.filename(file)
-        local ret = {require(file)}
-        local fn = (type(ret[1]) == "function" and ret[1]) or ret[2]
-        if fn then
-            table.insert(test_fns, {
-                filename = filename,
-                fn       = fn,
-                msgs     = type(ret[1]) == "table" and ret[1],
-            })
+        if path.exists(file) then
+            local filename = path.filename(file)
+            local ret = {require(file)}
+            local fn = (type(ret[1]) == "function" and ret[1]) or ret[2]
+            if fn then
+                table.insert(test_fns, {
+                    filename = filename,
+                    fn       = fn,
+                    msgs     = type(ret[1]) == "table" and ret[1],
+                })
+            end
         end
     end
 end

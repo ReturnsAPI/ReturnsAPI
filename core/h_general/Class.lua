@@ -189,8 +189,8 @@ for name_rapi, name_global in pairs(class_name_r2g) do
 
         -- Other filter (very slow!)
         -- Loop over entire find table
-        local out, i = {}, 1
-        for id = 0, #find_table - 1 do
+        local out, i, n = {}, 1, #find_table_array - 1
+        for id = 0, n do
             ---@type Array
             local element = find_table_array[id].value
             if element:get(property) == filter then
