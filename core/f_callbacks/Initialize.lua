@@ -138,7 +138,14 @@ hook = gm.post_script_hook(gm.constants.__input_system_tick, function(self, othe
     -- Run RAPI initialization functions
     if G.run_on_initialize then
         for _, fn in ipairs(G.run_on_initialize) do
-            fn()
+            local status, out = pcall(fn)
+            if not status then
+                if out == nil
+                or out == "C++ exception" then
+                    out = "GameMaker error (see above)"
+                end
+                log.warning("\n| ReturnsAPI: Error in initialize function\n| "..out)
+            end
         end
     end
 

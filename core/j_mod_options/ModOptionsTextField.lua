@@ -1,29 +1,31 @@
-if __DEACTIVATE_OLD then return end
 -- ModOptionsTextField
 
 -- The class table is private, but the wrappers are publicly accessible
 
+---@class ModOptionsTextFieldClass
 ModOptionsTextField = new_class()
+
+local proxy = P.proxy
+local metatable
+
+local type      = type
+local table     = table
+local gm        = gm
+local new_proxy = new_proxy
+local unwrap    = Wrap.unwrap
+local Struct    = Struct
+local Script    = Script
 
 -- todo gamepad navigation id and numeric mode option
 
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`RAPI`          | string | *Read-only.* The wrapper name.
-`namespace`     | string | *Read-only.* The namespace of the ModOptions the element is in.
-`identifier`    | string | *Read-only.* The identifier of the element.
-`max_length`    | number | *Read-only.* The maximum number of characters allowed in the text field (default 250).
-`numeric_only`  | bool   | *Disabled* *Read-only.* Whether the text field only accepts numeric input (false by default).
-]]
 
 -- ========== Static Methods ==========
 
+---@param namespace string
+---@param identifier string
+---@param max_length number
+---@param numeric_only boolean
+---@return ModOptionsTextField
 ModOptionsTextField.new = function(namespace, identifier, max_length, numeric_only)
     local callbacks_get = {}
     local callbacks_set = {}
@@ -74,97 +76,87 @@ ModOptionsTextField.new = function(namespace, identifier, max_length, numeric_on
     return ModOptionsTextField.wrap(element_data_table), tf
 end
 
-
+--[[
+Returns a ModOptionsTextField wrapper containing the provided element table.
+]]
+---@param element table The element table to wrap.
+---@return ModOptionsTextField
 ModOptionsTextField.wrap = function(element)
-    -- Input:   ModOptionsTextField Lua table
-    -- Wraps:   ModOptionsTextField Lua table
-    element = Wrap.unwrap(element)
-    return make_proxy(element, metatable_modoptionsTextField)
+    return new_proxy(unwrap(element), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class ModOptionsTextField
+local methods = {}
 
---@section Instance Methods
+--[[
+TODO
+]]
+---@param ... function A variable amount of functions to call. <br>Alternatively, a table may be provided.
+methods.add_getter = function(self, ...)
+    local fns = {...}
+    if type(fns[1]) == "table" then fns = fns[1] end
 
-methods_modoptionsTextField = {
-
-    --@instance
-    --@param        ...         | function(s)   | A variable amount of functions to call. <br>Alternatively, a table may be provided.
-    --[[
-    Add a function(s) that is called by the game to
-    load the default choice when opening the options menu.
-    The function **should return a number value between `0` and `number of choices - 1`.**
-    ]]
-    add_getter = function(self, ...)
-        local fns = {...}
-        if type(fns[1]) == "table" then fns = fns[1] end
-
-        for _, fn in ipairs(fns) do
-            if type(fn) == "function" then
-                table.insert(__proxy[self].callbacks_get, fn)
-            end
+    for _, fn in ipairs(fns) do
+        if type(fn) == "function" then
+            table.insert(proxy[self].callbacks_get, fn)
         end
-    end,
+    end
+end
 
+--[[
+TODO
+]]
+---@param ... fun() A variable amount of functions to call. <br>Alternatively, a table may be provided.
+methods.add_setter = function(self, ...)
+    local fns = {...}
+    if type(fns[1]) == "table" then fns = fns[1] end
 
-    --@instance
-    --@param        ...         | function(s)   | A variable amount of functions to call. <br>Alternatively, a table may be provided.
-    --[[
-    Add a function(s) to call when a choice is toggled.
-    The parameters for it are `value` (bool).
-    ]]
-    add_setter = function(self, ...)
-        local fns = {...}
-        if type(fns[1]) == "table" then fns = fns[1] end
-
-        for _, fn in ipairs(fns) do
-            if type(fn) == "function" then
-                table.insert(__proxy[self].callbacks_set, fn)
-            end
+    for _, fn in ipairs(fns) do
+        if type(fn) == "function" then
+            table.insert(proxy[self].callbacks_set, fn)
         end
-    end,
-
-}
-
+    end
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "ModOptionsTextField"
+---@class ModOptionsButton
+---@field value table The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field namespace string The namespace of the ModOptionsButton.
+---@field identifier string The identifier of the ModOptionsButton.
+---@field max_length number The maximum number of characters allowed in the text field (default 250).
+---@field numeric_only boolean *Disabled* Whether the text field only accepts numeric input (false by default).
 
-make_table_once("metatable_modoptionsTextField", {
-    __index = function(proxy, k)
+local mt_name = "ModOptionsTextField"
+
+W.ModOptionsTextField = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return log.error("Cannot access "..mt_name.." internal table", 2) end
+        if k == "RAPI" then return mt_name end
 
         -- Get certain values
-        if k == "namespace" then return __proxy[proxy].namespace end
-        if k == "identifier" then return __proxy[proxy].identifier end
+        if k == "namespace"    then return proxy[t].namespace end
+        if k == "identifier"   then return proxy[t].identifier end
+        if k == "max_length"   then return proxy[t].max_length end
+        if k == "numeric_only" then return proxy[t].numeric_only end
 
         -- Methods
-        if methods_modoptionsTextField[k] then
-            return methods_modoptionsTextField[k]
-        end
+        local method = methods[k]
+        if method then return method end
+
+        log.error(mt_name.." has no method '"..k.."'", 2)
     end,
 
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-
-        -- Setter
-        log.error(wrapper_name.." has no properties to set", 2)
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
-
--- ========== Hooks =========
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.ModOptionsTextField

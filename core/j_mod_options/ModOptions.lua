@@ -1,6 +1,4 @@
-if __DEACTIVATE_OLD then return end
 -- ModOptions
-
 
 --[[
 Each ModOptions has it's own header, but you can create subheaders by naming your field `mysubheader.option`.
@@ -21,56 +19,53 @@ mysubheader = {
     }
 }
 ```
-
 ]]
-
+---@class ModOptionsClass
 ModOptions = new_class()
+C.ModOptions = ModOptions
 
 run_on_initial_load(function()
-    __mod_options_headers = {}
+    P.mod_options_headers = {}  ---@type table<namespace, ModOptionsTable>
 end)
 
+local mod_options_headers = P.mod_options_headers
 
+local proxy = P.proxy
+local metatable
 
--- ========== Properties ==========
+local type   = type
+local table  = table
+local string = string
+local gm     = gm
+local Struct = Struct
 
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`namespace`     | string    | *Read-only.* The namespace of the ModOptions.
-]]
-
+local sUIModOptionsButtonHeader  ---@type number Sprite ID
 
 
 -- ========== Internal ==========
 
+---@param modoptions table
+---@return ModOptions
 ModOptions.internal.wrap = function(modoptions)
-    -- Input:   ModOptions Lua table
-    -- Wraps:   ModOptions Lua table
-    return make_proxy(modoptions, metatable_modoptions)
+    return new_proxy(modoptions, metatable)
 end
-
 
 ModOptions.internal.initialize = function()
-    local filepath = path.combine(PATH, "core/sprites/ui/sUIModOptionsButtonHeader.png")
+    local filepath = path.combine(PATH, "data", "sprites", "ui", "sUIModOptionsButtonHeader.png")
     sUIModOptionsButtonHeader = Sprite.new(RAPI_NAMESPACE, "sUIModOptionsButtonHeader", filepath, 2)
 end
-table.insert(_rapi_initialize, ModOptions.internal.initialize)
+run_on_initialize(ModOptions.internal.initialize)
 
 ModOptions.internal.validate_identifier = function(self, identifier, fn_name)
     if not identifier then
-        log.error(fn_name..": No identifier provided", 2)
+        throw("No identifier provided", fn_name)
     end
     if identifier == "header" or identifier == "ordered"
     or identifier:sub(-7) == ".header" then
-        log.error(fn_name..": identifier '"..identifier.."' is reserved", 2)
+        throw("identifier '"..identifier.."' is reserved", fn_name)
     end
     if self:find(identifier) then
-        log.error(fn_name..": identifier '"..identifier.."' already in use", 2)
+        throw("identifier '"..identifier.."' already in use", fn_name)
     end
 end
 
@@ -113,7 +108,7 @@ ModOptions.internal.header_insert_options = function(tab, options, arr_i, first,
     end
 
     for _, element in ipairs(slice) do
-        local struct = __proxy[element].constructor()
+        local struct = proxy[element].constructor()
 
         -- add subheaders
         local _, depth = string.gsub(struct.name, "%.", "")
@@ -160,16 +155,16 @@ ModOptions.internal.toggle_header_options = function(options, i, header_name)
     if i == #options or (options[i+1].name):sub(1, #prefix) ~= prefix then 
         -- unfold
         local ns = header_name:match("^[^.]+")
-        local o = __mod_options_headers[ns].elements.ordered
+        local o = mod_options_headers[ns].elements.ordered
         local k = 1
         local _, count = string.gsub(header_name, "%.", "")
         if count > 1 then
             repeat k = k + 1
-            until k >= #o or (__proxy[o[k]].constructor().name):sub(1, #prefix) == prefix
+            until k >= #o or (proxy[o[k]].constructor().name):sub(1, #prefix) == prefix
         end
         local j = k
         repeat j = j + 1
-        until j > #o or (__proxy[o[j]].constructor().name):sub(1, #prefix) ~= prefix
+        until j > #o or (proxy[o[j]].constructor().name):sub(1, #prefix) ~= prefix
 
         Alarm.add("options_restore", 1, function()
             ModOptions.internal.header_insert_options(options, o, i, k, j-1, header_name)
@@ -186,303 +181,298 @@ ModOptions.internal.toggle_header_options = function(options, i, header_name)
     end 
 end
 
-run_once(function()
-    __textfields = {}
+run_on_initial_load(function()
+    P.textfields = {}
 end)
+
 
 -- ========== Static Methods ==========
 
---@section Static Methods
+---@class ModOptionsTable
+---@field namespace string The namespace of this ModOptionsTable.
+---@field elements ModOptionsTableElements Stores elements added to this ModOptions.
 
---@static
---@return       ModOptions
+---@class ModOptionsTableElements
+---@field ordered table<number, ModOptionsElement> Stores elements in iteration order.
+---@field [string] ModOptionsElement
+
+---@alias ModOptionsElement
+---| ModOptionsButton
+---| ModOptionsCheckbox
+---| ModOptionsDropdown
+---| ModOptionsSlider
+---| ModOptionsKeybind
+---| ModOptionsTextField
+
 --[[
-Creates a new ModOptions for your mod if it does not already exist,
+Creates a new ModOptions for your mod if it does not already exist, <br>
 or returns the existing one if it does.
 ]]
+---@return ModOptions
 ModOptions.new = function(NAMESPACE)
     -- Create new ModOptions if it does not exist
-    if not __mod_options_headers[NAMESPACE] then
-        __mod_options_headers[NAMESPACE] = {
-            namespace   = NAMESPACE,
-            elements    = { ordered = {} }
+    if not mod_options_headers[NAMESPACE] then    
+        mod_options_headers[NAMESPACE] = {
+            namespace = NAMESPACE,
+            elements  = { ordered = {} }
         }
     end
 
-    return ModOptions.internal.wrap(__mod_options_headers[NAMESPACE])
+    return ModOptions.internal.wrap(mod_options_headers[NAMESPACE])
 end
 
-
---@static
---@return       ModOptions or nil
---@param        namespace   | string    | 
 --[[
 Returns the ModOptions belonging to the specified namespace if it exists.
 ]]
+---@param namespace string The namespace to search for.
+---@return ModOptions | nil
 ModOptions.find = function(namespace, namespace_is_specified)
     if not namespace then log.error("ModOptions.find: namespace not provided", 2) end
 
-    if __mod_options_headers[namespace] then
-        return ModOptions.internal.wrap(__mod_options_headers[namespace])
+    if mod_options_headers[namespace] then
+        return ModOptions.internal.wrap(mod_options_headers[namespace])
     end
 end
 
-
---@static
 --[[
 Removes the ModOptions for your mod.
 
 Automatically called when you hotload your mod.
 ]]
 ModOptions.remove = function(NAMESPACE)
-    __mod_options_headers[NAMESPACE] = nil
+    mod_options_headers[NAMESPACE] = nil
 end
 run_on_import(ModOptions.remove)
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class ModOptions
+local methods = {}
 
---@section Instance Methods
+--[[
+Adds a @link {button | ModOptionsButton} to the ModOptions.
+]]
+---@param identifier string The identifier for the element.
+---@return ModOptionsButton
+methods.add_button = function(self, identifier)
+    ModOptions.internal.validate_identifier(self, identifier, "add_button")
 
-methods_modoptions = {
+    ---@type ModOptionsTable
+    local self_table = proxy[self]
 
-    --@instance
-    --@return       ModOptionsButton
-    --@param        identifier  | string    | The identifier for the element.
-    --[[
-    Adds a @link {button | ModOptionsButton} to the ModOptions.
-    ]]
-    add_button = function(self, identifier)
-        ModOptions.internal.validate_identifier(self, identifier, "add_button")
-
-        local self_table = __proxy[self]
-
-        local element = ModOptionsButton.new(__proxy[self].namespace, identifier)
-        
-        self_table.elements[identifier] = element
-        
-        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
-        table.insert(self_table.elements.ordered, insert_index, element)
-
-        return element
-    end,
-
-
-    --@instance
-    --@return       ModOptionsCheckbox
-    --@param        identifier  | string    | The identifier for the element.
-    --[[
-    Adds a @link {checkbox | ModOptionsCheckbox} to the ModOptions.
-    ]]
-    add_checkbox = function(self, identifier)
-        ModOptions.internal.validate_identifier(self, identifier, "add_checkbox")
-
-        local self_table = __proxy[self]
-
-        local element = ModOptionsCheckbox.new(__proxy[self].namespace, identifier)
-        
-        self_table.elements[identifier] = element
-        
-        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
-        table.insert(self_table.elements.ordered, insert_index, element)
-
-        return element
-    end,
-
-
-    --@instance
-    --@return       ModOptionsDropdown
-    --@param        identifier  | string    | The identifier for the element.
-    --[[
-    Adds a @link {dropdown | ModOptionsDropdown} to the ModOptions.
-    ]]
-    add_dropdown = function(self, identifier)
-        ModOptions.internal.validate_identifier(self, identifier, "add_dropdown")
-
-        local self_table = __proxy[self]
-
-        local element = ModOptionsDropdown.new(__proxy[self].namespace, identifier)
-        
-        self_table.elements[identifier] = element
-        
-        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
-        table.insert(self_table.elements.ordered, insert_index, element)
-
-        return element
-    end,
-
-
-    --@instance
-    --@return       ModOptionsSlider
-    --@param        identifier  | string    | The identifier for the element.
-    --@optional     display_type| number    | The display_type of the slider (percentage by default).
-    --@optional     value_min   | number    | The minimum value of the slider (0 by default).
-    --@optional     value_max   | number    | The maximum value of the slider (1 by default).
-    --@optional     value_int   | bool      | Whether the value is limited to integers (false by default).
-    --[[
-    Adds a @link {slider | ModOptionsSlider} to the ModOptions.
-    ]]
-    add_slider = function(self, identifier, display_type, value_min, value_max, value_int)
-        ModOptions.internal.validate_identifier(self, identifier, "add_slider")
-
-        local self_table = __proxy[self]
-
-        local element = ModOptionsSlider.new(__proxy[self].namespace, identifier, display_type, value_min, value_max, value_int or false)
-        
-        self_table.elements[identifier] = element
-        
-        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
-        table.insert(self_table.elements.ordered, insert_index, element)
-
-        return element
-    end,
-
-
-    --@instance
-    --@return       ModOptionsKeybind
-    --@param        identifier      | string    | The identifier for the element.
-    --@param        default         | number    | The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind. <br>If not provided, will be unbinded by default.
-    --@optional     default_gamepad | number    | The [input code](https://manual.gamemaker.io/beta/en/GameMaker_Language/GML_Reference/Game_Input/GamePad_Input/Gamepad_Input.htm) of the default bind. <br>If not provided, will be unbinded by default.
-    --[[
-    Adds a @link {keybind | ModOptionsKeybind} to the ModOptions.
-    ]]
-    add_keybind = function(self, identifier, default, default_gamepad)
-        ModOptions.internal.validate_identifier(self, identifier, "add_keybind")
-
-        local _type = type(default)
-        if _type ~= "number" then log.error("add_keybind: default is invalid", 2) end
-        _type = type(default_gamepad)
-        if _type ~= "nil" and _type ~= "number" then log.error("add_keybind: default_gamepad is invalid", 2) end
-
-        local self_table = __proxy[self]
-
-        local element = ModOptionsKeybind.new(__proxy[self].namespace, identifier, default, default_gamepad)
-        
-        self_table.elements[identifier] = element
-        
-        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
-        table.insert(self_table.elements.ordered, insert_index, element)
-
-        return element
-    end,
-
-
-    --@instance
-    --@return       ModOptionsTextField
-    --@param        identifier   | string | The identifier for the element.
-    --@optional     max_length   | number | The maximum number of characters allowed in the text field (250 by default).
-    --@optional     numeric_only | bool   | *Disabled* Whether the text field only accepts numeric input (false by default).
-    --[[
-    Adds a @link {textfield | ModOptionsTextField} to the ModOptions.
-    ]]
-    add_textfield = function(self, identifier, max_length, numeric_only)
-        ModOptions.internal.validate_identifier(self, identifier, "add_textfield")
-
-        local self_table = __proxy[self]
-
-        local element, textfield = ModOptionsTextField.new(__proxy[self].namespace, identifier, max_length, numeric_only)
-        
-        self_table.elements[identifier] = element
-        
-        local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
-        table.insert(self_table.elements.ordered, insert_index, element)
-        __textfields[__proxy[self].namespace.."."..identifier] =  textfield
-
-        return element
-    end,
-
-
-    --@instance
-    --@return       ModOptions<Element> or nil
-    --@param        identifier  | string    | 
-    --[[
-    Returns the element with the specified identifier if it exists.
-    ]]
-    find = function(self, identifier)
-        return __proxy[self].elements[identifier]
-    end,
-
+    local element = ModOptionsButton.new(self_table.namespace, identifier)
     
-    --@instance
-    --@return       table
-    --[[
-    Returns a table of all elements belonging
-    to the ModOptions in display order.
-    ]]
-    find_all = function(self)
-        local t = {}
-        for i, v in ipairs(__proxy[self].elements.ordered) do
-            t[i] = v
-        end
-        return t
-    end,
+    self_table.elements[identifier] = element
+    
+    local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
+    table.insert(self_table.elements.ordered, insert_index, element)
 
+    return element
+end
 
-    --@instance
-    --@return       ModOptions<Element> or nil
-    --@param        identifier  | string    | 
-    --[[
-    Removes and returns the element with the specified
-    identifier from the ModOptions if it exists.
-    ]]
-    remove = function(self, identifier)
-        local self_table = __proxy[self]
+--[[
+Adds a @link {checkbox | ModOptionsCheckbox} to the ModOptions.
+]]
+---@param identifier string The identifier for the element.
+---@return ModOptionsCheckbox
+methods.add_checkbox = function(self, identifier)
+    ModOptions.internal.validate_identifier(self, identifier, "add_checkbox")
 
-        local element = self_table.elements[identifier]
-        self_table.elements[identifier] = nil
-        Util.table_remove_value(self_table.elements.ordered, element)
-        return element
-    end,
+    ---@type ModOptionsTable
+    local self_table = proxy[self]
 
+    local element = ModOptionsCheckbox.new(self_table.namespace, identifier)
+    
+    self_table.elements[identifier] = element
+    
+    local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
+    table.insert(self_table.elements.ordered, insert_index, element)
 
-    --@instance
-    --[[
-    Removes all elements from the ModOptions.
-    ]]
-    remove_all = function(self, identifier)
-        __proxy[self].elements = { ordered = {} }
+    return element
+end
+
+--[[
+Adds a @link {dropdown | ModOptionsDropdown} to the ModOptions.
+]]
+---@param identifier string The identifier for the element.
+---@return ModOptionsDropdown
+methods.add_dropdown = function(self, identifier)
+    ModOptions.internal.validate_identifier(self, identifier, "add_dropdown")
+
+    ---@type ModOptionsTable
+    local self_table = proxy[self]
+
+    local element = ModOptionsDropdown.new(self_table.namespace, identifier)
+    
+    self_table.elements[identifier] = element
+    
+    local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
+    table.insert(self_table.elements.ordered, insert_index, element)
+
+    return element
+end
+
+--[[
+Adds a @link {slider | ModOptionsSlider} to the ModOptions.
+]]
+---@param identifier string The identifier for the element.
+---@param display_type? number The display_type of the slider. <br>`ModOptionsSlider.DisplayType.PERCENTAGE` by default.
+---@param value_min? number The minimum value of the slider. <br>`0` by default.
+---@param value_max? number The maximum value of the slider. <br>`1` by default.
+---@param value_int? boolean Whether the value is limited to integers. <br>`false` by default.
+---@return ModOptionsSlider
+methods.add_slider = function(self, identifier, display_type, value_min, value_max, value_int)
+    ModOptions.internal.validate_identifier(self, identifier, "add_slider")
+
+    ---@type ModOptionsTable
+    local self_table = proxy[self]
+
+    local element = ModOptionsSlider.new(self_table.namespace, identifier, display_type, value_min, value_max, value_int or false)
+    
+    self_table.elements[identifier] = element
+    
+    local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
+    table.insert(self_table.elements.ordered, insert_index, element)
+
+    return element
+end
+
+--[[
+Adds a @link {keybind | ModOptionsKeybind} to the ModOptions.
+]]
+---@param identifier string The identifier for the element.
+---@param default number The [keycode](https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Game_Input/Keyboard_Input/Keyboard_Input.htm) of the default bind.
+---@param default_gamepad? number The [input code](https://manual.gamemaker.io/beta/en/GameMaker_Language/GML_Reference/Game_Input/GamePad_Input/Gamepad_Input.htm) of the default bind. <br>If not provided, will be unbinded by default.
+---@return ModOptionsKeybind
+methods.add_keybind = function(self, identifier, default, default_gamepad)
+    ModOptions.internal.validate_identifier(self, identifier, "add_keybind")
+
+    local _type = type(default)
+    if _type ~= "number" then throw("default is invalid") end
+    _type = type(default_gamepad)
+    if _type ~= "nil" and _type ~= "number" then throw("default_gamepad is invalid") end
+
+    ---@type ModOptionsTable
+    local self_table = proxy[self]
+
+    local element = ModOptionsKeybind.new(self_table.namespace, identifier, default, default_gamepad)
+    
+    self_table.elements[identifier] = element
+    
+    local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
+    table.insert(self_table.elements.ordered, insert_index, element)
+
+    return element
+end
+
+--[[
+Adds a @link {textfield | ModOptionsTextField} to the ModOptions.
+]]
+---@param identifier string The identifier for the element.
+---@param max_length? number The maximum number of characters allowed in the text field. <br>`250` by default.
+---@param numeric_only? boolean *Disabled* Whether the text field only accepts numeric input. <br>`false` by default.
+---@return ModOptionsTextField
+methods.add_textfield = function(self, identifier, max_length, numeric_only)
+    ModOptions.internal.validate_identifier(self, identifier, "add_textfield")
+
+    ---@type ModOptionsTable
+    local self_table = proxy[self]
+
+    local element, textfield = ModOptionsTextField.new(self_table.namespace, identifier, max_length, numeric_only)
+    
+    self_table.elements[identifier] = element
+    
+    local insert_index = ModOptions.internal.get_insert_index(self_table.elements.ordered, identifier)
+    table.insert(self_table.elements.ordered, insert_index, element)
+    P.textfields[self_table.namespace.."."..identifier] =  textfield
+
+    return element
+end
+
+--[[
+Returns the element with the specified identifier if it exists.
+]]
+---@param identifier string The identifier to search for.
+---@return ModOptionsElement | nil
+methods.find = function(self, identifier)
+    ---@type ModOptionsTable
+    local self_table = proxy[self]
+    return self_table.elements[identifier]
+end
+
+--[[
+Returns a table of all elements belonging <br>
+to the ModOptions in display order.
+]]
+---@return table<number, ModOptionsElement>
+methods.find_all = function(self)
+    ---@type ModOptionsTable
+    local self_table = proxy[self]
+
+    local t = {}
+    for i, v in ipairs(self_table.elements.ordered) do
+        t[i] = v
     end
+    return t
+end
 
-}
+--[[
+Removes and returns the element with the specified <br>
+identifier from the ModOptions if it exists.
+]]
+---@param identifier string The identifier to remove.
+---@return ModOptionsElement | nil
+methods.remove = function(self, identifier)
+    ---@type ModOptionsTable
+    local self_table = proxy[self]
 
+    local element = self_table.elements[identifier]
+    self_table.elements[identifier] = nil
+    table.remove_value(self_table.elements.ordered, element)
+    return element
+end
+
+--[[
+Removes all elements from the ModOptions.
+]]
+methods.remove_all = function(self)
+    proxy[self].elements = { ordered = {} }
+end
 
 
 -- ========== Metatables ==========
 
+---@class ModOptions
+---@field value ModOptionsTable The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field namespace string The namespace of the ModOptions.
+
 local mt_name = "ModOptions"
 
-make_table_once("metatable_modoptions", {
-    __index = function(proxy, k)
+W.ModOptions = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
+        if k == "value" then return log.error("Cannot access "..mt_name.." internal table", 2) end
         if k == "RAPI" then return mt_name end
 
         -- Get certain values
-        if k == "namespace" then return __proxy[proxy].namespace end
+        if k == "namespace" then return proxy[t].namespace end
 
         -- Methods
-        if methods_modoptions[k] then
-            return methods_modoptions[k]
-        end
+        local method = methods[k]
+        if method then return method end
+
+        log.error(mt_name.." has no method '"..k.."'", 2)
     end,
 
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-
-        -- Setter
-        log.error(wrapper_name.." has no properties to set", 2)
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.ModOptions
 
 
 -- ========== Hooks ==========
@@ -493,7 +483,7 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
 
     -- Sort headers alphabetically
     local ordered = {}
-    for namespace, data_table in pairs(__mod_options_headers) do
+    for namespace, data_table in pairs(mod_options_headers) do
         if namespace ~= RAPI_NAMESPACE then
             table.insert(ordered, data_table)
         end
@@ -502,10 +492,13 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
         return gm.translate(a.namespace..".header") < gm.translate(b.namespace..".header")
     end)
     
-
-    -- Insert ReturnsAPI header at the front
-    table.insert(ordered, 1, __mod_options_headers[RAPI_NAMESPACE])
-    local index = 2
+    -- Insert ReturnsAPI header at the front if it exists
+    local index = 1
+    local rapi_header = mod_options_headers[RAPI_NAMESPACE]
+    if rapi_header then
+        table.insert(ordered, 1, rapi_header)
+        index = 2
+    end
 
     -- Loop through sorted headers and add elements
     for _, data_table in ipairs(ordered) do
@@ -565,7 +558,7 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
             ii = ii + 1
         end
         -- draw text field
-        local field = __textfields[opt.name]
+        local field = P.textfields[opt.name]
         if field then
             --opt.pressed = false
             local option_y = y + opt_y
@@ -600,8 +593,3 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
     end
     gm.ui_draw_clip_reset()
 end)
-
-
-
--- Public export
-__class.ModOptions = ModOptions

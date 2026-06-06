@@ -1,39 +1,37 @@
-if __DEACTIVATE_OLD then return end
 -- ModOptionsCheckbox
 
 -- The class table is private, but the wrappers are publicly accessible
 
+---@class ModOptionsCheckboxClass
 ModOptionsCheckbox = new_class()
 
+local proxy = P.proxy
+local metatable
 
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`namespace`     | string    | *Read-only.* The namespace of the ModOptions the element is in.
-`identifier`    | string    | *Read-only.* The identifier of the element.
-]]
-
+local type      = type
+local table     = table
+local gm        = gm
+local new_proxy = new_proxy
+local unwrap    = Wrap.unwrap
+local Struct    = Struct
+local Script    = Script
 
 
 -- ========== Static Methods ==========
 
+---@param namespace string
+---@param identifier string
+---@return ModOptionsCheckbox
 ModOptionsCheckbox.new = function(namespace, identifier)
     local callbacks_get = {}
     local callbacks_set = {}
 
     local element_data_table = {
-        namespace       = namespace,
-        identifier      = identifier,
-        callbacks_get   = callbacks_get,
-        callbacks_set   = callbacks_set,
-        constructor     = function()
+        namespace     = namespace,
+        identifier    = identifier,
+        callbacks_get = callbacks_get,
+        callbacks_set = callbacks_set,
+        constructor   = function()
             return Struct.new(
                 gm.constants.UIOptionsButtonToggle,
                 namespace.."."..identifier,
@@ -60,94 +58,86 @@ ModOptionsCheckbox.new = function(namespace, identifier)
     return ModOptionsCheckbox.wrap(element_data_table)
 end
 
-
+--[[
+Returns a ModOptionsCheckbox wrapper containing the provided element table.
+]]
+---@param element table The element table to wrap.
+---@return ModOptionsCheckbox
 ModOptionsCheckbox.wrap = function(element)
-    -- Input:   ModOptionsCheckbox Lua table
-    -- Wraps:   ModOptionsCheckbox Lua table
-    element = Wrap.unwrap(element)
-    return make_proxy(element, metatable_modoptionscheckbox)
+    return new_proxy(unwrap(element), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class ModOptionsCheckbox
+local methods = {}
 
---@section Instance Methods
+--[[
+Add a function(s) that is called by the game to <br>
+load the default value when opening the options menu. <br>
+The function **should return a bool value.**
+]]
+---@param ... function A variable amount of functions to call. <br>Alternatively, a table may be provided.
+methods.add_getter = function(self, ...)
+    local fns = {...}
+    if type(fns[1]) == "table" then fns = fns[1] end
 
-methods_modoptionscheckbox = {
-
-    --@instance
-    --@param        ...         | function(s)   | A variable amount of functions to call. <br>Alternatively, a table may be provided.
-    --[[
-    Add a function(s) that is called by the game to
-    load the default value when opening the options menu.
-    The function **should return a bool value.**
-    ]]
-    add_getter = function(self, ...)
-        local fns = {...}
-        if type(fns[1]) == "table" then fns = fns[1] end
-
-        for _, fn in ipairs(fns) do
-            if type(fn) == "function" then
-                table.insert(__proxy[self].callbacks_get, fn)
-            end
-        end
-    end,
-
-
-    --@instance
-    --@param        ...         | function(s)   | A variable amount of functions to call. <br>Alternatively, a table may be provided.
-    --[[
-    Add a function(s) to call when the checkbox is toggled.
-    The parameters for it are `value` (bool).
-    ]]
-    add_setter = function(self, ...)
-        local fns = {...}
-        if type(fns[1]) == "table" then fns = fns[1] end
-
-        for _, fn in ipairs(fns) do
-            if type(fn) == "function" then
-                table.insert(__proxy[self].callbacks_set, fn)
-            end
+    for _, fn in ipairs(fns) do
+        if type(fn) == "function" then
+            table.insert(proxy[self].callbacks_get, fn)
         end
     end
+end
 
-}
+--[[
+Add a function(s) to call when the checkbox is toggled. <br>
+The parameters for it are `value` (boolean).
+]]
+---@param ... fun(value: boolean) A variable amount of functions to call. <br>Alternatively, a table may be provided.
+methods.add_setter = function(self, ...)
+    local fns = {...}
+    if type(fns[1]) == "table" then fns = fns[1] end
 
+    for _, fn in ipairs(fns) do
+        if type(fn) == "function" then
+            table.insert(proxy[self].callbacks_set, fn)
+        end
+    end
+end
 
 
 -- ========== Metatables ==========
 
+---@class ModOptionsCheckbox
+---@field value table The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field namespace string The namespace of the ModOptionsCheckbox.
+---@field identifier string The identifier of the ModOptionsCheckbox.
+
 local mt_name = "ModOptionsCheckbox"
 
-make_table_once("metatable_modoptionscheckbox", {
-    __index = function(proxy, k)
+W.ModOptionsCheckbox = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
+        if k == "value" then return log.error("Cannot access "..mt_name.." internal table", 2) end
         if k == "RAPI" then return mt_name end
 
         -- Get certain values
-        if k == "namespace" then return __proxy[proxy].namespace end
-        if k == "identifier" then return __proxy[proxy].identifier end
+        if k == "namespace"  then return proxy[t].namespace end
+        if k == "identifier" then return proxy[t].identifier end
 
         -- Methods
-        if methods_modoptionscheckbox[k] then
-            return methods_modoptionscheckbox[k]
-        end
+        local method = methods[k]
+        if method then return method end
+
+        log.error(mt_name.." has no method '"..k.."'", 2)
     end,
 
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-
-        -- Setter
-        log.error(wrapper_name.." has no properties to set", 2)
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.ModOptionsCheckbox

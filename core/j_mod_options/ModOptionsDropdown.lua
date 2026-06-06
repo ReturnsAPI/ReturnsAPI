@@ -1,29 +1,27 @@
-if __DEACTIVATE_OLD then return end
 -- ModOptionsDropdown
 
 -- The class table is private, but the wrappers are publicly accessible
 
+---@class ModOptionsDropdownClass
 ModOptionsDropdown = new_class()
 
+local proxy = P.proxy
+local metatable
 
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`namespace`     | string    | *Read-only.* The namespace of the ModOptions the element is in.
-`identifier`    | string    | *Read-only.* The identifier of the element.
-]]
-
+local type      = type
+local table     = table
+local gm        = gm
+local new_proxy = new_proxy
+local unwrap    = Wrap.unwrap
+local Struct    = Struct
+local Script    = Script
 
 
 -- ========== Static Methods ==========
 
+---@param namespace string
+---@param identifier string
+---@return ModOptionsDropdown
 ModOptionsDropdown.new = function(namespace, identifier)
     local callbacks_get = {}
     local callbacks_set = {}
@@ -70,111 +68,101 @@ ModOptionsDropdown.new = function(namespace, identifier)
     return ModOptionsDropdown.wrap(element_data_table)
 end
 
-
+--[[
+Returns a ModOptionsDropdown wrapper containing the provided element table.
+]]
+---@param element table The element table to wrap.
+---@return ModOptionsDropdown
 ModOptionsDropdown.wrap = function(element)
-    -- Input:   ModOptionsDropdown Lua table
-    -- Wraps:   ModOptionsDropdown Lua table
-    element = Wrap.unwrap(element)
-    return make_proxy(element, metatable_modoptionsdropdown)
+    return new_proxy(unwrap(element), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class ModOptionsDropdown
+local methods = {}
 
---@section Instance Methods
+--[[
+Add a function(s) that is called by the game to <br>
+load the default choice when opening the options menu. <br>
+The function **should return a number value between `0` and `number of choices - 1`.**
+]]
+---@param ... function A variable amount of functions to call. <br>Alternatively, a table may be provided.
+methods.add_getter = function(self, ...)
+    local fns = {...}
+    if type(fns[1]) == "table" then fns = fns[1] end
 
-methods_modoptionsdropdown = {
-
-    --@instance
-    --@param        ...         | function(s)   | A variable amount of functions to call. <br>Alternatively, a table may be provided.
-    --[[
-    Add a function(s) that is called by the game to
-    load the default choice when opening the options menu.
-    The function **should return a number value between `0` and `number of choices - 1`.**
-    ]]
-    add_getter = function(self, ...)
-        local fns = {...}
-        if type(fns[1]) == "table" then fns = fns[1] end
-
-        for _, fn in ipairs(fns) do
-            if type(fn) == "function" then
-                table.insert(__proxy[self].callbacks_get, fn)
-            end
-        end
-    end,
-
-
-    --@instance
-    --@param        ...         | function(s)   | A variable amount of functions to call. <br>Alternatively, a table may be provided.
-    --[[
-    Add a function(s) to call when a choice is toggled.
-    The parameters for it are `value` (bool).
-    ]]
-    add_setter = function(self, ...)
-        local fns = {...}
-        if type(fns[1]) == "table" then fns = fns[1] end
-
-        for _, fn in ipairs(fns) do
-            if type(fn) == "function" then
-                table.insert(__proxy[self].callbacks_set, fn)
-            end
-        end
-    end,
-
-
-    --@instance
-    --@param        ...         | string        | A variable amount of localization tokens for each choice. <br>Alternatively, a table may be provided.
-    --[[
-    Add a choice(s) to the dropdown.
-    ]]
-    add_choice = function(self, ...)
-        local choices = {...}
-        if type(choices[1]) == "table" then choices = choices[1] end
-
-        for _, token in ipairs(choices) do
-            if type(token) == "string" then
-                table.insert(__proxy[self].choices, token)
-            end
+    for _, fn in ipairs(fns) do
+        if type(fn) == "function" then
+            table.insert(proxy[self].callbacks_get, fn)
         end
     end
+end
 
-}
+--[[
+Add a function(s) to call when a choice is toggled. <br>
+The parameters for it are `value` (number).
+]]
+---@param ... fun(value: number) A variable amount of functions to call. <br>Alternatively, a table may be provided.
+methods.add_setter = function(self, ...)
+    local fns = {...}
+    if type(fns[1]) == "table" then fns = fns[1] end
 
+    for _, fn in ipairs(fns) do
+        if type(fn) == "function" then
+            table.insert(proxy[self].callbacks_set, fn)
+        end
+    end
+end
+
+--[[
+Add a choice(s) to the dropdown.
+]]
+---@param ... string A variable amount of localization tokens for each choice. <br>Alternatively, a table may be provided.
+methods.add_choice = function(self, ...)
+    local choices = {...}
+    if type(choices[1]) == "table" then choices = choices[1] end
+
+    for _, token in ipairs(choices) do
+        if type(token) == "string" then
+            table.insert(proxy[self].choices, token)
+        end
+    end
+end
 
 
 -- ========== Metatables ==========
 
+---@class ModOptionsDropdown
+---@field value table The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field namespace string The namespace of the ModOptionsDropdown.
+---@field identifier string The identifier of the ModOptionsDropdown.
+
 local mt_name = "ModOptionsDropdown"
 
-make_table_once("metatable_modoptionsdropdown", {
-    __index = function(proxy, k)
+W.ModOptionsDropdown = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
+        if k == "value" then return log.error("Cannot access "..mt_name.." internal table", 2) end
         if k == "RAPI" then return mt_name end
 
         -- Get certain values
-        if k == "namespace" then return __proxy[proxy].namespace end
-        if k == "identifier" then return __proxy[proxy].identifier end
+        if k == "namespace"  then return proxy[t].namespace end
+        if k == "identifier" then return proxy[t].identifier end
 
         -- Methods
-        if methods_modoptionsdropdown[k] then
-            return methods_modoptionsdropdown[k]
-        end
+        local method = methods[k]
+        if method then return method end
+
+        log.error(mt_name.." has no method '"..k.."'", 2)
     end,
 
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-
-        -- Setter
-        log.error(wrapper_name.." has no properties to set", 2)
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.ModOptionsDropdown

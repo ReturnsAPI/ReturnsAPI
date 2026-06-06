@@ -1,44 +1,42 @@
-if __DEACTIVATE_OLD then return end
 -- ModOptionsSlider
 
 -- The class table is private, but the wrappers are publicly accessible
 
+---@class ModOptionsSliderClass
 ModOptionsSlider = new_class()
+
+local proxy = P.proxy
+local metatable
+
+local type      = type
+local table     = table
+local gm        = gm
+local new_proxy = new_proxy
+local unwrap    = Wrap.unwrap
+local Struct    = Struct
+local Script    = Script
+
 
 -- ========== Enums ==========
 
---@section Enums
-
---@enum
 ModOptionsSlider.DisplayType = {
-    NONE            = 0,
-    PERCENTAGE      = 1,
-    MULTIPLIER      = 2,
-    RAW             = 3,
-    QUALITY         = 4
+    NONE       = 0,
+    PERCENTAGE = 1,
+    MULTIPLIER = 2,
+    RAW        = 3,
+    QUALITY    = 4,
 }
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`namespace`     | string    | *Read-only.* The namespace of the ModOptions the element is in.
-`identifier`    | string    | *Read-only.* The identifier of the element.
-`display_type`  | number    | *Read-only.* The display_type of the slider (percentage by default).
-`value_min`     | number    | *Read-Only.* The minimum value of the slider (0 by default).
-`value_max`     | number    | *Read-Only.* The maximum value of the slider (1 by default).
-`value_int`     | bool      | *Read-Only.* Whether the value is limited to integers (false by default).
-]]
-
 
 
 -- ========== Static Methods ==========
 
+---@param namespace string
+---@param identifier string
+---@param display_type number
+---@param value_min number
+---@param value_max number
+---@param value_int boolean
+---@return ModOptionsSlider
 ModOptionsSlider.new = function(namespace, identifier, display_type, value_min, value_max, value_int)
     local callbacks_get = {}
     local callbacks_set = {}
@@ -79,98 +77,86 @@ ModOptionsSlider.new = function(namespace, identifier, display_type, value_min, 
     return ModOptionsSlider.wrap(element_data_table)
 end
 
-
+--[[
+Returns a ModOptionsSlider wrapper containing the provided element table.
+]]
+---@param element table The element table to wrap.
+---@return ModOptionsSlider
 ModOptionsSlider.wrap = function(element)
-    -- Input:   ModOptionsCheckbox Lua table
-    -- Wraps:   ModOptionsCheckbox Lua table
-    element = Wrap.unwrap(element)
-    return make_proxy(element, metatable_modoptionsslider)
+    return new_proxy(unwrap(element), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class ModOptionsSlider
+local methods = {}
 
---@section Instance Methods
+--[[
+Add a function(s) that is called by the game to <br>
+load the default value when opening the options menu. <br>
+The function **should return a number between the min_value and max_value, as well as respecting the value_int boolean**
+]]
+---@param ... function A variable amount of functions to call. <br>Alternatively, a table may be provided.
+methods.add_getter = function(self, ...)
+    local fns = {...}
+    if type(fns[1]) == "table" then fns = fns[1] end
 
-methods_modoptionsslider = {
-
-    --@instance
-    --@param        ...         | function(s)   | A variable amount of functions to call. <br>Alternatively, a table may be provided.
-    --[[
-    Add a function(s) that is called by the game to
-    load the default value when opening the options menu.
-    The function **should return a number between the min_value and max_value, as well as respecting the value_int boolean**
-    ]]
-    add_getter = function(self, ...)
-        local fns = {...}
-        if type(fns[1]) == "table" then fns = fns[1] end
-
-        for _, fn in ipairs(fns) do
-            if type(fn) == "function" then
-                table.insert(__proxy[self].callbacks_get, fn)
-            end
-        end
-    end,
-
-
-    --@instance
-    --@param        ...         | function(s)   | A variable amount of functions to call. <br>Alternatively, a table may be provided.
-    --[[
-    Add a function(s) to call when the slider value is changed.
-    The parameters for it are `value` (bool).
-    ]]
-    add_setter = function(self, ...)
-        local fns = {...}
-        if type(fns[1]) == "table" then fns = fns[1] end
-
-        for _, fn in ipairs(fns) do
-            if type(fn) == "function" then
-                table.insert(__proxy[self].callbacks_set, fn)
-            end
+    for _, fn in ipairs(fns) do
+        if type(fn) == "function" then
+            table.insert(proxy[self].callbacks_get, fn)
         end
     end
+end
 
-}
+--[[
+Add a function(s) to call when the slider value is changed. <br>
+The parameters for it are `value` (number).
+]]
+---@param ... fun(value: number) A variable amount of functions to call. <br>Alternatively, a table may be provided.
+methods.add_setter = function(self, ...)
+    local fns = {...}
+    if type(fns[1]) == "table" then fns = fns[1] end
 
+    for _, fn in ipairs(fns) do
+        if type(fn) == "function" then
+            table.insert(proxy[self].callbacks_set, fn)
+        end
+    end
+end
 
 
 -- ========== Metatables ==========
 
-local wrapper_name = "ModOptionsSlider"
+---@class ModOptionsSlider
+---@field value table The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field namespace string The namespace of the ModOptionsSlider.
+---@field identifier string The identifier of the ModOptionsSlider.
 
-make_table_once("metatable_modoptionsslider", {
-    __index = function(proxy, k)
+local mt_name = "ModOptionsSlider"
+
+W.ModOptionsSlider = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
-        if k == "RAPI" then return wrapper_name end
+        if k == "value" then return log.error("Cannot access "..mt_name.." internal table", 2) end
+        if k == "RAPI" then return mt_name end
 
         -- Get certain values
-        if k == "namespace" then return __proxy[proxy].namespace end
-        if k == "identifier" then return __proxy[proxy].identifier end
+        if k == "namespace"  then return proxy[t].namespace end
+        if k == "identifier" then return proxy[t].identifier end
 
         -- Methods
-        if methods_modoptionsslider[k] then
-            return methods_modoptionsslider[k]
-        end
+        local method = methods[k]
+        if method then return method end
+
+        log.error(mt_name.." has no method '"..k.."'", 2)
     end,
 
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-
-        -- Setter
-        log.error(wrapper_name.." has no properties to set", 2)
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
-
-
-__class.ModOptionsSlider = ModOptionsSlider
-__class_mt.ModOptionsSlider = metatable_modoptionsslider
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.ModOptionsSlider

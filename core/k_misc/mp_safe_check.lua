@@ -20,16 +20,15 @@ run_on_initialize(function()
     if settings.disableMPBlock == nil then settings.disableMPBlock = false end
 
     -- Add toggle to disable button blocking
-    -- TODO
-    -- local options = ModOptions.new(RAPI_NAMESPACE)
-    -- local checkbox = options:add_checkbox("disableMPBlock")
-    -- checkbox:add_getter(function()
-    --     return settings.disableMPBlock
-    -- end)
-    -- checkbox:add_setter(function(value)
-    --     settings.disableMPBlock = value
-    --     file:write(settings)
-    -- end)
+    local options = ModOptions.new(RAPI_NAMESPACE)
+    local checkbox = options:add_checkbox("disableMPBlock")
+    checkbox:add_getter(function()
+        return settings.disableMPBlock
+    end)
+    checkbox:add_setter(function(value)
+        settings.disableMPBlock = value
+        file:write(settings)
+    end)
 end)
 
 local b_local  = {}
@@ -68,7 +67,6 @@ gm.post_script_hook(gm.constants._ui_draw_box_text, function(self, other, result
 end)
 
 gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code, result, flags)
-    if not b_online.text_x then return end
     local menu_local  = self.menu[2]
     local menu_online = self.menu[3]
     
@@ -99,7 +97,7 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
     local text_col = {Color.ORANGE, Color.BLACK, Color.BLACK}
 
     -- Disable local button and draw "x incompatible mod(s)" text
-    if has_incomp_local then
+    if has_incomp_local and b_local.text_x then
 
         -- Button
         if not settings.disableMPBlock then
@@ -130,7 +128,7 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
     end
 
     -- Disable online button and draw "x incompatible mod(s)" text
-    if has_incomp_online then
+    if has_incomp_online and b_online.text_x then
 
         -- Button
         if not settings.disableMPBlock then
@@ -163,7 +161,7 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
     local mx, my = gm.variable_global_get("mouse_x"), gm.variable_global_get("mouse_y")
 
     -- Show local incompatible mod list when hovering over with mouse
-    if has_incomp_local then
+    if has_incomp_local and b_local.text_x then
         if Util.bool(gm.point_in_rectangle(
             mx,
             my,
@@ -198,7 +196,7 @@ gm.post_code_execute("gml_Object_oStartMenu_Draw_73", function(self, other, code
     end
 
     -- Show online incompatible mod list when hovering over with mouse
-    if has_incomp_online then
+    if has_incomp_online and b_online.text_x then
         if Util.bool(gm.point_in_rectangle(
             mx,
             my,

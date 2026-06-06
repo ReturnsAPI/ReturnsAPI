@@ -1,37 +1,35 @@
-if __DEACTIVATE_OLD then return end
 -- ModOptionsButton
 
 -- The class table is private, but the wrappers are publicly accessible
 
+---@class ModOptionsButtonClass
 ModOptionsButton = new_class()
 
+local proxy = P.proxy
+local metatable
 
-
--- ========== Properties ==========
-
---@section Properties
-
---[[
-**Wrapper**
-Property | Type | Description
-| - | - | -
-`RAPI`          | string    | *Read-only.* The wrapper name.
-`namespace`     | string    | *Read-only.* The namespace of the ModOptions the element is in.
-`identifier`    | string    | *Read-only.* The identifier of the element.
-]]
-
+local type      = type
+local table     = table
+local gm        = gm
+local new_proxy = new_proxy
+local unwrap    = Wrap.unwrap
+local Struct    = Struct
+local Script    = Script
 
 
 -- ========== Static Methods ==========
 
+---@param namespace string
+---@param identifier string
+---@return ModOptionsButton
 ModOptionsButton.new = function(namespace, identifier)
     local callbacks = {}
     
     local element_data_table = {
-        namespace       = namespace,
-        identifier      = identifier,
-        callbacks       = callbacks,
-        constructor     = function()
+        namespace   = namespace,
+        identifier  = identifier,
+        callbacks   = callbacks,
+        constructor = function()
             return Struct.new(
                 gm.constants.UIOptionsButton2,
                 namespace.."."..identifier,
@@ -50,74 +48,68 @@ ModOptionsButton.new = function(namespace, identifier)
     return ModOptionsButton.wrap(element_data_table)
 end
 
-
+--[[
+Returns a ModOptionsButton wrapper containing the provided element table.
+]]
+---@param element table The element table to wrap.
+---@return ModOptionsButton
 ModOptionsButton.wrap = function(element)
-    -- Input:   ModOptionsButton Lua table
-    -- Wraps:   ModOptionsButton Lua table
-    element = Wrap.unwrap(element)
-    return make_proxy(element, metatable_modoptionsbutton)
+    return new_proxy(unwrap(element), metatable)
 end
 
 
+-- ========== Wrapper Methods ==========
 
--- ========== Instance Methods ==========
+---@class ModOptionsButton
+local methods = {}
 
---@section Instance Methods
+--[[
+Add a function(s) to call when the button is pressed.
+]]
+---@param ... function A variable amount of functions to call. <br>Alternatively, a table may be provided.
+methods.add_callback = function(self, ...)
+    local fns = {...}
+    if type(fns[1]) == "table" then fns = fns[1] end
 
-methods_modoptionsbutton = {
-
-    --@instance
-    --@param        ...         | function(s)   | A variable amount of functions to call. <br>Alternatively, a table may be provided.
-    --[[
-    Add a function(s) to call when the button is pressed.
-    ]]
-    add_callback = function(self, ...)
-        local fns = {...}
-        if type(fns[1]) == "table" then fns = fns[1] end
-
-        for _, fn in ipairs(fns) do
-            if type(fn) == "function" then
-                table.insert(__proxy[self].callbacks, fn)
-            end
+    for _, fn in ipairs(fns) do
+        if type(fn) == "function" then
+            table.insert(proxy[self].callbacks, fn)
         end
     end
-
-}
-
+end
 
 
 -- ========== Metatables ==========
 
+---@class ModOptionsButton
+---@field value table The value being wrapped.
+---@field RAPI string The name of this wrapper.
+---@field namespace string The namespace of the ModOptionsButton.
+---@field identifier string The identifier of the ModOptionsButton.
+
 local mt_name = "ModOptionsButton"
 
-make_table_once("metatable_modoptionsbutton", {
-    __index = function(proxy, k)
+W.ModOptionsButton = {
+    __index = function(t, k)
         -- Get wrapped value
-        if k == "value" then return log.error("Cannot access "..wrapper_name.." internal table", 2) end
+        if k == "value" then return log.error("Cannot access "..mt_name.." internal table", 2) end
         if k == "RAPI" then return mt_name end
 
         -- Get certain values
-        if k == "namespace" then return __proxy[proxy].namespace end
-        if k == "identifier" then return __proxy[proxy].identifier end
+        if k == "namespace"  then return proxy[t].namespace end
+        if k == "identifier" then return proxy[t].identifier end
 
         -- Methods
-        if methods_modoptionsbutton[k] then
-            return methods_modoptionsbutton[k]
-        end
+        local method = methods[k]
+        if method then return method end
+
+        log.error(mt_name.." has no method '"..k.."'", 2)
     end,
 
-
-    __newindex = function(proxy, k, v)
-        -- Throw read-only error for certain keys
-        if k == "value"
-        or k == "RAPI" then
-            log.error("Key '"..k.."' is read-only", 2)
-        end
-
-        -- Setter
-        log.error(wrapper_name.." has no properties to set", 2)
+    __newindex = function(t, k, v)
+        log.error(mt_name.." has no properties to set", 2)
     end,
 
-
-    __metatable = "RAPI.Wrapper."..wrapper_name
-})
+    __metatable = mt_wrapper_name(mt_name),
+}
+metatable = W.ModOptionsButton
