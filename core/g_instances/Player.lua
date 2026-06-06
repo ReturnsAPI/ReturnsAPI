@@ -6,6 +6,11 @@ C.Player = Player
 
 local inst_find = gm.instance_find  ---@type function
 
+local vanilla_player_verbs  ---@type table
+run_after_core(function()
+    vanilla_player_verbs = G.vanilla_player_verbs
+end)
+
 
 -- ========== Static Methods ==========
 
@@ -33,22 +38,16 @@ end
 local methods = {}
 G.methods_player = methods
 
---@instance
---@return       bool
---@param        verb        | string    | The verb to check.
---@optional     type        | number    | <br>`0` - Returns `true` if the verb input is being held. <br>`1` - Returns `true` if the verb input was just pressed. <br>`-1` - Returns `true` if the verb input was just released. <br><br>`0` by default.
 --[[
-Returns the input status for a @link {verb | ModOptionsKeybind}.
+Returns the input status for a @link {verb | ModOptionsKeybind}. <br>
 Only returns `true` for the local player, and if the game is not paused.
 
 For more general uses, use @link {`gm.input_check_*` | ModOptionsKeybind} functions instead.
 ]]
 ---@param verb string The verb to check.
----@param type? number `0` - Returns `true` if the verb input is being held. <br>`1` - Returns `true` if the verb input was just pressed. <br>`-1` - Returns `true` if the verb input was just released. <br>`0` by default.
+---@param check_type? number `0` - Returns `true` if the verb input is being held. <br>`1` - Returns `true` if the verb input was just pressed. <br>`-1` - Returns `true` if the verb input was just released. <br>`0` by default.
 ---@return boolean
-methods.control = function(self, verb, _type)
-    -- TODO
-    print("control called")
-    -- if (not _vanilla_player_verbs[verb]) and (not __custom_verbs_all[verb]) then log.error("control: verb is invalid", 2) end
-    -- return GM.SO.control(self, nil, verb, _type or 0)
+methods.control = function(self, verb, check_type)
+    if (not vanilla_player_verbs[verb]) and (not P.custom_verbs_all[verb]) then throw("verb '"..tostring(verb).."' is invalid") end
+    return GM.SO.control(self, nil, verb, check_type or 0)
 end

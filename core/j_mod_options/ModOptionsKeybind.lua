@@ -1,4 +1,3 @@
-if true then return end
 -- ModOptionsKeybind
 
 -- The class table is private, but the wrappers are publicly accessible
@@ -45,14 +44,14 @@ Player also has a @link {`control` | Player#control} instance method, which is m
 ModOptionsKeybind = new_class()
 
 run_on_initial_load(function()
-    P.custom_verbs_key = {}
+    P.custom_verbs_key          = {}
     P.custom_verbs_mouse_button = {}
-    P.custom_verbs_gamepad = {}
-    P.custom_verbs_all = {}
+    P.custom_verbs_gamepad      = {}
+    P.custom_verbs_all          = {}
 
     -- Load saved custom verbs
     local file = TOML.new(RAPI_NAMESPACE)
-    settings = file:read() or {}
+    local settings = file:read() or {}
 
     if settings.keybinds then
         for verb, keycode in pairs(settings.keybinds) do
@@ -70,7 +69,7 @@ run_on_initial_load(function()
         end    
     end
 
-    P.add_verb_queue = {}
+    P.add_verb_queue = {}  -- Verbs added pre-initialization loop that should be added during it.
 end)
 
 local proxy = P.proxy
@@ -93,7 +92,7 @@ G.vanilla_player_verbs = table.enum({
     "aim_left", "aim_right",
     "emote", "ping",
     "emote_1", "emote_2", "emote_3", "emote_4", 
-    "tab", "pause"
+    "tab", "pause",
 }, 0)
 
 
@@ -135,7 +134,7 @@ ModOptionsKeybind.internal.add_verb = function(verb, default, default_gamepad, d
     P.custom_verbs_all[verb] = true
 
     local bind = nil
-    if     P.custom_verbs_key[verb]     then bind = gm.input_binding_key(P.custom_verbs_key[verb])
+    if     P.custom_verbs_key[verb] then bind = gm.input_binding_key(P.custom_verbs_key[verb])
     elseif default and default > 0  then bind = gm.input_binding_key(default)
     end
     P.custom_verbs_key[verb] = bind.value
@@ -144,7 +143,7 @@ ModOptionsKeybind.internal.add_verb = function(verb, default, default_gamepad, d
         bind = gm.input_binding_mouse_button(P.custom_verbs_mouse_button[verb])
         P.custom_verbs_mouse_button[verb] = bind.value
     else
-        if     P.custom_verbs_key[verb]     then bind = gm.input_binding_key(P.custom_verbs_key[verb])
+        if     P.custom_verbs_key[verb] then bind = gm.input_binding_key(P.custom_verbs_key[verb])
         elseif default and default > 0  then bind = gm.input_binding_key(default)
         end
         P.custom_verbs_key[verb] = bind.value
@@ -152,8 +151,8 @@ ModOptionsKeybind.internal.add_verb = function(verb, default, default_gamepad, d
 
     -- Create controller bind
     local bind_gamepad = gm.input_binding_empty()
-    if     P.custom_verbs_gamepad[verb]             then bind_gamepad = ModOptionsKeybind.internal.input_binding_gamepad(P.custom_verbs_gamepad[verb])
-    elseif default_gamepad and default_gamepad > 0  then bind_gamepad = ModOptionsKeybind.internal.input_binding_gamepad(default_gamepad)
+    if     P.custom_verbs_gamepad[verb]            then bind_gamepad = ModOptionsKeybind.internal.input_binding_gamepad(P.custom_verbs_gamepad[verb])
+    elseif default_gamepad and default_gamepad > 0 then bind_gamepad = ModOptionsKeybind.internal.input_binding_gamepad(default_gamepad)
     end
     P.custom_verbs_gamepad[verb] = bind_gamepad.value
 
@@ -265,10 +264,10 @@ ModOptionsKeybind.new = function(namespace, identifier, default, default_gamepad
     end
 
     local element_data_table = {
-        namespace       = namespace,
-        identifier      = identifier,
-        verb            = verb,
-        constructor     = function()
+        namespace   = namespace,
+        identifier  = identifier,
+        verb        = verb,
+        constructor = function()
             local control_remap_profile = gm.input_profile_get(0)
             -- ^ actual is `input_player_index = (oPauseMenu.pause_player == -1) ? 0 : oPauseMenu.pause_player`
 
@@ -339,8 +338,6 @@ metatable = W.ModOptionsKeybind
 
 -- ========== Hooks ==========
 
-input_instance = nil
-
 gm.pre_script_hook(gm.constants["__profile_export@anon@8396@__input_class_player@__input_class_player"], function(self, other, result, args)
     if not gm.variable_struct_exists(self.__profiles_dict, args[1]) then
         log.warning("Profile \"", args[1], "\" doesn't exist for player ", self.__index);
@@ -373,7 +370,7 @@ gm.pre_script_hook(gm.constants["__profile_export@anon@8396@__input_class_player
             return false
         end
     else
-        result.value = _output;
+        result.value = _output
         return false
     end
 
@@ -393,8 +390,8 @@ gm.pre_script_hook(gm.constants["__profile_import@anon@9823@__input_class_player
         log.warning("Input must be valid JSON (typeof=", args[1], ")")
         return false
     end
-    
-    self.__profile_ensure(self, other, args[2])
+
+    self.__profile_ensure.SO(self, other, args[2])
     local _existing_verb_dict = gm.variable_struct_get(self.__profiles_dict, args[2])
     
     for _v = 1, gm.array_length(gm.variable_global_get("__input_basic_verb_array")) do

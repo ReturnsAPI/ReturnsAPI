@@ -33,7 +33,10 @@ local table_insert = table.insert
 local table_remove = table.remove
 local table_sort   = table.sort
 local gm           = gm
+local Net          = Net
 local to_bool      = Util.bool
+
+local packet_syncConsole  ---@type Packet
 
 
 -- ========== Internal ==========
@@ -57,30 +60,28 @@ run_on_initialize(function()
     if settings.simplerConsoleBind == nil then settings.simplerConsoleBind = true end
 
     -- Add toggle to disable online button blocking
-    -- TODO
-    -- local options = ModOptions.new(RAPI_NAMESPACE)
-    -- local checkbox = options:add_checkbox("simplerConsoleBind")
-    -- checkbox:add_getter(function()
-    --     return settings.simplerConsoleBind
-    -- end)
-    -- checkbox:add_setter(function(value)
-    --     settings.simplerConsoleBind = value
-    --     file:write(settings)
-    -- end)
+    local options = ModOptions.new(RAPI_NAMESPACE)
+    local checkbox = options:add_checkbox("simplerConsoleBind")
+    checkbox:add_getter(function()
+        return settings.simplerConsoleBind
+    end)
+    checkbox:add_setter(function(value)
+        settings.simplerConsoleBind = value
+        file:write(settings)
+    end)
 
     -- Command chat logging sync
-    -- TODO
-    -- packet_syncConsole = Packet.new(RAPI_NAMESPACE, "syncConsole")
-    -- packet_syncConsole:set_serializers(
-    --     function(buffer, name, input)
-    --         buffer:write_string(name)
-    --         buffer:write_string(input)
-    --     end,
+    packet_syncConsole = Packet.new(RAPI_NAMESPACE, "syncConsole")
+    packet_syncConsole:set_serializers(
+        function(buffer, name, input)
+            buffer:write_string(name)
+            buffer:write_string(input)
+        end,
 
-    --     function(buffer, player)
-    --         log_command_locally(buffer:read_string(), buffer:read_string())
-    --     end
-    -- )
+        function(buffer, player)
+            log_command_locally(buffer:read_string(), buffer:read_string())
+        end
+    )
 end)
 
 
@@ -208,15 +209,14 @@ Callback.add(RAPI_NAMESPACE, Callback.CONSOLE_ON_COMMAND, Callback.internal.FIRS
     end
 
     -- Log usage in chat in online multiplayer
-    -- TODO
-    -- if Net.online then
-    --     local name = "Player"
-    --     local p = Player.get_local()
-    --     if p ~= Instance.INVALID then name = p.user_name end
+    if Net.online then
+        local name = "Player"
+        local p = Player.get_local()
+        if p ~= Instance.INVALID then name = p.user_name end
 
-    --     log_command_locally(name, input)
-    --     packet_syncConsole:send_to_all(name, input)
-    -- end
+        log_command_locally(name, input)
+        packet_syncConsole:send_to_all(name, input)
+    end
 
     fn(cmd)
 end)
