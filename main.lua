@@ -2,7 +2,7 @@
 
 __DEACTIVATE_OLD = true -- DEBUG
 
-PATH                = _ENV["!plugins_mod_folder_path"]
+PATH                = _ENV["!plugins_mod_folder_path"]  ---@type string Path to ReturnsAPI mod folder.
 RAPI_NAMESPACE      = "rapi"        -- Namespace for ReturnsAPI that is used internally
 PERMANENT_NAMESPACE = "__permanent" -- Namespace for ReturnsAPI for internal callbacks that persist on hotload
 

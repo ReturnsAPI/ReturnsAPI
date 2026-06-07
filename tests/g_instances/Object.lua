@@ -59,4 +59,10 @@ return function()
     local obj2 = Object.new(RAPI_NAMESPACE, "myObject2")
     Tests.assert(obj2.value > Object.CUSTOM_START, true)
     Tests.assert(obj ~= obj2, true)
+
+    -- :set_sprite
+    local spr = gm.constants.sWispIdle
+    obj:set_sprite(spr)
+    Tests.assert(gm.object_get_sprite_w(obj.value), spr)
+    Tests.assert(obj.obj_sprite, spr)
 end

@@ -439,7 +439,7 @@ W.Object = {
         if index then
             if value < Object.CUSTOM_START then
                 if index == Object.Property.OBJ_DEPTH  then return gm.object_get_depth(value) end
-                if index == Object.Property.OBJ_SPRITE then return gm.object_get_sprite(value) end
+                if index == Object.Property.OBJ_SPRITE then return gm.object_get_sprite_w(value) end
                 return vanilla_properties[value][index + 1]
             end
             return t.properties:get(index)

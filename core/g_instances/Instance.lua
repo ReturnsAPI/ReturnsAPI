@@ -59,8 +59,19 @@ Destroys an instance, or all instances of an object.
 ]]
 ---@param inst number | Instance | Object The instance to destroy, or object index.
 Instance.destroy = function(inst)
+    inst = unwrap(inst)
     if not inst then return end
-    gm.instance_destroy(unwrap(inst))
+    if type(inst) == "number" then
+        -- Destroy all instances of a custom object
+        if inst >= Object.CUSTOM_START and inst < 100000 then
+            local n = gm._mod_instance_number(inst)
+            for i = 1, n do
+                gm.instance_destroy(gm._mod_instance_find(inst, 1))
+            end
+            return
+        end
+    end
+    gm.instance_destroy(inst)
 end
 
 --[[
@@ -126,8 +137,7 @@ end
 
 --[[
 Returns the instance of the given object nearest to the specified position, <br>
-or `nil` if none are found. <br>
-Works with custom objects too.
+or `nil` if none are found.
 ]]
 ---@param x number The x coordinate to check from.
 ---@param y number The y coordinate to check from.
@@ -135,9 +145,9 @@ Works with custom objects too.
 ---@return Instance
 Instance.nearest = function(x, y, object)
     object = unwrap(object)
-    if not x      then throw("x is invalid") end
-    if not y      then throw("y is invalid") end
-    if not object then throw("object is invalid") end
+    if not x      then throw("x is nil") end
+    if not y      then throw("y is nil") end
+    if not object then throw("object is nil") end
     return gm._mod_instance_nearest(object, x, y)
 end
 

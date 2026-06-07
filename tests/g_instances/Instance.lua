@@ -133,12 +133,52 @@ return function()
     local inst = gm.instance_create(100, 100, obj.value)
     Tests.assert(inst:get_object_index(), obj.value)
     local inst2 = gm.instance_create(100, 100, obj2.value)
-    Tests.assert(Instance.count(obj), 1)
+    Tests.assert(Instance.count(obj),  1)
     Tests.assert(Instance.count(obj2), 1)
-    Instance.destroy(obj)
+    Instance.destroy(obj) -- Tests destroy for custom objects
+    Tests.assert(Instance.count(obj),  0)
     Tests.assert(Instance.count(obj2), 1) -- Make sure they are treated as separate objects
                                           -- even though they have the same base object
     Instance.destroy(obj2)
-    
-    -- TODO test collisions with custom objs
+
+    -- :is_colliding, :get_collisions
+    local inst1 = Instance.create(100, 100, gm.constants.oLizard)
+    local inst2 = Instance.create(100, 100, obj)
+    local inst3 = Instance.create(100, 100, obj)
+    Tests.assert(inst1:is_colliding(obj), true)
+    Tests.assert(inst1:is_colliding(inst2), true)
+    Tests.assert(#inst1:get_collisions(obj), 2)
+    inst2.x = 200
+    Tests.pause_for(1)
+    Tests.assert(inst1:is_colliding(inst2), false)
+    Tests.assert(#inst1:get_collisions(obj), 1)
+    inst2.x = 100
+    Tests.pause_for(1)
+    Tests.assert(inst2:is_colliding(inst3), true) -- Custom collision with another custom
+    Tests.assert(#inst2:get_collisions(obj), 1)
+    Instance.destroy(obj)
+    Instance.destroy(gm.constants.oLizard)
+    Tests.pause_for(1)
+
+    -- :get_collisions_rectangle, :get_collisions_circle
+    local inst1 = Instance.create(0, 0, gm.constants.oLizard)
+    for i = 1, 10 do Instance.create(i * 32, 0, obj) end
+    local count = 5
+
+    -- Vanilla collision with custom
+    local t = inst1:get_collisions_rectangle(obj, 0, -10, count * 32, 10)
+    Tests.assert(#t, count)
+    local t = inst1:get_collisions_circle(obj, count * 32)
+    Tests.assert(#t, count)
+
+    -- Custom collision with custom
+    local inst2 = Instance.create(0, 0, obj)
+    local t = inst2:get_collisions_rectangle(obj, 0, -10, count * 32, 10)
+    Tests.assert(#t, count)
+    local t = inst2:get_collisions_circle(obj, count * 32)
+    Tests.assert(#t, count)
+
+    Instance.destroy(obj)
+    Instance.destroy(gm.constants.oLizard)
+    Tests.pause_for(1)
 end
