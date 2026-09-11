@@ -58,6 +58,22 @@ run_once(function()
 end)
 
 
+-- ========== Helper ==========
+
+-- Recursive parsing of a json-like Lua table
+local function parse_keys(map, t, key)
+    if not t then return end
+    for k, v in pairs(t) do
+        local newkey = key
+        if not newkey then newkey = k
+        else newkey = newkey.."."..k
+        end
+        if type(v) == "table" then parse_keys(map, v, newkey)
+        else map:set(newkey, tostring(v))
+        end
+    end
+end
+
 
 -- ========== Static Methods ==========
 
@@ -79,26 +95,15 @@ Language.register_autoload = function(env)
 end
 
 
+--@static
+--@return       nil
+--@param        folder_path  | string | The language folder to load.
+--[[
+Loads language files from the specified folder
 
--- ========== Functions ==========
-
--- Recursive parsing of a json-like Lua table
-local function parse_keys(map, t, key)
-    if not t then return end
-    for k, v in pairs(t) do
-        local newkey = key
-        if not newkey then newkey = k
-        else newkey = newkey.."."..k
-        end
-        if type(v) == "table" then parse_keys(map, v, newkey)
-        else map:set(newkey, tostring(v))
-        end
-    end
-end
-
-
--- Loads language files from a mod's "language" folder
-local function load_from_folder(folder_path)
+Use this when language needs to be applied to content which is generated post initilization.
+]]
+Language.load_from_folder = function(folder_path)
     -- Get current language name
     -- and `_language_map`
     local language = gm._mod_language_getLanguageName()
@@ -157,6 +162,9 @@ local function load_from_folder(folder_path)
 end
 
 
+
+-- ========== Functions ==========
+
 -- Loads language files from all registered mods
 local function load_from_mods()
     -- Loop through registered mods
@@ -166,7 +174,7 @@ local function load_from_mods()
         local folders = path.get_directories(env["!plugins_mod_folder_path"])
         for k, folder_path in ipairs(folders) do
             if path.filename(folder_path):lower() == "language" then
-                load_from_folder(folder_path)
+                Language.load_from_folder(folder_path)
             end
         end
 
@@ -174,13 +182,13 @@ local function load_from_mods()
 end
 
 
-
 -- ========== Hooks ==========
 
 Hook.add_post(RAPI_NAMESPACE, gm.constants.translate_load_active_language, Callback.internal.FIRST, function(self, other, result, args)
-    load_from_folder(PATH.."language")  -- RAPI internal language files
+    Language.load_from_folder(PATH.."language")  -- RAPI internal language files
     load_from_mods()
 end)
+
 
 
 

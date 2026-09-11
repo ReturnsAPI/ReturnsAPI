@@ -1,3 +1,6 @@
+### v0.1.59
+- Language:`load_from_folder` : Exposed as a public static method
+
 ### v0.1.58
 - Instance : Clear wrapper cache on room change
 
