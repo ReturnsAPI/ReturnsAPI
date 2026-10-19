@@ -170,7 +170,7 @@ ModOptions.internal.toggle_header_options = function(options, i, header_name)
         repeat j = j + 1
         until j > #o or (__proxy[o[j]].constructor().name):sub(1, #prefix) ~= prefix
 
-        Alarm.add("options_restore", 1, function()
+        Alarm.add_nopause("options_restore", 1, function()
             ModOptions.internal.header_insert_options(options, o, i, k, j-1, header_name)
         end)
     else 
@@ -179,7 +179,7 @@ ModOptions.internal.toggle_header_options = function(options, i, header_name)
         repeat j = j + 1
         until i+j > #options or (options[i+ j].name):sub(1, #prefix) ~= prefix
 
-        Alarm.add("options_delete", 1, function()
+        Alarm.add_nopause("options_delete", 1, function()
             gm.array_delete(options, i, j - 1)
         end)
     end 
@@ -501,19 +501,13 @@ gm.post_code_execute("gml_Object_oOptionsMenu_Other_11", function(self, other)
         return gm.translate(a.namespace..".header") < gm.translate(b.namespace..".header")
     end)
     
-
     -- Insert ReturnsAPI header at the front
     table.insert(ordered, 1, __mod_options_headers[RAPI_NAMESPACE])
-    local index = 2
-
-    -- Loop through sorted headers and add elements
+    
+    -- Loop through sorted headers and add ONLY the main headers (leaving options folded)
     for _, data_table in ipairs(ordered) do
-        -- Header
         local header = Struct.new(gm.constants.UIOptionsGroupHeader, data_table.namespace..".header").value
         gm.array_push(tab, header)
-        index = index + 1
-
-        index = ModOptions.internal.header_insert_options(tab, data_table.elements.ordered, index)
     end
 end)
 
@@ -544,6 +538,7 @@ gm.post_script_hook(gm.constants.ui_options_draw_tooltip, function(self, other, 
     local ii = 0
     local options = self.menu_pages[3].options
 
+    -- hide draws outside of the options
     gm.ui_draw_clip_set(opt_x_start + 2, opt_y_start + 8, opt_width_margin + 2, opt_height_total - 16)
     for i = 1, #options do
         local option_y = y + opt_y
