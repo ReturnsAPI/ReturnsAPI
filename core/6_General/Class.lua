@@ -196,7 +196,7 @@ for name_rapi, name_global in pairs(class_name_r2g) do
         local elements = {}
         local find_cache = __class_find_caches[name_global]
 
-        for id = 0, #find_cache - 1 do
+        for id = 0, #find_cache do
             local element_table = find_cache:get(id)
             if element_table.array:get(property) == filter then
                 table.insert(elements, element_table.wrapper)
