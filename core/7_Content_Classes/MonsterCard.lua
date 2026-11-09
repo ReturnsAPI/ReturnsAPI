@@ -167,7 +167,7 @@ Util.table_append(methods_content_class["MonsterCard"], {
 
         -- Set default dissonance type
         local dissonance_list = is_boss and Global._dissonance_monster_card_list_boss or Global._dissonance_monster_card_list_basic
-        if not dissonance_list:contains(self.value) and not hotloaded then
+        if not dissonance_list:contains(self.value) then
             dissonance_list:add(self.value)
         end
     end,
