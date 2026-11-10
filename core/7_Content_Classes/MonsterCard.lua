@@ -21,6 +21,25 @@ CAN_BE_BLIGHTED     8
 ]]
 
 
+--@enum
+MonsterCard.SpawnType = {
+    CLASSIC = 0,
+    NEARBY = 1,
+    OFFSCREEN = 2,
+    ORIGIN = 3
+}
+
+
+--@enum
+MonsterCard.DissonanceType = {
+    BASIC = 1,
+    STRONG = 2,
+    BOSS = 3,
+    NONE = 4
+}
+
+
+
 
 -- ========== Properties ==========
 
@@ -128,5 +147,58 @@ Util.table_append(methods_content_class["MonsterCard"], {
     --[[
     Prints the monster card's properties.
     ]]
+
+
+    --@instance
+    --@return       Instance
+    --@param        object      | Object    | The object to set.
+    --[[
+    Assigns a monster to the card, accounting for boss monsters.
+    ]]
+    set_object = function(self, object)
+        if not object then log.error("set_object: object is not provided", 2) end
+
+        object = Wrap.unwrap(object)
+        self.object_id = object
+    
+        -- Set is_boss if object_id is a boss type
+        local is_boss = gm.actor_is_boss(object)
+        self.is_boss = is_boss
+
+        -- Set default dissonance type
+        local dissonance_list = is_boss and Global._dissonance_monster_card_list_boss or Global._dissonance_monster_card_list_basic
+        if not dissonance_list:contains(self.value) then
+            dissonance_list:add(self.value)
+        end
+    end,
+
+
+    --@instance
+    --@param    dissonance_type | number    | The `MonsterCard.DissonanceType` to set the card to.
+    --[[
+    Adds the monster card to the corresponding dissonance list.
+    ]]
+    set_dissonance_type = function(self, dissonance_type)
+        if not dissonance_type then log.error("set_dissonance: dissonance type is not provided", 2) 
+        elseif type(dissonance_type) ~= "number"
+        or dissonance_type > 4 or dissonance_type < 1 then
+            log.error("set_dissonance: dissonance type is invalid", 2) 
+        end
+        
+        local dissonance_lists = {
+            Global._dissonance_monster_card_list_basic,
+            Global._dissonance_monster_card_list_strong,
+            Global._dissonance_monster_card_list_boss
+        }
+        for dissonance_index, dissonance_list in ipairs(dissonance_lists) do
+            if dissonance_index ~= dissonance_type then
+                if dissonance_list:contains(self.value) then
+                    dissonance_list:delete_value(self.value)
+                end
+            elseif not dissonance_list:contains(self.value) then
+                dissonance_list:add(self.value)
+            end
+        end
+    end,
 
 })
