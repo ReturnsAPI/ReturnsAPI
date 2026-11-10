@@ -1,8 +1,14 @@
+### v0.1.61
+- MonsterCard : 
+    - Add `set_object`
+    - Add `set_dissonance_type`
+        - Artifact of Dissonance monster card lists are now populated when using these functions
+
 ### v0.1.60
 - ModOptions: 
-    - Fixed headers not being interactable in in-run settings menu
+    - Fix headers not being interactable in in-run settings menu
     - Switched to collapsed headers by default (this might see a change or updates for keyboard/controller accessibility)
-- Class: Fixed `find_all` ignoring the last index of a class array when using non namespace property. As a result lootpools created from a tier are no longer missing the last item
+- Class: Fix `find_all` ignoring the last index of a class array when using non namespace property. As a result lootpools created from a tier are no longer missing the last item
 
 ### v0.1.59
 - Language:`load_from_folder` : Exposed as a public static method
